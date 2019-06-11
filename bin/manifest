@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 image-name"
+  exit 1
+fi
+
+IMAGENAME=$1
+
+cat images/$IMAGENAME/manifest.json | python3 -m json.tool

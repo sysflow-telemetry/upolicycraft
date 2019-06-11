@@ -1,0 +1,23 @@
+#!/usr/bin/env bash 
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 image-name"
+  exit 1
+fi
+
+IMAGENAME=$1
+TARNAME=$1.tar
+
+docker save $IMAGENAME > images/$TARNAME
+
+pushd images 
+
+mkdir -p $IMAGENAME
+
+pushd $IMAGENAME
+
+tar -xf ../$TARNAME
+
+popd
+
+popd

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash 
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 image-name"
+  exit 1
+fi
+
+IMAGENAME=$1
+
+CONFIG=$(cat images/${IMAGENAME}/manifest.json | jq ".[0].Config")
+
+temp="${CONFIG%\"}"
+temp="${temp#\"}"
+CONFIG=${temp}
+
+cat images/${IMAGENAME}/${CONFIG} | python3 -m json.tool
