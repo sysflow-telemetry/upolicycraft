@@ -113,9 +113,9 @@ to stdout and stderr, respectively.
                                                                 ^------------  Contained in the bottom layer
 
 The DockerHub image of nginx also contains nginx-debug, which can be configured
-to log debug information to the logs. I'm unsure this would cause any security
-concerns if an adversary compromised the system (why would enabling logging
-help them if they control the system?).
+to log debug information. I'm unsure this would cause any security concerns if
+an adversary compromised the system (why would enabling logging help them if
+they already control the system?).
 
 ## Files Relevant to the Entry Point
 
