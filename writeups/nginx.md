@@ -85,11 +85,11 @@ We can iterate over the layers given in an image starting with the manifest
 file. The list of layers contained in the "Layers" attribute appear ordered
 from bottom to top. The following are the layers contained in the nginx image.
 
-  "Layers": [
-    "a463b6f8359c7ecbbea7459ce4250c631057170989213e27d928b30f16d19b82/layer.tar",
-    "531ffb108b7ab61937380949c17ad7cbcc4aa8956b35cdd6825df6de37a7bd74/layer.tar",
-    "d4bb1266156923f59e1e53c9a15659975c57474e1ba90f1b4943e73d1c363f43/layer.tar"
-  ]
+    "Layers": [
+      "a463b6f8359c7ecbbea7459ce4250c631057170989213e27d928b30f16d19b82/layer.tar",
+      "531ffb108b7ab61937380949c17ad7cbcc4aa8956b35cdd6825df6de37a7bd74/layer.tar",
+      "d4bb1266156923f59e1e53c9a15659975c57474e1ba90f1b4943e73d1c363f43/layer.tar"
+    ]
 
 The first layer in this image contains the filesystem of a Debian system, the
 second layer contains nginx and its configuration, and the third layer contains
