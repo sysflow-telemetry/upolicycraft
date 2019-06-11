@@ -145,6 +145,5 @@ they already control the system?).
     /var/cache/nginx/uwsgi_temp
     /var/cache/nginx/scgi_temp
 
-We could imagine one defense would be to restrict reads to only the files given
-here and the library dependencies, and from any volumes attached to the
-container.
+We could imagine one defense would restrict reads to only the files given here,
+library dependencies, and any volumes attached to the container.
