@@ -1,0 +1,25 @@
+#!/usr/bin/env bash 
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 image-name"
+  exit 1 
+fi
+
+IMAGENAME=$1
+LAYERS=$(manifest ${IMAGENAME} | jq ".[0].Layers")
+N=$(echo ${LAYERS} | jq "length")
+
+let N=N-1
+
+for L in $(seq 0 ${N}); 
+do
+  LAYER=$(echo $LAYERS | jq ".[${L}]")
+
+  temp="${LAYER%\"}"
+  temp="${temp#\"}"
+  LAYER=${temp}
+
+  FOLDER=$(echo ${LAYER} | awk -F '/' '{print $1}')
+
+  archivemount ./images/${IMAGENAME}/${LAYER} ./layers/${L}
+done

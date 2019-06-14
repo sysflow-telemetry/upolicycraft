@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 path-to-file"
+  exit 1
+fi
+
+strings $1 | grep -oh "/[0-9a-zA-Z^/\.\*]\+" 

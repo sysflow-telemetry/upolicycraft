@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 image-name"
+  exit 1
+fi
+
+config $1 | jq ".history[-1].created_by" | awk -F CMD '{print $NF}' | sed 's/"$//' | sed 's/\[//' | sed 's/]//' | awk '{print $1}' | sed 's/\\"//g'

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash 
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 path-to-binary"
+  exit 1
+fi
+
+readelf -d $1 | grep "Shared library" | awk '{print $5}' | xargs -I % sh -c 'echo % | cut -d "[" -f 2 | cut -d "]" -f 1'
