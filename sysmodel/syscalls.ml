@@ -2,55 +2,57 @@ open Core_kernel.Std
 open Bap.Std
 open Graphlib.Std
 open Format
-open List
 open Pervasives
 
 include Self()
 
-let syscalls insns =
+let count_syscalls insns =
   Seq.filter insns (fun p ->
     let bil = (Insn.bil (snd p)) in
       (List.length (List.filter bil (fun stmt -> match stmt with
                                          | Special s -> s = "syscall"
                                          | _ -> false)) > 0))
 
-let syscalls1 insns =
-  let acc = (fun (rax, syscalls) (mem, i) ->
+(** Collect the set of syscalls given in a run of instructions. *)
+let collect_syscalls insns =
+  let step = (fun (rax, syscalls) stmt -> match stmt with
+               | Bil.Move (v, e) ->
+                  let name = Var.name v in
+                    (match name with
+                      | "RAX" ->
+                        let imm = Exp.eval e in
+                          (match imm with
+                            | Imm word ->
+                              match Bitvector.to_int word with
+                                | Error _ -> (rax, syscalls)
+                                | Ok i -> (i, syscalls)
+                            | _ -> (rax, syscalls))
+                      | _ -> (rax, syscalls))
+                | Bil.Special s ->
+                  if s = "syscall" then
+                    (rax, (Set.add syscalls rax))
+                  else
+                    (rax, syscalls)
+                | _ -> (rax, syscalls)) in
+  let acc = (fun res (mem, i) ->
     let bil = (Insn.bil i) in
-    let stmt :: [] = bil in
-      match stmt with
-        |  Move (v, e) ->
-          let name = Var.name v in
-            (match name with
-              | "rax" ->
-                let imm = Exp.eval e in
-                  (match imm with
-                    | Imm word ->
-                      match Bitvector.to_int word with
-                        | Error _ -> (rax, syscalls)
-                        | Ok i -> (i, syscalls)
-                    | _ -> (rax, syscalls))
-              | _ -> (rax, syscalls))
-        | Special s ->
-          if s = "syscall" then
-            (rax, (Set.add syscalls rax))
-          else
-            (rax, syscalls)) in
-  let xs = Seq.to_list insns in
-  List.fold_left xs (0, (Set.empty Int.comparator)) acc
+      match bil with
+        | [] -> res
+        | stmt :: _ -> (step res stmt)) in
+  Seq.fold ~init:(0, (Set.empty Int.comparator)) ~f:acc insns |> snd |> Set.to_list |> Seq.of_list
 
 let main proj =
   let disasm = Project.disasm proj in
   let insns = Disasm.insns disasm in
   let symtab = Project.symbols proj in
+  let () = printf "System Calls:\n" in
   Seq.iter (Symtab.to_sequence symtab) (fun (name, block, _) ->
-    let () = printf "Function %s\n" name in
+    let () = printf "%4s %s\n" "Function" name in
     let mem = Block.memory block in
     let disasm = Disasm.of_mem (Project.arch proj) mem in
       match disasm with
         | Error er -> printf "<failed to disassemble memory region>"
         | Ok dis ->
-        let n = Disasm.insns dis |> syscalls |> Seq.length in
-          printf "Contains %d syscalls\n" n)
+          Disasm.insns dis |> collect_syscalls |> Seq.iter ~f:(fun s -> printf "%6d\n" s))
 
 let () = Project.register_pass' main
