@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Get all the symbols imported into the binary.
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 file"
+  exit 1
+fi
+
+rabin2 -i $1  | grep ordinal | awk '{print $5}' | awk -F"=" '{print $2}'

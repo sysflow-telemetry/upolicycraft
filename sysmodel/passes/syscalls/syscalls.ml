@@ -6,6 +6,7 @@ open Pervasives
 
 include Self()
 
+(** Count the number of syscalls given in a run of instructions. *)
 let count_syscalls insns =
   Seq.filter insns (fun p ->
     let bil = (Insn.bil (snd p)) in
@@ -39,11 +40,15 @@ let collect_syscalls insns =
       match bil with
         | [] -> res
         | stmt :: _ -> (step res stmt)) in
-  Seq.fold ~init:(0, (Set.empty Int.comparator)) ~f:acc insns |> snd |> Set.to_list |> Seq.of_list
+  Seq.fold ~init:(0, (Set.empty Int.comparator)) ~f:acc insns
+      |> snd |> Set.to_list |> Seq.of_list
 
 let main proj =
+  let () = printf "Creating project" in
   let disasm = Project.disasm proj in
+  let () = printf "Disassembling code" in
   let insns = Disasm.insns disasm in
+  let () = printf "Finding symbols" in
   let symtab = Project.symbols proj in
   let () = printf "System Calls:\n" in
   Seq.iter (Symtab.to_sequence symtab) (fun (name, block, _) ->
@@ -53,6 +58,7 @@ let main proj =
       match disasm with
         | Error er -> printf "<failed to disassemble memory region>"
         | Ok dis ->
-          Disasm.insns dis |> collect_syscalls |> Seq.iter ~f:(fun s -> printf "%6d\n" s))
+          Disasm.insns dis
+            |> collect_syscalls |> Seq.iter ~f:(fun s -> printf "%6d\n" s))
 
 let () = Project.register_pass' main
