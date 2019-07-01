@@ -1,4 +1,8 @@
-dockertool
-==========
+sf-model
+========
 
-A set of bash scripts for disassembling docker images.
+Generating SysFlow Models from Container Binaries
+
+Tutorial:
+
+    https://github.com/BinaryAnalysisPlatform/bap-tutorial
