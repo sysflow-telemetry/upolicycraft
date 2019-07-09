@@ -13,5 +13,4 @@ ENTRYPOINT=$2
 bap $PROGRAM --run \
        --run-entry-points="${ENTRYPOINT}" \
        --primus-limit-max-length=8192 \
-       --primus-syscall-observations all \
-       --dump=bir:result.out
+       --primus-syscall-observations1 all

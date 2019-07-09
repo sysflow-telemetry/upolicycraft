@@ -14,22 +14,13 @@ module Param = struct
     `P "Monitors a Lisp Machine execution."
   ]
 
-  let monitors = param (list string) "observations"
+  let monitors = param (list string) "observations1"
       ~doc:
         "A list of observations to print. A keyword `all` can be use to
       select all events. To ignore a particular event, add `-' before
       the name. An optional + is allowed for the consistency."
 
-  let output = param (some string) "output"
-      ~doc: "A name of a file in which to store the monitor output. If
-      not specified, then outputs result into stdout"
-
   let rules = param (list string) "rules"
-
-  let traceback = param (some int) ~as_flag:(Some 16) "traceback"
-      ~doc: "Stores and outputs a trace of execution. Takes an
-      optional argument that limits the traceback length to the
-      specified number of terms."
 end
 
 let starts_with name x =
@@ -41,7 +32,9 @@ let strip name =
   else name
 
 let has_name name p =
-  Primus.Observation.Provider.name p = name
+  let pname = Primus.Observation.Provider.name p in
+  let () = printf "Provider: %s\n" pname in
+    pname = name
 
 let remove_provider name = List.filter ~f:(Fn.non (has_name name))
 
@@ -92,6 +85,7 @@ let print_trace ppf = List.iter ~f:(print_pos ppf)
 
 type state = {
   trace : Primus.pos list;
+  syscalls : int;
 }
 
 
@@ -141,33 +135,30 @@ let setup_rules_processor out rules =
         (List.iter ~f:(fprintf out "%a@\n%!" Sexp.pp_hum)))
 
 let state = Primus.Machine.State.declare
-    ~name:"primus-debug"
-    ~uuid:"c4696d2f-5d8e-42b4-a64c-4ea6269ce9d1"
-    (fun _ -> {trace = []})
+    ~name:"primus-syscall"
+    ~uuid:"c4696d2f-5d8e-42b4-a65c-4ea6269ce9d1"
+    (fun _ -> {trace = []; syscalls = 0})
 
 let start_monitoring {Config.get=(!)} =
-  let out = match !Param.output with
-    | None -> std_formatter
-    | Some name -> formatter_of_out_channel (Out_channel.create name) in
+  let out = std_formatter in
   setup_rules_processor out !Param.rules;
   let module Monitor(Machine : Primus.Machine.S) = struct
     open Machine.Syntax
 
     let record_trace p =
       Machine.Local.update state ~f:(fun s ->
-          {trace = p :: s.trace})
+        {trace = p :: s.trace; syscalls = 0})
 
     let print_trace () =
-      Machine.Local.get state >>| fun {trace} ->
-      print_trace out trace
+      Machine.Local.get state >>| fun {trace;syscalls} ->
+        fprintf out "syscalls %d\n" syscalls
+        (** print_trace out trace; *)
 
     let setup_tracing () =
-      if Option.is_some !Param.traceback
-      then Machine.List.sequence [
+      Machine.List.sequence [
           Primus.Interpreter.enter_pos >>> record_trace;
           Primus.Machine.finished >>> print_trace;
-        ]
-      else Machine.return ()
+      ]
 
     let init () =
       setup_tracing () >>= fun () ->
