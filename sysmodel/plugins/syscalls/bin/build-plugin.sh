@@ -16,8 +16,7 @@ fi
 bapbundle update -desc "$DESC" $plugin.plugin
 bapbundle update -name ${PLUGIN} $plugin.plugin
 
-mv $plugin.plugin $1.plugin
-bapbundle install $1.plugin
+bapbundle install $plugin.plugin
 cd -
 rm -rf $TMPDIR
 
