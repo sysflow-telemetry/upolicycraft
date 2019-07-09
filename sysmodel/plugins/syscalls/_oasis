@@ -1,0 +1,21 @@
+OASISFormat: 0.4
+Name:        bap
+Version:     0.1
+Synopsis:    BAP SysCall Detector
+Authors:     Will Blair
+License:     MIT
+Copyrights:  (C) 2019 IBM
+Plugins:     META (0.4), DevFiles (0.4)
+BuildTools: ocamlbuild, camlp4o
+
+BuildDepends: ppx_jane, core_kernel (>= v0.11 && < v0.12)
+
+Library primus_syscall_plugin
+  Path: .
+  FindlibName: bap-plugin-primus_syscall
+  CompiledObject: best
+  BuildDepends: bap-primus, bare
+  XMETADescription: Print syscalls detected by Primus
+  Modules: Primus_syscall_main
+  XMETAExtraLines: tags="primus, syscall"
+

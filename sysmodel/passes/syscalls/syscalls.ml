@@ -11,23 +11,27 @@ let count_syscalls insns =
   Seq.filter insns (fun p ->
     let bil = (Insn.bil (snd p)) in
       (List.length (List.filter bil (fun stmt -> match stmt with
-                                         | Special s -> s = "syscall"
+                                         | Bil.Special s -> s = "syscall"
                                          | _ -> false)) > 0))
+
 
 (** Collect the set of syscalls given in a run of instructions. *)
 let collect_syscalls insns =
   let step = (fun (rax, syscalls) stmt -> match stmt with
                | Bil.Move (v, e) ->
                   let name = Var.name v in
+                  let () = printf "%s\n" name in
                     (match name with
                       | "RAX" ->
                         let imm = Exp.eval e in
                           (match imm with
-                            | Imm word ->
-                              match Bitvector.to_int word with
+                            | Bil.Imm word ->
+                              (match Bitvector.to_int word with
                                 | Error _ -> (rax, syscalls)
-                                | Ok i -> (i, syscalls)
-                            | _ -> (rax, syscalls))
+                                | Ok i -> (i, syscalls))
+                            | Bil.Mem storage -> let () = printf "Mem!\n"  in
+                              (rax, syscalls)
+                            | Bil.Bot -> (rax, syscalls))
                       | _ -> (rax, syscalls))
                 | Bil.Special s ->
                   if s = "syscall" then
@@ -45,10 +49,6 @@ let collect_syscalls insns =
 
 let main proj =
   let () = printf "Creating project" in
-  let disasm = Project.disasm proj in
-  let () = printf "Disassembling code" in
-  let insns = Disasm.insns disasm in
-  let () = printf "Finding symbols" in
   let symtab = Project.symbols proj in
   let () = printf "System Calls:\n" in
   Seq.iter (Symtab.to_sequence symtab) (fun (name, block, _) ->

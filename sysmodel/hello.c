@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "mylibc.h"
+
 void hello_world() {
-    printf("Hello World!\n");
+    myputs("Hello World!\n");
 }
 
 int main(int argc, char *argv[]) {
     hello_world();
-    exit(1);
+    myexit(1);
 }
