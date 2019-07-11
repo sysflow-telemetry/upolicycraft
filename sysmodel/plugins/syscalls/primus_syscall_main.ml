@@ -151,7 +151,7 @@ let start_monitoring {Config.get=(!)} =
 
     let print_trace () =
       Machine.Local.get state >>| fun {trace;syscalls} ->
-        fprintf out "syscalls %d\n" syscalls;
+        fprintf out "syscalls %d\n" syscalls
         (** print_trace out trace; *)
 
     let setup_tracing () =
