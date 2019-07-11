@@ -38,6 +38,10 @@ let has_name name p =
 
 let remove_provider name = List.filter ~f:(Fn.non (has_name name))
 
+let show_providers out =
+  Primus.Observation.list_providers () |>
+  List.iter ~f:(fun p -> fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
+
 let monitor_provider name ps =
   Primus.Observation.list_providers () |>
   List.find ~f:(has_name name) |> function
@@ -134,6 +138,14 @@ let setup_rules_processor out rules =
       Stream.observe facts
         (List.iter ~f:(fprintf out "%a@\n%!" Sexp.pp_hum)))
 
+let address_of_pos out p =
+  match (Primus.Pos.get address p) with
+    | None -> fprintf out "No address!"
+    | Some addr -> let opt = Bitvector.to_int addr in
+      (match opt with
+        | Ok v -> fprintf out "SYSFLOW: Cursor at %#08x\n" v
+        | Error s -> fprintf out "Error converting int!\n")
+
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
     ~uuid:"c4696d2f-5d8e-42b4-a65c-4ea6269ce9d1"
@@ -141,21 +153,38 @@ let state = Primus.Machine.State.declare
 
 let start_monitoring {Config.get=(!)} =
   let out = std_formatter in
+  let () = show_providers out in
   setup_rules_processor out !Param.rules;
   let module Monitor(Machine : Primus.Machine.S) = struct
     open Machine.Syntax
 
+    let record_def t =
+      let lhs = Def.lhs t in
+      let reg = Var.name lhs in
+      let value = t |> Def.rhs |> Exp.normalize |> Exp.simpl |> Exp.to_string in
+      let () = fprintf out "SYSFLOW: %s := %s\n" reg value in
+      Machine.return()
+
     let record_trace p =
       Machine.Local.update state ~f:(fun s ->
+        let () = address_of_pos out p in
         {trace = p :: s.trace; syscalls = 0})
+
+    let record_exp e =
+      Machine.return () >>| fun m ->
+        let exp = e (** Exp.simpl e *) (**(Exp.simpl (Exp.normalize e))  *) in
+          match exp with
+            | Bil.Unknown (x, typ) -> fprintf out "Unknown: %s\n" x
+            | e -> fprintf out "Expression\n"
 
     let print_trace () =
       Machine.Local.get state >>| fun {trace;syscalls} ->
-        fprintf out "syscalls %d\n" syscalls
-        (** print_trace out trace; *)
+        fprintf out "syscalls %d\n" syscalls;
+        print_trace out trace
 
     let setup_tracing () =
       Machine.List.sequence [
+          Primus.Interpreter.enter_def >>> record_def;
           Primus.Interpreter.enter_pos >>> record_trace;
           Primus.Machine.finished >>> print_trace;
       ]
