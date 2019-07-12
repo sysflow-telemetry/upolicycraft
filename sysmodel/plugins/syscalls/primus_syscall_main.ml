@@ -28,8 +28,9 @@ let show_providers out =
 *)
 
 type state = {
-    syscall_addresses : int list;
-    syscall_values : int list;
+    addresses : int list;
+    values : int list;
+    registers : (int * string) list;
 }
 
 module SS = Set.Make(String);;
@@ -50,7 +51,7 @@ let address_of_pos out p =
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
     ~uuid:"c4696d2f-5d8e-42b4-a65c-4ea6269ce9d1"
-    (fun _ -> {syscall_addresses = []; syscall_values = []})
+    (fun _ -> {addresses = []; values = []; registers = []})
 
 let collect_syscalls insns =
   let detect_syscall = (fun (mem, i) ->
@@ -68,13 +69,16 @@ let collect_syscalls insns =
                       | Error err -> -1)
 
 (** Instructions: 0f 05 *)
-let syscall_length = 2
+let length = 2
 
 let start_monitoring {Config.get=(!)} =
   let out = std_formatter in
   let module Monitor(Machine : Primus.Machine.S) = struct
     open Machine.Syntax
 
+    (**
+      You can fetch the value of an expression by implementing an Exp.visitor
+    *)
     let record_def t =
       let lhs = Def.lhs t in
       let reg = Var.name lhs in
@@ -83,18 +87,18 @@ let start_monitoring {Config.get=(!)} =
       Machine.return()
 
     let record_pos p =
-      Machine.Global.update state ~f:(fun {syscall_addresses;syscall_values} ->
+            Machine.Global.update state ~f:(fun {addresses;values;registers} ->
         let a = address_of_pos out p in
         let () = fprintf out "Visiting addr at %x\n" a in
         let hits = List.filter ~f:(fun sa ->
                 let () = fprintf out "Checking %x = %x\n" sa a in
-                a = (sa + syscall_length)) syscall_addresses in
-        {syscall_addresses=syscall_addresses; syscall_values= List.append hits syscall_values})
+                a = (sa + length)) addresses in
+        {addresses=addresses; values=List.append hits values; registers})
 
     let print_syscalls () =
-      Machine.Global.get state >>| fun {syscall_values} ->
+      Machine.Global.get state >>| fun {values} ->
         fprintf out "Hit System Calls\n";
-        List.iter ~f:(fun s -> fprintf out "%x\n" s) syscall_values
+        List.iter ~f:(fun s -> fprintf out "%x\n" s) values
 
     let setup_tracing () =
       Machine.List.sequence [
@@ -120,7 +124,7 @@ let start_monitoring {Config.get=(!)} =
                 let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
                 let () = fprintf out "Setting up state!" in
                   Machine.Global.update state ~f:(fun s ->
-                    {syscall_addresses = Seq.to_list syscalls; syscall_values = []})
+                    {addresses = Seq.to_list syscalls; values = []; registers = []})
   end in
   Primus.Machine.add_component (module Monitor)
 
