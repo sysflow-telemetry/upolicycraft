@@ -14,7 +14,6 @@ let count_syscalls insns =
                                          | Bil.Special s -> s = "syscall"
                                          | _ -> false)) > 0))
 
-
 (** Collect the set of syscalls given in a run of instructions. *)
 let collect_syscalls insns =
   let step = (fun (rax, syscalls) stmt -> match stmt with

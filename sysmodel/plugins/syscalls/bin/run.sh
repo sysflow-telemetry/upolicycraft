@@ -13,4 +13,4 @@ ENTRYPOINT=$2
 bap $PROGRAM --run \
        --run-entry-points="${ENTRYPOINT}" \
        --primus-limit-max-length=8192 \
-       --primus-syscall-observations1 all
+       --primus-syscall-identify true
