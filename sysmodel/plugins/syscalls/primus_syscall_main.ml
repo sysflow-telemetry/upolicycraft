@@ -24,13 +24,21 @@ end
 
 let show_providers out =
   Primus.Observation.list_providers () |>
-  List.iter ~f:(fun p -> fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
+  List.iter ~f:(fun p ->
+    fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
 *)
 
+(**
+ *  addrs: The addresses of syscall instructions in the binary.
+ *  vals: An assoc list that stores the concrete value of RAX
+ *        at each system call address.
+ *  regs: An assoc list that stores the definition of all regs
+ *        during the execution of the binary.
+ **)
 type state = {
-    addresses : int list;
-    values : int list;
-    registers : (int * string) list;
+    addrs : int list;
+    vals : (int * int) list;
+    regs : (string * int) list;
 }
 
 module SS = Set.Make(String);;
@@ -51,7 +59,7 @@ let address_of_pos out p =
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
     ~uuid:"c4696d2f-5d8e-42b4-a65c-4ea6269ce9d1"
-    (fun _ -> {addresses = []; values = []; registers = []})
+    (fun _ -> {addrs = []; vals = []; regs = []})
 
 let collect_syscalls insns =
   let detect_syscall = (fun (mem, i) ->
@@ -61,44 +69,56 @@ let collect_syscalls insns =
         | stmt :: _ -> (match stmt with
                           | Bil.Special s -> true
                           | _ -> false)) in
-  Seq.filter ~f:detect_syscall insns |> Seq.map ~f:fst |>
-    Seq.map ~f:(fun mem ->
-                  let err = mem |> Memory.min_addr |> Bitvector.to_int in
-                    match err with
-                      | Ok i -> i
-                      | Error err -> -1)
+  let int_of_mem = (fun mem ->
+    let err = mem |> Memory.min_addr |> Bitvector.to_int in
+      match err with
+      | Ok i -> i
+      | Error err -> -1) in
+  Seq.filter ~f:detect_syscall insns |> Seq.map ~f:fst |> Seq.map ~f:int_of_mem
 
-(** Instructions: 0f 05 *)
-let length = 2
+let find_value out e = (object
+  inherit [int] Exp.visitor
+  method! enter_int word v =
+      (match Bitvector.to_int word with
+        | Ok v' -> v'
+        | Error s -> -1)
+end)#visit_exp e 0
+
+(** SysCall Instruction: 0f 05 ?90
+ *  Often a nop follows a syscall.
+ **)
+let syscall_length = 3
 
 let start_monitoring {Config.get=(!)} =
   let out = std_formatter in
   let module Monitor(Machine : Primus.Machine.S) = struct
     open Machine.Syntax
 
-    (**
-      You can fetch the value of an expression by implementing an Exp.visitor
-    *)
     let record_def t =
       let lhs = Def.lhs t in
       let reg = Var.name lhs in
-      let value = t |> Def.rhs |> Exp.normalize |> Exp.simpl |> Exp.to_string in
-      let () = fprintf out "SYSFLOW: %s := %s\n" reg value in
-      Machine.return()
+      let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
+      let v = find_value out exp in
+      let () = fprintf out "SYSFLOW: %s := %d\n" reg v in
+      Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
+        let regs' = List.Assoc.add regs ~equal:String.equal reg v in
+        {addrs=addrs; vals=vals; regs=regs'}
+      )
 
     let record_pos p =
-            Machine.Global.update state ~f:(fun {addresses;values;registers} ->
+            Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
         let a = address_of_pos out p in
         let () = fprintf out "Visiting addr at %x\n" a in
-        let hits = List.filter ~f:(fun sa ->
+        let hits = addrs |> List.filter ~f:(fun sa ->
                 let () = fprintf out "Checking %x = %x\n" sa a in
-                a = (sa + length)) addresses in
-        {addresses=addresses; values=List.append hits values; registers})
+                a <= (sa + syscall_length)) |> List.map ~f:(fun sa ->
+                  (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX"))) in
+        {addrs=addrs; vals=hits @ vals; regs=regs})
 
     let print_syscalls () =
-      Machine.Global.get state >>| fun {values} ->
+      Machine.Global.get state >>| fun {vals} ->
         fprintf out "Hit System Calls\n";
-        List.iter ~f:(fun s -> fprintf out "%x\n" s) values
+        List.iter ~f:(fun (sa, rax) -> fprintf out "%x: %d\n" sa rax) vals
 
     let setup_tracing () =
       Machine.List.sequence [
@@ -124,7 +144,7 @@ let start_monitoring {Config.get=(!)} =
                 let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
                 let () = fprintf out "Setting up state!" in
                   Machine.Global.update state ~f:(fun s ->
-                    {addresses = Seq.to_list syscalls; values = []; registers = []})
+                    {addrs = Seq.to_list syscalls; vals = []; regs = []})
   end in
   Primus.Machine.add_component (module Monitor)
 
