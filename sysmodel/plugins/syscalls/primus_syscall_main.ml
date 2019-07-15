@@ -11,7 +11,7 @@ module Param = struct
   open Config;;
   manpage [
     `S "DESCRIPTION";
-    `P "Identify the System Calls given in a Binary."
+    `P "Identify the system calls given in a binary."
   ]
 
   let identify = param (bool) "identify"
@@ -45,16 +45,14 @@ module SS = Set.Make(String);;
 
 let address_of_pos out p =
   match (Primus.Pos.get address p) with
-    | None -> -1
-    | Some addr -> let opt = Bitvector.to_int addr in
-      (match opt with
-        | Ok v ->
-            fprintf out "SYSFLOW: Cursor at %#08x\n" v;
-            v
-        | Error s ->
-            fprintf out "Error converting int!\n";
-            -1)
-
+    None -> -1
+  | Some addr -> (match Bitvector.to_int addr with
+                    Ok v ->
+                      fprintf out "SYSFLOW: Cursor at %#08x\n" v;
+                      v
+                  | Error s ->
+                    fprintf out "Error converting int!\n";
+                    -1)
 
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
@@ -65,14 +63,14 @@ let collect_syscalls insns =
   let detect_syscall = (fun (mem, i) ->
     let bil = (Insn.bil i) in
       match bil with
-        | [] -> false
-        | stmt :: _ -> (match stmt with
-                          | Bil.Special s -> true
-                          | _ -> false)) in
+        [] -> false
+      | stmt :: _ -> (match stmt with
+                        Bil.Special s -> true
+                      | _ -> false)) in
   let int_of_mem = (fun mem ->
     let err = mem |> Memory.min_addr |> Bitvector.to_int in
       match err with
-      | Ok i -> i
+        Ok i -> i
       | Error err -> -1) in
   Seq.filter ~f:detect_syscall insns |> Seq.map ~f:fst |> Seq.map ~f:int_of_mem
 
@@ -84,10 +82,8 @@ let find_value out e = (object
         | Error s -> -1)
 end)#visit_exp e 0
 
-(** SysCall Instruction: 0f 05 ?90
- *  Often a nop follows a syscall.
- **)
-let syscall_length = 3
+(** SysCall Instruction: 0f 05 **)
+let syscall_length = 2
 
 let start_monitoring {Config.get=(!)} =
   let out = std_formatter in
@@ -105,15 +101,17 @@ let start_monitoring {Config.get=(!)} =
         {addrs=addrs; vals=vals; regs=regs'}
       )
 
-    let record_pos p =
-            Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
-        let a = address_of_pos out p in
-        let () = fprintf out "Visiting addr at %x\n" a in
-        let hits = addrs |> List.filter ~f:(fun sa ->
-                let () = fprintf out "Checking %x = %x\n" sa a in
-                a <= (sa + syscall_length)) |> List.map ~f:(fun sa ->
-                  (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX"))) in
-        {addrs=addrs; vals=hits @ vals; regs=regs})
+    let record_pos p = Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
+      let a = address_of_pos out p in
+      let hit sa =
+        let () = fprintf out "Checking %x = %x\n" sa a in
+        let target = sa + syscall_length in
+          a = target || a = target+1 in
+      let rax sa =
+        (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX")) in
+      let () = fprintf out "Visiting addr at %x\n" a in
+      let hits = addrs |> List.filter ~f:hit |> List.map ~f:rax in
+      {addrs=addrs; vals=hits @ vals; regs=regs})
 
     let print_syscalls () =
       Machine.Global.get state >>| fun {vals} ->
@@ -130,21 +128,23 @@ let start_monitoring {Config.get=(!)} =
     let init () =
       setup_tracing () >>= fun () ->
         Machine.get () >>= fun proj ->
-                let symtab = Project.symbols proj in
-                let () = fprintf out "System Calls:\n" in
-                let syscalls = Seq.fold ~init:Seq.empty ~f:(fun sc (name, block, _) ->
-                                    let () = fprintf out "%4s %s\n" "Function" name in
-                                    let mem = Block.memory block in
-                                    let disasm = Disasm.of_mem (Project.arch proj) mem in
-                                      match disasm with
-                                        | Error er ->
-                                          fprintf out "<failed to disassemble memory region>";
-                                          sc
-                                        | Ok dis -> dis |> Disasm.insns |> collect_syscalls |> Seq.append sc) (Symtab.to_sequence symtab) in
-                let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
-                let () = fprintf out "Setting up state!" in
-                  Machine.Global.update state ~f:(fun s ->
-                    {addrs = Seq.to_list syscalls; vals = []; regs = []})
+          let symtab = Project.symbols proj in
+          let () = fprintf out "System Calls:\n" in
+          let find_syscalls sc symtab =
+            let (name, block, _) = symtab in
+            let () = fprintf out "%4s %s\n" "Function" name in
+            let mem = Block.memory block in
+            let arch = Project.arch proj in
+              match Disasm.of_mem arch mem with
+                Error err ->
+                  fprintf out "<failed to disassemble memory region>";
+                  sc
+              | Ok dis -> dis |> Disasm.insns |> collect_syscalls |> Seq.append sc in
+          let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls (Symtab.to_sequence symtab) in
+          let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
+
+            Machine.Global.update state ~f:(fun s ->
+              {addrs=Seq.to_list syscalls; vals=[]; regs =[]})
   end in
   Primus.Machine.add_component (module Monitor)
 
