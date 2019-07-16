@@ -14,7 +14,7 @@ module Param = struct
     `P "Identify the system calls given in a binary."
   ]
 
-  let identify = param (bool) "identify"
+  let identify = flag "identify"
       ~doc:
         "Identify the system calls given in a binary."
 end
