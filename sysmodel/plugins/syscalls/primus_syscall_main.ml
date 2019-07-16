@@ -81,9 +81,9 @@ let find_value regs out e = (object
       Error s -> ~-1
     | Ok v' -> v'
   method! enter_var reg v =
-    let regname = Var.name reg in
-    let () = fprintf out "Lookup var: %s\n" name in
-      match List.Assoc.find regs ~equal:String.equal regname with
+    let rname = Var.name reg in
+    let () = fprintf out "Lookup var: %s\n" rname in
+      match List.Assoc.find regs ~equal:String.equal rname with
         None -> v
       | Some v' -> v'
 
