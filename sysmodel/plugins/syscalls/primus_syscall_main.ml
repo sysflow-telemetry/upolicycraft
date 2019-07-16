@@ -79,8 +79,8 @@ let find_value out e = (object
   method! enter_int word v =
       (match Bitvector.to_int word with
         | Ok v' -> v'
-        | Error s -> -1)
-end)#visit_exp e 0
+        | Error s -> ~-2)
+end)#visit_exp e ~-1
 
 (** SysCall Instruction: 0f 05 **)
 let syscall_length = 2
@@ -110,13 +110,22 @@ let start_monitoring {Config.get=(!)} =
       let rax sa =
         (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX")) in
       let () = fprintf out "Visiting addr at %x\n" a in
-      let hits = addrs |> List.filter ~f:hit |> List.map ~f:rax in
-      {addrs=addrs; vals=hits @ vals; regs=regs})
+      let opt = addrs |> List.filter ~f:hit
+                                |> List.map ~f:rax |> List.hd in
+      let vals' = match opt with
+                    None -> vals
+                  | Some (addr, syscall) ->
+                     List.Assoc.add vals ~equal:(=) addr syscall in
+      {addrs=addrs; vals=vals'; regs=regs})
 
     let print_syscalls () =
-      Machine.Global.get state >>| fun {vals} ->
+      Machine.Global.get state >>| fun {addrs;vals} ->
+        let findcall addr =
+          match List.Assoc.find vals ~equal:(=) addr with
+            None -> ()
+          | Some rax -> fprintf out "%x: %d\n" addr rax in
         fprintf out "Hit System Calls\n";
-        List.iter ~f:(fun (sa, rax) -> fprintf out "%x: %d\n" sa rax) vals
+        List.iter ~f:findcall addrs
 
     let setup_tracing () =
       Machine.List.sequence [
@@ -129,6 +138,7 @@ let start_monitoring {Config.get=(!)} =
       setup_tracing () >>= fun () ->
         Machine.get () >>= fun proj ->
           let symtab = Project.symbols proj in
+          let symtabs = (Symtab.to_sequence symtab) in
           let () = fprintf out "System Calls:\n" in
           let find_syscalls sc symtab =
             let (name, block, _) = symtab in
@@ -139,10 +149,10 @@ let start_monitoring {Config.get=(!)} =
                 Error err ->
                   fprintf out "<failed to disassemble memory region>";
                   sc
-              | Ok dis -> dis |> Disasm.insns |> collect_syscalls |> Seq.append sc in
-          let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls (Symtab.to_sequence symtab) in
+              | Ok dis -> dis |> Disasm.insns |>
+                          collect_syscalls |> Seq.append sc in
+          let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
           let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
-
             Machine.Global.update state ~f:(fun s ->
               {addrs=Seq.to_list syscalls; vals=[]; regs =[]})
   end in
