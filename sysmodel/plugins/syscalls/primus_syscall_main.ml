@@ -47,12 +47,12 @@ let address_of_pos out p =
   match (Primus.Pos.get address p) with
     None -> -1
   | Some addr -> (match Bitvector.to_int addr with
-                    Ok v ->
+                    Error s ->
+                      fprintf out "Error converting int!\n";
+                      -1
+                  | Ok v ->
                       fprintf out "SYSFLOW: Cursor at %#08x\n" v;
-                      v
-                  | Error s ->
-                    fprintf out "Error converting int!\n";
-                    -1)
+                      v)
 
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
@@ -70,16 +70,23 @@ let collect_syscalls insns =
   let int_of_mem = (fun mem ->
     let err = mem |> Memory.min_addr |> Bitvector.to_int in
       match err with
-        Ok i -> i
-      | Error err -> -1) in
+        Error err -> -1
+      | Ok i -> i) in
   Seq.filter ~f:detect_syscall insns |> Seq.map ~f:fst |> Seq.map ~f:int_of_mem
 
-let find_value out e = (object
+let find_value regs out e = (object
   inherit [int] Exp.visitor
   method! enter_int word v =
-      (match Bitvector.to_int word with
-        | Ok v' -> v'
-        | Error s -> ~-2)
+    match Bitvector.to_int word with
+      Error s -> ~-1
+    | Ok v' -> v'
+  method! enter_var reg v =
+    let regname = Var.name reg in
+    let () = fprintf out "Lookup var: %s\n" name in
+      match List.Assoc.find regs ~equal:String.equal regname with
+        None -> v
+      | Some v' -> v'
+
 end)#visit_exp e ~-1
 
 (** SysCall Instruction: 0f 05 **)
@@ -91,12 +98,12 @@ let start_monitoring {Config.get=(!)} =
     open Machine.Syntax
 
     let record_def t =
-      let lhs = Def.lhs t in
-      let reg = Var.name lhs in
-      let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
-      let v = find_value out exp in
-      let () = fprintf out "SYSFLOW: %s := %d\n" reg v in
       Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
+        let lhs = Def.lhs t in
+        let reg = Var.name lhs in
+        let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
+        let v = find_value regs out exp in
+        let () = fprintf out "SYSFLOW: %s := %d\n" reg v in
         let regs' = List.Assoc.add regs ~equal:String.equal reg v in
         {addrs=addrs; vals=vals; regs=regs'}
       )
