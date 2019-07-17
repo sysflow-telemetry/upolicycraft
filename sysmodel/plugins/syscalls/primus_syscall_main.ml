@@ -29,7 +29,7 @@ let show_providers out =
     fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
 *)
 
-let system_calls = [(1,"read");
+let system_calls = [(0,"read");
                     (1,"write");
                     (2,"open");
                     (3,"close");
