@@ -436,8 +436,10 @@ let start_monitoring {Config.get=(!)} =
       let rax sa =
         (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX")) in
       let () = fprintf out "Visiting addr at %x\n" a in
-      let opt = addrs |> List.filter ~f:hit
-                                |> List.map ~f:rax |> List.hd in
+      let opt = addrs |>
+                List.filter ~f:hit |>
+                List.map ~f:rax |>
+                List.hd in
       let vals' = match opt with
                     None -> vals
                   | Some (addr, syscall) ->
@@ -474,17 +476,20 @@ let start_monitoring {Config.get=(!)} =
           let () = fprintf out "No. of Functions: %d\n" (Seq.length symtabs) in
           let find_syscalls sc symtab =
             let (name, _, cfg) = symtab in
-              Graphlib.reverse_postorder_traverse (module G) cfg |>
+              cfg |>
+              Graphlib.reverse_postorder_traverse (module G) |>
               Seq.map ~f:Block.insns |>
               Seq.concat_map ~f:Seq.of_list |>
               collect_syscalls out name |>
               Seq.append sc in
           let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
-            syscalls |> Seq.to_list |> List.sort ~compare:compare
-              |> List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
+            syscalls |>
+            Seq.to_list |>
+            List.sort ~compare:compare |>
+            List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
             fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
             Machine.Global.update state ~f:(fun s ->
-              {addrs=Seq.to_list syscalls; vals=[]; regs =[]})
+              {addrs=Seq.to_list syscalls; vals=[]; regs=[]})
   end in
   Primus.Machine.add_component (module Monitor)
 
