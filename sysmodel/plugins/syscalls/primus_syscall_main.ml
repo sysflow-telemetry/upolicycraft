@@ -417,7 +417,7 @@ let start_monitoring {Config.get=(!)} =
     open Machine.Syntax
 
     let record_def t =
-      Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
+      Machine.Local.update state ~f:(fun {addrs;vals;regs} ->
         let lhs = Def.lhs t in
         let reg = Var.name lhs in
         let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
@@ -427,7 +427,7 @@ let start_monitoring {Config.get=(!)} =
         {addrs=addrs; vals=vals; regs=regs'}
       )
 
-    let record_pos p = Machine.Global.update state ~f:(fun {addrs;vals;regs} ->
+    let record_pos p = Machine.Local.update state ~f:(fun {addrs;vals;regs} ->
       let a = address_of_pos out p in
       let hit sa =
         let () = fprintf out "Checking %x = %x\n" sa a in
@@ -447,7 +447,7 @@ let start_monitoring {Config.get=(!)} =
       {addrs=addrs; vals=vals'; regs=regs})
 
     let print_syscalls () =
-      Machine.Global.get state >>| fun {addrs;vals} ->
+      Machine.Local.get state >>| fun {addrs;vals} ->
         let findcall addr =
           match List.Assoc.find vals ~equal:(=) addr with
             None -> ()
@@ -488,7 +488,7 @@ let start_monitoring {Config.get=(!)} =
             List.sort ~compare:compare |>
             List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
             fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
-            Machine.Global.update state ~f:(fun s ->
+            Machine.Local.update state ~f:(fun s ->
               {addrs=Seq.to_list syscalls; vals=[]; regs=[]})
   end in
   Primus.Machine.add_component (module Monitor)
