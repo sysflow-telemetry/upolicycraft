@@ -46,6 +46,12 @@ let collect_syscalls insns =
   Seq.fold ~init:(0, (Set.empty Int.comparator)) ~f:acc insns
       |> snd |> Set.to_list |> Seq.of_list
 
+let syscalls = object
+  inherit [(int * int) list * (string * int) list] Term.visitor
+  method! enter_sub _ _ (ss) = jmps,total+1
+  method! enter_jmp _ (ss) = jmps+1,total
+end
+
 let main proj =
   let () = printf "Creating project" in
   let symtab = Project.symbols proj in

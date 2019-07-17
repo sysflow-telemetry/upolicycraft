@@ -4,6 +4,7 @@ open Bap_primus.Std
 open Bap_future.Std
 open Monads.Std
 open Format
+open Graphlib.Std
 
 include Self()
 
@@ -28,7 +29,7 @@ let show_providers out =
     fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
 *)
 
-let system_calls = [(0,"read");
+let system_calls = [(1,"read");
                     (1,"write");
                     (2,"open");
                     (3,"close");
@@ -374,20 +375,23 @@ let state = Primus.Machine.State.declare
     ~uuid:"c4696d2f-5d8e-42b4-a65c-4ea6269ce9d1"
     (fun _ -> {addrs = []; vals = []; regs = []})
 
-let collect_syscalls insns =
+let collect_syscalls out name insns =
   let detect_syscall = (fun (mem, i) ->
     let bil = (Insn.bil i) in
-      match bil with
-        [] -> false
-      | stmt :: _ -> (match stmt with
-                        Bil.Special s -> true
-                      | _ -> false)) in
+    let is_syscall stmt =
+      match stmt with
+        Bil.Special s -> true
+      | _ -> false in
+    let n = bil |> List.filter ~f:is_syscall |> List.length in
+      n > 0) in
   let int_of_mem = (fun mem ->
     let err = mem |> Memory.min_addr |> Bitvector.to_int in
       match err with
         Error err -> -1
       | Ok i -> i) in
-  Seq.filter ~f:detect_syscall insns |> Seq.map ~f:fst |> Seq.map ~f:int_of_mem
+  Seq.filter ~f:detect_syscall insns |>
+  Seq.map ~f:fst |>
+  Seq.map ~f:int_of_mem
 
 let find_value regs out e = (object
   inherit [int] Exp.visitor
@@ -460,25 +464,25 @@ let start_monitoring {Config.get=(!)} =
           Primus.Machine.finished >>> print_syscalls;
       ]
 
+    module G = Graphs.Cfg
+
     let init () =
       setup_tracing () >>= fun () ->
         Machine.get () >>= fun proj ->
           let symtab = Project.symbols proj in
           let symtabs = (Symtab.to_sequence symtab) in
-          let () = fprintf out "System Calls:\n" in
+          let () = fprintf out "No. of Functions: %d\n" (Seq.length symtabs) in
           let find_syscalls sc symtab =
-            let (name, block, _) = symtab in
-            let () = fprintf out "%4s %s\n" "Function" name in
-            let mem = Block.memory block in
-            let arch = Project.arch proj in
-              match Disasm.of_mem arch mem with
-                Error err ->
-                  fprintf out "<failed to disassemble memory region>";
-                  sc
-              | Ok dis -> dis |> Disasm.insns |>
-                          collect_syscalls |> Seq.append sc in
+            let (name, _, cfg) = symtab in
+              Graphlib.reverse_postorder_traverse (module G) cfg |>
+              Seq.map ~f:Block.insns |>
+              Seq.concat_map ~f:Seq.of_list |>
+              collect_syscalls out name |>
+              Seq.append sc in
           let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
-          let () = Seq.iter ~f:(fun mem -> fprintf out "%8x\n" mem) syscalls in
+            syscalls |> Seq.to_list |> List.sort ~compare:compare
+              |> List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
+            fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
             Machine.Global.update state ~f:(fun s ->
               {addrs=Seq.to_list syscalls; vals=[]; regs =[]})
   end in
