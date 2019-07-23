@@ -14,6 +14,6 @@ bap $PROGRAM --run \
        --run-entry-points="${ENTRYPOINT}" \
        --primus-limit-max-length=8192 \
        --verbose \
-       --primus-greedy-scheduler \
        --primus-promiscuous-mode \
+       --primus-greedy-scheduler \
        --primus-syscall-identify
