@@ -466,7 +466,8 @@ let start_monitoring {Config.get=(!)} =
                         let () = fprintf out "Found syscall at %x\n" addr in
                         let () = fprintf out "History %x\n" (List.hd_exn history) in
                         let x :: y :: z :: _ = history in
-                        if (a - x) >= 9 || ((a - x) = 1 && (a - y) >= 9) || ((a = x) && (a - y) = 1 && (a - z) >= 9) then
+                        if (a - x) >= 9 || ((a - x) = 1 && (a - y) >= 9) ||
+                           ((a = x) && (a - y) = 1 && (a - z) >= 9) then
                           vals
                         else
                           let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
