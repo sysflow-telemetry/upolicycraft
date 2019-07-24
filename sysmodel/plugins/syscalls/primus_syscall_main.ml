@@ -462,17 +462,26 @@ let start_monitoring {Config.get=(!)} =
         let vals' = match opt with
                       None -> vals
                     | Some (addr, syscall) ->
-                        let () = fprintf out "At address %x\n" a in
-                        let () = fprintf out "Found syscall at %x\n" addr in
-                        let () = fprintf out "History %x\n" (List.hd_exn history) in
                         let x :: y :: z :: _ = history in
-                        if (a - x) >= 9 || ((a - x) = 1 && (a - y) >= 9) ||
+                        (**
+                         * When micro-execution jumps and lands right after a
+                         * syscall, make sure we don't mark it as visited.
+                         * *)
+                        if (a - x) >= 9 ||
+                           ((a - x) = 1 && (a - y) >= 9) ||
                            ((a = x) && (a - y) = 1 && (a - z) >= 9) then
                           vals
                         else
                           let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
                           List.Assoc.add vals ~equal:(=) addr syscall in
         {addrs=addrs; vals=vals'; regs=regs; history=push_history a history})
+
+    (**
+      How to move Local state to Global state.
+      Machine.Local.get state >>= fun {vals} ->
+      Machine.Global.update state ~f:(fun state' ->
+          {state' with vals=state'.vals @ vals}
+    ) *)
 
     let print_syscalls () =
       Machine.Local.get state >>| fun {addrs;vals;history} ->
@@ -481,19 +490,15 @@ let start_monitoring {Config.get=(!)} =
             None -> ()
           | Some rax ->
               (match List.Assoc.find system_calls ~equal:(=) rax with
-                 None ->
-                 fprintf out "No syscall for %#010x\n" addr
+                 None -> ()
                | Some syscall ->
-                 fprintf out "%#010x: %s\n" addr syscall) in
-        fprintf out "Hit System Calls\n";
+                 fprintf out "Hit %#010x: %s\n" addr syscall) in
         List.iter ~f:findcall addrs
-
 
     let setup_tracing () =
       Machine.List.sequence [
           Primus.Interpreter.enter_def >>> record_def;
           Primus.Interpreter.enter_pos >>> record_pos;
-          (** Primus.Interpreter.leave_blk >>> exit_blk; *)
           Primus.Machine.finished >>> print_syscalls;
       ]
 
