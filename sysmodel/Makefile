@@ -8,6 +8,10 @@ hello: hello.c
 	gcc -c -o hello.o $^
 	gcc -o $@ hello.o ./libc.so
 
+server: server.c
+	gcc -c -o server.o $^
+	gcc -o $@ server.o
+
 libc.so: libc.c
 	gcc -fPIC -c $^ -o libc.o
 	gcc -shared -o $@ libc.o
@@ -15,4 +19,4 @@ libc.so: libc.c
 .PHONY: clean
 
 clean:
-	rm *.o hello
+	rm *.o hello server
