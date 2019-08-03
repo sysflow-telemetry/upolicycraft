@@ -145,7 +145,7 @@ they already control the system?).
     /var/cache/nginx/uwsgi_temp
     /var/cache/nginx/scgi_temp
 
-## SysFlow for NGINX Hosting Static Binary 
+## SysFlow for NGINX Hosting Static Binary
 
 |Evt #|T |Process                                      |PPID |PID  |TID  |Op Flags   |Start Time                |End Time                  |FD   |Ret  |Resource                                     |NOBRead |NOBWrite|Cont      |
 |    0|PE|/usr/sbin/nginx -g daemon off;               |     | 6437| 6437|EXEC       |06/12/2019T13:44:23.746047|                          |     |    0|                                             |:       |:       |0b703f366424|
@@ -233,7 +233,7 @@ they already control the system?).
   /usr/share/nginx/html/index.html <-- nginx recommends placing static content in its own docker layer by building on the nginx container.
   /proc/sys/kernel/ngroups_max
 
-## Designing a Defense 
+## Designing a Defense
 
 One defense could restrict reads to only the files reachable from the entry
 point, and writes to only those files marked as writeable in the file system.

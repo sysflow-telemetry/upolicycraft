@@ -11,7 +11,7 @@
 typedef struct {
   char buf[BUFFER_SIZE];
   ssize_t (*read)(int, void *, size_t, int);
-  ssize_t (*write)(int, void *, size_t, int);
+  ssize_t (*write)(int, const void *, size_t, int);
 } Server;
 
 int main (int argc, char *argv[]) {
