@@ -4,5 +4,5 @@ all: cg
 
 cg: cg.ml
 	eval `opam config env`
-	bapbuild cg.plugin
+	bapbuild -pkg dot cg.plugin
 	bapbundle install cg.plugin
