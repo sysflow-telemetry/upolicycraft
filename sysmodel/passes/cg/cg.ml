@@ -15,13 +15,13 @@ let strip_both_chars str =
   | len -> String.sub str 1 (len - 2);;
 
 module EdgeSet = Set.Make(struct
-    type t = string * string
-    let sexp_of_t=sexp_of_opaque
-    let t_of_sexp=opaque_of_sexp
-    let compare (x,y) (x',y') =
-      match compare x y with
-        0 -> compare x' y'
-      | x -> x
+  type t = string * string
+  let sexp_of_t=sexp_of_opaque
+  let t_of_sexp=opaque_of_sexp
+  let compare (x,y) (x',y') =
+    match compare x x' with
+      0 -> compare y y'
+    | x -> x
 end)
 
 let tail str =
@@ -80,7 +80,7 @@ let process_dot_file file =
                                  (not (Str.string_match r s 0) && not (Str.string_match r d 0)))
                    |> EdgeSet.of_list in
   (**
-    let () = List.iter ~f:(fun (s, d) -> Printf.printf "%s -> %s\n" s d) edges in
+    let () = EdgeSet.iter ~f:(fun (s, d) -> Printf.printf "%s -> %s\n" s d) edges in
   *)
   (v, edges);;
 
@@ -101,10 +101,13 @@ let main entrypoint dot_file proj =
                 String.Set.of_list in
         let e' = e |>
                 Seq.map ~f:(fun edge ->
-                        let name = Tid.name in
+                        let name n = n |> Tid.name |> tail in
                         (name (CG.Edge.src edge), name (CG.Edge.dst edge))) |>
                 Seq.to_list |>
                 EdgeSet.of_list in
+        (**
+          let () = EdgeSet.iter ~f:(fun (x, y) -> printf "%s -> %s\n" x y) e' in
+        *)
         (match dot_file with
            None -> printf "Nothing to compare to!\n"
          | Some file ->
