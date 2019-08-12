@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+make && make reinstall && ./bin/build-plugin.sh

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+rm /home/wdblair/.opam/4.05.0/lib/bap/bap_plugin_primus_syscall.plugin
