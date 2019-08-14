@@ -19,4 +19,4 @@ libc.so: libc.c
 .PHONY: clean
 
 clean:
-	rm *.o hello server
+	rm -f *.o hello server libc.so
