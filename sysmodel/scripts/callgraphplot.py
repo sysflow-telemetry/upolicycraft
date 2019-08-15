@@ -5,13 +5,6 @@ import numpy as np
 
 from matplotlib import rc
 
-"""
-echo     & 16  & 8  & 2  &   13   &  3    &   17   \\
-nginx    & 1141 & 274  & 10 &  2692 & 858   &  1324 \\
-redis    & 3403 & 611 & 44 &   11502   &  2764   &   4691\\
-postgres & 10868 & 2510 & 46  & 49458 & 12728 &   16751 \\
-"""
-
 N=4
 
 TITLESIZE=10
@@ -24,7 +17,7 @@ data = dict(
            NLLVM=[2, 10, 44, 46],
            EBOTH=[13, 2692, 11502, 49458],
            EBAP=[3, 858, 2764, 12728],
-           ELLVM=[17, 1324, 4691, 16751]
+           ELLVM=[0, 256, 1410, 7322]
 )
 
 for i in range(4):
