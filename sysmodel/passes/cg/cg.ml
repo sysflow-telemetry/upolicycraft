@@ -77,7 +77,10 @@ let process_dot_file file =
                                   Not_found -> (src', dst'))
                    |> List.filter ~f:(fun (s, d) ->
                               let r = Str.regexp "Node*" in
-                                 (not (Str.string_match r s 0) && not (Str.string_match r d 0)))
+                              let r' = Str.regexp "external node" in
+                                 (not (Str.string_match r s 0) &&
+                                  not (Str.string_match r d 0) &&
+                                  not (Str.string_match r' s 0)))
                    |> EdgeSet.of_list in
   (**
     let () = EdgeSet.iter ~f:(fun (s, d) -> Printf.printf "%s -> %s\n" s d) edges in
@@ -119,6 +122,8 @@ let main entrypoint dot_file proj =
            let bothe = EdgeSet.inter (snd bap) (snd llvm) in
            let bape = EdgeSet.diff (snd bap) (snd llvm) in
            let llvme = EdgeSet.diff (snd llvm) (snd bap) in
+           printf "Only LLVM\n";
+           EdgeSet.iter ~f:(fun (s, d) -> printf "    %s -> %s\n" s d) llvme;
              printf "Nodes:\n%-5s %8d\n%-5s %8d\n%-5s %8d\nEdges:\n%-5s %8d\n%-5s %8d\n%-5s %8d\n"
                     "Both" (String.Set.length bothv)
                     "BAP" (String.Set.length bapv)
