@@ -504,12 +504,6 @@ let start_monitoring {Config.get=(!)} =
                             List.Assoc.add cvals ~equal:(=) addr syscall in
           let vals' = List.Assoc.add vals ~equal:String.equal context cvals' in
           {addrs=addrs; vals=vals'; regs=regs; history=push_history a history;stack})
-    (**
-      How to move Local state to Global state.
-      Machine.Local.get state >>= fun {vals} ->
-      Machine.Global.update state ~f:(fun state' ->
-          {state' with vals=state'.vals @ }
-      ) *)
 
     let print_syscalls () =
       Machine.current () >>= fun pid ->
@@ -518,6 +512,15 @@ let start_monitoring {Config.get=(!)} =
           let () = fprintf out "Global Machine Ending!\n" in
           let {addrs;vals} = state' in
           let () = fprintf out "Vals %d\n" (List.length vals) in
+          let sorted = List.sort (fun x y -> compare (fst x) (fst y)) vals in
+          let rec merge xs =
+            match xs with
+            | (x, xv) :: (y, yv) :: xs ->
+              if x = y then
+                merge ((x, xv @ yv) :: xs)
+              else
+                (x, xv) :: merge ((y, yv) :: xs)
+            | _ -> xs in
           let summarize (context, vals) =
             let () = fprintf out "Context %s\n" context in
             vals |>
@@ -528,7 +531,7 @@ let start_monitoring {Config.get=(!)} =
                 (addr, syscall)) |>
             List.iter ~f:(fun (addr, syscall) ->
               fprintf out "Hit %#010x: %s\n" addr syscall) in
-          let () = List.iter ~f:summarize vals in
+          let () = List.iter ~f:summarize (merge sorted) in
           Machine.return()
         else
           Machine.Local.get state >>= fun state' ->
@@ -537,9 +540,7 @@ let start_monitoring {Config.get=(!)} =
               let () = fprintf out "Updating global state!\n" in
               let () = fprintf out "Vals %d\n" (List.length state'.vals) in
               let () = fprintf out "Vals %d\n" (List.length state''.vals) in
-              {state'' with vals=state'.vals @ state''.vals}
-            ) (** >>= fun () ->
-        Machine.return () *)
+              {state'' with vals=state'.vals @ state''.vals})
         (**
         let findcall addr =
           match List.Assoc.find vals ~equal:(=) addr with
