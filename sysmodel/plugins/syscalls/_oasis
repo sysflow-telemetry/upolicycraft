@@ -1,7 +1,7 @@
 OASISFormat: 0.4
 Name:        bap
 Version:     0.1
-Synopsis:    BAP SysCall Detector
+Synopsis:    BAP System Call Detector
 Authors:     Will Blair
 License:     MIT
 Copyrights:  (C) 2019 IBM
@@ -14,7 +14,7 @@ Library primus_syscall_plugin
   Path: .
   FindlibName: bap-plugin-primus_syscall
   CompiledObject: best
-  BuildDepends: bap-primus, bare
+  BuildDepends: bap-primus, bare, yojson
   XMETADescription: Print syscalls detected by Primus
   Modules: Primus_syscall_main
   XMETAExtraLines: tags="primus, syscall"

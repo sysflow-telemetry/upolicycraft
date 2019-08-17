@@ -5,6 +5,7 @@ open Bap_future.Std
 open Monads.Std
 open Format
 open Graphlib.Std
+open Yojson
 
 module Id = Monad.State.Multi.Id
 
@@ -20,6 +21,7 @@ module Param = struct
   let identify = flag "identify"
       ~doc:
         "Identify the system calls given in a binary."
+
 end
 
 (**
@@ -438,7 +440,9 @@ let start_monitoring {Config.get=(!)} =
     let record_sub s = Machine.current () >>= fun pid ->
       Machine.Local.update state ~f:(fun state ->
         let subname = Sub.name s in
-        let () = fprintf out "Entering %s\n" subname in
+        (**
+          let () = fprintf out "Entering %s\n" subname in
+         *)
         {state with stack=subname :: state.stack}
       )
 
@@ -464,7 +468,9 @@ let start_monitoring {Config.get=(!)} =
             Machine.return()
       | Some addr -> Machine.Local.update state ~f:(fun state ->
         let a = address_of_pos out addr in
+        (**
         let () = fprintf out "Visiting addr at %x\n" a in
+        *)
         let {addrs;vals;regs;history;stack} = state in
         let hit sa =
           (** let () = fprintf out "Checking %x = %x\n" sa a in *)
@@ -478,7 +484,9 @@ let start_monitoring {Config.get=(!)} =
                   List.hd in
         match top stack with
           None ->
-            let () = fprintf out "No context!\n" in
+            (**
+              let () = fprintf out "No context!\n" in
+            *)
             {state with history=push_history a state.history}
         | Some context ->
           let cvals = match List.Assoc.find vals ~equal:String.equal context with
@@ -498,7 +506,9 @@ let start_monitoring {Config.get=(!)} =
                                ((a = x) && (a - y) = 1 && (a - z) >= 9) then
                               cvals
                             else
-                              let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
+                              (**
+                                let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
+                              *)
                               List.Assoc.add cvals ~equal:(=) addr syscall
                           else
                             List.Assoc.add cvals ~equal:(=) addr syscall in
@@ -509,9 +519,13 @@ let start_monitoring {Config.get=(!)} =
       Machine.current () >>= fun pid ->
         if Machine.global = pid then
           Machine.Global.get state >>= fun state' ->
+          (**
           let () = fprintf out "Global Machine Ending!\n" in
+          *)
           let {addrs;vals} = state' in
+          (**
           let () = fprintf out "Vals %d\n" (List.length vals) in
+          *)
           let sorted = List.sort (fun x y -> compare (fst x) (fst y)) vals in
           let rec merge xs =
             match xs with
@@ -522,16 +536,22 @@ let start_monitoring {Config.get=(!)} =
                 (x, xv) :: merge ((y, yv) :: xs)
             | _ -> xs in
           let summarize (context, vals) =
-            let () = fprintf out "Context %s\n" context in
-            vals |>
-            List.map ~f:(fun (addr, rax) ->
-              match List.Assoc.find system_calls ~equal:(=) rax with
-                None -> (-1,"none")
-              | Some syscall ->
-                (addr, syscall)) |>
-            List.iter ~f:(fun (addr, syscall) ->
-              fprintf out "Hit %#010x: %s\n" addr syscall) in
-          let () = List.iter ~f:summarize (merge sorted) in
+            (**
+              let () = fprintf out "Context %s\n" context in
+            *)
+            let syscalls =
+              vals |>
+              List.map ~f:(fun (addr, rax) ->
+                match List.Assoc.find system_calls ~equal:(=) rax with
+                  None -> (-1,"none")
+                | Some syscall ->
+                  (addr, syscall)) |>
+              List.map ~f:(fun (addr, syscall) ->
+                `String syscall) in
+            `Assoc [("function", `String context); ("syscalls", `List syscalls)] in
+          let result = (`List (List.map ~f:summarize (merge sorted))) in
+          let output = Yojson.Basic.pretty_to_string result in
+          let () = fprintf out "%s\n" output in
           Machine.return()
         else
           Machine.Local.get state >>= fun state' ->
