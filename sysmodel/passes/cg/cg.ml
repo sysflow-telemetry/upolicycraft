@@ -4,6 +4,7 @@ open Format
 open Graphlib.Std
 open Odot
 open Pervasives
+open Yojson
 
 include Self()
 
@@ -135,8 +136,9 @@ let main entrypoint dot_file proj =
           Error _ -> failwith "invalid tid"
         | Ok tid ->
             Graphlib.postorder_traverse (module CG) ~start:tid cg |>
-              Seq.map ~f:Tid.name |>
-              Seq.take_while ~f:(fun x -> x <> entrypoint) |>
+              Seq.take_while ~f:(fun x -> (Tid.name x) <> entrypoint) |>
+              Seq.filter ~f:(fun n -> CG.Node.degree ~dir:`Out n cg = 0) |>
+              Seq.map ~f:(fun x -> (Tid.name x)) |>
               Seq.iter ~f:(fun n -> printf "%s\n" n))
 
 module Cmdline = struct
