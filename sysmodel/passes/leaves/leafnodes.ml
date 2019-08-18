@@ -1,8 +1,9 @@
-open Core_kernel.Std
+open Core_kernel
 open Bap.Std
 open Graphlib.Std
 open Format
 open Pervasives
+open Yojson
 
 include Self()
 
@@ -16,17 +17,19 @@ let entrypoint = "main"
 module SS = Set.Make(String);;
 
 (**
-  Find all edges in a call graph, and then search for those reachable from the entrypoint.
+  Find all edges in a call graph, and then search for
+  those reachable from the entrypoint.
 *)
 
 let reach = object
-  inherit [string * (string * string) list] Term.visitor
-  method! enter_sub sub (pred, edges) =
+  inherit [string * (SS.t)] Term.visitor
+  method! enter_sub sub (pred, visited) =
     let name = Sub.name sub in
+    (**
     let () = printf "name: %s\n" name in
-      (name, edges)
-  method! enter_jmp j x =
-     let (pred, edges) = x in
+    *)
+      (name, (SS.add visited name))
+  method! enter_jmp j (pred, visited) =
      let kind = Jmp.kind j in
       match kind with
       | Call call ->
@@ -34,11 +37,13 @@ let reach = object
         (match label with
         | Direct t ->
         let name = Tid.name t in
-          (name, (pred, name) :: edges)
+          (name, (SS.remove visited pred))
         | Indirect _ ->
+        (*
         let () = printf "Indirect Call!\n" in
-          x)
-      | _ -> x
+        *)
+          (pred, visited))
+      | _ -> (pred, visited)
 end
 
 (**
@@ -53,9 +58,25 @@ let calls = counter#run t [] in
 printf "Ran a pass on main!"
 *)
 
-let main proj =
+let main entrypoint proj =
   let prog = (Project.program proj) in
-  let (_, edges) = reach#run prog ("", [])  in
-    List.iter edges (fun (s, t) -> printf "Call %s -> %s\n" s t)
+  let e = entrypoint in
+  let _, leaves = reach#run prog ("", SS.empty) in
+  let leaves = SS.to_list leaves in
+  let json = `List (List.map ~f:(fun x -> `String x) leaves) in
+  let output = Yojson.Basic.pretty_to_string json in
+    printf "%s\n" output
 
-let () = Project.register_pass' main
+module Cmdline = struct
+  open Config
+  let entrypoint = param (some string) "entrypoint"
+                     ~doc:"Name of the function in the binary to begin searching."
+  let () = when_ready (fun {get=(!!)} ->
+      Project.register_pass' (main !!entrypoint))
+
+  let () = manpage [
+      `S "DESCRIPTION";
+      `P
+        "Collects all functions reachable from the $(v,entrypoint) parameter."
+  ]
+end

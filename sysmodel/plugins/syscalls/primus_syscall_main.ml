@@ -435,7 +435,15 @@ let top stack =
 let start_monitoring {Config.get=(!)} =
   let out = std_formatter in
   let module Monitor(Machine : Primus.Machine.S) = struct
+    module Eval = Primus.Interpreter.Make(Machine)
     open Machine.Syntax
+
+    (** Prevent Primus from Exploring other Functions. *)
+    let stop_call j = Machine.current () >>= fun pid ->
+      let kind = Jmp.kind j in
+        match kind with
+          Call _ -> Eval.halt >>= never_returns
+        | _ -> Machine.return()
 
     let record_sub s = Machine.current () >>= fun pid ->
       Machine.Local.update state ~f:(fun state ->
@@ -467,10 +475,9 @@ let start_monitoring {Config.get=(!)} =
         None ->
             Machine.return()
       | Some addr -> Machine.Local.update state ~f:(fun state ->
+
         let a = address_of_pos out addr in
-        (**
         let () = fprintf out "Visiting addr at %x\n" a in
-        *)
         let {addrs;vals;regs;history;stack} = state in
         let hit sa =
           (** let () = fprintf out "Checking %x = %x\n" sa a in *)
@@ -515,6 +522,9 @@ let start_monitoring {Config.get=(!)} =
           let vals' = List.Assoc.add vals ~equal:String.equal context cvals' in
           {addrs=addrs; vals=vals'; regs=regs; history=push_history a history;stack})
 
+    let pp_list ppf vals =
+        List.iter ~f:(fun (x,y) -> fprintf ppf "(%d,%d)" x y) vals
+
     let print_syscalls () =
       Machine.current () >>= fun pid ->
         if Machine.global = pid then
@@ -527,6 +537,9 @@ let start_monitoring {Config.get=(!)} =
           let () = fprintf out "Vals %d\n" (List.length vals) in
           *)
           let sorted = List.sort (fun x y -> compare (fst x) (fst y)) vals in
+          (**
+          let () = List.iter ~f:(fun (context, vals) -> fprintf out "%s %a\n" context pp_list vals) sorted in
+          *)
           let rec merge xs =
             match xs with
             | (x, xv) :: (y, yv) :: xs ->
@@ -575,6 +588,9 @@ let start_monitoring {Config.get=(!)} =
 
     let setup_tracing () =
       Machine.List.sequence [
+          (**
+            Primus.Interpreter.enter_jmp >> stop_call;
+          *)
           Primus.Interpreter.enter_sub >>> record_sub;
           Primus.Interpreter.enter_def >>> record_def;
           Primus.Interpreter.enter_pos >>> record_pos;
