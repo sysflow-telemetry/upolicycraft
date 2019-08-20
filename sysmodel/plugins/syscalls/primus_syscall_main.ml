@@ -347,6 +347,16 @@ let system_calls = [(0,"read");
                     (311,"process_vm_writev");
                     (312,"kcmp");
                     (313,"finit_module")]
+(**
+ * A mapping of OS system calls to SysFlow system calls.
+ * SysFlow records a subset of OS system calls relevant for Security.
+ **)
+let sysflow_calls = [("execve", "execve");
+                     ("accept", "accept");
+                     ("bind", "bind");
+                     ("recvmsg", "recv");
+                     ("sendmsg", "send");
+                     ("clone", "clone")]
 
 type event = Jmp | Def
 
@@ -564,8 +574,14 @@ let start_monitoring {Config.get=(!)} =
               List.map ~f:snd |>
               SS.of_list |>
               SS.to_list |>
-              List.map ~f:(fun syscall -> `String syscall) in
-            `Assoc [("function", `String context); ("syscalls", `List syscalls)] in
+              List.map ~f:(fun s ->
+                      List.Assoc.find sysflow_calls ~equal:String.equal s) |>
+              List.filter ~f:(fun opt -> opt <> None) |>
+              List.map ~f:(fun opt -> let Some s = opt in s) in
+            let () = fprintf out "Model:\n" in
+            let () = List.iter ~f:(fun s -> fprintf out "%s\n" s) syscalls in
+            let jscalls = List.map ~f:(fun syscall -> `String syscall) syscalls in
+            `Assoc [("function", `String context); ("syscalls", `List jscalls)] in
           let result = (`List (List.map ~f:summarize (merge sorted))) in
           let output = Yojson.Basic.pretty_to_string result in
           let () = fprintf out "%s\n" output in

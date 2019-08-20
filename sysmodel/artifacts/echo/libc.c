@@ -49,10 +49,10 @@ void myexit(int status) {
 
 void branching(int status) {
     if (status == 1) {
-        __asm__ ("mov $0x3c, %eax\n\t"
+        __asm__ ("mov $0x38, %eax\n\t"
                  "syscall");
     } else {
-        __asm__ ("mov $0x10, %eax\n\t"
+        __asm__ ("mov $0x3b, %eax\n\t"
                  "syscall");
     }
 }
