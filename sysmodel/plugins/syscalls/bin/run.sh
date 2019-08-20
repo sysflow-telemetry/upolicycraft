@@ -16,6 +16,5 @@ bap $PROGRAM --run \
        --verbose \
        --primus-promiscuous-mode \
        --primus-greedy-scheduler \
+       --primus-syscall-identify \
        --report-progress
-
-# --primus-syscall-identify \

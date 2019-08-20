@@ -1,0 +1,37 @@
+#!/usr/bin/env ocaml
+
+#use "topfind"
+#warnings "+a"
+#thread
+
+#require "core_kernel"
+#require "shexp.process"
+#require "yojson"
+
+module List' = List
+
+open Printf
+open Shexp_process
+open Shexp_process.Infix
+
+module Yo = Yojson
+module Util = Yojson.Basic.Util
+
+let tail str =
+    if str = "" then "" else
+    String.sub str 1 ((String.length str) - 1)
+
+let main : unit t =
+    let artifact = Sys.argv.(1) in
+    let logfile = Printf.sprintf "%s-model.json" artifact in
+    (** Generate a model for the artifact. *)
+    run "bap" [artifact; "--pass"; "cg"] |- read_all >>= fun s ->
+      let command = s |> Yo.Basic.from_string
+                      |> Util.to_list
+                      |> List'.map (fun f -> f |> Util.to_string |> tail)
+                      |> String.concat "," in
+      run "../../plugins/syscalls/bin/run.sh"
+          ["/lib/x86_64-linux-gnu/libc.so.6"; command]
+
+let () =
+    eval main
