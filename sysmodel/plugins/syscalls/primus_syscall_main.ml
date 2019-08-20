@@ -477,7 +477,9 @@ let start_monitoring {Config.get=(!)} =
       | Some addr -> Machine.Local.update state ~f:(fun state ->
 
         let a = address_of_pos out addr in
+        (**
         let () = fprintf out "Visiting addr at %x\n" a in
+        *)
         let {addrs;vals;regs;history;stack} = state in
         let hit sa =
           (** let () = fprintf out "Checking %x = %x\n" sa a in *)
@@ -559,8 +561,10 @@ let start_monitoring {Config.get=(!)} =
                   None -> (-1,"none")
                 | Some syscall ->
                   (addr, syscall)) |>
-              List.map ~f:(fun (addr, syscall) ->
-                `String syscall) in
+              List.map ~f:snd |>
+              SS.of_list |>
+              SS.to_list |>
+              List.map ~f:(fun syscall -> `String syscall) in
             `Assoc [("function", `String context); ("syscalls", `List syscalls)] in
           let result = (`List (List.map ~f:summarize (merge sorted))) in
           let output = Yojson.Basic.pretty_to_string result in
@@ -568,11 +572,15 @@ let start_monitoring {Config.get=(!)} =
           Machine.return()
         else
           Machine.Local.get state >>= fun state' ->
+            (**
             let () = fprintf out "Local Machine Ending!\n" in
+            *)
             Machine.Global.update state ~f:(fun state'' ->
+              (**
               let () = fprintf out "Updating global state!\n" in
               let () = fprintf out "Vals %d\n" (List.length state'.vals) in
               let () = fprintf out "Vals %d\n" (List.length state''.vals) in
+              *)
               {state'' with vals=state'.vals @ state''.vals})
         (**
         let findcall addr =
@@ -604,7 +612,9 @@ let start_monitoring {Config.get=(!)} =
         Machine.get () >>= fun proj ->
           let symtab = Project.symbols proj in
           let symtabs = (Symtab.to_sequence symtab) in
+          (*
           let () = fprintf out "No. of Functions: %d\n" (Seq.length symtabs) in
+          *)
           let find_syscalls sc symtab =
             let (name, _, cfg) = symtab in
               cfg |>
@@ -614,11 +624,13 @@ let start_monitoring {Config.get=(!)} =
               collect_syscalls out name |>
               Seq.append sc in
           let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
+          (**
             syscalls |>
             Seq.to_list |>
             List.sort ~compare:compare |>
             List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
             fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
+          *)
             Machine.Local.update state ~f:(fun s ->
               {addrs=Seq.to_list syscalls; vals=[]; regs=[]; history=[];stack=[]}
             )
