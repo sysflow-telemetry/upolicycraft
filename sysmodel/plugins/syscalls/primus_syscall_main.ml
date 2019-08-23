@@ -578,8 +578,10 @@ let start_monitoring {Config.get=(!)} =
                       List.Assoc.find sysflow_calls ~equal:String.equal s) |>
               List.filter ~f:(fun opt -> opt <> None) |>
               List.map ~f:(fun opt -> let Some s = opt in s) in
-            let () = fprintf out "Model:\n" in
-            let () = List.iter ~f:(fun s -> fprintf out "%s\n" s) syscalls in
+            (**
+              let () = fprintf out "Model:\n" in
+              let () = List.iter ~f:(fun s -> fprintf out "%s\n" s) syscalls in
+            *)
             let jscalls = List.map ~f:(fun syscall -> `String syscall) syscalls in
             `Assoc [("function", `String context); ("syscalls", `List jscalls)] in
           let result = (`List (List.map ~f:summarize (merge sorted))) in

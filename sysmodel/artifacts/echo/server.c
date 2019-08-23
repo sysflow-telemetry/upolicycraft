@@ -65,9 +65,6 @@ int main (int argc, char *argv[]) {
 
       serve.buf[recvd] = '\0';
 
-      printf("Buffer = %s\n", serve.buf);
-
-
       int read = atoi(serve.buf);
 
       iov[0].iov_len = read;
