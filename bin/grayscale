@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# For transforming figures to grayscale.
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 pdf-file"
+  exit 1
+fi
+
+convert -colorspace GRAY $1 $2
+

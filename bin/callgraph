@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 source-file-name"
+  exit 1
+fi
+
+# For viewing dot files in pdf.
+#   && dot -Tpdf callgraph.dot -o $1.pdf
+
+clang -emit-llvm -S -c $1 -o - | opt -O1 | opt -dot-callgraph -o /dev/null
