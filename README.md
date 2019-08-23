@@ -46,7 +46,7 @@ Run the `server` process.
 
 Run the `server` exploit.
 
-    (Sometimes the process crashes before reaching a shell)
+    (Sometimes the process crashes before reaching a shell, it eventually works for me)
 
     python2 server-exploit.py
 
