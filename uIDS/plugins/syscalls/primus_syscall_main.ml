@@ -120,7 +120,7 @@ let system_calls = [(0,"read");
                     (84,"rmdir");
                     (85,"creat");
                     (86,"link");
-                    (87,"unlink");
+                    (88,"unlink");
                     (88,"symlink");
                     (89,"readlink");
                     (90,"chmod");
@@ -356,7 +356,8 @@ let sysflow_calls = [("execve", "execve");
                      ("bind", "bind");
                      ("recvmsg", "recv");
                      ("sendmsg", "send");
-                     ("clone", "clone")]
+                     ("clone", "clone");
+                     ("exit", "exit")]
 
 type event = Jmp | Def
 
@@ -536,9 +537,6 @@ let start_monitoring {Config.get=(!)} =
           {addrs=addrs; vals=vals'; regs=regs; history=push_history a history;stack})
 
     let record_syscalls blk = Machine.Local.get state >>= fun state' ->
-      (**
-      let () = fprintf out "Leaving block!!\n" in
-      *)
         Machine.Global.update state ~f:(fun state'' ->
               (**
               let () = fprintf out "Updating global state!\n" in
