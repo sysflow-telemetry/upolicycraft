@@ -1,7 +1,7 @@
 sysmodel
 ========
 
-Derive process behavior models from application binaries.
+Derive process behavior models from application binaries
 
 Perform a `bap` pass over a binary. For every dependency, fork and run a bap
 pass on the dependency, and communicate the nodes that make the frontier to the

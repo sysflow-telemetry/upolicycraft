@@ -1,13 +1,11 @@
-sf-model
-========
+uIDS
+====
 
-Generating SysFlow Models from Container Binaries
+An Intrusion Detection System (IDS) for micro-services.
 
 Tutorial:
 
     https://github.com/BinaryAnalysisPlatform/bap-tutorial
-
-
 
 8/23/2019 Demo Steps:
 =========================
