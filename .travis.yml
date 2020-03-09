@@ -5,13 +5,8 @@ sudo: required
 services:
  - docker
 
-before_install:
- - curl -sL https://ibm.biz/idt-installer | bash
- - ibmcloud login --apikey ${BX_API_KEY} -r ${BX_REGION}
- - ibmcloud cr login
-
 script:
- - docker build --cache-from ${CR_CI}/uids:latest -t ${CR_CI}/uids:latest .
+ - docker build -t sysflowtelemetry/uids:latest .
 
 branches:
   only:
