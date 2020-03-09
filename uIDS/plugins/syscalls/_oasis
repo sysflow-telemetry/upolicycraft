@@ -4,7 +4,7 @@ Version:     0.1
 Synopsis:    BAP System Call Detector
 Authors:     Will Blair
 License:     MIT
-Copyrights:  (C) 2019 IBM
+Copyrights:  (C) 2020 IBM
 Plugins:     META (0.4), DevFiles (0.4)
 BuildTools: ocamlbuild, camlp4o
 

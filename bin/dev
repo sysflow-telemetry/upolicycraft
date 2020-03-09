@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker run -v $PWD:/uIDS --rm -it sysflowtelemetry/uids:latest /bin/bash
