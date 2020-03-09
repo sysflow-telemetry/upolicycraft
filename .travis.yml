@@ -1,0 +1,16 @@
+os: linux
+dist: xenial
+language: generic
+sudo: required
+services:
+ - docker
+
+script:
+ - docker build --cache-from ${CR_CI}/uids:latest -t ${CR_CI}/uids:latest .
+
+branches:
+  only:
+  - master
+
+notifications:
+  email: true
