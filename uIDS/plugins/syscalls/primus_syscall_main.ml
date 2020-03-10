@@ -351,13 +351,34 @@ let system_calls = [(0,"read");
  * A mapping of OS system calls to SysFlow system calls.
  * SysFlow records a subset of OS system calls relevant for Security.
  **)
-let sysflow_calls = [("execve", "execve");
-                     ("accept", "accept");
-                     ("bind", "bind");
-                     ("recvmsg", "recv");
-                     ("sendmsg", "send");
-                     ("clone", "clone");
-                     ("exit", "exit")]
+
+let sysflow_event_of_syscall syscall =
+    let sysflow_map = [("execve", ["execve"]);
+                       ("clone", ["clone"]);
+                       ("open", ["open"; "openat"; "timerfd_create"]);
+                       ("read/recv", ["read"; "pread64"; "preadv"; "readv";
+                                      "recvfrom"; "recvmsg"; "recvmmsg"]);
+                       ("write/send", ["write"; "pwrite64"; "pwritev";
+                                       "writev"; "sendto"; "sendmsg";
+                                       "sendmmsg"]);
+                       ("close", ["close"]);
+                       ("accept", ["accept"; "accept4"; "select"; "pselect6"]);
+                       ("connect", ["connect"]);
+                       ("mkdir", ["mkdir"; "mkdirat"]);
+                       ("rmdir", ["rmdir"]);
+                       ("link", ["link"; "linkat"]);
+                       ("unlink", ["unlink"; "unlinkat"]);
+                       ("shutdown", ["shutdown"]);
+                       ("rename", ["rename"; "renameat"]);
+                       ("symlink", ["symlink"; "symlinkat"]);
+                       ("setuid", ["setuid"; "setresuid"]);
+                       ("setns", ["setns"]);
+                       ("mmap", ["mmap"])] in
+    sysflow_map |>
+    List.filter ~f:(fun ((event, syscalls)) ->
+                    List.mem ~equal:String.equal syscalls syscall) |>
+    List.map ~f:fst |>
+    List.hd
 
 type event = Jmp | Def
 
@@ -585,8 +606,7 @@ let start_monitoring {Config.get=(!)} =
               List.map ~f:snd |>
               SS.of_list |>
               SS.to_list |>
-              List.map ~f:(fun s ->
-                      List.Assoc.find sysflow_calls ~equal:String.equal s) |>
+              List.map ~f:(fun s -> sysflow_event_of_syscall s) |>
               List.filter ~f:(fun opt -> opt <> None) |>
               List.map ~f:(fun opt -> let Some s = opt in s) in
               (**
