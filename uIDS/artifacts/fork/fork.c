@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     execv("/bin/sh", argv1);
   } else {
     // In the parent
-    waitpid(pid, NULL, 0);
+    sleep(1);
     printf("Child ended!\n");
   }
 
