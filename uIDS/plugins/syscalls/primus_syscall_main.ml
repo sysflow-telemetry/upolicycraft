@@ -24,12 +24,14 @@ module Param = struct
 
 end
 
-(**
-  Debugging so we know what providers we have in Primus.
+let out = std_formatter
 
-let show_providers out =
-  Primus.Observation.list_providers () |>
-  List.iter ~f:(fun p ->
+(**
+   Debugging so we know what providers we have in Primus.
+
+   let show_providers out =
+   Primus.Observation.list_providers () |>
+   List.iter ~f:(fun p ->
     fprintf out "Provider: %s\n" (Primus.Observation.Provider.name p))
 *)
 
@@ -353,38 +355,38 @@ let system_calls = [(0,"read");
  **)
 
 let sysflow_event_of_syscall syscall =
-    let sysflow_map = [("execve", ["execve"]);
-                       ("clone", ["clone"]);
-                       ("open", ["open"; "openat"; "timerfd_create"]);
-                       ("read/recv", ["read"; "pread64"; "preadv"; "readv";
-                                      "recvfrom"; "recvmsg"; "recvmmsg"]);
-                       ("write/send", ["write"; "pwrite64"; "pwritev";
-                                       "writev"; "sendto"; "sendmsg";
-                                       "sendmmsg"]);
-                       ("close", ["close"]);
-                       ("accept", ["accept"; "accept4"; "select"; "pselect6"]);
-                       ("connect", ["connect"]);
-                       ("mkdir", ["mkdir"; "mkdirat"]);
-                       ("rmdir", ["rmdir"]);
-                       ("link", ["link"; "linkat"]);
-                       ("unlink", ["unlink"; "unlinkat"]);
-                       ("shutdown", ["shutdown"]);
-                       ("rename", ["rename"; "renameat"]);
-                       ("symlink", ["symlink"; "symlinkat"]);
-                       ("setuid", ["setuid"; "setresuid"]);
-                       ("setns", ["setns"]);
-                       ("mmap", ["mmap"])] in
-    sysflow_map |>
-    List.filter ~f:(fun ((event, syscalls)) ->
-                    List.mem ~equal:String.equal syscalls syscall) |>
-    List.map ~f:fst |>
-    List.hd
+  let sysflow_map = [("execve", ["execve"]);
+                     ("clone", ["clone"]);
+                     ("open", ["open"; "openat"; "timerfd_create"]);
+                     ("read/recv", ["read"; "pread64"; "preadv"; "readv";
+                                    "recvfrom"; "recvmsg"; "recvmmsg"]);
+                     ("write/send", ["write"; "pwrite64"; "pwritev";
+                                     "writev"; "sendto"; "sendmsg";
+                                     "sendmmsg"]);
+                     ("close", ["close"]);
+                     ("accept", ["accept"; "accept4"; "select"; "pselect6"]);
+                     ("connect", ["connect"]);
+                     ("mkdir", ["mkdir"; "mkdirat"]);
+                     ("rmdir", ["rmdir"]);
+                     ("link", ["link"; "linkat"]);
+                     ("unlink", ["unlink"; "unlinkat"]);
+                     ("shutdown", ["shutdown"]);
+                     ("rename", ["rename"; "renameat"]);
+                     ("symlink", ["symlink"; "symlinkat"]);
+                     ("setuid", ["setuid"; "setresuid"]);
+                     ("setns", ["setns"]);
+                     ("mmap", ["mmap"])] in
+  sysflow_map |>
+  List.filter ~f:(fun ((event, syscalls)) ->
+      List.mem ~equal:String.equal syscalls syscall) |>
+  List.map ~f:fst |>
+  List.hd
 
 type event = Jmp | Def
 
 let pp_event out evt = match evt with
-                     Jmp -> fprintf out "Jmp "
-                   | Def -> fprintf out "Def "
+    Jmp -> fprintf out "Jmp "
+  | Def -> fprintf out "Def "
 
 let pp_history out history = List.iter ~f:(fun e -> pp_event out e) history; fprintf out "\n"
 
@@ -401,11 +403,11 @@ let push_history evt xs =
  *        during the execution of the binary.
  **)
 type state = {
-    addrs : int list;
-    vals : (string * ((int * int) list)) list;
-    regs : (string * int) list;
-    history : int list;
-    stack : string list;
+  addrs : int list;
+  vals : (string * ((int * int) list)) list;
+  regs : (string * int) list;
+  history : int list;
+  stack : string list;
 }
 
 module SS = Set.Make(String);;
@@ -413,11 +415,11 @@ module SS = Set.Make(String);;
 let address_of_pos out addr =
   match Bitvector.to_int addr with
     Error s ->
-      (** fprintf out "Error converting int!\n"; *)
-      -1
+    (** fprintf out "Error converting int!\n"; *)
+    -1
   | Ok v ->
-      (** fprintf out "SYSFLOW: Cursor at %#08x\n" v; *)
-      v
+    (** fprintf out "SYSFLOW: Cursor at %#08x\n" v; *)
+    v
 
 let state = Primus.Machine.State.declare
     ~name:"primus-syscall"
@@ -426,19 +428,19 @@ let state = Primus.Machine.State.declare
 
 let collect_syscalls out name insns =
   (**
-  let () = Seq.iter insns ~f:(fun (mem, i) ->
+     let () = Seq.iter insns ~f:(fun (mem, i) ->
              let asm = (Insn.asm i) in
              fprintf out "  %s\n" asm) in
   *)
   let int_of_mem = (fun mem ->
-    let err = mem |> Memory.min_addr |> Bitvector.to_int in
+      let err = mem |> Memory.min_addr |> Bitvector.to_int in
       match err with
         Error err -> -1
       | Ok i -> i) in
   let detect_syscall = (fun (mem, i) ->
-    let asm = (Insn.asm i) in
+      let asm = (Insn.asm i) in
       String.equal asm "syscall"
-  ) in
+    ) in
   Seq.filter ~f:detect_syscall insns |>
   Seq.map ~f:fst |>
   Seq.map ~f:int_of_mem
@@ -452,43 +454,41 @@ let find_value regs out e = (object
   method! enter_var reg v =
     let rname = Var.name reg in
     (**
-    let () = fprintf out "Lookup var: %s\n" rname in
+       let () = fprintf out "Lookup var: %s\n" rname in
     *)
-      match List.Assoc.find regs ~equal:String.equal rname with
-        None -> v
-      | Some v' -> v'
+    match List.Assoc.find regs ~equal:String.equal rname with
+      None -> v
+    | Some v' -> v'
 end)#visit_exp e ~-1
 
 (** SysCall Instruction: 0f 05 **)
 let syscall_length = 2
 
 let top stack =
-        stack |> List.rev |> List.hd
+  stack |> List.rev |> List.hd
 
-let start_monitoring {Config.get=(!)} =
-  let out = std_formatter in
-  let module Monitor(Machine : Primus.Machine.S) = struct
-    module Eval = Primus.Interpreter.Make(Machine)
-    open Machine.Syntax
+module Monitor(Machine : Primus.Machine.S) = struct
+  module Eval = Primus.Interpreter.Make(Machine)
+  open Machine.Syntax
 
-    (** Prevent Primus from Exploring other Functions. *)
-    let stop_call j = Machine.current () >>= fun pid ->
-      let kind = Jmp.kind j in
-        match kind with
-          Call _ -> Eval.halt >>= never_returns
-        | _ -> Machine.return()
+  (** Prevent Primus from Exploring other Functions. *)
+  let stop_call j = Machine.current () >>= fun pid ->
+    let kind = Jmp.kind j in
+    match kind with
+      Call _ -> Eval.halt >>= never_returns
+    | _ -> Machine.return()
 
-    let record_sub s = Machine.current () >>= fun pid ->
-      Machine.Local.update state ~f:(fun state ->
+  let record_sub s = Machine.current () >>= fun pid ->
+    Machine.Local.update state ~f:(fun state ->
         let subname = Sub.name s in
         (**
-          let () = fprintf out "Entering %s\n" subname in
-         *)
+           let () = fprintf out "Entering %s\n" subname in
+        *)
         {state with stack=subname :: state.stack}
       )
 
-    let record_def t =
-            Machine.Local.update state ~f:(fun {addrs;vals;regs;history;stack} ->
+  let record_def t =
+    Machine.Local.update state ~f:(fun {addrs;vals;regs;history;stack} ->
         let lhs = Def.lhs t in
         let reg = Var.name lhs in
         if reg = "RBP" || reg = "RSP" then
@@ -497,27 +497,27 @@ let start_monitoring {Config.get=(!)} =
           let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
           let v = find_value regs out exp in
           (**
-          let () = fprintf out "SYSFLOW: %s := %d\n" reg v in
+             let () = fprintf out "SYSFLOW: %s := %d\n" reg v in
           *)
           let regs' = List.Assoc.add regs ~equal:String.equal reg v in
           {addrs=addrs; vals=vals; regs=regs'; history=history;stack}
       )
 
-    let record_pos p = Machine.current () >>= fun pid ->
-      match (Primus.Pos.get address p) with
-        None -> Machine.return()
-      | Some addr -> Machine.Local.update state ~f:(fun state ->
+  let record_pos p = Machine.current () >>= fun pid ->
+    match (Primus.Pos.get address p) with
+      None -> Machine.return()
+    | Some addr -> Machine.Local.update state ~f:(fun state ->
         let a = address_of_pos out addr in
         (**
-        let () = fprintf out "Visiting addr at %x\n" a in
+           let () = fprintf out "Visiting addr at %x\n" a in
         *)
         let {addrs;vals;regs;history;stack} = state in
         let hit sa =
           (**
-          let () = fprintf out "Checking %x = %x\n" sa a in
+             let () = fprintf out "Checking %x = %x\n" sa a in
           *)
           let target = sa + syscall_length in
-            a = target || a = target+1 in
+          a = target || a = target+1 in
         let rax sa =
           (sa, (List.Assoc.find_exn regs ~equal:String.equal "RAX")) in
         let opt = addrs |>
@@ -526,176 +526,182 @@ let start_monitoring {Config.get=(!)} =
                   List.hd in
         match top stack with
           None ->
-            (**
-            let () = fprintf out "No context!\n" in
-            *)
-            {state with history=push_history a state.history}
+          (**
+             let () = fprintf out "No context!\n" in
+          *)
+          {state with history=push_history a state.history}
         | Some context ->
           let cvals = match List.Assoc.find vals ~equal:String.equal context with
-                        None -> []
-                      | Some v -> v in
+              None -> []
+            | Some v -> v in
           let cvals' = match opt with
-                        None -> cvals
-                      | Some (addr, syscall) ->
-                          if List.length history >= 3 then
-                            let x :: y :: z :: _ = history in
-                            (**
-                             * When micro-execution jumps and lands right after a
-                             * syscall, make sure we don't mark it as visited.
-                             * *)
-                            if (a - x) >= 9 ||
-                               ((a - x) = 1 && (a - y) >= 9) ||
-                               ((a = x) && (a - y) = 1 && (a - z) >= 9) then
-                              cvals
-                            else
-                              (**
-                              let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
-                              *)
-                              List.Assoc.add cvals ~equal:(=) addr syscall
-                          else
-                            List.Assoc.add cvals ~equal:(=) addr syscall in
+              None -> cvals
+            | Some (addr, syscall) ->
+              if List.length history >= 3 then
+                let x :: y :: z :: _ = history in
+                (**
+                 * When micro-execution jumps and lands right after a
+                 * syscall, make sure we don't mark it as visited.
+                 * *)
+                if (a - x) >= 9 ||
+                   ((a - x) = 1 && (a - y) >= 9) ||
+                   ((a = x) && (a - y) = 1 && (a - z) >= 9) then
+                  cvals
+                else
+                  (**
+                     let () = fprintf out "Assoc %x with %x syscall\n" addr syscall in
+                  *)
+                  List.Assoc.add cvals ~equal:(=) addr syscall
+              else
+                List.Assoc.add cvals ~equal:(=) addr syscall in
           let vals' = List.Assoc.add vals ~equal:String.equal context cvals' in
           {addrs=addrs; vals=vals'; regs=regs; history=push_history a history;stack})
 
-    let record_syscalls blk = Machine.Local.get state >>= fun state' ->
-        Machine.Global.update state ~f:(fun state'' ->
-              (**
-              let () = fprintf out "Updating global state!\n" in
-              let () = fprintf out "Vals %d\n" (List.length state'.vals) in
-              let () = fprintf out "Vals %d\n" (List.length state''.vals) in
-              *)
-          {state'' with vals=state'.vals @ state''.vals})
-
-    let pp_list ppf vals =
-        List.iter ~f:(fun (x,y) -> fprintf ppf "(%d,%d)" x y) vals
-
-    let print_syscalls () =
-      Machine.current () >>= fun pid ->
-        if Machine.global = pid then
-          Machine.Global.get state >>= fun state' ->
-          (**
-          let () = fprintf out "Global Machine Ending!\n" in
-          *)
-          let {addrs;vals} = state' in
-          (**
-          let () = fprintf out "Vals %d\n" (List.length vals) in
-          *)
-          let sorted = List.sort (fun x y -> compare (fst x) (fst y)) vals in
-          (**
-          let () = List.iter ~f:(fun (context, vals) -> fprintf out "%s %a\n" context pp_list vals) sorted in
-          *)
-          let rec merge xs =
-            match xs with
-            | (x, xv) :: (y, yv) :: xs ->
-              if x = y then
-                merge ((x, xv @ yv) :: xs)
-              else
-                (x, xv) :: merge ((y, yv) :: xs)
-            | _ -> xs in
-          let summarize (context, vals) =
-            (**
-            let () = fprintf out "Context %s\n" context in
-            *)
-            let syscalls =
-              vals |>
-              List.map ~f:(fun (addr, rax) ->
-                match List.Assoc.find system_calls ~equal:(=) rax with
-                  None -> (-1,"none")
-                | Some syscall ->
-                  (addr, syscall)) |>
-              List.map ~f:snd |>
-              SS.of_list |>
-              SS.to_list |>
-              List.map ~f:(fun s -> sysflow_event_of_syscall s) |>
-              List.filter ~f:(fun opt -> opt <> None) |>
-              List.map ~f:(fun opt -> let Some s = opt in s) in
-              (**
-              let () = fprintf out "Model:\n" in
-              let () = List.iter ~f:(fun s -> fprintf out "%s\n" s) syscalls in
-              *)
-            let jscalls = List.map ~f:(fun syscall -> `String syscall) syscalls in
-            `Assoc [("function", `String context); ("syscalls", `List jscalls)] in
-          let result = (`List (List.map ~f:summarize (merge sorted))) in
-          let output = Yojson.Basic.pretty_to_string result in
-          let () = fprintf out "%s\n" output in
-          Machine.return()
-        else
-          Machine.Local.get state >>= fun state' ->
-            (**
-            let () = fprintf out "Local Machine Ending!\n" in
-            *)
-            Machine.Global.update state ~f:(fun state'' ->
-              (**
-              let () = fprintf out "Updating global state!\n" in
-              let () = fprintf out "Vals %d\n" (List.length state'.vals) in
-              let () = fprintf out "Vals %d\n" (List.length state''.vals) in
-              *)
-              {state'' with vals=state'.vals @ state''.vals})
+  let record_syscalls blk = Machine.Local.get state >>= fun state' ->
+    Machine.Global.update state ~f:(fun state'' ->
         (**
-        let findcall addr =
-          match List.Assoc.find vals ~equal:(=) addr with
-            None -> ()
-          | Some rax ->
-              (match List.Assoc.find system_calls ~equal:(=) rax with
-                 None -> ()
-               | Some syscall ->
-                 fprintf out "Hit %#010x: %s\n" addr syscall) in
-        List.iter ~f:findcall addrs
+           let () = fprintf out "Updating global state!\n" in
+           let () = fprintf out "Vals %d\n" (List.length state'.vals) in
+           let () = fprintf out "Vals %d\n" (List.length state''.vals) in
         *)
+        {state'' with vals=state'.vals @ state''.vals})
 
-    let setup_tracing () =
-      Machine.List.sequence [
+  let pp_list ppf vals =
+    List.iter ~f:(fun (x,y) -> fprintf ppf "(%d,%d)" x y) vals
+
+  let print_syscalls () =
+    Machine.current () >>= fun pid ->
+    if Machine.global = pid then
+      Machine.Global.get state >>= fun state' ->
+      (**
+         let () = fprintf out "Global Machine Ending!\n" in
+      *)
+      let {addrs;vals} = state' in
+      (**
+         let () = fprintf out "Vals %d\n" (List.length vals) in
+      *)
+      let sorted = List.sort (fun x y -> compare (fst x) (fst y)) vals in
+      (**
+         let () = List.iter ~f:(fun (context, vals) -> fprintf out "%s %a\n" context pp_list vals) sorted in
+      *)
+      let rec merge xs =
+        match xs with
+        | (x, xv) :: (y, yv) :: xs ->
+          if x = y then
+            merge ((x, xv @ yv) :: xs)
+          else
+            (x, xv) :: merge ((y, yv) :: xs)
+        | _ -> xs in
+      let summarize (context, vals) =
+        (**
+           let () = fprintf out "Context %s\n" context in
+        *)
+        let syscalls =
+          vals |>
+          List.map ~f:(fun (addr, rax) ->
+              match List.Assoc.find system_calls ~equal:(=) rax with
+                None -> (-1,"none")
+              | Some syscall ->
+                (addr, syscall)) |>
+          List.map ~f:snd |>
+          SS.of_list |>
+          SS.to_list |>
+          List.map ~f:(fun s -> sysflow_event_of_syscall s) |>
+          List.filter ~f:(fun opt -> opt <> None) |>
+          List.map ~f:(fun opt -> let Some s = opt in s) in
+        (**
+           let () = fprintf out "Model:\n" in
+           let () = List.iter ~f:(fun s -> fprintf out "%s\n" s) syscalls in
+        *)
+        let jscalls = List.map ~f:(fun syscall -> `String syscall) syscalls in
+        `Assoc [("function", `String context); ("syscalls", `List jscalls)] in
+      let result = (`List (List.map ~f:summarize (merge sorted))) in
+      let output = Yojson.Basic.pretty_to_string result in
+      let () = fprintf out "%s\n" output in
+      Machine.return()
+    else
+      Machine.Local.get state >>= fun state' ->
+      (**
+         let () = fprintf out "Local Machine Ending!\n" in
+      *)
+      Machine.Global.update state ~f:(fun state'' ->
           (**
-            Primus.Interpreter.enter_jmp >> stop_call;
+             let () = fprintf out "Updating global state!\n" in
+             let () = fprintf out "Vals %d\n" (List.length state'.vals) in
+             let () = fprintf out "Vals %d\n" (List.length state''.vals) in
           *)
-          Primus.Interpreter.enter_sub >>> record_sub;
-          Primus.Interpreter.enter_def >>> record_def;
-          Primus.Interpreter.enter_pos >>> record_pos;
-          Primus.Interpreter.leave_blk >>> record_syscalls;
-          Primus.Machine.finished >>> print_syscalls;
-      ]
+          {state'' with vals=state'.vals @ state''.vals})
+  (**
+     let findcall addr =
+     match List.Assoc.find vals ~equal:(=) addr with
+      None -> ()
+     | Some rax ->
+        (match List.Assoc.find system_calls ~equal:(=) rax with
+           None -> ()
+         | Some syscall ->
+           fprintf out "Hit %#010x: %s\n" addr syscall) in
+     List.iter ~f:findcall addrs
+  *)
 
-    module G = Graphs.Cfg
+  let setup_tracing () =
+    Machine.List.sequence [
+      (**
+         Primus.Interpreter.enter_jmp >> stop_call;
+      *)
+      Primus.Interpreter.enter_sub >>> record_sub;
+      Primus.Interpreter.enter_def >>> record_def;
+      Primus.Interpreter.enter_pos >>> record_pos;
+      Primus.Interpreter.leave_blk >>> record_syscalls;
+      Primus.Machine.finished >>> print_syscalls;
+    ]
 
-    let init () =
-      setup_tracing () >>= fun () ->
-        Machine.get () >>= fun proj ->
-          let symtab = Project.symbols proj in
-          let symtabs = (Symtab.to_sequence symtab) in
-          (**
-          let () = fprintf out "No. of Functions: %d\n" (Seq.length symtabs) in
-          *)
-          let find_syscalls sc symtab =
-            let (name, _, cfg) = symtab in
-              (**
-              let () = fprintf out "Examining %s:\n" name in
-              *)
-              let blocks = cfg |>
-                Graphlib.reverse_postorder_traverse (module G) in
-              (**
-              let () = fprintf out " has %d basic blocks\n" (Seq.length blocks) in
-              *)
-              let insns = blocks |>
-                          Seq.map ~f:Block.insns |>
-                          Seq.concat_map ~f:Seq.of_list in
-              (**
-              let () = fprintf out " has %d instructions\n" (Seq.length insns) in
-              *)
-              insns |>
-              collect_syscalls out name |>
-              Seq.append sc in
-          let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
-            (**
-            syscalls |>
-            Seq.to_list |>
-            List.sort ~compare:compare |>
-            List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
-            fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
-            *)
-            Machine.Local.update state ~f:(fun s ->
-              {addrs=Seq.to_list syscalls; vals=[]; regs=[]; history=[]; stack=[]}
-            )
-  end in
-  Primus.Machine.add_component (module Monitor)
+  module G = Graphs.Cfg
 
-let () = Config.when_ready start_monitoring
+  let init () =
+    setup_tracing () >>= fun () ->
+    Machine.get () >>= fun proj ->
+    let symtab = Project.symbols proj in
+    let symtabs = (Symtab.to_sequence symtab) in
+    (**
+       let () = fprintf out "No. of Functions: %d\n" (Seq.length symtabs) in
+    *)
+    let find_syscalls sc symtab =
+      let (name, _, cfg) = symtab in
+      (**
+         let () = fprintf out "Examining %s:\n" name in
+      *)
+      let blocks = cfg |>
+                   Graphlib.reverse_postorder_traverse (module G) in
+      (**
+         let () = fprintf out " has %d basic blocks\n" (Seq.length blocks) in
+      *)
+      let insns = blocks |>
+                  Seq.map ~f:Block.insns |>
+                  Seq.concat_map ~f:Seq.of_list in
+      (**
+         let () = fprintf out " has %d instructions\n" (Seq.length insns) in
+      *)
+      insns |>
+      collect_syscalls out name |>
+      Seq.append sc in
+    let syscalls = Seq.fold ~init:Seq.empty ~f:find_syscalls symtabs in
+    (**
+       syscalls |>
+       Seq.to_list |>
+       List.sort ~compare:compare |>
+       List.iter ~f:(fun mem -> fprintf out "%8x\n" mem);
+       fprintf out "Found %d syscall instructions.\n" (Seq.length syscalls);
+    *)
+    Machine.Local.update state ~f:(fun s ->
+        {addrs=Seq.to_list syscalls; vals=[]; regs=[]; history=[]; stack=[]}
+      )
+end
+
+let main {Config.get=(!)} =
+  let open Param in
+  if !identify then
+    Primus.Machine.add_component (module Monitor)
+
+let () =
+  Config.when_ready (fun conf ->
+      main conf)
