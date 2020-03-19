@@ -72,20 +72,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-      let () = info "Caught exception!" in
-      Value.of_bool (false))
+        let () = info "Caught exception!" in
+        Value.of_bool (false))
 
   let string_of_addr addr =
     let rec loop addr cs =
-    (allow_all_memory_access (Memory.get addr)) >>= fun v ->
+      (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
-       if x = 0 then
-         let s = (cs |> List.rev |> String.of_char_list) in
-         let () = info "  %s" s in
-         Machine.return ()
-       else
-         let c = Char.of_int_exn x in
-         loop (Bitvector.succ addr) (c :: cs) in
+      if x = 0 then
+        let s = (cs |> List.rev |> String.of_char_list) in
+        let () = info "  %s" s in
+        Machine.return ()
+      else
+        let c = Char.of_int_exn x in
+        loop (Bitvector.succ addr) (c :: cs) in
     loop addr []
 
   let record_written (x, v) =
@@ -102,26 +102,26 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "Looking for value: %s" (Bitvector.to_string addr) in
       Machine.return ()
       (**
-      (allow_all_memory_access ) >>= fun v ->
-        let () = info "    %s: %d" (Exp.to_string exp) (v |> Primus.Value.to_word |> Bitvector.to_int_exn) in
-        Machine.return () *)
+         (allow_all_memory_access ) >>= fun v ->
+         let () = info "    %s: %d" (Exp.to_string exp) (v |> Primus.Value.to_word |> Bitvector.to_int_exn) in
+         Machine.return () *)
     else
       Machine.return ()
 
   let record_jmp j = Machine.current () >>= fun pid ->
     match (Jmp.kind j) with
       Call c ->
-        let label = c |> Call.target |> Label.to_string in
-        let prefix = String.get label 0 in
-        if prefix = '@' then
-          (** Inspect RDI *)
-          (** How can we infer the arguments to this function? *)
-          Machine.return()
-        else
-          Machine.return()
-      | _ ->
-        let () = info "    Different kind of jump" in
+      let label = c |> Call.target |> Label.to_string in
+      let prefix = String.get label 0 in
+      if prefix = '@' then
+        (** Inspect RDI *)
+        (** How can we infer the arguments to this function? *)
         Machine.return()
+      else
+        Machine.return()
+    | _ ->
+      let () = info "    Different kind of jump" in
+      Machine.return()
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
