@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   } else {
     // In the parent
     sleep(1);
-    printf("Child ended!\n");
+    printf("Done waiting!\n");
   }
 
 }

@@ -12,7 +12,7 @@ ENTRYPOINT=$2
 
 bap $PROGRAM --run \
        --run-entry-points="${ENTRYPOINT}" \
-       --primus-limit-max-length=256 \
+       --primus-limit-max-length=2048 \
        --primus-promiscuous-mode \
        --primus-greedy-scheduler \
        --primus-uids-model \
