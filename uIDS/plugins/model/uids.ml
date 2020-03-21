@@ -65,15 +65,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       else
         let cont = (allow_all_memory_access (Memory.get addr)) >>= fun v ->
           p >>= fun x ->
-            let v' = v |>
-              Value.to_word |>
-              Bitvector.to_int_exn |>
-              Bitvector.of_int ~width:64 in
-            let () = info "  %s" (Bitvector.to_string v') in
-            let shift = (Bitvector.of_int 64 (n * 8)) in
-            let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
-            let () = info "  intermediate: %s" (Bitvector.to_string next) in
-            Machine.return(next) in
+          let v' = v |>
+                   Value.to_word |>
+                   Bitvector.to_int_exn |>
+                   Bitvector.of_int ~width:64 in
+          let () = info "  %s" (Bitvector.to_string v') in
+          let shift = (Bitvector.of_int 64 (n * 8)) in
+          let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
+          let () = info "  intermediate: %s" (Bitvector.to_string next) in
+          Machine.return(next) in
         loop (succ n) (Bitvector.succ addr) cont in
     loop 0 addr (Machine.return(Bitvector.of_int 64 0))
 
@@ -95,13 +95,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let () = info "Finding strings at %x" (Bitvector.to_int_exn addr) in
     let rec loop addr strings =
       read_address addr >>= fun v ->
-        let () = info "Read address %s" (Bitvector.to_string v) in
-        if v = (Bitvector.zero 64) then
-          strings
-        else
-          let cont = strings >>= fun xs ->
-            (string_of_addr v) >>= fun x ->
-            Machine.return(x :: xs) in
+      let () = info "Read address %s" (Bitvector.to_string v) in
+      if v = (Bitvector.zero 64) then
+        strings
+      else
+        let cont = strings >>= fun xs ->
+          (string_of_addr v) >>= fun x ->
+          Machine.return(x :: xs) in
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
@@ -125,10 +125,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (v |> Value.to_word |> string_of_addr) >>= fun s ->
           (Env.get rsi) >>= fun u ->
           (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
-           let () = info " RDI: %s" s in
-           let () = info " RSI: %s" (String.concat ~sep:"," ss) in
-           Machine.return ()
-       else
+          let () = info " RDI: %s" s in
+          let () = info " RSI: %s" (String.concat ~sep:"," ss) in
+          Machine.return ()
+        else
           Machine.return ()
       else
         Machine.return ()
