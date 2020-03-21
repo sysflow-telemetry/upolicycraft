@@ -31,27 +31,8 @@ let state = Primus.Machine.State.declare
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
-    Error s ->
-    (** fprintf out "Error converting int!\n"; *)
-    -1
-  | Ok v ->
-    (** fprintf out "SYSFLOW: Cursor at %#08x\n" v; *)
-    v
-
-let find_value regs out e = (object
-  inherit [word] Exp.visitor
-  method! enter_int word v =
-    let () = info "Found word %s" (Bitvector.to_string v) in
-    v
-  method! enter_var reg v =
-    let rname = Var.name reg in
-    (**
-       let () = fprintf out "Lookup var: %s\n" rname in
-    *)
-    match List.Assoc.find regs ~equal:String.equal rname with
-      None -> v
-    | Some v' -> v'
-end)#visit_exp e (Bitvector.of_bool false)
+    Error s -> -1
+  | Ok v -> v
 
 let out = std_formatter
 
@@ -72,41 +53,63 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-        let () = info "Caught exception!" in
+        let () = info "Error reading memory!" in
         Value.of_bool (false))
+
+  (** Read an address stored at addr *)
+  let read_address addr =
+    let width = 8 in
+    let rec loop n addr p =
+      if n = width then
+        p
+      else
+        let cont = (allow_all_memory_access (Memory.get addr)) >>= fun v ->
+          p >>= fun x ->
+            let v' = v |>
+              Value.to_word |>
+              Bitvector.to_int_exn |>
+              Bitvector.of_int ~width:64 in
+            let () = info "  %s" (Bitvector.to_string v') in
+            let shift = (Bitvector.of_int 64 (n * 8)) in
+            let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
+            let () = info "  intermediate: %s" (Bitvector.to_string next) in
+            Machine.return(next) in
+        loop (succ n) (Bitvector.succ addr) cont in
+    loop 0 addr (Machine.return(Bitvector.of_int 64 0))
 
   let string_of_addr addr =
     let rec loop addr cs =
+      let () = info "Fetching %x" (Bitvector.to_int_exn addr) in
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
       if x = 0 then
         let s = (cs |> List.rev |> String.of_char_list) in
         let () = info "  %s" s in
-        Machine.return ()
+        Machine.return (s)
       else
         let c = Char.of_int_exn x in
-        loop (Bitvector.succ addr) (c :: cs) in
+        loop (Bitvector.succ addr)  (c :: cs) in
     loop addr []
 
+  let strings_of_addr addr =
+    let () = info "Finding strings at %x" (Bitvector.to_int_exn addr) in
+    let rec loop addr strings =
+      read_address addr >>= fun v ->
+        let () = info "Read address %s" (Bitvector.to_string v) in
+        if v = (Bitvector.zero 64) then
+          strings
+        else
+          let cont = strings >>= fun xs ->
+            (string_of_addr v) >>= fun x ->
+            Machine.return(x :: xs) in
+        loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
+    loop addr (Machine.return([]))
+
+  (** This is just for debugging:
+      Primus maintains the value of all the variables in the Env module. *)
   let record_written (x, v) =
     let () = info "Variable %s <- %s" (Var.to_string x) (Value.to_string v) in
-    let addr = (Value.to_word v) in
-    string_of_addr addr
-
-  let record_def t =
-    let reg = t |> Def.lhs |> Var.name in
-    if reg = "RDI" then
-      let () = info "Setting %s:" reg in
-      let exp = t |> Def.rhs |> Exp.normalize |> Exp.simpl in
-      let addr = find_value [] out exp in
-      let () = info "Looking for value: %s" (Bitvector.to_string addr) in
-      Machine.return ()
-      (**
-         (allow_all_memory_access ) >>= fun v ->
-         let () = info "    %s: %d" (Exp.to_string exp) (v |> Primus.Value.to_word |> Bitvector.to_int_exn) in
-         Machine.return () *)
-    else
-      Machine.return ()
+    Machine.return()
 
   let record_jmp j = Machine.current () >>= fun pid ->
     match (Jmp.kind j) with
@@ -114,11 +117,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let label = c |> Call.target |> Label.to_string in
       let prefix = String.get label 0 in
       if prefix = '@' then
-        (** Inspect RDI *)
-        (** How can we infer the arguments to this function? *)
-        Machine.return()
+        let func = String.drop_prefix label 1 in
+        if func = "execv" then
+          let rdi = (Var.create "RDI" reg64_t) in
+          let rsi = (Var.create "RSI" reg64_t) in
+          (Env.get rdi) >>= fun v ->
+          (v |> Value.to_word |> string_of_addr) >>= fun s ->
+          (Env.get rsi) >>= fun u ->
+          (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
+           let () = info " RDI: %s" s in
+           let () = info " RSI: %s" (String.concat ~sep:"," ss) in
+           Machine.return ()
+       else
+          Machine.return ()
       else
-        Machine.return()
+        Machine.return ()
     | _ ->
       let () = info "    Different kind of jump" in
       Machine.return()
@@ -126,7 +139,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
-      Primus.Interpreter.enter_def >>> record_def;
       Primus.Interpreter.enter_jmp >>> record_jmp;
     ]
 
