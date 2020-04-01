@@ -1,7 +1,4 @@
-all: fork system
+all: fork fork-func fork-argv system
 
-fork: fork.c
-	gcc -o $@ $<
-
-system: system.c
+%: %.c
 	gcc -o $@ $<

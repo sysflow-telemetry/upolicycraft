@@ -1,0 +1,21 @@
+OASISFormat: 0.4
+Name:        bap
+Version:     0.1
+Synopsis:    BAP uIDS modeler 
+Authors:     Will Blair
+License:     MIT
+Copyrights:  (C) 2020 IBM
+Plugins:     META (0.4), DevFiles (0.4)
+BuildTools: ocamlbuild, camlp4o
+
+BuildDepends: ppx_jane, core_kernel (>= v0.11 && < v0.12)
+
+Library primus_uids_plugin
+  Path: .
+  FindlibName: bap-plugin-primus_uids
+  CompiledObject: best
+  BuildDepends: bap-primus, bare, yojson
+  XMETADescription: Model the behavior of binaries. 
+  Modules: Uids 
+  XMETAExtraLines: tags="primus, uids"
+

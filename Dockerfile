@@ -8,12 +8,12 @@ USER root
 RUN chown -R opam:opam /uIDS/
 USER opam
 
-WORKDIR /uIDS/uIDS/plugins/syscalls/
+WORKDIR /uIDS/uIDS/plugins/model/
 RUN oasis setup -setup-update dynamic
 RUN make
 RUN make install
 RUN ./bin/build-plugin.sh
 
-ENV PATH="/uIDS/uIDS/plugins/syscalls/bin/:${PATH}"
+ENV PATH="/uIDS/uIDS/plugins/model/bin/:${PATH}"
 
-ENTRYPOINT ["/uIDS/uIDS/plugins/syscalls/bin/run.sh"]
+ENTRYPOINT ["/uIDS/uIDS/plugins/model/bin/run.sh"]
