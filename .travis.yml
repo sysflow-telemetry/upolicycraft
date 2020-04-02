@@ -7,6 +7,7 @@ services:
 
 script:
  - docker build -t sysflowtelemetry/uids:latest .
+ - docker run -v $PWD/uIDS/artifacts/:/artifacts sysflowtelemetry/uids:latest /artifacts/fork/fork-argv _start
 
 branches:
   only:
