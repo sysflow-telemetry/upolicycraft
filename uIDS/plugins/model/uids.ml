@@ -24,10 +24,23 @@ module Param = struct
 
 end
 
+type operations =
+  | Clone of string list
+  | Exec of string list
+
+let string_of_operation op =
+  match op with
+    Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
+  | Exec argv  -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
+
+type state = {
+  ops : operations list;
+}
+
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> 0)
+    (fun _ -> {ops = []})
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -118,28 +131,55 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let prefix = String.get label 0 in
       if prefix = '@' then
         let func = String.drop_prefix label 1 in
-        if func = "execv" then
+        match func with
+          "fork" ->
+          let () = info "model clone:" in
+          Machine.args >>= fun args ->
+          Machine.Global.update state ~f:(fun state' ->
+              { ops = Clone (Array.to_list args) :: state'.ops })
+        | "execv" ->
+          let () = info "model execv:" in
           let rdi = (Var.create "RDI" reg64_t) in
           let rsi = (Var.create "RSI" reg64_t) in
           (Env.get rdi) >>= fun v ->
           (v |> Value.to_word |> string_of_addr) >>= fun s ->
           (Env.get rsi) >>= fun u ->
           (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
-          let () = info " RDI: %s" s in
-          let () = info " RSI: %s" (String.concat ~sep:"," ss) in
-          Machine.return ()
-        else
+          let path = s in
+          let argv = (String.concat ~sep:"," ss) in
+          let () = info " RDI: %s" path in
+          let () = info " RSI: %s" argv in
+          Machine.Global.update state ~f:(fun state ->
+              { ops = (Exec [path; argv]) :: state.ops }
+            )
+        | _ ->
+          let () = info "Calling %s" func in
           Machine.return ()
       else
         Machine.return ()
     | _ ->
       let () = info "    Different kind of jump" in
       Machine.return()
+
+  let record_model () =
+    Machine.current () >>= fun pid ->
+    if Machine.global = pid then
+      let () = info "Global Machine ending." in
+      Machine.Global.get state >>= fun state' ->
+      let {ops} = state' in
+      let model = (ops |> List.rev |> List.map ~f:string_of_operation |> String.concat ~sep:" -> ") in
+      let () = fprintf out " Model: %s\n" model in
+      Machine.return ()
+    else
+      let () = info "Local Machine ending." in
+      Machine.return ()
+
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
+      Primus.Machine.finished >>> record_model;
     ]
 
   let init () =
