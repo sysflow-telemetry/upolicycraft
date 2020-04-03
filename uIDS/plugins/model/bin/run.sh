@@ -10,6 +10,11 @@ ENTRYPOINT=$2
 
 # Limit-max-length the total number of basic blocks Primus will run
 
+# Useful options for tracing the execution of the Primus machine.
+# --primus-print-obs=exception,pc-changed,jumping,call,call-return,machine-switch,machine-fork,lisp-message,incident,incident-location \
+# --primus-print-output=primus.log \
+
+
 bap $PROGRAM -prun \
        --run-entry-points="${ENTRYPOINT}" \
        --run-argv="helloworld,/bin/sh,/bin/bash" \

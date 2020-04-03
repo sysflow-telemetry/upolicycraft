@@ -24,7 +24,7 @@ module Param = struct
 
 end
 
-type operations =
+type operation =
   | Clone of string list
   | Exec of string list
 
@@ -33,14 +33,57 @@ let string_of_operation op =
     Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
   | Exec argv  -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
 
-type state = {
-  ops : operations list;
+type tree = {
+  node : operation list;
+  leaves : tree list
 }
+
+let empty_tree =
+  {node= []; leaves= []}
+
+let is_empty tree =
+  let {node} = tree in
+  match node with
+    [] -> true
+  | _ -> false
+
+let add_operation op tree =
+  let {node} = tree in
+  {tree with node = op :: node}
+
+let add_leaf leaf tree =
+  let {leaves} = tree in
+  {tree with leaves = leaf :: leaves}
+
+type state = {
+  history : tree list;
+}
+
+let add_operation op state =
+  let x :: xs = state.history in
+  let x' = (add_operation op x) in
+  { history = (x' :: xs) }
+
+let print_state state =
+  let {history} = state in
+  let rec print_history history =
+    match history with
+      [] -> ()
+    | h :: hs ->
+      let {node;leaves} = h in
+      let seq = node |>
+                List.rev |>
+                List.map ~f:string_of_operation |>
+                String.concat ~sep:"->" in
+      let () = printf "%s\n" seq in
+      let () = print_history leaves in
+      print_history hs in
+  print_history history
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> {ops = []})
+    (fun _ -> {history = []})
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -136,7 +179,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let () = info "model clone:" in
           Machine.args >>= fun args ->
           Machine.Global.update state ~f:(fun state' ->
-              { ops = Clone (Array.to_list args) :: state'.ops })
+              let op = Clone (Array.to_list args) in
+              add_operation op state')
         | "execv" ->
           let () = info "model execv:" in
           let rdi = (Var.create "RDI" reg64_t) in
@@ -149,11 +193,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let argv = (String.concat ~sep:"," ss) in
           let () = info " RDI: %s" path in
           let () = info " RSI: %s" argv in
-          Machine.Global.update state ~f:(fun state ->
-              { ops = (Exec [path; argv]) :: state.ops }
-            )
+          Machine.Global.update state ~f:(fun state' ->
+              let op = (Exec [path; argv]) in
+              (add_operation op state'))
         | _ ->
-          let () = info "Calling %s" func in
+          let () = info "called %s" func in
           Machine.return ()
       else
         Machine.return ()
@@ -161,24 +205,45 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "    Different kind of jump" in
       Machine.return()
 
+  let push_context blk =
+    let tree = (empty_tree) in
+    Machine.Global.update state ~f:(fun state' ->
+        {history = tree :: state'.history})
+
+  let pop_context blk =
+    Machine.Global.update state ~f:(fun state' ->
+        let {history} = state' in
+        match history with
+        | x :: x' :: xs ->
+          if is_empty x then
+            {history = x' :: xs}
+          else
+            {history = (add_leaf x x') :: xs}
+        | x :: xs ->
+          if is_empty x then
+            {history = xs}
+          else
+            state'
+        | _ -> state')
+
   let record_model () =
     Machine.current () >>= fun pid ->
+    let () = info "Machine ending!" in
     if Machine.global = pid then
       let () = info "Global Machine ending." in
       Machine.Global.get state >>= fun state' ->
-      let {ops} = state' in
-      let model = (ops |> List.rev |> List.map ~f:string_of_operation |> String.concat ~sep:" -> ") in
-      let () = fprintf out " Model: %s\n" model in
-      Machine.return ()
+      let () = print_state state' in
+      Machine.return()
     else
-      let () = info "Local Machine ending." in
-      Machine.return ()
+      Machine.return()
 
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
+      Primus.Interpreter.enter_blk >>> push_context;
+      Primus.Interpreter.leave_blk >>> pop_context;
       Primus.Machine.finished >>> record_model;
     ]
 
