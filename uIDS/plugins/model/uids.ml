@@ -64,21 +64,52 @@ let add_operation op state =
   let x' = (add_operation op x) in
   { history = (x' :: xs) }
 
-let print_state state =
+let graph_of_state nodes edges =
+  let nodes' = nodes |> List.map ~f:(fun (node, label) -> Printf.sprintf "%s [label=\"%s\"];" node label) |> String.concat ~sep:"\n" in
+  let edges' = edges |> List.map ~f:(fun (src, dst, label) -> Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label) |> String.concat ~sep:"\n" in
+  Printf.printf "digraph D {\n";
+  Printf.printf "%s\n" nodes';
+  Printf.printf "%s\n" edges';
+  Printf.printf "}\n"
+
+let render_state state =
   let {history} = state in
-  let rec print_history history =
+  let next_id id = succ id in
+  let rec print_history history nodes edges id =
     match history with
-      [] -> ()
+      [] -> (nodes, edges, id)
     | h :: hs ->
       let {node;leaves} = h in
       let seq = node |>
-                List.rev |>
-                List.map ~f:string_of_operation |>
-                String.concat ~sep:"->" in
-      let () = printf "%s\n" seq in
-      let () = print_history leaves in
-      print_history hs in
-  print_history history
+                List.rev in
+      let (nodes', edges', id') = List.fold_left ~init:(nodes, edges, id) ~f:(fun (nodes, edges, id) op ->
+                match op with
+                  Clone argv ->
+                    let label = String.concat ~sep:"," argv in
+                    let node = Printf.sprintf "node_%d" id in
+                    let id' = (next_id id) in
+                    let node' = Printf.sprintf "node_%d" id' in
+                    (* Create an edge between the parent and this child *)
+                    let edges' = match nodes with
+                                   [] -> edges
+                                 |  (n, l) :: ns -> (n, node, "clone") :: edges in
+                    (((node', label) :: (node, label) :: nodes), ((node, node', "clone") :: edges'), (next_id id'))
+                | Exec argv ->
+                    let label = String.concat ~sep:"," argv in
+                    let node = Printf.sprintf "node_%d" id in
+                    (* Create an edge between the parent and this child *)
+                    let edges' = match nodes with
+                                   [] -> edges
+                                 | (n, _) :: ns -> (n, node, "exec") :: edges in
+                    (((node, label) :: nodes), edges', (next_id id))) seq in
+      let sseq = seq |>
+                 List.map ~f:string_of_operation |>
+                 String.concat ~sep:"->" in
+      let () = printf "%s\n" sseq in
+      (** This is wrong, I need to maintain a "root" parameter to track all the leaves' ancestor. *)
+      let (nodes'', edges'', id'') = print_history leaves nodes' edges' id' in
+      print_history hs nodes'' edges'' id'' in
+  print_history history [] [] 0
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
@@ -232,7 +263,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     if Machine.global = pid then
       let () = info "Global Machine ending." in
       Machine.Global.get state >>= fun state' ->
-      let () = print_state state' in
+      let (nodes, edges, id) = render_state state' in
+      let () = graph_of_state nodes edges in
       Machine.return()
     else
       Machine.return()
