@@ -83,25 +83,25 @@ let render_state state =
       let seq = node |>
                 List.rev in
       let (nodes', edges', id') = List.fold_left ~init:(nodes, edges, id) ~f:(fun (nodes, edges, id) op ->
-                match op with
-                  Clone argv ->
-                    let label = String.concat ~sep:"," argv in
-                    let node = Printf.sprintf "node_%d" id in
-                    let id' = (next_id id) in
-                    let node' = Printf.sprintf "node_%d" id' in
-                    (* Create an edge between the parent and this child *)
-                    let edges' = match nodes with
-                                   [] -> edges
-                                 |  (n, l) :: ns -> (n, node, "clone") :: edges in
-                    (((node', label) :: (node, label) :: nodes), ((node, node', "clone") :: edges'), (next_id id'))
-                | Exec argv ->
-                    let label = String.concat ~sep:"," argv in
-                    let node = Printf.sprintf "node_%d" id in
-                    (* Create an edge between the parent and this child *)
-                    let edges' = match nodes with
-                                   [] -> edges
-                                 | (n, _) :: ns -> (n, node, "exec") :: edges in
-                    (((node, label) :: nodes), edges', (next_id id))) seq in
+          match op with
+            Clone argv ->
+            let label = String.concat ~sep:"," argv in
+            let node = Printf.sprintf "node_%d" id in
+            let id' = (next_id id) in
+            let node' = Printf.sprintf "node_%d" id' in
+            (* Create an edge between the parent and this child *)
+            let edges' = match nodes with
+                [] -> edges
+              |  (n, l) :: ns -> (n, node, "clone") :: edges in
+            (((node', label) :: (node, label) :: nodes), ((node, node', "clone") :: edges'), (next_id id'))
+          | Exec argv ->
+            let label = String.concat ~sep:"," argv in
+            let node = Printf.sprintf "node_%d" id in
+            (* Create an edge between the parent and this child *)
+            let edges' = match nodes with
+                [] -> edges
+              | (n, _) :: ns -> (n, node, "exec") :: edges in
+            (((node, label) :: nodes), edges', (next_id id))) seq in
       let sseq = seq |>
                  List.map ~f:string_of_operation |>
                  String.concat ~sep:"->" in
