@@ -1,0 +1,10 @@
+FROM ocaml/opam2:alpine
+
+RUN sudo apk add jq m4 linux-headers
+WORKDIR /home/opam
+COPY ./bin/uIDS /home/opam/uIDS
+RUN opam switch 4.07 \
+  && eval "$(opam env)" \
+  && opam install ocamlfind core core_kernel ppx_let yojson shexp 
+
+ENTRYPOINT ["opam", "config", "exec", "--", "/home/opam/uIDS"]

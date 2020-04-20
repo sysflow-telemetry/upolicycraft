@@ -65,8 +65,12 @@ let add_operation op state =
   { history = (x' :: xs) }
 
 let graph_of_state nodes edges =
-  let nodes' = nodes |> List.map ~f:(fun (node, label) -> Printf.sprintf "%s [label=\"%s\"];" node label) |> String.concat ~sep:"\n" in
-  let edges' = edges |> List.map ~f:(fun (src, dst, label) -> Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label) |> String.concat ~sep:"\n" in
+  let nodes' = nodes |> List.map ~f:(fun (node, label) ->
+                                       Printf.sprintf "%s [label=\"%s\"];" node label)
+                     |> String.concat ~sep:"\n" in
+  let edges' = edges |> List.map ~f:(fun (src, dst, label) ->
+                                       Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label)
+                     |> String.concat ~sep:"\n" in
   Printf.printf "digraph D {\n";
   Printf.printf "%s\n" nodes';
   Printf.printf "%s\n" edges';

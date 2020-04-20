@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 2 ]; then
+  echo "usage: $0 path-to-binary entrypoints (comma separated)"
+  exit 1
+fi
+
+FILE=$(basename $1)
+
+docker run -v $1:/artifact/${FILE} -v $PWD/cache:/home/opam/.cache/bap --rm -it sysflowtelemetry/uids:latest /artifact/${FILE} $2

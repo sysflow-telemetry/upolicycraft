@@ -3,6 +3,32 @@ uIDS
 
 An Intrusion Detection System (IDS) for micro-services.
 
+IDS Workflow:
+
+The uids-util docker image handles disassembling and inspecting docker images, the following
+commands allow you to inspect a container so that micro-execution can run the binary in a separate
+container.
+
+Unpack an image
+
+    unpack -image image-name -path foo
+
+Mount an image's filesystem
+
+    mount-layers -image image-name -path foo
+
+Collect the entrypoint:
+
+    entrypoint -image image-name
+
+Find the path to the entrypoint (on the host filesystem):
+
+    path -image image-name -path path-inside-image
+
+Soon, find a binary with bash -x
+
+    binary -image image-name -path path-to-bash-script
+
 Tutorial:
 
     https://github.com/BinaryAnalysisPlatform/bap-tutorial

@@ -1,6 +1,6 @@
-#!/usr/bin/env bash 
+#!/usr/bin/env bash
 
-if [ "$#" -ne 1 ]; then 
+if [ "$#" -ne 1 ]; then
   echo "usage: $0 image-name"
   exit 1
 fi
@@ -10,14 +10,10 @@ TARNAME=$1.tar
 
 docker save $IMAGENAME > images/$TARNAME
 
-pushd images 
+pushd images
 
 mkdir -p $IMAGENAME
 
-pushd $IMAGENAME
-
-tar -xf ../$TARNAME
-
-popd
+tar -xf $TARNAME -C $IMAGENAME
 
 popd

@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-docker build -t sysflowtelemetry/uids:latest .
+docker build -f docker/Dockerfile -t sysflowtelemetry/uids:latest .
+docker build -f docker/Dockerfile.util -t sysflowtelemetry/uids-util:latest .
