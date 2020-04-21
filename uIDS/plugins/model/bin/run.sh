@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$#" -ne 3 ]; then
-  echo "usage: $0 binary entrypoint"
+  echo "usage: $0 binary entrypoint argv"
   exit 1
 fi
 
