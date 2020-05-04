@@ -27,11 +27,13 @@ end
 type operation =
   | Clone of string list
   | Exec of string list
+  | Open of string
 
 let string_of_operation op =
   match op with
     Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
-  | Exec argv  -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
+  | Exec argv -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
+  | Open path -> "open (" ^ path ^ ")"
 
 type tree = {
   node : operation list;
@@ -231,6 +233,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
           Machine.Global.update state ~f:(fun state' ->
               let op = (Exec [path; argv]) in
               (add_operation op state'))
+        | "open64" ->
+          let () = info "model open:" in
+          let rdi = (Var.create "RDI" reg64_t) in
+          (Env.get rdi) >>= fun v ->
+            (v |> Value.to_word |> string_of_addr) >>= fun path ->
+              let () = info " RDI: %s" path in
+              Machine.Global.update state ~f:(fun state' ->
+                let op = (Open path) in
+                (add_operation op state'))
         | _ ->
           let () = info "called %s" func in
           Machine.return ()
