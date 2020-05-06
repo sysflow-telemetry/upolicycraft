@@ -3,6 +3,13 @@ uIDS
 
 An Intrusion Detection System (IDS) for micro-services.
 
+Evaluation:
+
+All Docker Images for the Evaluation are contained in:
+
+    experiments/echo
+    experiments/nginx
+
 IDS Workflow:
 
 The uids-util docker image handles disassembling and inspecting docker images, the following
