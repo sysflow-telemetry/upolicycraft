@@ -3,6 +3,18 @@ syscalls
 
 A BAP plugin for identifying system calls in a binary.
 
+Micro-Execute a function in our fake libc.
+
+    ../../plugins/syscalls/bin/run.sh ./libc.so branching
+
+Build a model of `echo` using Call Graph search and Primus.
+    (~20 minutes since it lifts glibc.)
+
+    ../../../bin/model ./server
+
+The file `model.json` shows its output.
+
+
 ## Making oasis aware of the plugin
 
     oasis setup -setup-update dynamic

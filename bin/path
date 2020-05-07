@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 2 ]; then 
+  echo "usage: $0 image-name path"
+  exit 1 
+fi
+
+IMAGENAME=$1
+IMAGEPATH=$2
+LAYERS=$(manifest ${IMAGENAME} | jq ".[0].Layers")
+N=$(echo ${LAYERS} | jq "length")
+
+let N=N-1
+
+for L in $(seq 0 ${N}); 
+do
+  HOSTPATH=./layers/${L}/${IMAGEPATH}
+  if [[ -f ${HOSTPATH} ]]
+  then 
+      echo ${HOSTPATH}
+      exit 0 
+  fi 
+done
+
+echo "Could not find path, did you mount the image?"

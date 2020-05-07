@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# -e FILTER="container.name != sf-collector and container.name != sf-exporter" \
+
+docker run -d --privileged --name sf-collector \
+         -v /var/run/docker.sock:/host/var/run/docker.sock \
+         -v /dev:/host/dev -v /proc:/host/proc:ro \
+         -v /boot:/host/boot:ro -v /lib/modules:/host/lib/modules:ro \
+         -v /usr:/host/usr:ro -v /mnt/data:/mnt/data \
+         -e INTERVAL=60                              \
+         -e EXPORTER_ID=${HOSTNAME}                  \
+         -e OUTPUT=/mnt/data/                        \
+         -e FILTER="container.name = echo" \
+         --rm sysflowtelemetry/sf-collector:edge
+

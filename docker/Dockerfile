@@ -5,7 +5,7 @@ COPY --chown=opam . /uIDS
 
 RUN sudo apk add jq python3
 
-WORKDIR /uIDS/uIDS/plugins/model/
+WORKDIR /uIDS/uIDS
 
 ENV CAML_LD_LIBRARY_PATH="/home/opam/.opam/4.07/lib/stublibs:/home/opam/.opam/4.07/lib/ocaml/stublibs:/home/opam/.opam/4.07/lib/ocaml"
 ENV OCAML_TOPLEVEL_PATH="/home/opam/.opam/4.07/lib/toplevel"
@@ -18,6 +18,6 @@ RUN make
 RUN make install
 RUN ./bin/build-plugin.sh
 
-ENV PATH="/uIDS/uIDS/plugins/model/bin/:${PATH}"
+ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
-ENTRYPOINT ["/uIDS/uIDS/plugins/model/bin/run.sh"]
+ENTRYPOINT ["/uIDS/uIDS/bin/run.sh"]

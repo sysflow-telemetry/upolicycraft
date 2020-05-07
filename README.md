@@ -7,14 +7,19 @@ Evaluation:
 
 All Docker Images for the Evaluation are contained in:
 
-    experiments/echo
-    experiments/nginx
+    experiments/redhat/fork
+    experiments/redhat/echo
+    experiments/redhat/nginx
 
 IDS Workflow:
 
 The uids-util docker image handles disassembling and inspecting docker images, the following
 commands allow you to inspect a container so that micro-execution can run the binary in a separate
 container.
+
+Save an image:
+
+    docker save image-name > image-name.tar
 
 Unpack an image
 
@@ -40,38 +45,12 @@ Tutorial:
 
     https://github.com/BinaryAnalysisPlatform/bap-tutorial
 
-8/23/2019 Demo Steps:
-=========================
 
-Go to the `echo` directory.
+Start SysFlow Collector
 
-    cd sysmodel/artifacts/echo
+    ./bin/sf-collector
 
-Build the `server` and `libc.so` examples.
-
-    make server libc.so
-
-Output the leaves of `server`'s call graph.
-
-    bap ./server --pass cg
-
-Micro-Execute a function in our fake libc.
-
-    ../../plugins/syscalls/bin/run.sh ./libc.so branching
-
-Build a model of `echo` using Call Graph search and Primus.
-    (~20 minutes since it lifts glibc.)
-
-    ../../../bin/model ./server
-
-The file `model.json` shows its output.
-
-Start SysFlow.
-
-    cd ~/ibm/sf-telemetry-stack
-    ./start_probe
-
-Run the `server` process.
+Run the`server`the process.
 
     ./server 8081
 
