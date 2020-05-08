@@ -1,2 +1,10 @@
 images/*
 layer/*
+cache/*
+notes/*
+uIDS/Makefile
+uIDS/_build
+uIDS/configure
+uIDS/plugins
+uIDS/setup.*
+layers/*

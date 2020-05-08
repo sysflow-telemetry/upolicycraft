@@ -8,7 +8,10 @@ services:
 script:
  - docker build -f docker/Dockerfile -t sysflowtelemetry/uids:latest .
  - docker build -f docker/Dockerfile.util -t sysflowtelemetry/uids-util:latest .
- - docker run -v $PWD/uIDS/artifacts/:/artifacts sysflowtelemetry/uids:latest /artifacts/fork/fork-argv _start "fork,/bin/bash,/bin/sh"
+ - ./bin/setup-experiments
+ - ./bin/util unpack -image fork
+ - ./bin/util mount-layers -image fork
+ - docker run -v $PWD/experiments/redhat/:/experiments/redhat/ sysflowtelemetry/uids:latest /experiments/redhat/fork/3/uIDS/fork _start "fork,/bin/bash,/bin/sh"
 
 branches:
   only:

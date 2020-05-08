@@ -1,7 +1,8 @@
-#!/usr/bin/env ocaml 
+#!/usr/bin/env ocaml
 
 #use "topfind"
 #warnings "+a"
+
 #thread
 
 #require "core"
@@ -12,7 +13,7 @@
 
 module List' = Core_kernel.List
 
-open Core 
+open Core
 
 open Printf
 open Shexp_process
@@ -21,111 +22,96 @@ open Shexp_process.Infix
 module Yo = Yojson
 module Util = Yojson.Basic.Util
 
-(**
-let tail str =
-    if str = "" then "" else
-    String.sub str 1 ((String.length str) - 1)
-
-let model_syscalls artifact =
-    let logfile = Printf.sprintf "%s-model.json" artifact in
-    (** Generate a model for the artifact. *)
-    run "bap" [artifact; "--pass"; "cg"] |- read_all >>= fun s ->
-      let command = s |> Yo.Basic.from_string
-                      |> Util.to_list
-                      |> List'.map (fun f -> f |> Util.to_string |> tail)
-                      |> String.concat "," in
-      run "../../plugins/syscalls/bin/run.sh"
-          ["/lib/x86_64-linux-gnu/libc.so.6"; command] *)
-
-let usage = 
+let usage =
   printf "Usage uIDS image pathname"
 
-let optional_parameter opt = 
+let optional_parameter opt =
   match opt with
-    None -> usage; exit 1; 
-  | Some s -> s 
+    None -> raise (Invalid_argument "required parameter not provided.")
+  | Some s -> s
 
 let unpack image =
   let imagedir = sprintf "images/%s" image in
   let tarname = sprintf "images/%s.tar" image in
-  run "mkdir" ["-p"; imagedir] >> 
+  run "mkdir" ["-p"; imagedir] >>
   run "tar"   ["-xf"; tarname; "-C"; imagedir]
 
-let layers image = 
+let layers image =
   let manifestfile = sprintf "./images/%s/manifest.json" image in
   run "cat" [manifestfile] |- run "jq" [".[0].Layers"]
 
 let mount_layers image =
-  layers image 
-    |- read_all >>= fun layers ->
-      layers |> Yo.Basic.from_string
-             |> Util.to_list
-             |> List'.map ~f:(fun f -> f |> Util.to_string)
-             |> List'.fold_left ~init:(return(), 0) ~f:(fun (cont, i) layer ->
-               let layername = layer |> String.split ~on:'/' |> List'.hd_exn in
-               let layerarchive = sprintf "./images/%s/%s/layer.tar" image layername in
-               let layerdir = sprintf "./images/%s/%d/" image i in 
-               let unpack = run "mkdir" ["-p"; layerdir] >> run "tar" ["-xf"; layerarchive; "-C"; layerdir] in
-               (unpack >> cont, (succ i)))
-             |> fst
+  layers image
+  |- read_all >>= fun layers ->
+  (Yo.Basic.from_string layers)
+  |> Util.to_list
+  |> List'.map ~f:(fun f -> f |> Util.to_string)
+  |> List'.fold_left ~init:(return(), 0) ~f:(fun (cont, i) layer ->
+      let layername = layer |> String.split ~on:'/' |> List'.hd_exn in
+      let layerarchive = sprintf "./images/%s/%s/layer.tar" image layername in
+      let layerdir = sprintf "./images/%s/%d/" image i in
+      let unpack = run "mkdir" ["-p"; layerdir] >>
+        run "tar" ["--skip-old-files"; "-xf"; layerarchive; "-C"; layerdir] in
+      (unpack >> cont, (succ i)))
+  |> fst
 
 let config image =
-  let manifestfile = sprintf "./images/%s/manifest.json" image in 
+  let manifestfile = sprintf "./images/%s/manifest.json" image in
   run "cat" [manifestfile] |- run "jq" [".[0].Config"]
 
 let entrypoint image =
   config image |- read_all >>= fun config ->
-    let trimmed = String.strip ~drop:(fun c -> c = '"' || c = '\n') config in
-    let filename = sprintf "images/%s/%s" image trimmed in 
-    run "cat" [filename] |- run "jq" [".config.Entrypoint[0]"]
+  let trimmed = String.strip ~drop:(fun c -> c = '"' || c = '\n') config in
+  let filename = sprintf "images/%s/%s" image trimmed in
+  run "cat" [filename] |- run "jq" [".config.Entrypoint[0]"]
 
-let path image entrypoint =
-  let errormsg = echo "File does not exist" in 
+let path image opt =
+  let entrypoint = optional_parameter opt in
+  let errormsg = echo "File does not exist" in
   layers image |- read_all >>= fun layers ->
-    layers |> Yo.Basic.from_string
-           |> Util.to_list
-           |> List'.map ~f:(fun f -> f |> Util.to_string)
-           |> List'.fold_left ~init:(errormsg, 0) ~f:(fun (path, i) layer ->
-               let layername = layer |> String.split ~on:'/' |> List'.hd_exn in
-               let layerarchive = sprintf "./images/%s/%s/layer.tar" image layername in
-               let absolutepath = sprintf "./images/%s/%d/%s" image i entrypoint in 
-               try 
-                 let _ = eval (stat absolutepath) in
-                 (echo absolutepath, (succ i))
-               with Unix.Unix_error (code, op, file) ->  
-                 (path, (succ i)))
-           |> fst 
+  (Yo.Basic.from_string layers)
+  |> Util.to_list
+  |> List'.map ~f:(fun f -> f |> Util.to_string)
+  |> List'.fold_left ~init:(errormsg, 0) ~f:(fun (path, i) _ ->
+      try
+        let absolutepath = sprintf "./images/%s/%d/%s" image i entrypoint in
+        let _ = eval (stat absolutepath) in
+        (echo absolutepath, (succ i))
+      with Unix.Unix_error (_, _, _) ->
+        (path, (succ i)))
+  |> fst
 
-let binary path = 
-  run_exit_code "bash" ["-x"; path] >>| fun code ->
-    () 
-    (**
-    read_all >>= fun lines ->
-      echo lines *)
- 
+let binary opt =
+  let path = optional_parameter opt in
+  printf "path: %s" path
+
 let handle_command op image filepath =
   match op with
     "config" -> config image
   | "entrypoint" -> entrypoint image
-  | "mount-layers" -> mount_layers image 
+  | "mount-layers" -> mount_layers image
   | "path" -> path image filepath
   | "unpack" -> unpack image
-  | "binary" -> binary filepath 
+  | "binary" -> binary filepath
   | _ -> (usage)
- 
+
 let main =
   let open Command.Let_syntax in
   let command =
     Command.basic ~summary:"uIDS Static Behavior Analysis"
       [%map_open
-        let op = anon ("operation" %: string) 
-        and image = flag "image" (required string) ~doc:"The image to inspect" 
-        and path = flag "path" (required string) ~doc:"A path within the image relevant to the operation" in
-        fun () -> 
-          (eval (handle_command op image path))
+        let op = anon ("operation" %: string)
+        and image = flag "image" (required string) ~doc:"The image to inspect"
+        and path = flag "path" (optional string) ~doc:"A path within the image relevant to the operation" in
+       fun () ->
+          try
+            (eval (handle_command op image path))
+          with e ->
+            let msg = Exn.to_string e in
+            Printf.eprintf "error: %s" msg
       ]
   in
   Command.run command
 
 let () =
-    (main) 
+  (main)
