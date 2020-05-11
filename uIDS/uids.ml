@@ -59,20 +59,21 @@ let add_leaf leaf tree =
 
 type state = {
   history : tree list;
+  labels : (string, Var.t) Hashtbl.t
 }
 
 let add_operation op state =
   let x :: xs = state.history in
   let x' = (add_operation op x) in
-  { history = (x' :: xs) }
+  { state with history = (x' :: xs) }
 
 let graph_of_state nodes edges =
   let nodes' = nodes |> List.map ~f:(fun (node, label) ->
-                                       Printf.sprintf "%s [label=\"%s\"];" node label)
-                     |> String.concat ~sep:"\n" in
+      Printf.sprintf "%s [label=\"%s\"];" node label)
+               |> String.concat ~sep:"\n" in
   let edges' = edges |> List.map ~f:(fun (src, dst, label) ->
-                                       Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label)
-                     |> String.concat ~sep:"\n" in
+      Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label)
+               |> String.concat ~sep:"\n" in
   Printf.printf "digraph D {\n";
   Printf.printf "%s\n" nodes';
   Printf.printf "%s\n" edges';
@@ -120,7 +121,7 @@ let render_state state =
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> {history = []})
+    (fun _ -> {history = []; labels = Hashtbl.create (module String) })
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -198,11 +199,24 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
-  (** This is just for debugging:
-      Primus maintains the value of all the variables in the Env module. *)
-  let record_written (x, v) =
-    let () = info "Variable %s <- %s" (Var.to_string x) (Value.to_string v) in
+  let record_stmt stmt = Machine.current () >>= fun pid ->
+    let s = Stmt.to_string stmt in
+    let () = info "record statement: %s" s in
     Machine.return()
+
+  (** This is just for debugging:
+      Primus maintains the value of all the variables in the Env.module. *)
+  let record_written (x, v) =
+    let name = Var.to_string x in
+    let () = info "Variable %s <- %s" name (Value.to_string v) in
+    let start = String.get name 0 in
+    if start = '#' then
+      Machine.Global.update state ~f:(fun state' ->
+          let () = Hashtbl.set state'.labels ~key:name ~data:x in
+          state'
+        )
+    else
+      Machine.return()
 
   let record_jmp j = Machine.current () >>= fun pid ->
     match (Jmp.kind j) with
@@ -237,16 +251,32 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let () = info "model open:" in
           let rdi = (Var.create "RDI" reg64_t) in
           (Env.get rdi) >>= fun v ->
-            (v |> Value.to_word |> string_of_addr) >>= fun path ->
-              let () = info " RDI: %s" path in
-              Machine.Global.update state ~f:(fun state' ->
-                let op = (Open path) in
-                (add_operation op state'))
+          (v |> Value.to_word |> string_of_addr) >>= fun path ->
+          let () = info " RDI: %s" path in
+          Machine.Global.update state ~f:(fun state' ->
+              let op = (Open path) in
+              (add_operation op state'))
         | _ ->
           let () = info "called %s" func in
           Machine.return ()
       else
-        Machine.return ()
+        let () = info "Indirect function call:" in
+        let prefix = String.get label 0 in
+        if prefix = '#' then
+          Machine.Global.get state >>= fun state' ->
+          let {labels} = state' in
+          let var = Hashtbl.find_exn labels label in
+          (Env.get var) >>= fun v ->
+          let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
+          let () = info "  target %x" target in
+          Machine.return()
+        else
+          Machine.return()
+
+    | Goto label ->
+      let label' = Label.to_string label in
+      let () = info "goto label %s" label' in
+      Machine.return ()
     | _ ->
       let () = info "    Different kind of jump" in
       Machine.return()
@@ -254,7 +284,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let push_context blk =
     let tree = (empty_tree) in
     Machine.Global.update state ~f:(fun state' ->
-        {history = tree :: state'.history})
+        {state' with history = tree :: state'.history})
 
   let pop_context blk =
     Machine.Global.update state ~f:(fun state' ->
@@ -262,12 +292,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
         match history with
         | x :: x' :: xs ->
           if is_empty x then
-            {history = x' :: xs}
+            {state' with history = x' :: xs}
           else
-            {history = (add_leaf x x') :: xs}
+            {state' with history = (add_leaf x x') :: xs}
         | x :: xs ->
           if is_empty x then
-            {history = xs}
+            {state' with history = xs}
           else
             state'
         | _ -> state')

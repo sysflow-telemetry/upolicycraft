@@ -11,7 +11,8 @@ All Docker Images for the Evaluation are contained in:
     experiments/redhat/echo
     experiments/redhat/nginx
 
-IDS Workflow:
+uIDS Workflow
+=============
 
 The uids-util docker image handles disassembling and inspecting docker images, the following
 commands allow you to inspect a container so that micro-execution can run the binary in a separate
@@ -19,32 +20,41 @@ container.
 
 Save an image:
 
-    docker save image-name > image-name.tar
+    docker save image-name > images/image-name.tar
 
 Unpack an image
 
-    unpack -image image-name -path foo
+    util unpack -image image-name
 
 Mount an image's filesystem
 
-    mount-layers -image image-name -path foo
+    util mount-layers -image image-name
 
 Collect the entrypoint:
 
-    entrypoint -image image-name
+    util entrypoint -image image-name
 
 Find the path to the entrypoint (on the host filesystem):
 
-    path -image image-name -path path-inside-image
+    util path -image image-name -path path-inside-image
 
 Soon, find a binary with bash -x
 
-    binary -image image-name -path path-to-bash-script
+    util binary -image image-name -path path-to-bash-script
+
+Dev Workflow
+=============
+
+    source bin/env
+
+    dev
+
+References
+==========
 
 Tutorial:
 
     https://github.com/BinaryAnalysisPlatform/bap-tutorial
-
 
 Start SysFlow Collector
 
@@ -52,7 +62,7 @@ Start SysFlow Collector
 
 Run the`server`the process.
 
-    ./server 8081
+    docker run -it sysflowtelemetry/echo
 
 Run the `server` exploit.
 

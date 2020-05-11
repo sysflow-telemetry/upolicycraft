@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ocp-indent -i $1
