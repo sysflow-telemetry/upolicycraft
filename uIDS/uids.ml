@@ -28,12 +28,20 @@ type operation =
   | Clone of string list
   | Exec of string list
   | Open of string
+  | Bind of int
+  | Accept
+  | Read
+  | Write
 
 let string_of_operation op =
   match op with
     Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
   | Exec argv -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
   | Open path -> "open (" ^ path ^ ")"
+  | Bind port -> "bind ()"
+  | Accept -> "accept ()"
+  | Read -> "read ()"
+  | Write -> "write ()"
 
 type tree = {
   node : operation list;
@@ -109,6 +117,34 @@ let render_state state =
             let edges' = match nodes with
                 [] -> edges
               | (n, _) :: ns -> (n, node, "exec") :: edges in
+            (((node, label) :: nodes), edges', (next_id id))
+          | Bind port ->
+            let label = Printf.sprintf "%d" port in
+            let node = Printf.sprintf "node_%d" id in
+            let edges' = match nodes with
+                [] -> edges
+              | (n, _) :: ns -> (n, node, "bind") :: edges in
+            (((node, label) :: nodes), edges', (next_id id))
+          | Accept ->
+            let label = "" in
+            let node = Printf.sprintf "node_%d" id in
+            let edges' = match nodes with
+                [] -> edges
+              | (n, _) :: ns -> (n, node, "accept") :: edges in
+            (((node, label) :: nodes), edges', (next_id id))
+          | Read ->
+            let label = "" in
+            let node = Printf.sprintf "node_%d" id in
+            let edges' = match nodes with
+                [] -> edges
+              | (n, _) :: ns -> (n, node, "read") :: edges in
+            (((node, label) :: nodes), edges', (next_id id))
+          | Write ->
+            let label = "" in
+            let node = Printf.sprintf "node_%d" id in
+            let edges' = match nodes with
+                [] -> edges
+              | (n, _) :: ns -> (n, node, "write") :: edges in
             (((node, label) :: nodes), edges', (next_id id))) seq in
       let sseq = seq |>
                  List.map ~f:string_of_operation |>
@@ -231,6 +267,30 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " RDI: %s" path in
       Machine.Global.update state ~f:(fun state' ->
           let op = (Open path) in
+          (add_operation op state'))
+    | "bind" ->
+      let () = info "model bind:" in
+      let rdi = (Var.create "RSI") in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = (Bind 0) in
+          (add_operation op state'))
+    | "accept" ->
+      let () = info "model accept:" in
+      let rdi = (Var.create "RSI") in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = Accept in
+          (add_operation op state'))
+    | "recvmsg" ->
+      let () = info "model read:" in
+      let rdi = (Var.create "RSI") in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = Read in
+          (add_operation op state'))
+    | "sendmsg" ->
+      let () = info "model write:" in
+      let rdi = (Var.create "RSI") in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = Write in
           (add_operation op state'))
     | _ ->
       let () = info "called %s" func in
