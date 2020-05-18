@@ -58,6 +58,7 @@ let add_leaf leaf tree =
   {tree with leaves = leaf :: leaves}
 
 type state = {
+  symbols : Symtab.fn list;
   history : tree list;
   labels : (string, Var.t) Hashtbl.t
 }
@@ -121,7 +122,7 @@ let render_state state =
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> {history = []; labels = Hashtbl.create (module String) })
+    (fun _ -> { symbols = []; history = []; labels = Hashtbl.create (module String) })
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -199,6 +200,42 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
+  let record_function func  =
+    match func with
+      "fork" ->
+      let () = info "model clone:" in
+      Machine.args >>= fun args ->
+      Machine.Global.update state ~f:(fun state' ->
+          let op = Clone (Array.to_list args) in
+          add_operation op state')
+    | "execv" ->
+      let () = info "model execv:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun s ->
+      (Env.get rsi) >>= fun u ->
+      (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
+      let path = s in
+      let argv = (String.concat ~sep:"," ss) in
+      let () = info " RDI: %s" path in
+      let () = info " RSI: %s" argv in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = (Exec [path; argv]) in
+          (add_operation op state'))
+    | "open64" ->
+      let () = info "model open:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      let () = info " RDI: %s" path in
+      Machine.Global.update state ~f:(fun state' ->
+          let op = (Open path) in
+          (add_operation op state'))
+    | _ ->
+      let () = info "called %s" func in
+      Machine.return ()
+
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
     let () = info "record statement: %s" s in
@@ -225,40 +262,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let prefix = String.get label 0 in
       if prefix = '@' then
         let func = String.drop_prefix label 1 in
-        match func with
-          "fork" ->
-          let () = info "model clone:" in
-          Machine.args >>= fun args ->
-          Machine.Global.update state ~f:(fun state' ->
-              let op = Clone (Array.to_list args) in
-              add_operation op state')
-        | "execv" ->
-          let () = info "model execv:" in
-          let rdi = (Var.create "RDI" reg64_t) in
-          let rsi = (Var.create "RSI" reg64_t) in
-          (Env.get rdi) >>= fun v ->
-          (v |> Value.to_word |> string_of_addr) >>= fun s ->
-          (Env.get rsi) >>= fun u ->
-          (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
-          let path = s in
-          let argv = (String.concat ~sep:"," ss) in
-          let () = info " RDI: %s" path in
-          let () = info " RSI: %s" argv in
-          Machine.Global.update state ~f:(fun state' ->
-              let op = (Exec [path; argv]) in
-              (add_operation op state'))
-        | "open64" ->
-          let () = info "model open:" in
-          let rdi = (Var.create "RDI" reg64_t) in
-          (Env.get rdi) >>= fun v ->
-          (v |> Value.to_word |> string_of_addr) >>= fun path ->
-          let () = info " RDI: %s" path in
-          Machine.Global.update state ~f:(fun state' ->
-              let op = (Open path) in
-              (add_operation op state'))
-        | _ ->
-          let () = info "called %s" func in
-          Machine.return ()
+        record_function func
       else
         let () = info "Indirect function call:" in
         let prefix = String.get label 0 in
@@ -268,8 +272,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let var = Hashtbl.find_exn labels label in
           (Env.get var) >>= fun v ->
           let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
-          let () = info "  target %x" target in
-          Machine.return()
+          let {symbols} = state' in
+          let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
+            let addr = block |> Block.addr |> Bitvector.to_int_exn in
+            let () = info "  found %s %x" name addr in
+            addr = target) |> List.map ~f:(fun (name, block, cfg) ->
+              name
+            ) in
+          if (List.length matched) > 0 then
+            let f = List.nth_exn matched 0 in
+            let () = info "  match %s" f in
+            record_function f
+          else
+            let () = info "  target %x" target in
+            Machine.return()
         else
           Machine.return()
 
@@ -325,8 +341,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
     ]
 
   let init () =
-    setup_tracing ()
-
+    setup_tracing () >>= fun () ->
+    Machine.get () >>= fun proj ->
+    let symtab = Project.symbols proj in
+    let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
+    Machine.Global.update state ~f:(fun s ->
+        { symbols = symtabs; history = []; labels = Hashtbl.create (module String) }
+    )
 end
 
 let main {Config.get=(!)} =
