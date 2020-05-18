@@ -274,9 +274,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
           let {symbols} = state' in
           let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
-            let addr = block |> Block.addr |> Bitvector.to_int_exn in
-            let () = info "  found %s %x" name addr in
-            addr = target) |> List.map ~f:(fun (name, block, cfg) ->
+              let addr = block |> Block.addr |> Bitvector.to_int_exn in
+              let () = info "  found %s %x" name addr in
+              addr = target) |> List.map ~f:(fun (name, block, cfg) ->
               name
             ) in
           if (List.length matched) > 0 then
@@ -347,7 +347,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs; history = []; labels = Hashtbl.create (module String) }
-    )
+      )
 end
 
 let main {Config.get=(!)} =
