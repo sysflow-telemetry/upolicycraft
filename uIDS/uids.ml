@@ -24,29 +24,48 @@ module Param = struct
 
 end
 
+type fd = int
+
 type operation =
   | Clone of string list
   | Exec of string list
   | Open of string
-  | Bind of int
-  | Accept
-  | Read
-  | Write
+  | Bind of fd * int
+  | Accept of fd
+  | Read of fd
+  | Write of fd
 
 let string_of_operation op =
   match op with
     Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
   | Exec argv -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
   | Open path -> "open (" ^ path ^ ")"
-  | Bind port -> "bind ()"
-  | Accept -> "accept ()"
-  | Read -> "read ()"
-  | Write -> "write ()"
+  | Bind (fd , port) ->
+    let fd'  = Printf.sprintf "%d" fd in
+    let port' = Printf.sprintf "%d" port in
+    "bind ( " ^ fd' ^ ", " ^ port' ^ ")"
+  | Accept fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    "accept(" ^ fd' ^ ")"
+  | Read fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    "read (" ^ fd' ^ ")"
+  | Write fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    "write (" ^ fd' ^ ")"
 
 type tree = {
   node : operation list;
   leaves : tree list
 }
+
+let string_of_tree tree =
+  let rec loop depth tree =
+    let {node;leaves} = tree in
+    let sops = node |> List.map ~f:string_of_operation |> String.concat ~sep:"->" in
+    let sleaves = leaves |> List.map ~f:(loop (succ depth)) |> String.concat ~sep:"\n" in
+    sprintf "depth %d\n%*s\n%*s" depth depth sops depth sleaves in
+  loop 0 tree
 
 let empty_tree =
   {node= []; leaves= []}
@@ -66,6 +85,7 @@ let add_leaf leaf tree =
   {tree with leaves = leaf :: leaves}
 
 type state = {
+  operations : operation list;
   symbols : Symtab.fn list;
   history : tree list;
   labels : (string, Var.t) Hashtbl.t
@@ -74,7 +94,7 @@ type state = {
 let add_operation op state =
   let x :: xs = state.history in
   let x' = (add_operation op x) in
-  { state with history = (x' :: xs) }
+  { state with history = (x' :: xs); operations = op :: state.operations }
 
 let graph_of_state nodes edges =
   let nodes' = nodes |> List.map ~f:(fun (node, label) ->
@@ -88,77 +108,64 @@ let graph_of_state nodes edges =
   Printf.printf "%s\n" edges';
   Printf.printf "}\n"
 
-let render_state state =
-  let {history} = state in
+let render_state args state =
+  let {history;operations} = state in
   let next_id id = succ id in
-  let rec print_history history nodes edges id =
-    match history with
-      [] -> (nodes, edges, id)
-    | h :: hs ->
-      let {node;leaves} = h in
-      let seq = node |>
-                List.rev in
-      let (nodes', edges', id') = List.fold_left ~init:(nodes, edges, id) ~f:(fun (nodes, edges, id) op ->
-          match op with
-            Clone argv ->
-            let label = String.concat ~sep:"," argv in
-            let node = Printf.sprintf "node_%d" id in
-            let id' = (next_id id) in
-            let node' = Printf.sprintf "node_%d" id' in
-            (* Create an edge between the parent and this child *)
-            let edges' = match nodes with
-                [] -> edges
-              |  (n, l) :: ns -> (n, node, "clone") :: edges in
-            (((node', label) :: (node, label) :: nodes), ((node, node', "clone") :: edges'), (next_id id'))
-          | Exec argv ->
-            let label = String.concat ~sep:"," argv in
-            let node = Printf.sprintf "node_%d" id in
-            (* Create an edge between the parent and this child *)
-            let edges' = match nodes with
-                [] -> edges
-              | (n, _) :: ns -> (n, node, "exec") :: edges in
-            (((node, label) :: nodes), edges', (next_id id))
-          | Bind port ->
-            let label = Printf.sprintf "%d" port in
-            let node = Printf.sprintf "node_%d" id in
-            let edges' = match nodes with
-                [] -> edges
-              | (n, _) :: ns -> (n, node, "bind") :: edges in
-            (((node, label) :: nodes), edges', (next_id id))
-          | Accept ->
-            let label = "" in
-            let node = Printf.sprintf "node_%d" id in
-            let edges' = match nodes with
-                [] -> edges
-              | (n, _) :: ns -> (n, node, "accept") :: edges in
-            (((node, label) :: nodes), edges', (next_id id))
-          | Read ->
-            let label = "" in
-            let node = Printf.sprintf "node_%d" id in
-            let edges' = match nodes with
-                [] -> edges
-              | (n, _) :: ns -> (n, node, "read") :: edges in
-            (((node, label) :: nodes), edges', (next_id id))
-          | Write ->
-            let label = "" in
-            let node = Printf.sprintf "node_%d" id in
-            let edges' = match nodes with
-                [] -> edges
-              | (n, _) :: ns -> (n, node, "write") :: edges in
-            (((node, label) :: nodes), edges', (next_id id))) seq in
-      let sseq = seq |>
-                 List.map ~f:string_of_operation |>
-                 String.concat ~sep:"->" in
-      let () = printf "%s\n" sseq in
-      (** This is wrong, I need to maintain a "root" parameter to track all the leaves' ancestor. *)
-      let (nodes'', edges'', id'') = print_history leaves nodes' edges' id' in
-      print_history hs nodes'' edges'' id'' in
-  print_history history [] [] 0
+  let render_history history nodes edges id =
+    let seq = history |>
+              List.rev in
+    List.fold_left ~init:(nodes, edges, id) ~f:(fun (nodes, edges, id) op ->
+        match op with
+          Clone argv ->
+          let label = String.concat ~sep:"," argv in
+          let node = Printf.sprintf "node_%d" id in
+          (* Create an edge between the parent and this child *)
+          let edges' = match nodes with
+              [] -> edges
+            |  (n, _) :: ns -> (n, node, "clone") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))
+        | Exec argv ->
+          let label = String.concat ~sep:"," argv in
+          let node = Printf.sprintf "node_%d" id in
+          (* Create an edge between the parent and this child *)
+          let edges' = match nodes with
+              [] -> edges
+            | (n, _) :: ns -> (n, node, "exec") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))
+        | Bind (fd, port) ->
+          let label = Printf.sprintf "%x %d" fd port in
+          let node = Printf.sprintf "node_%d" id in
+          let edges' = match nodes with
+              [] -> edges
+            | (n, _) :: ns -> (n, node, "bind") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))
+        | Accept fd ->
+          let label = Printf.sprintf "%x" fd in
+          let node = Printf.sprintf "node_%d" id in
+          let edges' = match nodes with
+              [] -> edges
+            | (n, _) :: ns -> (n, node, "accept") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))
+        | Read fd ->
+          let label = Printf.sprintf "%x" fd in
+          let node = Printf.sprintf "node_%d" id in
+          let edges' = match nodes with
+              [] -> edges
+            | (n, _) :: ns -> (n, node, "read") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))
+        | Write fd ->
+          let label = Printf.sprintf "%x" fd in
+          let node = Printf.sprintf "node_%d" id in
+          let edges' = match nodes with
+              [] -> edges
+            | (n, _) :: ns -> (n, node, "write") :: edges in
+          (((node, label) :: nodes), edges', (next_id id))) seq in
+  render_history operations [("node_0", (String.concat ~sep:"," args))] [] 1
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> { symbols = []; history = []; labels = Hashtbl.create (module String) })
+    (fun _ -> { operations = []; symbols = []; history = []; labels = Hashtbl.create (module String) })
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -185,7 +192,41 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
         let () = info "Error reading memory!" in
+        let msg = Primus.Exn.to_string exn in
+        let () = info "    %s" msg in
         Value.of_bool (false))
+
+  let dump_memory addr steps =
+    let () = info "dump memory" in
+    let rec loop n addr =
+      if n = steps then
+        Machine.return()
+      else
+        allow_all_memory_access (Memory.get addr) >>= fun v ->
+        let x = v |> Value.to_word |> Bitvector.to_int_exn in
+        let () = info "  %x" x in
+        loop (succ n) (Bitvector.succ addr) in
+    loop 0 addr
+
+  let read_number addr width =
+    let rec loop n addr p =
+      if n = width then
+        p
+      else
+        let cont = (allow_all_memory_access (Memory.get addr)) >>= fun v ->
+          p >>= fun x ->
+          let v' = v |>
+                   Value.to_word |>
+                   Bitvector.to_int_exn |>
+                   Bitvector.of_int ~width:64 in
+          let () = info "  %s" (Bitvector.to_string v') in
+          let shift = (Bitvector.of_int 64 (n * 8)) in
+          let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
+          let () = info "  intermediate: %s" (Bitvector.to_string next) in
+          Machine.return(next) in
+        loop (succ n) (Bitvector.succ addr) cont in
+    loop 0 addr (Machine.return(Bitvector.of_int 64 0))
+
 
   (** Read an address stored at addr *)
   let read_address addr =
@@ -236,7 +277,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
-  let record_function func  =
+  let record_function func =
     match func with
       "fork" ->
       let () = info "model clone:" in
@@ -270,27 +311,42 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation op state'))
     | "bind" ->
       let () = info "model bind:" in
-      let rdi = (Var.create "RSI") in
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (Env.get rsi) >>= fun u ->
+      let sockaddr = (u |> Value.to_word) in
+      let portaddr = Bitvector.nsucc sockaddr 0x2 in
+      read_number portaddr 2 >>= fun v ->
+      let port = Bitvector.to_int_exn v in
+      let () = info " port %d" port in
       Machine.Global.update state ~f:(fun state' ->
-          let op = (Bind 0) in
+          let op = Bind (fd, port) in
           (add_operation op state'))
     | "accept" ->
       let () = info "model accept:" in
-      let rdi = (Var.create "RSI") in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Global.update state ~f:(fun state' ->
-          let op = Accept in
+          let op = Accept fd in
           (add_operation op state'))
     | "recvmsg" ->
       let () = info "model read:" in
-      let rdi = (Var.create "RSI") in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Global.update state ~f:(fun state' ->
-          let op = Read in
+          let op = Read fd in
           (add_operation op state'))
     | "sendmsg" ->
       let () = info "model write:" in
-      let rdi = (Var.create "RSI") in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Global.update state ~f:(fun state' ->
-          let op = Write in
+          let op = Write fd in
           (add_operation op state'))
     | _ ->
       let () = info "called %s" func in
@@ -358,11 +414,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.return()
 
   let push_context blk =
+    let () = info "entering block!" in
     let tree = (empty_tree) in
     Machine.Global.update state ~f:(fun state' ->
         {state' with history = tree :: state'.history})
 
   let pop_context blk =
+    let () = info "leaving block!" in
     Machine.Global.update state ~f:(fun state' ->
         let {history} = state' in
         match history with
@@ -383,8 +441,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let () = info "Machine ending!" in
     if Machine.global = pid then
       let () = info "Global Machine ending." in
+      Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
-      let (nodes, edges, id) = render_state state' in
+      let args' = (Array.to_list args) in
+      let (nodes, edges, id) = render_state args' state' in
       let () = graph_of_state nodes edges in
       Machine.return()
     else
@@ -406,7 +466,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     Machine.Global.update state ~f:(fun s ->
-        { symbols = symtabs; history = []; labels = Hashtbl.create (module String) }
+        { symbols = symtabs; operations = []; history = []; labels = Hashtbl.create (module String) }
       )
 end
 

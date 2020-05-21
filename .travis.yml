@@ -9,6 +9,7 @@ script:
  - docker build -f docker/Dockerfile -t sysflowtelemetry/uids:latest .
  - docker build -f docker/Dockerfile.util -t sysflowtelemetry/uids-util:latest .
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/fork _start "fork,/bin/bash,/bin/sh"
+ - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/echo _start "echo,8081"
 
 branches:
   only:

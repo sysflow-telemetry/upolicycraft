@@ -22,5 +22,4 @@ bap $PROGRAM -prun \
        --primus-limit-max-length=2048 \
        --primus-promiscuous-mode \
        --primus-greedy-scheduler \
-       --primus-uids-model \
-       --report-progress
+       --primus-uids-model
