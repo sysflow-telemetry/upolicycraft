@@ -450,6 +450,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
     else
       Machine.return()
 
+  let record_finished () =
+    Machine.current () >>= fun pid ->
+    let () = info "machine finished!" in
+    Machine.return()
+
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;

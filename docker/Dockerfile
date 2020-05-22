@@ -1,23 +1,17 @@
-FROM docker.io/binaryanalysisplatform/bap:2.0.0 as bap
+FROM binaryanalysisplatform/bap@sha256:501f28bee8eaac8b63b7e72ce9218c52a93de850b1a7f2a91274bacd7e4f45a4
 
 RUN opam install yojson camlp4
 COPY --chown=opam . /uIDS
 
-RUN sudo apk add jq python3
+RUN sudo apt-get -y install jq python3
 
 WORKDIR /uIDS/uIDS
 
-ENV CAML_LD_LIBRARY_PATH="/home/opam/.opam/4.07/lib/stublibs:/home/opam/.opam/4.07/lib/ocaml/stublibs:/home/opam/.opam/4.07/lib/ocaml"
-ENV OCAML_TOPLEVEL_PATH="/home/opam/.opam/4.07/lib/toplevel"
-ENV MANPATH=:/home/opam/.opam/4.07/man
-ENV OPAM_SWITCH_PREFIX=/home/opam/.opam/4.07
-ENV PATH=/home/opam/.opam/4.07/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-RUN oasis setup -setup-update dynamic
-RUN make
-RUN make install
-RUN ./bin/build-plugin.sh
+RUN opam config exec -- oasis setup -setup-update dynamic
+RUN opam config exec -- make
+RUN opam config exec -- make install
+RUN opam config exec -- ./bin/build-plugin.sh
 
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
-ENTRYPOINT ["/uIDS/uIDS/bin/run.sh"]
+ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run.sh"]
