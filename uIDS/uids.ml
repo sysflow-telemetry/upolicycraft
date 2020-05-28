@@ -2,9 +2,10 @@ open Core_kernel
 open Bap.Std
 open Bap_primus.Std
 open Bap_future.Std
-open Monads.Std
 open Format
 open Graphlib.Std
+open Monads.Std
+open Regular.Std
 open Yojson
 
 module Id = Monad.State.Multi.Id
@@ -21,7 +22,6 @@ module Param = struct
   let model = flag "model"
       ~doc:
         "Derive a process model for a binary."
-
 end
 
 type fd = int
@@ -35,137 +35,74 @@ type operation =
   | Read of fd
   | Write of fd
 
-let string_of_operation op =
-  match op with
-    Clone argv -> "clone (" ^ (String.concat ~sep:"," argv) ^ ")"
-  | Exec argv -> "exec (" ^ (String.concat ~sep:"," argv)  ^ ")"
-  | Open path -> "open (" ^ path ^ ")"
-  | Bind (fd , port) ->
-    let fd'  = Printf.sprintf "%d" fd in
-    let port' = Printf.sprintf "%d" port in
-    "bind ( " ^ fd' ^ ", " ^ port' ^ ")"
-  | Accept fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    "accept(" ^ fd' ^ ")"
-  | Read fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    "read (" ^ fd' ^ ")"
-  | Write fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    "write (" ^ fd' ^ ")"
-
-type tree = {
-  node : operation list;
-  leaves : tree list
-}
-
-let string_of_tree tree =
-  let rec loop depth tree =
-    let {node;leaves} = tree in
-    let sops = node |> List.map ~f:string_of_operation |> String.concat ~sep:"->" in
-    let sleaves = leaves |> List.map ~f:(loop (succ depth)) |> String.concat ~sep:"\n" in
-    sprintf "depth %d\n%*s\n%*s" depth depth sops depth sleaves in
-  loop 0 tree
-
-let empty_tree =
-  {node= []; leaves= []}
-
-let is_empty tree =
-  let {node} = tree in
-  match node with
-    [] -> true
-  | _ -> false
-
-let add_operation op tree =
-  let {node} = tree in
-  {tree with node = op :: node}
-
-let add_leaf leaf tree =
-  let {leaves} = tree in
-  {tree with leaves = leaf :: leaves}
+module BehaviorGraph = Graphlib.Make(Tid)(String)
 
 type state = {
-  operations : operation list;
   symbols : Symtab.fn list;
-  history : tree list;
-  labels : (string, Var.t) Hashtbl.t
+  labels : (string, Var.t) Hashtbl.t;
+  nodes : (Tid.t, string) Hashtbl.t;
+  last_tid : Tid.t;
+  visited : Tid.Set.t;
+  halted : Id.Set.t;
+  graph : BehaviorGraph.t;
 }
 
-let add_operation op state =
-  let x :: xs = state.history in
-  let x' = (add_operation op x) in
-  { state with history = (x' :: xs); operations = op :: state.operations }
+let edge_of_operation op =
+  match op with
+    Clone argv -> "clone"
+  | Exec argv -> "exec"
+  | Open path -> "open"
+  | Bind (fd , port) -> "bind"
+  | Accept fd -> "accept"
+  | Read fd -> "read"
+  | Write fd -> "write"
 
-let graph_of_state nodes edges =
-  let nodes' = nodes |> List.map ~f:(fun (node, label) ->
-      Printf.sprintf "%s [label=\"%s\"];" node label)
-               |> String.concat ~sep:"\n" in
-  let edges' = edges |> List.map ~f:(fun (src, dst, label) ->
-      Printf.sprintf "%s -> %s [label=\"%s\"];" src dst label)
-               |> String.concat ~sep:"\n" in
-  Printf.printf "digraph D {\n";
-  Printf.printf "%s\n" nodes';
-  Printf.printf "%s\n" edges';
-  Printf.printf "}\n"
+let node_of_operation op =
+  match op with
+    Clone argv -> (String.concat ~sep:"," argv)
+  | Exec argv -> (String.concat ~sep:"," argv)
+  | Open path -> path
+  | Bind (fd, port) ->
+    let fd' = Printf.sprintf "%d" fd in
+    let port' = Printf.sprintf "%d" port in
+    fd' ^ ", " ^ port'
+  | Accept fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    fd'
+  | Read fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    fd'
+  | Write fd ->
+    let fd' = Printf.sprintf "%d" fd in
+    fd'
 
-let render_state args state =
-  let {history;operations} = state in
-  let next_id id = succ id in
-  let render_history history nodes edges id =
-    let seq = history |>
-              List.rev in
-    List.fold_left ~init:(nodes, edges, id) ~f:(fun (nodes, edges, id) op ->
-        match op with
-          Clone argv ->
-          let label = String.concat ~sep:"," argv in
-          let node = Printf.sprintf "node_%d" id in
-          (* Create an edge between the parent and this child *)
-          let edges' = match nodes with
-              [] -> edges
-            |  (n, _) :: ns -> (n, node, "clone") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))
-        | Exec argv ->
-          let label = String.concat ~sep:"," argv in
-          let node = Printf.sprintf "node_%d" id in
-          (* Create an edge between the parent and this child *)
-          let edges' = match nodes with
-              [] -> edges
-            | (n, _) :: ns -> (n, node, "exec") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))
-        | Bind (fd, port) ->
-          let label = Printf.sprintf "%x %d" fd port in
-          let node = Printf.sprintf "node_%d" id in
-          let edges' = match nodes with
-              [] -> edges
-            | (n, _) :: ns -> (n, node, "bind") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))
-        | Accept fd ->
-          let label = Printf.sprintf "%x" fd in
-          let node = Printf.sprintf "node_%d" id in
-          let edges' = match nodes with
-              [] -> edges
-            | (n, _) :: ns -> (n, node, "accept") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))
-        | Read fd ->
-          let label = Printf.sprintf "%x" fd in
-          let node = Printf.sprintf "node_%d" id in
-          let edges' = match nodes with
-              [] -> edges
-            | (n, _) :: ns -> (n, node, "read") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))
-        | Write fd ->
-          let label = Printf.sprintf "%x" fd in
-          let node = Printf.sprintf "node_%d" id in
-          let edges' = match nodes with
-              [] -> edges
-            | (n, _) :: ns -> (n, node, "write") :: edges in
-          (((node, label) :: nodes), edges', (next_id id))) seq in
-  render_history operations [("node_0", (String.concat ~sep:"," args))] [] 1
+let labeled label node =
+  { node= node; node_label=label}
+
+let add_operation tid op state =
+  let {nodes;graph;last_tid} = state in
+  let node_label = node_of_operation op in
+  let edge_label = edge_of_operation op in
+  let graph' = BehaviorGraph.Node.insert tid graph in
+  let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
+  let graph'' = BehaviorGraph.Edge.insert edge graph' in
+  let () = Hashtbl.add_exn nodes ~key:tid ~data:node_label in
+  { state with visited = Tid.Set.add state.visited tid; last_tid = tid; graph=graph'' }
+
+let render_behavior args state =
+  let {nodes;graph} = state in
+  Graphlib.to_dot (module BehaviorGraph) graph ~string_of_node:(fun tid ->
+      Hashtbl.find_exn nodes tid )
+    ~filename:"/home/opam/.local/state/bap/model.dot"
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
-    (fun _ -> { operations = []; symbols = []; history = []; labels = Hashtbl.create (module String) })
+    (fun _ ->
+       let root = Tid.create() in
+       let behavior = Graphlib.create (module BehaviorGraph) () in
+       { last_tid = root; nodes = Hashtbl.create (module Tid); symbols = [];
+         labels = Hashtbl.create (module String); visited = Tid.Set.empty; halted = Id.Set.empty; graph = behavior})
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -277,14 +214,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
-  let record_function func =
+  let record_function tid func =
     match func with
       "fork" ->
       let () = info "model clone:" in
       Machine.args >>= fun args ->
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = Clone (Array.to_list args) in
-          add_operation op state')
+          add_operation tid op state')
     | "execv" ->
       let () = info "model execv:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -297,18 +234,18 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let argv = (String.concat ~sep:"," ss) in
       let () = info " RDI: %s" path in
       let () = info " RSI: %s" argv in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = (Exec [path; argv]) in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun path ->
       let () = info " RDI: %s" path in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | "bind" ->
       let () = info "model bind:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -321,33 +258,33 @@ module Monitor(Machine : Primus.Machine.S) = struct
       read_number portaddr 2 >>= fun v ->
       let port = Bitvector.to_int_exn v in
       let () = info " port %d" port in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = Bind (fd, port) in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | "accept" ->
       let () = info "model accept:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = Accept fd in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | "recvmsg" ->
       let () = info "model read:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | "sendmsg" ->
       let () = info "model write:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      Machine.Global.update state ~f:(fun state' ->
+      Machine.Local.update state ~f:(fun state' ->
           let op = Write fd in
-          (add_operation op state'))
+          (add_operation tid op state'))
     | _ ->
       let () = info "called %s" func in
       Machine.return ()
@@ -372,83 +309,103 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.return()
 
   let record_jmp j = Machine.current () >>= fun pid ->
-    match (Jmp.kind j) with
-      Call c ->
-      let label = c |> Call.target |> Label.to_string in
-      let prefix = String.get label 0 in
-      if prefix = '@' then
-        let func = String.drop_prefix label 1 in
-        record_function func
-      else
-        let () = info "Indirect function call:" in
+    let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
+    let tid = Term.tid j in
+    Machine.Local.get state >>= fun {visited} ->
+    let visited = Tid.Set.mem visited tid in
+    if visited then
+      let () = info "repeated a jump" in
+      Machine.Local.update state ~f:(fun s ->
+          let {last_tid; nodes; graph} = s in
+          let preds = BehaviorGraph.Node.preds tid graph in
+          let first = Seq.nth_exn preds 0 in
+          let edge' = BehaviorGraph.Edge.create last_tid first "" in
+          let graph' = BehaviorGraph.Edge.insert edge' graph in
+          {s with graph=graph'})
+      (**
+         Killing the machine here prevented Local state from persisting
+         for some reason. If I encode a halt flag in the state, then I
+         can kill the machine on the next record_pos.
+         >>= fun () ->
+         Machine.Global.get state >>= fun {halted} ->
+         Machine.forks () >>= fun forks ->
+         let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
+         match last active with
+         | None ->
+          info "no more pending machines";
+          Machine.switch Machine.global
+         | Some cid ->
+          Machine.current () >>= fun pid ->
+          info "uIDS";
+          info "switch to machine %a from %a" Id.pp cid Id.pp pid;
+          info "killing previous machine %a" Id.pp pid;
+          Machine.kill pid >>= fun () ->
+          Machine.switch cid *)
+    else
+      match (Jmp.kind j) with
+        Call c ->
+        let label = c |> Call.target |> Label.to_string in
         let prefix = String.get label 0 in
-        if prefix = '#' then
-          Machine.Global.get state >>= fun state' ->
-          let {labels} = state' in
-          let var = Hashtbl.find_exn labels label in
-          (Env.get var) >>= fun v ->
-          let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
-          let {symbols} = state' in
-          let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
-              let addr = block |> Block.addr |> Bitvector.to_int_exn in
-              let () = info "  found %s %x" name addr in
-              addr = target) |> List.map ~f:(fun (name, block, cfg) ->
-              name
-            ) in
-          if (List.length matched) > 0 then
-            let f = List.nth_exn matched 0 in
-            let () = info "  match %s" f in
-            record_function f
-          else
-            let () = info "  target %x" target in
-            Machine.return()
+        if prefix = '@' then
+          let func = String.drop_prefix label 1 in
+          record_function tid func
         else
-          Machine.return()
-
-    | Goto label ->
-      let label' = Label.to_string label in
-      let () = info "goto label %s" label' in
-      Machine.return ()
-    | _ ->
-      let () = info "    Different kind of jump" in
-      Machine.return()
-
-  let push_context blk =
-    let () = info "entering block!" in
-    let tree = (empty_tree) in
-    Machine.Global.update state ~f:(fun state' ->
-        {state' with history = tree :: state'.history})
-
-  let pop_context blk =
-    let () = info "leaving block!" in
-    Machine.Global.update state ~f:(fun state' ->
-        let {history} = state' in
-        match history with
-        | x :: x' :: xs ->
-          if is_empty x then
-            {state' with history = x' :: xs}
+          let () = info "Indirect function call:" in
+          let prefix = String.get label 0 in
+          if prefix = '#' then
+            Machine.Global.get state >>= fun state' ->
+            let {labels} = state' in
+            let var = Hashtbl.find_exn labels label in
+            (Env.get var) >>= fun v ->
+            let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
+            let {symbols} = state' in
+            let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
+                let addr = block |> Block.addr |> Bitvector.to_int_exn in
+                let () = info "  found %s %x" name addr in
+                addr = target) |> List.map ~f:(fun (name, block, cfg) ->
+                name
+              ) in
+            if (List.length matched) > 0 then
+              let f = List.nth_exn matched 0 in
+              let () = info "  match %s" f in
+              record_function tid f
+            else
+              let () = info "  target %x" target in
+              Machine.return()
           else
-            {state' with history = (add_leaf x x') :: xs}
-        | x :: xs ->
-          if is_empty x then
-            {state' with history = xs}
-          else
-            state'
-        | _ -> state')
+            Machine.return()
+      | Goto label ->
+        let label' = Label.to_string label in
+        let () = info "goto label %s" label' in
+        Machine.return ()
+      | _ ->
+        let () = info "    Different kind of jump" in
+        Machine.return()
 
+  (** Compute the union of the Local and Global
+      graphs after a Machine ends and store it in Global. *)
   let record_model () =
     Machine.current () >>= fun pid ->
-    let () = info "Machine ending!" in
+    let () = info "Machine %a ending!" Id.pp pid in
     if Machine.global = pid then
-      let () = info "Global Machine ending." in
+      let () = info "Global machine ending." in
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
-      let args' = (Array.to_list args) in
-      let (nodes, edges, id) = render_state args' state' in
-      let () = graph_of_state nodes edges in
+      let {nodes;graph} = state' in
+      let _ = Graphlib.to_dot (module BehaviorGraph) ~node_attrs:(fun tid ->
+          let name = try Hashtbl.find_exn nodes tid
+            with Not_found -> (Tid.name tid) in
+          [`Label name]
+        ) ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge) ~channel:stdout graph in
       Machine.return()
     else
-      Machine.return()
+      Machine.Local.get state >>= fun state' ->
+      let {nodes;graph;last_tid} = state' in
+      let () = info "last tid: %s" (Tid.name last_tid) in
+      Machine.Global.update state ~f:(fun s ->
+          let () = info " updating global state!" in
+          let graph' = Graphlib.union (module BehaviorGraph) s.graph graph in
+          {s with halted = Set.add s.halted pid; graph=graph'})
 
   let record_finished () =
     Machine.current () >>= fun pid ->
@@ -460,19 +417,27 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
-      Primus.Interpreter.enter_blk >>> push_context;
-      Primus.Interpreter.leave_blk >>> pop_context;
-      Primus.Machine.finished >>> record_model;
+      Primus.System.fini >>> record_model;
     ]
 
   let init () =
     setup_tracing () >>= fun () ->
     Machine.get () >>= fun proj ->
+    Machine.args >>= fun args ->
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
+    let root = Tid.create() in
+    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root] () in
+    let nodes = Hashtbl.create (module Tid) in
+    let () = Hashtbl.add_exn nodes ~key:root ~data:(args |> Array.to_list |> String.concat ~sep:",") in
     Machine.Global.update state ~f:(fun s ->
-        { symbols = symtabs; operations = []; history = []; labels = Hashtbl.create (module String) }
-      )
+        { symbols = symtabs; nodes = nodes; labels = Hashtbl.create (module String);
+          visited = Tid.Set.empty; halted = Id.Set.empty; last_tid = root; graph = behavior; }
+      ) >>= fun s ->
+    Machine.Local.update state ~f:(fun _ ->
+        { symbols = symtabs; nodes = nodes; labels = Hashtbl.create (module String);
+          visited = Tid.Set.empty; halted = Id.Set.empty; last_tid = root; graph = behavior; })
+
 end
 
 let main {Config.get=(!)} =

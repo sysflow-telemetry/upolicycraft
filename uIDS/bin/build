@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 
-make && make reinstall && ./bin/build-plugin.sh
+opam config exec -- make uninstall
+opam config exec -- make
+opam config exec -- make reinstall
+opam config exec -- ./bin/build-plugin.sh

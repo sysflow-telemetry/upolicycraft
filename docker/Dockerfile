@@ -14,4 +14,4 @@ RUN opam config exec -- ./bin/build-plugin.sh
 
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
-ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run.sh"]
+ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run"]
