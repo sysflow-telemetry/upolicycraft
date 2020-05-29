@@ -89,20 +89,20 @@ let add_operation tid op state =
   let () = Hashtbl.add_exn nodes ~key:tid ~data:node_label in
   { state with visited = Tid.Set.add state.visited tid; last_tid = tid; graph=graph'' }
 
-let render_behavior args state =
-  let {nodes;graph} = state in
-  Graphlib.to_dot (module BehaviorGraph) graph ~string_of_node:(fun tid ->
-      Hashtbl.find_exn nodes tid )
-    ~filename:"/home/opam/.local/state/bap/model.dot"
-
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
     (fun _ ->
        let root = Tid.create() in
        let behavior = Graphlib.create (module BehaviorGraph) () in
-       { last_tid = root; nodes = Hashtbl.create (module Tid); symbols = [];
-         labels = Hashtbl.create (module String); visited = Tid.Set.empty; halted = Id.Set.empty; graph = behavior})
+       { last_tid = root;
+         nodes = Hashtbl.create (module Tid);
+         symbols = [];
+         labels = Hashtbl.create (module String);
+         visited = Tid.Set.empty;
+         halted = Id.Set.empty;
+         graph = behavior;
+       })
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -119,12 +119,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
   open Machine.Syntax
 
   let record_pos p = Machine.current () >>= fun pid ->
+    let () = info "recording position" in
     match (Primus.Pos.get address p) with
-      None -> Machine.return ()
-    | Some addr ->
-      let a = address_of_pos out addr in
-      let () = info "visiting %x\n" a in
-      Machine.return ()
+        None -> Machine.return ()
+      | Some addr ->
+        let a = address_of_pos out addr in
+        let () = info "visiting %x\n" a in
+        Machine.return ()
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
@@ -289,6 +290,22 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "called %s" func in
       Machine.return ()
 
+  let reschedule () =
+       let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
+       Machine.Global.get state >>= fun {halted} ->
+       Machine.forks () >>= fun forks ->
+         let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
+         match last active with
+         | None ->
+          info "no more pending machines";
+          Machine.switch Machine.global
+         | Some cid ->
+          Machine.current () >>= fun pid ->
+          info "uids: switch to machine %a from %a" Id.pp cid Id.pp pid;
+          info "uids: killing previous machine %a" Id.pp pid;
+          Machine.kill pid >>= fun () ->
+          Machine.switch cid
+
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
     let () = info "record statement: %s" s in
@@ -309,38 +326,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.return()
 
   let record_jmp j = Machine.current () >>= fun pid ->
-    let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
     let tid = Term.tid j in
-    Machine.Local.get state >>= fun {visited} ->
+    Machine.Local.get state >>= fun {last_tid; nodes; graph; visited} ->
     let visited = Tid.Set.mem visited tid in
     if visited then
       let () = info "repeated a jump" in
-      Machine.Local.update state ~f:(fun s ->
-          let {last_tid; nodes; graph} = s in
-          let preds = BehaviorGraph.Node.preds tid graph in
-          let first = Seq.nth_exn preds 0 in
-          let edge' = BehaviorGraph.Edge.create last_tid first "" in
-          let graph' = BehaviorGraph.Edge.insert edge' graph in
-          {s with graph=graph'})
-      (**
-         Killing the machine here prevented Local state from persisting
-         for some reason. If I encode a halt flag in the state, then I
-         can kill the machine on the next record_pos.
-         >>= fun () ->
-         Machine.Global.get state >>= fun {halted} ->
-         Machine.forks () >>= fun forks ->
-         let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
-         match last active with
-         | None ->
-          info "no more pending machines";
-          Machine.switch Machine.global
-         | Some cid ->
-          Machine.current () >>= fun pid ->
-          info "uIDS";
-          info "switch to machine %a from %a" Id.pp cid Id.pp pid;
-          info "killing previous machine %a" Id.pp pid;
-          Machine.kill pid >>= fun () ->
-          Machine.switch cid *)
+      let preds = BehaviorGraph.Node.preds tid graph in
+      let first = Seq.nth_exn preds 0 in
+      let edge' = BehaviorGraph.Edge.create last_tid first "" in
+      let graph' = BehaviorGraph.Edge.insert edge' graph in
+      Machine.Global.update state ~f:(fun s ->
+         let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
+         {s with graph=graph''}
+       ) >>= fun _ ->
+         reschedule()
     else
       match (Jmp.kind j) with
         Call c ->
@@ -431,13 +430,24 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let nodes = Hashtbl.create (module Tid) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:(args |> Array.to_list |> String.concat ~sep:",") in
     Machine.Global.update state ~f:(fun s ->
-        { symbols = symtabs; nodes = nodes; labels = Hashtbl.create (module String);
-          visited = Tid.Set.empty; halted = Id.Set.empty; last_tid = root; graph = behavior; }
+        { symbols = symtabs;
+          nodes = nodes;
+          labels = Hashtbl.create (module String);
+          visited = Tid.Set.empty;
+          halted = Id.Set.empty;
+          last_tid = root;
+          graph = behavior;
+        }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
-        { symbols = symtabs; nodes = nodes; labels = Hashtbl.create (module String);
-          visited = Tid.Set.empty; halted = Id.Set.empty; last_tid = root; graph = behavior; })
-
+        { symbols = symtabs;
+          nodes = nodes;
+          labels = Hashtbl.create (module String);
+          visited = Tid.Set.empty;
+          halted = Id.Set.empty;
+          last_tid = root;
+          graph = behavior;
+        })
 end
 
 let main {Config.get=(!)} =
