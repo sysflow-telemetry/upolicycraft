@@ -19,7 +19,7 @@ ARGV=$3
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=2048 \
+  --primus-limit-max-length=4096 \
   --primus-promiscuous-mode \
   --primus-greedy-scheduler \
   --primus-uids-model

@@ -86,7 +86,7 @@ let add_operation tid op state =
   let graph' = BehaviorGraph.Node.insert tid graph in
   let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
   let graph'' = BehaviorGraph.Edge.insert edge graph' in
-  let () = Hashtbl.add_exn nodes ~key:tid ~data:node_label in
+  let () = Hashtbl.set nodes ~key:tid ~data:node_label in
   { state with visited = Tid.Set.add state.visited tid; last_tid = tid; graph=graph'' }
 
 let state = Primus.Machine.State.declare
@@ -141,8 +141,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.return()
       else
         allow_all_memory_access (Memory.get addr) >>= fun v ->
-        let x = v |> Value.to_word |> Bitvector.to_int_exn in
-        let () = info "  %x" x in
+        let x = v |> Value.to_word |> Bitvector.to_int64_exn in
+        let () = info "  %s" (Int64.to_string x) in
         loop (succ n) (Bitvector.succ addr) in
     loop 0 addr
 
@@ -221,7 +221,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "model clone:" in
       Machine.args >>= fun args ->
       Machine.Local.update state ~f:(fun state' ->
-          let op = Clone (Array.to_list args) in
+          let op = (Clone (Array.to_list args)) in
           add_operation tid op state')
     | "execv" ->
       let () = info "model execv:" in
@@ -356,11 +356,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
             let {labels} = state' in
             let var = Hashtbl.find_exn labels label in
             (Env.get var) >>= fun v ->
-            let target = (v |> Value.to_word |> Bitvector.to_int_exn) in
+            let target = (v |> Value.to_word |> Bitvector.to_int64_exn) in
             let {symbols} = state' in
             let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
-                let addr = block |> Block.addr |> Bitvector.to_int_exn in
-                let () = info "  found %s %x" name addr in
+                let addr = block |> Block.addr |> Bitvector.to_int64_exn in
+                let () = info "  found %s %s" name (Int64.to_string addr) in
                 addr = target) |> List.map ~f:(fun (name, block, cfg) ->
                 name
               ) in
@@ -369,7 +369,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
               let () = info "  match %s" f in
               record_function tid f
             else
-              let () = info "  target %x" target in
+              let () = info "  target %s" (Int64.to_string target) in
               Machine.return()
           else
             Machine.return()
