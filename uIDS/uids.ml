@@ -189,7 +189,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let string_of_addr addr =
     let rec loop addr cs =
-      let () = info "Fetching %x" (Bitvector.to_int_exn addr) in
+      let () = info "Fetching %s" (Bitvector.to_string addr) in
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
       if x = 0 then
@@ -202,7 +202,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     loop addr []
 
   let strings_of_addr addr =
-    let () = info "Finding strings at %x" (Bitvector.to_int_exn addr) in
+    let () = info "Finding strings at %s" (Bitvector.to_string addr) in
     let rec loop addr strings =
       read_address addr >>= fun v ->
       let () = info "Read address %s" (Bitvector.to_string v) in
@@ -356,11 +356,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
             let {labels} = state' in
             let var = Hashtbl.find_exn labels label in
             (Env.get var) >>= fun v ->
-            let target = (v |> Value.to_word |> Bitvector.to_int64_exn) in
+            let target = (v |> Value.to_word)  in
             let {symbols} = state' in
             let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
-                let addr = block |> Block.addr |> Bitvector.to_int64_exn in
-                let () = info "  found %s %s" name (Int64.to_string addr) in
+                let addr = block |> Block.addr in
+                let () = info "  found %s %s" name (Addr.to_string addr) in
                 addr = target) |> List.map ~f:(fun (name, block, cfg) ->
                 name
               ) in
@@ -369,7 +369,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
               let () = info "  match %s" f in
               record_function tid f
             else
-              let () = info "  target %s" (Int64.to_string target) in
+              let () = info "  target %s" (Addr.to_string target) in
               Machine.return()
           else
             Machine.return()

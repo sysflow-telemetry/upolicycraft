@@ -22,4 +22,5 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-limit-max-length=4096 \
   --primus-promiscuous-mode \
   --primus-greedy-scheduler \
+  --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
   --primus-uids-model
