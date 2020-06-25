@@ -82,17 +82,17 @@ let node_of_operation op =
     | Bind (fd, port) ->
       let fd' = Printf.sprintf "%d" fd in
       let port' = Printf.sprintf "%d" port in
-        jsonify [("sf.net.port", [port'])]
+        jsonify [("sf.net.dport", [port'])]
     | Accept fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.port", [fd'])]
+        jsonify [("sf.net.dport", [fd'])]
     | Read fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.port", [fd'])]
+        jsonify [("sf.net.dport", [fd'])]
     | Write fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.port", [fd'])] in
-  Yojson.Basic.pretty_to_string json
+        jsonify [("sf.net.dport", [fd'])] in
+  Yojson.Basic.to_string json
 
 let labeled label node =
   { node= node; node_label=label}
@@ -401,6 +401,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let export_model nodes graph =
     let ns = BehaviorGraph.nodes graph in
     let es = BehaviorGraph.edges graph in
+
     let nodes' = Seq.map ~f:(fun tid ->
       let name = (Tid.name tid) in
       let label = try Hashtbl.find_exn nodes tid
@@ -409,8 +410,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let edges' = Seq.map ~f:(fun edge ->
       (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
     ) es in
-    let () = printf "Node IDS:\n" in
-    let ns = `List (Seq.to_list nodes') in
     ()
 
   (** Compute the union of the Local and Global
