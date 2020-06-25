@@ -16,10 +16,13 @@ ARGV=$3
 # --primus-print-output=primus.log \
 # --cache-size=1024 \
 
+#  --primus-promiscuous-mode \
+#  --primus-greedy-scheduler \
+
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=4096 \
+  --primus-limit-max-length=10000 \
   --primus-promiscuous-mode \
   --primus-greedy-scheduler \
   --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \

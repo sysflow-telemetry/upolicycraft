@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-/echo/echo.sh 8080
+/echo/echo 8080

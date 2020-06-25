@@ -49,32 +49,50 @@ type state = {
 
 let edge_of_operation op =
   match op with
-    Clone argv -> "clone"
-  | Exec argv -> "exec"
-  | Open path -> "open"
-  | Bind (fd , port) -> "bind"
-  | Accept fd -> "accept"
-  | Read fd -> "read"
-  | Write fd -> "write"
+    Clone argv -> "CLONE"
+  | Exec argv -> "EXEC"
+  | Open path -> "OPEN"
+  | Bind (fd, port) -> "BIND"
+  | Accept fd -> "ACCEPT"
+  | Read fd -> "READ"
+  | Write fd -> "WRITE"
+
+let jsonify xs =
+  `Assoc (List.map ~f:(fun (key, vs) ->
+         let vs' = List.map ~f:(fun v -> `String v) vs in
+         let vs'' = `List vs' in
+         (key, vs'')) xs)
+
+let split_argv argv =
+  let exe :: args = argv in
+  let exe' = exe |> String.split ~on:'/' |> List.last_exn in
+  (exe', argv)
 
 let node_of_operation op =
-  match op with
-    Clone argv -> (String.concat ~sep:"," argv)
-  | Exec argv -> (String.concat ~sep:"," argv)
-  | Open path -> path
-  | Bind (fd, port) ->
-    let fd' = Printf.sprintf "%d" fd in
-    let port' = Printf.sprintf "%d" port in
-    fd' ^ ", " ^ port'
-  | Accept fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    fd'
-  | Read fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    fd'
-  | Write fd ->
-    let fd' = Printf.sprintf "%d" fd in
-    fd'
+  let json =
+    match op with
+      Clone argv ->
+        let (exe, args) = split_argv argv in
+        jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+    | Exec argv ->
+        let (exe, args) = split_argv argv in
+        jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+    | Open path ->
+        jsonify [("sf.file.path", [path])]
+    | Bind (fd, port) ->
+      let fd' = Printf.sprintf "%d" fd in
+      let port' = Printf.sprintf "%d" port in
+        jsonify [("sf.net.port", [port'])]
+    | Accept fd ->
+      let fd' = Printf.sprintf "%d" fd in
+        jsonify [("sf.net.port", [fd'])]
+    | Read fd ->
+      let fd' = Printf.sprintf "%d" fd in
+        jsonify [("sf.net.port", [fd'])]
+    | Write fd ->
+      let fd' = Printf.sprintf "%d" fd in
+        jsonify [("sf.net.port", [fd'])] in
+  Yojson.Basic.pretty_to_string json
 
 let labeled label node =
   { node= node; node_label=label}
@@ -164,7 +182,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
           Machine.return(next) in
         loop (succ n) (Bitvector.succ addr) cont in
     loop 0 addr (Machine.return(Bitvector.of_int 64 0))
-
 
   (** Read an address stored at addr *)
   let read_address addr =
@@ -381,6 +398,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let () = info "    Different kind of jump" in
         Machine.return()
 
+  let export_model nodes graph =
+    let ns = BehaviorGraph.nodes graph in
+    let es = BehaviorGraph.edges graph in
+    let nodes' = Seq.map ~f:(fun tid ->
+      let name = (Tid.name tid) in
+      let label = try Hashtbl.find_exn nodes tid
+        with Not_found -> name in
+      (name, label)) ns in
+    let edges' = Seq.map ~f:(fun edge ->
+      (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
+    ) es in
+    let () = printf "Node IDS:\n" in
+    let ns = `List (Seq.to_list nodes') in
+    ()
+
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
   let record_model () =
@@ -396,6 +428,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
             with Not_found -> (Tid.name tid) in
           [`Label name]
         ) ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge) ~channel:stdout graph in
+      let () = export_model nodes graph in
       Machine.return()
     else
       Machine.Local.get state >>= fun state' ->
@@ -426,16 +459,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     let root = Tid.create() in
-    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root] () in
+    let proc = Tid.create() in
+    let (exe, args') = args |> Array.to_list |> split_argv in
+    let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args')]) in
+    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;proc] ~edges:[(root,proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
-    let () = Hashtbl.add_exn nodes ~key:root ~data:(args |> Array.to_list |> String.concat ~sep:",") in
+    let () = Hashtbl.add_exn nodes ~key:root ~data:"entrypoint" in
+    let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
           nodes = nodes;
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
-          last_tid = root;
+          last_tid = proc;
           graph = behavior;
         }
       ) >>= fun s ->
@@ -445,7 +482,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
-          last_tid = root;
+          last_tid = proc;
           graph = behavior;
         })
 end
