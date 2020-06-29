@@ -41,6 +41,7 @@ type state = {
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, string) Hashtbl.t;
+  root_tid : Tid.t;
   last_tid : Tid.t;
   visited : Tid.Set.t;
   halted : Id.Set.t;
@@ -59,9 +60,9 @@ let edge_of_operation op =
 
 let jsonify xs =
   `Assoc (List.map ~f:(fun (key, vs) ->
-         let vs' = List.map ~f:(fun v -> `String v) vs in
-         let vs'' = `List vs' in
-         (key, vs'')) xs)
+      let vs' = List.map ~f:(fun v -> `String v) vs in
+      let vs'' = `List vs' in
+      (key, vs'')) xs)
 
 let split_argv argv =
   let exe :: args = argv in
@@ -72,26 +73,26 @@ let node_of_operation op =
   let json =
     match op with
       Clone argv ->
-        let (exe, args) = split_argv argv in
-        jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+      let (exe, args) = split_argv argv in
+      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
     | Exec argv ->
-        let (exe, args) = split_argv argv in
-        jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+      let (exe, args) = split_argv argv in
+      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
     | Open path ->
-        jsonify [("sf.file.path", [path])]
+      jsonify [("sf.file.path", [path])]
     | Bind (fd, port) ->
       let fd' = Printf.sprintf "%d" fd in
       let port' = Printf.sprintf "%d" port in
-        jsonify [("sf.net.dport", [port'])]
+      jsonify [("sf.net.dport", [port'])]
     | Accept fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.dport", [fd'])]
+      jsonify [("sf.net.dport", [fd'])]
     | Read fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.dport", [fd'])]
+      jsonify [("sf.net.dport", [fd'])]
     | Write fd ->
       let fd' = Printf.sprintf "%d" fd in
-        jsonify [("sf.net.dport", [fd'])] in
+      jsonify [("sf.net.dport", [fd'])] in
   Yojson.Basic.to_string json
 
 let labeled label node =
@@ -113,7 +114,8 @@ let state = Primus.Machine.State.declare
     (fun _ ->
        let root = Tid.create() in
        let behavior = Graphlib.create (module BehaviorGraph) () in
-       { last_tid = root;
+       { root_tid = root;
+         last_tid = root;
          nodes = Hashtbl.create (module Tid);
          symbols = [];
          labels = Hashtbl.create (module String);
@@ -139,11 +141,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let record_pos p = Machine.current () >>= fun pid ->
     let () = info "recording position" in
     match (Primus.Pos.get address p) with
-        None -> Machine.return ()
-      | Some addr ->
-        let a = address_of_pos out addr in
-        let () = info "visiting %x\n" a in
-        Machine.return ()
+      None -> Machine.return ()
+    | Some addr ->
+      let a = address_of_pos out addr in
+      let () = info "visiting %x\n" a in
+      Machine.return ()
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
@@ -308,20 +310,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.return ()
 
   let reschedule () =
-       let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
-       Machine.Global.get state >>= fun {halted} ->
-       Machine.forks () >>= fun forks ->
-         let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
-         match last active with
-         | None ->
-          info "no more pending machines";
-          Machine.switch Machine.global
-         | Some cid ->
-          Machine.current () >>= fun pid ->
-          info "uids: switch to machine %a from %a" Id.pp cid Id.pp pid;
-          info "uids: killing previous machine %a" Id.pp pid;
-          Machine.kill pid >>= fun () ->
-          Machine.switch cid
+    let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
+    Machine.Global.get state >>= fun {halted} ->
+    Machine.forks () >>= fun forks ->
+    let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
+    match last active with
+    | None ->
+      info "no more pending machines";
+      Machine.switch Machine.global
+    | Some cid ->
+      Machine.current () >>= fun pid ->
+      info "uids: switch to machine %a from %a" Id.pp cid Id.pp pid;
+      info "uids: killing previous machine %a" Id.pp pid;
+      Machine.kill pid >>= fun () ->
+      Machine.switch cid
 
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
@@ -353,10 +355,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let edge' = BehaviorGraph.Edge.create last_tid first "" in
       let graph' = BehaviorGraph.Edge.insert edge' graph in
       Machine.Global.update state ~f:(fun s ->
-         let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
-         {s with graph=graph''}
-       ) >>= fun _ ->
-         reschedule()
+          let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
+          {s with graph=graph''}
+        ) >>= fun _ ->
+      reschedule()
     else
       match (Jmp.kind j) with
         Call c ->
@@ -398,19 +400,63 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let () = info "    Different kind of jump" in
         Machine.return()
 
-  let export_model nodes graph =
+  let export_model root nodes graph =
     let ns = BehaviorGraph.nodes graph in
     let es = BehaviorGraph.edges graph in
-
     let nodes' = Seq.map ~f:(fun tid ->
-      let name = (Tid.name tid) in
-      let label = try Hashtbl.find_exn nodes tid
-        with Not_found -> name in
-      (name, label)) ns in
+        let name = (Tid.name tid) in
+        let label = try Hashtbl.find_exn nodes tid
+          with Not_found -> name in
+        (name, label)) ns in
     let edges' = Seq.map ~f:(fun edge ->
-      (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
-    ) es in
-    ()
+        (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
+      ) es in
+    (** SysFlow traces do not contain BIND, patch the model to remove it. *)
+    let g' = edges' |>
+             Seq.filter ~f:(fun (src, dst, label) ->
+                 label = "BIND"
+               ) |>
+             Seq.map ~f:(fun (src, dst, label) ->
+                 dst
+               ) |>
+             Seq.fold ~f:(fun g v ->
+                 let preds = BehaviorGraph.Node.preds v g in
+                 let succs = BehaviorGraph.Node.succs v g in
+                 let graph' = BehaviorGraph.Node.remove v g in
+                 Seq.fold ~f:(fun g' p ->
+                     succs |>
+                     Seq.map ~f:(fun succ ->
+                         let Some edge = BehaviorGraph.Node.edge v succ g in
+                         let label = BehaviorGraph.Edge.label edge in
+                         BehaviorGraph.Edge.create p succ label) |>
+                     Seq.fold ~f:(fun g e ->
+                         BehaviorGraph.Edge.insert e g) ~init:g') ~init:graph' preds) ~init:graph in
+    let ns = BehaviorGraph.nodes g' in
+    let es = BehaviorGraph.edges g' in
+    let nodes' = Seq.map ~f:(fun tid ->
+        let name = (Tid.name tid) in
+        let label = try Hashtbl.find_exn nodes tid
+          with Not_found -> name in
+        (name, label)) ns in
+    let edges' = Seq.map ~f:(fun edge ->
+        (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
+      ) es in
+    let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
+    let labels'' = nodes' |> Seq.map ~f:(fun (name, label) ->
+        `Assoc [("node", `String name); ("label", `String name)]) |> Seq.to_list in
+    let edges'' = edges' |> Seq.map ~f:(fun (src, dst, label) ->
+        let constraints = try Hashtbl.find_exn nodes dst
+          with Not_found -> name in
+        let jsconstraints = Yojson.Basic.from_string constraints in
+        `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label); ("constraints", jsconstraints)]
+      ) |>
+                  Seq.to_list in
+    let model = `Assoc [("initial", `String (Tid.name root));
+                        ("nodes", `List nodes'');
+                        ("labels", `List labels'');
+                        ("edges", `List edges'')] in
+    let model' = Yojson.Basic.pretty_to_string model in
+    printf "%s" model'
 
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
@@ -421,13 +467,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "Global machine ending." in
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
-      let {nodes;graph} = state' in
+      let {root_tid;nodes;graph} = state' in
       let _ = Graphlib.to_dot (module BehaviorGraph) ~node_attrs:(fun tid ->
           let name = try Hashtbl.find_exn nodes tid
             with Not_found -> (Tid.name tid) in
           [`Label name]
         ) ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge) ~channel:stdout graph in
-      let () = export_model nodes graph in
+      let _ = export_model root_tid nodes graph in
       Machine.return()
     else
       Machine.Local.get state >>= fun state' ->
@@ -471,6 +517,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
+          root_tid = root;
           last_tid = proc;
           graph = behavior;
         }
@@ -481,6 +528,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
+          root_tid = root;
           last_tid = proc;
           graph = behavior;
         })
