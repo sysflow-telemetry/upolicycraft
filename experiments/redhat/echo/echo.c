@@ -68,8 +68,7 @@ int main (int argc, char *argv[]) {
       int read = atoi(serve.buf);
 
       iov[0].iov_len = read;
-
-      serve.read(client_fd, &msg, 0);
+      serve.read(client_fd, &msg, MSG_DONTWAIT);
       serve.write(client_fd, &msg, 0);
     }
   }
