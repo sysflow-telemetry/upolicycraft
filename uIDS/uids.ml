@@ -451,18 +451,19 @@ module Monitor(Machine : Primus.Machine.S) = struct
         (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
       ) es in
     let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
-    let labels'' = nodes' |> Seq.map ~f:(fun (name, label) ->
-        `Assoc [("node", `String name); ("label", `String name)]) |> Seq.to_list in
+    let constraints'' = nodes' |> Seq.map ~f:(fun (name, constraints) ->
+        `Assoc [("node", `String name); ("constraints", `String constraints)]) |> Seq.to_list in
     let edges'' = edges' |> Seq.map ~f:(fun (src, dst, label) ->
+        (**
         let constraints = try Hashtbl.find_exn nodes dst
           with Not_found -> name in
-        let jsconstraints = Yojson.Basic.from_string constraints in
-        `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label); ("constraints", jsconstraints)]
+        let jsconstraints = Yojson.Basic.from_string constraints in *)
+        `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label)]
       ) |>
                   Seq.to_list in
     let model = `Assoc [("initial", `String (Tid.name root));
                         ("nodes", `List nodes'');
-                        ("labels", `List labels'');
+                        ("constraints", `List constraints'');
                         ("edges", `List edges'')] in
     let model' = Yojson.Basic.pretty_to_string model in
     printf "%s" model'
@@ -519,12 +520,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let root' = Tid.create() in
     let proc = Tid.create() in
     let (exe, args') = args |> Array.to_list |> split_argv in
-    let entrypoint' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]); ("sf.proc.args", [get entrypoint_args])]) in
+    let entrypoint' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
+                                                              ("sf.proc.args", [get entrypoint_args])]) in
+    let entrypoint'' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
+                                                               ("sf.proc.args", [get entrypoint_args]);
+                                                               ("sf.pproc.pid", [(Tid.name root)])]) in
     let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args')]) in
     let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;root';proc] ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entrypoint' in
-    let () = Hashtbl.add_exn nodes ~key:root' ~data:entrypoint' in
+    let () = Hashtbl.add_exn nodes ~key:root' ~data:entrypoint'' in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
