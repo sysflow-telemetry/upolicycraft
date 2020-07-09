@@ -452,15 +452,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
       ) es in
     let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
     let constraints'' = nodes' |> Seq.map ~f:(fun (name, constraints) ->
-        `Assoc [("node", `String name); ("constraints", `String constraints)]) |> Seq.to_list in
+        let jsconstraints = Yojson.Basic.from_string constraints in
+        `Assoc [("node", `String name); ("constraints", jsconstraints)]) |> Seq.to_list in
     let edges'' = edges' |> Seq.map ~f:(fun (src, dst, label) ->
-        (**
-        let constraints = try Hashtbl.find_exn nodes dst
-          with Not_found -> name in
-        let jsconstraints = Yojson.Basic.from_string constraints in *)
         `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label)]
-      ) |>
-                  Seq.to_list in
+      ) |> Seq.to_list in
     let model = `Assoc [("initial", `String (Tid.name root));
                         ("nodes", `List nodes'');
                         ("constraints", `List constraints'');
