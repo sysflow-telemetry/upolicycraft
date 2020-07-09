@@ -22,6 +22,15 @@ module Param = struct
   let model = flag "model"
       ~doc:
         "Derive a process model for a binary."
+
+  let entrypoint = param (string) "entrypoint"
+      ~doc:
+        "The entrypoint for the container"
+
+  let entrypoint_args = param (string) "entrypoint-args"
+      ~doc:
+        "The arguments passed to the entrypoint"
+
 end
 
 type fd = int
@@ -497,19 +506,25 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Primus.System.fini >>> record_model;
     ]
 
+  let get x = Future.peek_exn (Config.determined x)
+
   let init () =
+    let open Param in
     setup_tracing () >>= fun () ->
     Machine.get () >>= fun proj ->
     Machine.args >>= fun args ->
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     let root = Tid.create() in
+    let root' = Tid.create() in
     let proc = Tid.create() in
     let (exe, args') = args |> Array.to_list |> split_argv in
+    let entrypoint' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]); ("sf.proc.args", [get entrypoint_args])]) in
     let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args')]) in
-    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;proc] ~edges:[(root,proc,"EXEC")] () in
+    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;root';proc] ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
-    let () = Hashtbl.add_exn nodes ~key:root ~data:"entrypoint" in
+    let () = Hashtbl.add_exn nodes ~key:root ~data:entrypoint' in
+    let () = Hashtbl.add_exn nodes ~key:root' ~data:entrypoint' in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;

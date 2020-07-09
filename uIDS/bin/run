@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-if [ "$#" -ne 3 ]; then
-  echo "usage: $0 binary entrypoint argv"
+if [ "$#" -ne 5 ]; then
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv"
   exit 1
 fi
 
 PROGRAM=$1
 ENTRYPOINT=$2
 ARGV=$3
+CONTAINER_ENTRYPOINT=$4
+CONTAINER_ENTRYPOINT_ARGS=$5
 
 # Limit-max-length the total number of basic blocks Primus will run
 
@@ -26,4 +28,6 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-promiscuous-mode \
   --primus-greedy-scheduler \
   --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
-  --primus-uids-model
+  --primus-uids-model \
+  --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
+  --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"
