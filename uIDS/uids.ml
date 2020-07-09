@@ -524,7 +524,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                                                               ("sf.proc.args", [get entrypoint_args])]) in
     let entrypoint'' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
                                                                ("sf.proc.args", [get entrypoint_args]);
-                                                               ("sf.pproc.pid", ["%pred.sf.prod.pid"])]) in
+                                                               ("sf.pproc.pid", ["%pred.sf.proc.pid"])]) in
     let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args')]) in
     let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;root';proc] ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
