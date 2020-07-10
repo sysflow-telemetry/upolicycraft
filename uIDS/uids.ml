@@ -75,18 +75,18 @@ let jsonify xs =
 
 let split_argv argv =
   let exe :: args = argv in
-  let exe' = exe |> String.split ~on:'/' |> List.last_exn in
-  (exe', argv)
+  let args' = String.concat ~sep:" " args in
+  (exe, args')
 
 let node_of_operation op =
   let json =
     match op with
       Clone argv ->
       let (exe, args) = split_argv argv in
-      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args])]
     | Exec argv ->
       let (exe, args) = split_argv argv in
-      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args)]
+      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args])]
     | Open path ->
       jsonify [("sf.file.path", [path])]
     | Bind (fd, port) ->
@@ -521,7 +521,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let entrypoint'' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
                                                                ("sf.proc.args", [get entrypoint_args]);
                                                                ("sf.pproc.pid", ["%pred.sf.proc.pid"])]) in
-    let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", args')]) in
+    let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args'])]) in
     let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;root';proc] ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entrypoint' in
