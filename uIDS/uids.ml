@@ -33,6 +33,84 @@ module Param = struct
 
 end
 
+module Sf = struct
+
+  module Vars = struct
+    let pred = "pred"
+  end
+
+  let typ                  = "sf.type"
+  let opflags              = "sf.opflags"
+  let ret                  = "sf.ret"
+  let ts                   = "sf.ts"
+  let endts                = "sf.endts"
+  let proc_oid             = "sf.proc.oid"
+  let proc_pid             = "sf.proc.pid"
+  let proc_name            = "sf.proc.name"
+  let proc_exe             = "sf.proc.exe"
+  let proc_args            = "sf.proc.args"
+  let proc_uid             = "sf.proc.uid"
+  let proc_user            = "sf.proc.user"
+  let proc_tid             = "sf.proc.tid"
+  let proc_gid             = "sf.proc.gid"
+  let proc_group           = "sf.proc.group"
+  let proc_createts        = "sf.proc.createts"
+  let proc_duration        = "sf.proc.duration"
+  let proc_tty             = "sf.proc.tty"
+  let proc_cmdline         = "sf.proc.cmdline"
+  let proc_aname           = "sf.proc.aname"
+  let proc_aexe            = "sf.proc.aexe"
+  let proc_acmdline        = "sf.proc.acmdline"
+  let proc_apid            = "sf.proc.apid"
+  let pproc_oid            = "sf.pproc.oid"
+  let pproc_pid            = "sf.pproc.pid"
+  let pproc_name           = "sf.pproc.name"
+  let pproc_exe            = "sf.pproc.exe"
+  let pproc_args           = "sf.pproc.args"
+  let pproc_uid            = "sf.pproc.uid"
+  let pproc_user           = "sf.pproc.user"
+  let pproc_gid            = "sf.pproc.gid"
+  let pproc_group          = "sf.pproc.group"
+  let pproc_createts       = "sf.pproc.createts"
+  let pproc_duration       = "sf.pproc.duration"
+  let pproc_tty            = "sf.pproc.tty"
+  let pproc_cmdline        = "sf.pproc.cmdline"
+  let file_name            = "sf.file.name"
+  let file_path            = "sf.file.path"
+  let file_canonicalpath   = "sf.file.canonicalpath"
+  let file_directory       = "sf.file.directory"
+  let file_newname         = "sf.file.newname"
+  let file_newpath         = "sf.file.newpath"
+  let file_newdirectory    = "sf.file.newdirectory"
+  let file_type            = "sf.file.type"
+  let file_is_open_write   = "sf.file.is_open_write"
+  let file_is_open_read    = "sf.file.is_open_read"
+  let file_fd              = "sf.file.fd"
+  let file_openflags       = "sf.file.openflags"
+  let net_proto            = "sf.net.proto"
+  let net_protoname        = "sf.net.protoname"
+  let net_sport            = "sf.net.sport"
+  let net_dport            = "sf.net.dport"
+  let net_port             = "sf.net.port"
+  let net_sip              = "sf.net.sip"
+  let net_dip              = "sf.net.dip"
+  let net_ip               = "sf.net.ip"
+  let flow_rbytes          = "sf.flow.rbytes"
+  let flow_rops            = "sf.flow.rops"
+  let flow_wbytes          = "sf.flow.wbytes"
+  let flow_wops            = "sf.flow.wops"
+  let container_id         = "sf.container.id"
+  let container_name       = "sf.container.name"
+  let container_imageid    = "sf.container.imageid"
+  let container_image      = "sf.container.image"
+  let container_type       = "sf.container.type"
+  let container_privileged = "sf.container.privileged"
+
+  let special id attr = Printf.sprintf "%%%s.%s" id attr
+
+end
+
+
 type fd = int
 
 type operation =
@@ -43,6 +121,8 @@ type operation =
   | Accept of fd
   | Read of fd
   | Write of fd
+  | Recv of fd
+  | Send of fd
 
 module BehaviorGraph = Graphlib.Make(Tid)(String)
 
@@ -66,6 +146,8 @@ let edge_of_operation op =
   | Accept fd -> "ACCEPT"
   | Read fd -> "READ"
   | Write fd -> "WRITE"
+  | Recv fd -> "RECV"
+  | Send fd -> "SEND"
 
 let jsonify xs =
   `Assoc (List.map ~f:(fun (key, vs) ->
@@ -83,29 +165,35 @@ let node_of_operation op =
     match op with
       Clone argv ->
       let (exe, args) = split_argv argv in
-      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args])]
+      jsonify [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Exec argv ->
       let (exe, args) = split_argv argv in
-      jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args])]
+      jsonify [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Open path ->
-      jsonify [("sf.file.path", [path])]
+      jsonify [(Sf.file_path, [path])]
     | Bind (fd, port) ->
       let fd' = Printf.sprintf "%d" fd in
       let port' = Printf.sprintf "%d" port in
-      jsonify [("sf.net.dport", [port'])]
+      jsonify [(Sf.net_dport, [port'])]
     | Accept fd ->
       let fd' = Printf.sprintf "%d" fd in
-      jsonify [("sf.net.dport", [fd'])]
+      jsonify [(Sf.net_dport, [fd'])]
     | Read fd ->
       let fd' = Printf.sprintf "%d" fd in
-      jsonify [("sf.net.dport", [fd'])]
+      jsonify [(Sf.file_fd, [fd'])]
     | Write fd ->
       let fd' = Printf.sprintf "%d" fd in
-      jsonify [("sf.net.dport", [fd'])] in
+      jsonify [(Sf.file_fd, [fd'])]
+    | Recv fd ->
+      let fd' = Printf.sprintf "%d" fd in
+      jsonify [(Sf.net_dport, [fd'])]
+    | Send fd ->
+      let fd' = Printf.sprintf "%d" fd in
+      jsonify [(Sf.net_dport, [fd'])] in
   Yojson.Basic.to_string json
 
 let labeled label node =
-  { node= node; node_label=label}
+  { node= node; node_label=label }
 
 let add_operation tid op state =
   let {nodes;graph;last_tid} = state in
@@ -299,20 +387,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Accept fd in
           (add_operation tid op state'))
     | "recvmsg" ->
-      let () = info "model read:" in
+      let () = info "model recv:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
-          let op = Read fd in
+          let op = Recv fd in
           (add_operation tid op state'))
     | "sendmsg" ->
-      let () = info "model write:" in
+      let () = info "model send:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
-          let op = Write fd in
+          let op = Send fd in
           (add_operation tid op state'))
     | _ ->
       let () = info "called %s" func in
@@ -505,6 +593,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let get x = Future.peek_exn (Config.determined x)
 
+  let json_string data = data |> jsonify |> Yojson.Basic.pretty_to_string
+
   let init () =
     let open Param in
     setup_tracing () >>= fun () ->
@@ -516,16 +606,18 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let root' = Tid.create() in
     let proc = Tid.create() in
     let (exe, args') = args |> Array.to_list |> split_argv in
-    let entrypoint' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
-                                                              ("sf.proc.args", [get entrypoint_args])]) in
-    let entrypoint'' = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [get entrypoint]);
-                                                               ("sf.proc.args", [get entrypoint_args]);
-                                                               ("sf.pproc.pid", ["%pred.sf.proc.pid"])]) in
-    let constraints = Yojson.Basic.pretty_to_string (jsonify [("sf.proc.exe", [exe]); ("sf.proc.args", [args'])]) in
-    let behavior = Graphlib.create (module BehaviorGraph) ~nodes:[root;root';proc] ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
+    let entry = json_string [(Sf.proc_exe, [get entrypoint]);
+                             (Sf.proc_args, [get entrypoint_args])] in
+    let cloned_entry = json_string [(Sf.proc_exe, [get entrypoint]);
+                                    (Sf.proc_args, [get entrypoint_args]);
+                                    (Sf.pproc_pid, [Sf.special Sf.Vars.pred Sf.proc_pid])] in
+    let constraints = json_string [(Sf.proc_exe, [exe]); (Sf.proc_args, [args'])] in
+    let behavior = Graphlib.create (module BehaviorGraph)
+                                   ~nodes:[root;root';proc]
+                                   ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
-    let () = Hashtbl.add_exn nodes ~key:root ~data:entrypoint' in
-    let () = Hashtbl.add_exn nodes ~key:root' ~data:entrypoint'' in
+    let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
+    let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
