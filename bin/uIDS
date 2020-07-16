@@ -1,7 +1,10 @@
 #!/usr/bin/env ocaml
 
 #use "topfind"
-#warnings "+a"
+
+(**
+ #warnings "+a"
+*)
 
 #thread
 
