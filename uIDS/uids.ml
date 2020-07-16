@@ -6,6 +6,7 @@ open Format
 open Graphlib.Std
 open Monads.Std
 open Regular.Std
+open Sexplib0
 open Yojson
 
 module Id = Monad.State.Multi.Id
@@ -110,7 +111,6 @@ module Sf = struct
 
 end
 
-
 type fd = int
 
 type operation =
@@ -137,6 +137,9 @@ type state = {
   graph : BehaviorGraph.t;
 }
 
+exception InvalidArgv of string
+exception MissingEdge of string
+
 let edge_of_operation op =
   match op with
     Clone argv -> "CLONE"
@@ -156,9 +159,11 @@ let jsonify xs =
       (key, vs'')) xs)
 
 let split_argv argv =
-  let exe :: args = argv in
-  let args' = String.concat ~sep:" " args in
-  (exe, args')
+  match argv with
+    [] -> raise (InvalidArgv "empty argv provided")
+  | exe :: args ->
+    let args' = String.concat ~sep:" " args in
+    (exe, args')
 
 let node_of_operation op =
   let json =
@@ -172,7 +177,6 @@ let node_of_operation op =
     | Open path ->
       jsonify [(Sf.file_path, [path])]
     | Bind (fd, port) ->
-      let fd' = Printf.sprintf "%d" fd in
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Accept fd ->
@@ -498,13 +502,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.return()
 
   let export_model root nodes graph =
-    let ns = BehaviorGraph.nodes graph in
     let es = BehaviorGraph.edges graph in
-    let nodes' = Seq.map ~f:(fun tid ->
-        let name = (Tid.name tid) in
-        let label = try Hashtbl.find_exn nodes tid
-          with Not_found -> name in
-        (name, label)) ns in
     let edges' = Seq.map ~f:(fun edge ->
         (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
       ) es in
@@ -523,9 +521,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
                  Seq.fold ~f:(fun g' p ->
                      succs |>
                      Seq.map ~f:(fun succ ->
-                         let Some edge = BehaviorGraph.Node.edge v succ g in
-                         let label = BehaviorGraph.Edge.label edge in
-                         BehaviorGraph.Edge.create p succ label) |>
+                         let opt = BehaviorGraph.Node.edge v succ g in
+                         match opt with
+                           None -> raise (MissingEdge "Cannot find edge to successor")
+                         | Some edge ->
+                             let label = BehaviorGraph.Edge.label edge in
+                             BehaviorGraph.Edge.create p succ label) |>
                      Seq.fold ~f:(fun g e ->
                          BehaviorGraph.Edge.insert e g) ~init:g') ~init:graph' preds) ~init:graph in
     let ns = BehaviorGraph.nodes g' in
@@ -533,7 +534,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let nodes' = Seq.map ~f:(fun tid ->
         let name = (Tid.name tid) in
         let label = try Hashtbl.find_exn nodes tid
-          with Not_found -> name in
+          with Not_found_s s ->
+              let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
+              name in
         (name, label)) ns in
     let edges' = Seq.map ~f:(fun edge ->
         (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
@@ -564,7 +567,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let {root_tid;nodes;graph} = state' in
       let _ = Graphlib.to_dot (module BehaviorGraph) ~node_attrs:(fun tid ->
           let name = try Hashtbl.find_exn nodes tid
-            with Not_found -> (Tid.name tid) in
+            with Not_found_s s ->
+                let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
+                (Tid.name tid) in
           [`Label name]
         ) ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge) ~channel:stdout graph in
       let _ = export_model root_tid nodes graph in
@@ -642,10 +647,17 @@ module Monitor(Machine : Primus.Machine.S) = struct
         })
 end
 
+let desc =
+  "The uIDS modeler will attempt to approximate the behavior of a binary based on
+   the system calls found within it."
+
 let main {Config.get=(!)} =
   let open Param in
   if !model then
-    Primus.Machine.add_component (module Monitor)
+    Primus.Machine.add_component (module Monitor) [@warning "-D"];
+    Primus.Components.register_generic "uids" (module Monitor)
+      ~package:"bap"
+      ~desc:("Enables the uIDS modeler. " ^ desc)
 
 let () =
   Config.when_ready (fun conf ->
