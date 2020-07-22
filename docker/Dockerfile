@@ -3,7 +3,7 @@ FROM binaryanalysisplatform/bap@sha256:501f28bee8eaac8b63b7e72ce9218c52a93de850b
 RUN opam install yojson camlp4
 COPY --chown=opam . /uIDS
 
-RUN sudo apt-get -y install jq python3
+RUN sudo apt-get -y install vim
 
 WORKDIR /uIDS/uIDS
 

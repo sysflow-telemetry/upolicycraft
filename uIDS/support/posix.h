@@ -29,6 +29,7 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 // uids
 
 int           htons(int);
+int           apr_app_initialize(int argc, char const *const **argv, char const *const **env);
 
 void         *bsearch(const void *key,
                       const void *base,

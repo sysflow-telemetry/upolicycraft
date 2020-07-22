@@ -40,5 +40,10 @@
   (declare (external "htons"))
   v)
 
+;; Always return success
+(defun apr_app_initialize (argc argv env)
+  (declare (external "apr_app_initialize"))
+  0)
+
 (defun atol  (s) (make-converter long s))
 (defun atoll (s) (make-converter long-long s))
