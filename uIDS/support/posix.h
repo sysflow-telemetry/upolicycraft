@@ -8,6 +8,7 @@ typedef int div_t;
 typedef int ldiv_t;
 typedef int lldiv_t;
 typedef int wchar_t;
+typedef size_t apr_size_t;
 
 int main(int argc, const char **argv);
 
@@ -29,7 +30,13 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 // uids
 
 int           htons(int);
+
 int           apr_app_initialize(int argc, char const *const **argv, char const *const **env);
+int           apr_pool_create_ex(void ** newpool, void* parent, void *abortfn, void *allocator);
+void         *apr_palloc(void *p, apr_size_t size);
+int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
+int           apr_random_insecure_ready(void *r);
+char         *apr_pstrdup(void *p, const char* s);
 
 void         *bsearch(const void *key,
                       const void *base,
