@@ -1,9 +1,7 @@
-FROM binaryanalysisplatform/bap@sha256:501f28bee8eaac8b63b7e72ce9218c52a93de850b1a7f2a91274bacd7e4f45a4
+FROM binaryanalysisplatform/bap@sha256:501f28bee8eaac8b63b7e72ce9218c52a93de850b1a7f2a91274bacd7e4f45a4 AS build
 
 RUN opam install yojson camlp4
 COPY --chown=opam . /uIDS
-
-RUN sudo apt-get -y install vim
 
 WORKDIR /uIDS/uIDS
 
@@ -18,3 +16,10 @@ RUN opam config exec -- ./bin/build-plugin.sh
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
 ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run"]
+
+FROM build AS dev
+
+RUN sudo apt-get -y update
+RUN sudo apt-get -y vim
+
+ENTRYPOINT ["/usr/bin/env", "bash"]
