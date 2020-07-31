@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 5 ]; then
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv"
+  exit 1
+fi
+
+PROGRAM=$1
+ENTRYPOINT=$2
+ARGV=$3
+CONTAINER_ENTRYPOINT=$4
+CONTAINER_ENTRYPOINT_ARGS=$5
+
+# Limit-max-length the total number of basic blocks Primus will run
+
+# Useful options for tracing the execution of the Primus machine.
+# --primus-print-obs=exception,pc-changed,jumping,call,call-return,machine-switch,machine-fork,lisp-message,incident,incident-location \
+# --primus-print-output=primus.log \
+# --cache-size=1024 \
+# --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
+# --primus-promiscuous-mode \
+# --primus-greedy-scheduler
+
+opam config exec -- bap $PROGRAM -prun \
+  --run-entry-points="${ENTRYPOINT}" \
+  --run-argv=${ARGV} \
+  --primus-limit-max-length=1000000 \
+  --primus-greedy-scheduler \
+  --primus-uids-model \
+  --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
+  --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"

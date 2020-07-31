@@ -7,7 +7,7 @@ RUN echo $PWD
 
 WORKDIR /httpd-2.4.43
 
-RUN ./configure --with-mpm=prefork
+RUN ./configure --with-mpm=prefork --disable-shared
 RUN make -j32
 RUN make install
 
