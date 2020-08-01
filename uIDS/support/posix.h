@@ -9,6 +9,7 @@ typedef int ldiv_t;
 typedef int lldiv_t;
 typedef int wchar_t;
 typedef size_t apr_size_t;
+typedef ssize_t apr_ssize_t;
 
 int main(int argc, const char **argv);
 
@@ -31,12 +32,23 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 int           htons(int);
 
+void          __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
+
 int           apr_app_initialize(int argc, char const *const **argv, char const *const **env);
 int           apr_pool_create_ex(void ** newpool, void* parent, void *abortfn, void *allocator);
 void         *apr_palloc(void *p, apr_size_t size);
 int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
 int           apr_random_insecure_ready(void *r);
 char         *apr_pstrdup(void *p, const char* s);
+
+void         *apr_hash_make(void *p);
+void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
+void          apr_hash_set(void *ht, const void *key, apr_ssize_t klen, const void *val);
+
+void         * __ctype_b_loc(void);
+
+void         *apr_array_push(void *arr);
+void         *apr_array_pop(void *arr);
 
 void         *bsearch(const void *key,
                       const void *base,

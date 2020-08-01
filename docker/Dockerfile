@@ -7,6 +7,7 @@ WORKDIR /uIDS/uIDS
 
 RUN cp /uIDS/uIDS/support/posix.h /home/opam/.opam/4.09/share/bap-api/c/posix.h
 RUN cp /uIDS/uIDS/support/atoi.lisp /home/opam/.opam/4.09/share/primus/site-lisp/atoi.lisp
+RUN cp /uIDS/uIDS/support/stdlib.lisp /home/opam/.opam/4.09/share/primus/site-lisp/stdlib.lisp
 
 RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make

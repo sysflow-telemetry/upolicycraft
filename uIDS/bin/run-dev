@@ -24,7 +24,7 @@ CONTAINER_ENTRYPOINT_ARGS=$5
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=1000000 \
+  --primus-limit-max-length=2000000 \
   --primus-greedy-scheduler \
   --primus-uids-model \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
