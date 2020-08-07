@@ -27,5 +27,6 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-limit-max-length=2000000 \
   --primus-greedy-scheduler \
   --primus-uids-model \
+  --primus-lisp-channel-redirect=conf/httpd.conf:/uIDS/images/httpd/4/usr/local/apache2/conf/httpd.conf \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"

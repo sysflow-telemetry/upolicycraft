@@ -135,6 +135,7 @@ type state = {
   visited : Tid.Set.t;
   halted : Id.Set.t;
   graph : BehaviorGraph.t;
+  arrays : (string, Primus.Value.t Seq.t) Hashtbl.t;
 }
 
 exception InvalidArgv of string
@@ -223,7 +224,64 @@ let state = Primus.Machine.State.declare
          visited = Tid.Set.empty;
          halted = Id.Set.empty;
          graph = behavior;
+         arrays = Hashtbl.create (module String);
        })
+
+module Pre(Machine : Primus.Machine.S) = struct
+  include Machine.Syntax
+  module Value = Primus.Value.Make(Machine)
+  let string_of_value v = (v |> Value.to_word |> Word.to_string)
+
+  let nil = Value.b0
+  let bool = function
+    | false -> nil
+    | true -> Value.b1
+end
+
+module Push(Machine : Primus.Machine.S) = struct
+  [@@@warning "-P"]
+  include Pre(Machine)
+
+  let run [arr; data] =
+    Machine.Local.update state ~f:(fun s ->
+      let {arrays} = s in
+      let opt = Hashtbl.find arrays (string_of_value arr) in
+      match opt with
+        None ->
+        Hashtbl.set arrays ~key:(string_of_value arr) ~data:(Seq.singleton data);
+        s
+      | Some arr' ->
+        let arr'' = Seq.cons data arr' in
+        Hashtbl.set arrays ~key:(string_of_value arr) ~data:arr'';
+        s
+    ) >>| fun () ->
+    data
+end
+
+module Pop(Machine : Primus.Machine.S) = struct
+  [@@@warning "-P"]
+  include Pre(Machine)
+
+  let run [arr] =
+    Machine.Local.get state >>= fun s ->
+      let {arrays} = s in
+      let arr' = Hashtbl.find_exn arrays (string_of_value arr) in
+      let opt = Seq.hd arr' in
+        match opt with
+          None -> nil
+        | Some x -> Machine.return (x)
+    >>= fun x ->
+      Machine.Local.update state ~f:(fun s ->
+        let {arrays} = s in
+        let arr' = Hashtbl.find_exn arrays (string_of_value arr) in
+        let opt = Seq.tl arr' in
+        let () = match opt with
+                   None -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:Seq.empty
+                 | Some tl -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:tl in
+        s
+      ) >>= fun () ->
+        Machine.return x
+end
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -237,6 +295,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
   module Env = Primus.Interpreter.Make(Machine)
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
+  module Lisp = Primus.Lisp.Make(Machine)
+  open Primus.Lisp.Type.Spec
   open Machine.Syntax
 
   let record_pos p = Machine.current () >>= fun pid ->
@@ -358,6 +418,27 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Exec [path; argv]) in
           (add_operation tid op state'))
+    | "apr_file_open" ->
+      let () = info "model open:" in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rsi) >>= fun v ->
+        (v |> Value.to_word |> string_of_addr) >>= fun path ->
+        let () = info " RSI: %s" path in
+        Machine.Local.update state ~f:(fun state' ->
+            let op = (Open path) in
+            (add_operation tid op state'))
+    | "apr_file_gets" ->
+      let () = info "model read:" in
+      let rsi = (Var.create "RSI" reg64_t) in
+      let rdx = (Var.create "RDX" reg64_t) in
+      (Env.get rsi) >>= fun u ->
+        let () = info " RSI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in
+      (Env.get rdx) >>= fun v ->
+        let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+        let () = info " RDX: %d" fd in
+        Machine.Local.update state ~f:(fun state' ->
+            let op = (Read fd) in
+            (add_operation tid op state'))
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -407,7 +488,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Send fd in
           (add_operation tid op state'))
     | _ ->
-      let () = info "called %s" func in
+      let () = info "called %s from %s" func (Tid.name tid) in
       Machine.return ()
 
   let reschedule () =
@@ -588,12 +669,19 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let () = info "machine finished!" in
     Machine.return()
 
+  let def name types closure docs =
+    Lisp.define ~docs ~types name closure
+
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
       Primus.System.fini >>> record_model;
+      def "array-push" (tuple [a; b] @-> bool) (module Push)
+      {|(array-push ARRAY DATA) pushes DATA onto ARRAY. |};
+      def "array-pop" (tuple [a] @-> b) (module Pop)
+      {|(array-push ARRAY DATA) pushes DATA onto ARRAY. |};
     ]
 
   let get x = Future.peek_exn (Config.determined x)
@@ -621,6 +709,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                                    ~nodes:[root;root';proc]
                                    ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
+    let arrays = Hashtbl.create (module String) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
@@ -633,6 +722,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           root_tid = root;
           last_tid = proc;
           graph = behavior;
+          arrays = arrays;
         }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -644,6 +734,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           root_tid = root;
           last_tid = proc;
           graph = behavior;
+          arrays = arrays;
         })
 end
 
