@@ -21,6 +21,6 @@ ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run"]
 FROM build AS dev
 
 RUN sudo apt-get -y update
-RUN sudo apt-get -y vim
+RUN sudo apt-get -y install vim
 
 ENTRYPOINT ["/usr/bin/env", "bash"]

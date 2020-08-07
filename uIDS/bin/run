@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ "$#" -ne 5 ]; then
-  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv"
+if [ "$#" -ne 6 ]; then
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode"
   exit 1
 fi
 
@@ -10,6 +10,16 @@ ENTRYPOINT=$2
 ARGV=$3
 CONTAINER_ENTRYPOINT=$4
 CONTAINER_ENTRYPOINT_ARGS=$5
+MODE=$6
+
+case $MODE in
+promiscuous)
+  MODELINE="--primus-promiscuous-mode --primus-greedy-scheduler"
+  ;;
+*)
+  MODELINE="--primus-greedy-scheduler"
+  ;;
+esac
 
 # Limit-max-length the total number of basic blocks Primus will run
 
@@ -17,18 +27,17 @@ CONTAINER_ENTRYPOINT_ARGS=$5
 # --primus-print-obs=exception,pc-changed,jumping,call,call-return,machine-switch,machine-fork,lisp-message,incident,incident-location \
 # --primus-print-output=primus.log \
 # --cache-size=1024 \
+# --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
+# --primus-promiscuous-mode \
+# --primus-greedy-scheduler \
 
-#  --primus-promiscuous-mode \
-#  --primus-greedy-scheduler \
 
 opam config exec -- bap $PROGRAM -prun \
   --report-progress \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
   --primus-limit-max-length=10000 \
-  --primus-promiscuous-mode \
-  --primus-greedy-scheduler \
-  --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
+  ${MODELINE} \
   --primus-uids-model \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"

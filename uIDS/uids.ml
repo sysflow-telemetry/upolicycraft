@@ -135,7 +135,7 @@ type state = {
   visited : Tid.Set.t;
   halted : Id.Set.t;
   graph : BehaviorGraph.t;
-  arrays : (string, Primus.Value.t Seq.t) Hashtbl.t;
+  arrays : (string, (Primus.Value.t * Primus.Value.t Seq.t)) Hashtbl.t;
 }
 
 exception InvalidArgv of string
@@ -231,12 +231,37 @@ module Pre(Machine : Primus.Machine.S) = struct
   include Machine.Syntax
   module Value = Primus.Value.Make(Machine)
   let string_of_value v = (v |> Value.to_word |> Word.to_string)
-
   let nil = Value.b0
   let bool = function
     | false -> nil
     | true -> Value.b1
 end
+
+module ArrayMake(Machine : Primus.Machine.S) = struct
+  [@@@warning "-P"]
+  include Pre(Machine)
+
+  let run [arr; size] =
+    Machine.Local.update state ~f:(fun s ->
+      let {arrays} = s in
+      let () = Hashtbl.set arrays ~key:(string_of_value arr) ~data:(size, Seq.empty) in
+      s
+    ) >>| fun () ->
+    arr
+end
+
+module ArraySize(Machine : Primus.Machine.S) = struct
+  [@@@warning "-P"]
+  include Pre(Machine)
+
+  let run [arr] =
+    Machine.Local.get state >>= fun s ->
+      let {arrays} = s in
+      let (sz, arr') = Hashtbl.find_exn arrays (string_of_value arr) in
+      Machine.return (sz)
+
+end
+
 
 module Push(Machine : Primus.Machine.S) = struct
   [@@@warning "-P"]
@@ -245,14 +270,9 @@ module Push(Machine : Primus.Machine.S) = struct
   let run [arr; data] =
     Machine.Local.update state ~f:(fun s ->
       let {arrays} = s in
-      let opt = Hashtbl.find arrays (string_of_value arr) in
-      match opt with
-        None ->
-        Hashtbl.set arrays ~key:(string_of_value arr) ~data:(Seq.singleton data);
-        s
-      | Some arr' ->
-        let arr'' = Seq.cons data arr' in
-        Hashtbl.set arrays ~key:(string_of_value arr) ~data:arr'';
+      let (sz, arr') = Hashtbl.find_exn arrays (string_of_value arr) in
+      let arr'' = Seq.cons data arr' in
+        Hashtbl.set arrays ~key:(string_of_value arr) ~data:(sz, arr'');
         s
     ) >>| fun () ->
     data
@@ -265,7 +285,7 @@ module Pop(Machine : Primus.Machine.S) = struct
   let run [arr] =
     Machine.Local.get state >>= fun s ->
       let {arrays} = s in
-      let arr' = Hashtbl.find_exn arrays (string_of_value arr) in
+      let (sz, arr') = Hashtbl.find_exn arrays (string_of_value arr) in
       let opt = Seq.hd arr' in
         match opt with
           None -> nil
@@ -273,11 +293,11 @@ module Pop(Machine : Primus.Machine.S) = struct
     >>= fun x ->
       Machine.Local.update state ~f:(fun s ->
         let {arrays} = s in
-        let arr' = Hashtbl.find_exn arrays (string_of_value arr) in
+        let (sz, arr') = Hashtbl.find_exn arrays (string_of_value arr) in
         let opt = Seq.tl arr' in
         let () = match opt with
-                   None -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:Seq.empty
-                 | Some tl -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:tl in
+                   None -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:(sz, Seq.empty)
+                 | Some tl -> Hashtbl.set arrays ~key:(string_of_value arr) ~data:(sz, tl) in
         s
       ) >>= fun () ->
         Machine.return x
@@ -678,10 +698,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
       Primus.System.fini >>> record_model;
+      def "array-make" (tuple [a; b] @-> bool) (module ArrayMake)
+      {|(array-make ARRAY DATA) makes an ARRAY. |};
+      def "array-elt-size" (tuple [a] @-> b) (module ArraySize)
+      {|(array-elt-size ARRAY) gets the size of elements in ARRAY. |};
       def "array-push" (tuple [a; b] @-> bool) (module Push)
       {|(array-push ARRAY DATA) pushes DATA onto ARRAY. |};
       def "array-pop" (tuple [a] @-> b) (module Pop)
-      {|(array-push ARRAY DATA) pushes DATA onto ARRAY. |};
+      {|(array-pop ARRAY DATA) pops DATA from ARRAY. |};
     ]
 
   let get x = Future.peek_exn (Config.determined x)

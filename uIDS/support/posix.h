@@ -10,6 +10,7 @@ typedef int lldiv_t;
 typedef int wchar_t;
 typedef size_t apr_size_t;
 typedef ssize_t apr_ssize_t;
+typedef int apr_status_t;
 
 int main(int argc, const char **argv);
 
@@ -41,14 +42,37 @@ int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
 int           apr_random_insecure_ready(void *r);
 char         *apr_pstrdup(void *p, const char* s);
 
+// void         **__ctype_b_loc();
+
 void         *apr_hash_make(void *p);
 void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
 void          apr_hash_set(void *ht, const void *key, apr_ssize_t klen, const void *val);
 
-void         * __ctype_b_loc(void);
 
+void         *apr_array_make(void *p, int nelts, int elt_size);
 void         *apr_array_push(void *arr);
 void         *apr_array_pop(void *arr);
+//
+apr_status_t apr_getopt_init(void *os, void *cont, int argc, const char *const argv);
+
+apr_status_t apr_getopt(void *os, const char *opts, char * option_ch, const char **option_arg);
+
+apr_status_t apr_sockaddr_info_get(void **sa,
+                                   const char *hostname,
+                                   int family,
+                                   int port,
+                                   int flags,
+                                   void *p);
+
+apr_status_t apr_file_open(void **newf, const char *fname,
+                           int flag, int perm,
+                           void *pool);
+
+apr_status_t apr_file_info_get(void *finfo,
+                               int wanted,
+                               void *thefile);
+
+apr_status_t apr_file_gets(char *str, int len, void *thefile);
 
 void         *bsearch(const void *key,
                       const void *base,
