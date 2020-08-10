@@ -16,9 +16,23 @@ typedef struct {
 } Server;
 
 int main (int argc, char *argv[]) {
-  if (argc < 2) on_error("Usage: %s [port]\n", argv[0]);
+  char buf[256];
 
-  int port = atoi(argv[1]);
+  if (argc < 2) on_error("Usage: %s [config]\n", argv[0]);
+
+  FILE *fp = fopen("/echo/echo.conf", "r");
+
+  if (fp == NULL) {
+    on_error("Could not open config file");
+  }
+
+  fread(buf, sizeof(char), 256, fp);
+
+  fclose(fp);
+
+  int port;
+
+  sscanf(buf, "port: %d", &port);
 
   int server_fd, client_fd, err;
   struct sockaddr_in server, client;

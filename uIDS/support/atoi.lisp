@@ -80,28 +80,28 @@
 (defun apr-hash-make (p)
   (declare (external "apr_hash_make"))
   (malloc 1))
-;;
+
 (defun apr-hash-get (ht key klen)
   (declare (external "apr_hash_get"))
   (dict-get ht key))
-;;
+
 (defun apr-hash-set (ht key klen val)
   (declare (external "apr_hash_set"))
   (dict-add ht key val))
-;;
+
 (defun apr-array-make (p n size)
   (declare (external "apr_array_make"))
   (let ((p (malloc 1)))
     (array-make p size)
     p))
-;;
+
 (defun apr-array-push (arr)
   (declare (external "apr_array_push"))
   (let ((sz (array-elt-size arr))
         (p (malloc sz)))
     (array-push arr p)
     p))
-;;
+
 (defun apr-array-pop (arr)
   (declare (external "apr_array_pop"))
   (array-pop arr))
