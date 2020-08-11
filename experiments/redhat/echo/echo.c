@@ -72,7 +72,7 @@ int main (int argc, char *argv[]) {
     if (client_fd < 0) on_error("Could not establish new connection\n");
 
     while (1) {
-      /** Mistakenly trust user input. */
+      /** Mistakenly trust user input */
       int recvd = serve.read(client_fd, &msg, 0);
 
       if (recvd < 0) on_error("Error reading.\n");
@@ -82,7 +82,7 @@ int main (int argc, char *argv[]) {
       int read = atoi(serve.buf);
 
       iov[0].iov_len = read;
-      serve.read(client_fd, &msg, MSG_DONTWAIT);
+      serve.read(client_fd, &msg, 0);
       serve.write(client_fd, &msg, 0);
     }
   }
