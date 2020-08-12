@@ -130,6 +130,8 @@ type state = {
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, string) Hashtbl.t;
+  ports : (fd, int) Hashtbl.t;
+  last_jump_conditional: bool;
   root_tid : Tid.t;
   last_tid : Tid.t;
   visited : Tid.Set.t;
@@ -166,7 +168,7 @@ let split_argv argv =
     let args' = String.concat ~sep:" " args in
     (exe, args')
 
-let node_of_operation op =
+let node_of_operation state op =
   let json =
     match op with
       Clone argv ->
@@ -181,20 +183,24 @@ let node_of_operation op =
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Accept fd ->
-      let fd' = Printf.sprintf "%d" fd in
-      jsonify [(Sf.net_dport, [fd'])]
+      let port = Hashtbl.find_exn state.ports fd in
+      let port' = Printf.sprintf "%d" port in
+      jsonify [(Sf.net_dport, [port'])]
     | Read fd ->
       let fd' = Printf.sprintf "%d" fd in
       jsonify [(Sf.file_fd, [fd'])]
     | Write fd ->
-      let fd' = Printf.sprintf "%d" fd in
-      jsonify [(Sf.file_fd, [fd'])]
+      let port = Hashtbl.find_exn state.ports fd in
+      let port' = Printf.sprintf "%d" port in
+      jsonify [(Sf.file_fd, [port'])]
     | Recv fd ->
-      let fd' = Printf.sprintf "%d" fd in
-      jsonify [(Sf.net_dport, [fd'])]
+      let port = Hashtbl.find_exn state.ports fd in
+      let port' = Printf.sprintf "%d" port in
+      jsonify [(Sf.net_dport, [port'])]
     | Send fd ->
-      let fd' = Printf.sprintf "%d" fd in
-      jsonify [(Sf.net_dport, [fd'])] in
+      let port = Hashtbl.find_exn state.ports fd in
+      let port' = Printf.sprintf "%d" port in
+      jsonify [(Sf.net_dport, [port'])] in
   Yojson.Basic.to_string json
 
 let labeled label node =
@@ -202,7 +208,7 @@ let labeled label node =
 
 let add_operation tid op state =
   let {nodes;graph;last_tid} = state in
-  let node_label = node_of_operation op in
+  let node_label = node_of_operation state op in
   let edge_label = edge_of_operation op in
   let graph' = BehaviorGraph.Node.insert tid graph in
   let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
@@ -219,6 +225,8 @@ let state = Primus.Machine.State.declare
        { root_tid = root;
          last_tid = root;
          nodes = Hashtbl.create (module Tid);
+         ports = Hashtbl.create (module Int);
+         last_jump_conditional = true;
          symbols = [];
          labels = Hashtbl.create (module String);
          visited = Tid.Set.empty;
@@ -229,12 +237,36 @@ let state = Primus.Machine.State.declare
 
 module Pre(Machine : Primus.Machine.S) = struct
   include Machine.Syntax
+  module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
+
   let string_of_value v = (v |> Value.to_word |> Word.to_string)
   let nil = Value.b0
   let bool = function
     | false -> nil
     | true -> Value.b1
+
+  let allow_all_memory_access access =
+    Machine.catch access (function exn ->
+        let () = info "Error reading memory!" in
+        let msg = Primus.Exn.to_string exn in
+        let () = info "    %s" msg in
+        Value.of_bool (false))
+
+  let string_of_addr addr =
+    let rec loop addr cs =
+      let () = info "Fetching %s" (Bitvector.to_string addr) in
+      (allow_all_memory_access (Memory.get addr)) >>= fun v ->
+      let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      if x = 0 then
+        let s = (cs |> List.rev |> String.of_char_list) in
+        let () = info "  %s" s in
+        Machine.return (s)
+      else
+        let c = Char.of_int_exn x in
+        loop (Bitvector.succ addr)  (c :: cs) in
+    loop addr []
+
 end
 
 module ArrayMake(Machine : Primus.Machine.S) = struct
@@ -261,7 +293,6 @@ module ArraySize(Machine : Primus.Machine.S) = struct
       Machine.return (sz)
 
 end
-
 
 module Push(Machine : Primus.Machine.S) = struct
   [@@@warning "-P"]
@@ -302,6 +333,53 @@ module Pop(Machine : Primus.Machine.S) = struct
       ) >>= fun () ->
         Machine.return x
 end
+
+module Scan(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    (**
+    let pull_string addr =
+      let rec loop addr cs =
+        let v = addr |> Memory.load |> Bitvector.to_int_exn in
+        if v = 0 then
+          let s = (cs |> List.rev |> String.of_char_list) in
+          s
+        else
+          let c = Char.of_int_exn x in
+          loop (Bitvector.succ addr) (c :: cs) in
+      loop addr [] *)
+
+    let run [str;fmt] =
+      let vstr = Value.to_word str in
+      let vfmt = Value.to_word fmt in
+      string_of_addr vstr >>= fun str' ->
+      string_of_addr vfmt >>= fun fmt' ->
+        let () = info "str %s %s" str' fmt' in
+        let port = (((Scanf.sscanf str') "port: %d") (fun i -> i)) in
+        let () = info "port: %d" port in
+        nil
+        (** Machine.Local.get state >>= fun st -> *)
+        (** let _ = Memory.load (Value.to_word str) in *)
+        (** let s = pull_string (Value.to_word str) in *)
+        (**
+        (allow_all_memory_access ) >>= fun v ->
+          (** let _ = string_of_addr (Value.to_word str) in *)
+          let () = info "sscanf:" in
+          nil *)
+      (**
+      Machine.Local.get state >>= fun s ->
+        let str' = string_of_addr (Value.to_word str) in
+        let () = info "sscanf: %s %s" str' (string_of_value fmt) in
+        nil  *)
+      (**
+      let str' = string_of_value str in
+      let fmt' = string_of_value fmt in
+      let () = info "sscanf %s %s" str' fmt' in
+      let s = ((Scanf.sscanf str') "%d") (fun i -> i) in
+      *)
+end
+
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -459,6 +537,24 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.Local.update state ~f:(fun state' ->
             let op = (Read fd) in
             (add_operation tid op state'))
+    | "fopen" ->
+      let () = info "model fopen:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      let () = info " RDI: %s" path in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Open path) in
+          (add_operation tid op state'))
+    | "fgetc" ->
+      let () = info "model fgetc:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info " RDI: %d" fd in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Read fd) in
+          (add_operation tid op state'))
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -482,6 +578,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " port %d" port in
       Machine.Local.update state ~f:(fun state' ->
           let op = Bind (fd, port) in
+          let () = Hashtbl.set state'.ports ~key:fd ~data:port in
           (add_operation tid op state'))
     | "accept" ->
       let () = info "model accept:" in
@@ -548,19 +645,33 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let record_jmp j = Machine.current () >>= fun pid ->
     let tid = Term.tid j in
-    Machine.Local.get state >>= fun {last_tid; nodes; graph; visited} ->
+    Machine.Global.get state >>= fun gs ->
+    Machine.Local.get state >>= fun {last_tid; nodes; graph; visited; last_jump_conditional} ->
     let visited = Tid.Set.mem visited tid in
     if visited then
       let () = info "repeated a jump" in
       let preds = BehaviorGraph.Node.preds tid graph in
       let first = Seq.nth_exn preds 0 in
       let edge' = BehaviorGraph.Edge.create last_tid first "" in
-      let graph' = BehaviorGraph.Edge.insert edge' graph in
-      Machine.Global.update state ~f:(fun s ->
-          let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
-          {s with graph=graph''}
-        ) >>= fun _ ->
-      reschedule()
+      let () = info "making loop edge from %s" (Tid.name last_tid) in
+      let loops = gs.graph |>
+                  BehaviorGraph.edges |>
+                  Seq.filter ~f:(fun edge ->
+                    (BehaviorGraph.Edge.src edge) = last_tid &&
+                    (BehaviorGraph.Edge.label edge) = "") |>
+                  Seq.length in
+      let graph' = if loops = 0 then
+                      BehaviorGraph.Edge.insert edge' graph
+                   else
+                      graph in
+        (Machine.Global.update state ~f:(fun s ->
+            let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
+            {s with graph=graph''}
+          ) >>= fun _ ->
+            if not last_jump_conditional then
+              reschedule()
+            else
+              Machine.return())
     else
       match (Jmp.kind j) with
         Call c ->
@@ -595,12 +706,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
           else
             Machine.return()
       | Goto label ->
+        let guard = Jmp.guard j in
+        let guarded = match guard with
+                        None -> false
+                      | Some _ -> true in
         let label' = Label.to_string label in
         let () = info "goto label %s" label' in
-        Machine.return ()
+        Machine.Local.update state ~f:(fun s ->
+          if guarded then
+            { s with last_jump_conditional=true }
+          else
+            s
+        )
       | _ ->
         let () = info "    Different kind of jump" in
-        Machine.return()
+        Machine.return ()
 
   let export_model root nodes graph =
     let es = BehaviorGraph.edges graph in
@@ -706,6 +826,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(array-push ARRAY DATA) pushes DATA onto ARRAY. |};
       def "array-pop" (tuple [a] @-> b) (module Pop)
       {|(array-pop ARRAY DATA) pops DATA from ARRAY. |};
+      def "uids-ocaml-sscanf" (tuple [a; b] @-> bool) (module Scan)
+      {|(uids-ocaml-sscanf) tries to implement sscanf. |};
     ]
 
   let get x = Future.peek_exn (Config.determined x)
@@ -734,12 +856,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
                                    ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
     let arrays = Hashtbl.create (module String) in
+    let ports = Hashtbl.create (module Int) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
           nodes = nodes;
+          ports = ports;
+          last_jump_conditional = true;
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
@@ -752,6 +877,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     Machine.Local.update state ~f:(fun _ ->
         { symbols = symtabs;
           nodes = nodes;
+          ports = ports;
+          last_jump_conditional = true;
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;

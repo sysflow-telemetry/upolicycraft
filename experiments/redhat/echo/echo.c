@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#define FILESIZE 0x100
 #define BUFFER_SIZE 0x10
 #define on_error(...) { fprintf(stderr, __VA_ARGS__); exit(1); }
 
@@ -16,7 +17,10 @@ typedef struct {
 } Server;
 
 int main (int argc, char *argv[]) {
-  char buf[256];
+  char buf[FILESIZE];
+  char c;
+  char *p = buf;
+  char *port_label = "port: ";
 
   if (argc < 2) on_error("Usage: %s [config]\n", argv[0]);
 
@@ -26,13 +30,21 @@ int main (int argc, char *argv[]) {
     on_error("Could not open config file");
   }
 
-  fread(buf, sizeof(char), 256, fp);
+  while ((c = fgetc(fp)) != EOF && p < &buf[FILESIZE]) {
+    *p++ = c;
+  }
 
   fclose(fp);
 
+  if (memcmp(buf, port_label, strlen(port_label)) != 0) {
+    on_error("Invalid config file!");
+  }
+
   int port;
 
-  sscanf(buf, "port: %d", &port);
+  port = atoi(buf+strlen(port_label));
+
+  printf("Running on port %d\n", port);
 
   int server_fd, client_fd, err;
   struct sockaddr_in server, client;

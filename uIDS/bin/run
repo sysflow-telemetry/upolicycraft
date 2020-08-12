@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-if [ "$#" -ne 6 ]; then
-  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode"
+if [ "$#" -lt 6 ]; then
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode [redirects]"
   exit 1
 fi
 
@@ -11,6 +11,7 @@ ARGV=$3
 CONTAINER_ENTRYPOINT=$4
 CONTAINER_ENTRYPOINT_ARGS=$5
 MODE=$6
+FILESYSTEM=$7
 
 case $MODE in
 promiscuous)
@@ -28,6 +29,7 @@ esac
 # --primus-print-output=primus.log \
 # --cache-size=1024 \
 # --primus-lisp-channel-redirect=/usr/local/nginx/logs/error.log:/tmp/uIDS/error.log \
+# --primus-lisp-channel-redirect=/echo/echo.conf:/uIDS/images/echo/4/echo/echo.conf =
 # --primus-promiscuous-mode \
 # --primus-greedy-scheduler \
 
@@ -37,5 +39,6 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-limit-max-length=10000 \
   ${MODELINE} \
   --primus-uids-model \
+  ${FILESYSTEM} \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"
