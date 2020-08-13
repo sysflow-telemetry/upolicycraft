@@ -121,6 +121,7 @@ type operation =
   | Accept of fd
   | Read of fd
   | Write of fd
+  | Close of fd
   | Recv of fd
   | Send of fd
 
@@ -131,9 +132,11 @@ type state = {
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, string) Hashtbl.t;
   ports : (fd, int) Hashtbl.t;
+  files : (fd, string) Hashtbl.t;
   last_jump_conditional: bool;
   root_tid : Tid.t;
   last_tid : Tid.t;
+  file_opened : string option;
   visited : Tid.Set.t;
   halted : Id.Set.t;
   graph : BehaviorGraph.t;
@@ -152,6 +155,7 @@ let edge_of_operation op =
   | Accept fd -> "ACCEPT"
   | Read fd -> "READ"
   | Write fd -> "WRITE"
+  | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
 
@@ -187,12 +191,14 @@ let node_of_operation state op =
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Read fd ->
-      let fd' = Printf.sprintf "%d" fd in
-      jsonify [(Sf.file_fd, [fd'])]
+      let file = Hashtbl.find_exn state.files fd in
+      jsonify [(Sf.file_path, [file])]
     | Write fd ->
-      let port = Hashtbl.find_exn state.ports fd in
-      let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.file_fd, [port'])]
+      let file = Hashtbl.find_exn state.files fd in
+      jsonify [(Sf.file_path, [file])]
+    | Close fd ->
+      let file = Hashtbl.find_exn state.files fd in
+      jsonify [(Sf.file_path, [file])]
     | Recv fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
@@ -226,7 +232,9 @@ let state = Primus.Machine.State.declare
          last_tid = root;
          nodes = Hashtbl.create (module Tid);
          ports = Hashtbl.create (module Int);
+         files = Hashtbl.create (module Int);
          last_jump_conditional = true;
+         file_opened = None;
          symbols = [];
          labels = Hashtbl.create (module String);
          visited = Tid.Set.empty;
@@ -338,18 +346,6 @@ module Scan(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
 
-    (**
-    let pull_string addr =
-      let rec loop addr cs =
-        let v = addr |> Memory.load |> Bitvector.to_int_exn in
-        if v = 0 then
-          let s = (cs |> List.rev |> String.of_char_list) in
-          s
-        else
-          let c = Char.of_int_exn x in
-          loop (Bitvector.succ addr) (c :: cs) in
-      loop addr [] *)
-
     let run [str;fmt] =
       let vstr = Value.to_word str in
       let vfmt = Value.to_word fmt in
@@ -359,27 +355,7 @@ module Scan(Machine : Primus.Machine.S) = struct
         let port = (((Scanf.sscanf str') "port: %d") (fun i -> i)) in
         let () = info "port: %d" port in
         nil
-        (** Machine.Local.get state >>= fun st -> *)
-        (** let _ = Memory.load (Value.to_word str) in *)
-        (** let s = pull_string (Value.to_word str) in *)
-        (**
-        (allow_all_memory_access ) >>= fun v ->
-          (** let _ = string_of_addr (Value.to_word str) in *)
-          let () = info "sscanf:" in
-          nil *)
-      (**
-      Machine.Local.get state >>= fun s ->
-        let str' = string_of_addr (Value.to_word str) in
-        let () = info "sscanf: %s %s" str' (string_of_value fmt) in
-        nil  *)
-      (**
-      let str' = string_of_value str in
-      let fmt' = string_of_value fmt in
-      let () = info "sscanf %s %s" str' fmt' in
-      let s = ((Scanf.sscanf str') "%d") (fun i -> i) in
-      *)
 end
-
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -545,7 +521,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " RDI: %s" path in
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
-          (add_operation tid op state'))
+          let state'' = {state' with file_opened=Some path} in
+          (add_operation tid op state''))
     | "fgetc" ->
       let () = info "model fgetc:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -554,6 +531,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " RDI: %d" fd in
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
+          (add_operation tid op state'))
+    | "fclose" ->
+      let () = info "model fclose:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info " RDI: %d" fd in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Close fd) in
           (add_operation tid op state'))
     | "open64" ->
       let () = info "model open:" in
@@ -579,7 +565,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Bind (fd, port) in
           let () = Hashtbl.set state'.ports ~key:fd ~data:port in
-          (add_operation tid op state'))
+         (add_operation tid op state'))
     | "accept" ->
       let () = info "model accept:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -635,13 +621,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let name = Var.to_string x in
     let () = info "Variable %s <- %s" name (Value.to_string v) in
     let start = String.get name 0 in
+    Machine.Local.get state >>= fun {file_opened} ->
     if start = '#' then
       Machine.Global.update state ~f:(fun state' ->
-          let () = Hashtbl.set state'.labels ~key:name ~data:x in
-          state'
-        )
+        let () = Hashtbl.set state'.labels ~key:name ~data:x in
+        state'
+      )
     else
-      Machine.return()
+      match file_opened with
+        None -> Machine.return()
+      | Some file -> Machine.Local.update state ~f:(fun s ->
+        let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+        let _ = Hashtbl.set s.files ~key:fd ~data:file in
+        {s with file_opened = None}
+      )
 
   let record_jmp j = Machine.current () >>= fun pid ->
     let tid = Term.tid j in
@@ -857,6 +850,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let nodes = Hashtbl.create (module Tid) in
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
+    let files = Hashtbl.create (module Int) in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
@@ -864,7 +858,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
         { symbols = symtabs;
           nodes = nodes;
           ports = ports;
+          files = files;
           last_jump_conditional = true;
+          file_opened = None;
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
@@ -878,7 +874,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
         { symbols = symtabs;
           nodes = nodes;
           ports = ports;
+          files = files;
           last_jump_conditional = true;
+          file_opened = None;
           labels = Hashtbl.create (module String);
           visited = Tid.Set.empty;
           halted = Id.Set.empty;
