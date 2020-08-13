@@ -42,7 +42,7 @@ int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
 int           apr_random_insecure_ready(void *r);
 char         *apr_pstrdup(void *p, const char* s);
 
-// void         **__ctype_b_loc();
+void         **__ctype_b_loc();
 
 void         *apr_hash_make(void *p);
 void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
@@ -53,9 +53,9 @@ void         *apr_array_make(void *p, int nelts, int elt_size);
 void         *apr_array_push(void *arr);
 void         *apr_array_pop(void *arr);
 //
-apr_status_t apr_getopt_init(void *os, void *cont, int argc, const char *const argv);
+apr_status_t apr_getopt_init(void **os, void *cont, int argc, const char *const argv);
 
-apr_status_t apr_getopt(void *os, const char *opts, char * option_ch, const char **option_arg);
+apr_status_t apr_getopt(void **os, const char *opts, char * option_ch, const char **option_arg);
 
 apr_status_t apr_sockaddr_info_get(void **sa,
                                    const char *hostname,
@@ -154,6 +154,7 @@ int scanf(const char * restrict format, ...) __attribute__((format(scanf,1,2)));
 int fscanf(FILE * restrict stream, const char * restrict format, ...) __attribute__((format(scanf,2,3)));
 int sscanf(const char * restrict str, const char * restrict format, ...) __attribute__((format(scanf,2,3)));
 
+int __isoc99_sscanf(const char * restrict str, const char * restrict format, ...) __attribute__((format(scanf,2,3)));
 
 char *fgets(char * restrict s, int size, FILE * restrict stream)
     __attribute__((warn_unused_result));
