@@ -8,3 +8,4 @@ uIDS/configure
 uIDS/plugins
 uIDS/setup.*
 layers/*
+*.o
