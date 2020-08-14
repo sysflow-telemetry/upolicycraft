@@ -124,6 +124,7 @@ type operation =
   | Close of fd
   | Recv of fd
   | Send of fd
+  | Exit
 
 module BehaviorGraph = Graphlib.Make(Tid)(String)
 
@@ -158,6 +159,7 @@ let edge_of_operation op =
   | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
+  | Exit -> "EXIT"
 
 let jsonify xs =
   `Assoc (List.map ~f:(fun (key, vs) ->
@@ -206,7 +208,9 @@ let node_of_operation state op =
     | Send fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.net_dport, [port'])] in
+      jsonify [(Sf.net_dport, [port'])]
+    | Exit ->
+      jsonify [] in
   Yojson.Basic.to_string json
 
 let labeled label node =
@@ -590,6 +594,27 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Send fd in
           (add_operation tid op state'))
+    | "_terminate" ->
+      let () = info "model terminate:" in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Exit in
+          (add_operation tid op state'))
+    | "receive" ->
+      let () = info "model receive:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
+          (add_operation tid op state'))
+    | "transmit" ->
+      let () = info "model transmit:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Write fd in
+          (add_operation tid op state'))
     | _ ->
       let () = info "called %s from %s" func (Tid.name tid) in
       Machine.return ()
@@ -851,6 +876,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
+    let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/stdin" in
+    let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/stdout" in
+    let () = Hashtbl.add_exn files ~key:2 ~data:"/dev/stderr" in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
