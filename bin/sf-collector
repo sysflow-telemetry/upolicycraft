@@ -10,6 +10,6 @@ docker run -d --privileged --name sf-collector \
          -e INTERVAL=60                              \
          -e EXPORTER_ID=${HOSTNAME}                  \
          -e OUTPUT=/mnt/data/                        \
-         -e FILTER="container.name = echo" \
+         -e FILTER="container.name = cgc" \
          --rm sysflowtelemetry/sf-collector:edge
 

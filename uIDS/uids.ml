@@ -668,6 +668,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let record_jmp j = Machine.current () >>= fun pid ->
     let tid = Term.tid j in
+    let () = info "entering jump %s" (Tid.name tid) in
     Machine.Global.get state >>= fun gs ->
     Machine.Local.get state >>= fun {last_tid; nodes; graph; visited; last_jump_conditional} ->
     let visited = Tid.Set.mem visited tid in
@@ -675,7 +676,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "repeated a jump" in
       let preds = BehaviorGraph.Node.preds tid graph in
       let first = Seq.nth_exn preds 0 in
-      let edge' = BehaviorGraph.Edge.create first first "" in
+      let edge' = BehaviorGraph.Edge.create tid tid "" in
       let () = info "making loop edge from %s" (Tid.name last_tid) in
       let loops = gs.graph |>
                   BehaviorGraph.edges |>
