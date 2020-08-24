@@ -58,15 +58,15 @@ int check(){
         len++;
     }
     int steps = len;
-    if(len % 2 == 1){
+    if (len % 2 == 1){
         steps--;
     }
-    for(i = 0; i <= steps/2; i++){
+    for (i = 0; i <= steps/2; i++) {
         if(string[i] != string[len-1-i]){
             pal = 0;
         }
     }
-    if(string[0] == '^'){
+    if (string[0] == '^'){
         if (transmit_all(1, EASTEREGG, sizeof(EASTEREGG)-1) != 0) {
             _terminate(0);
         }

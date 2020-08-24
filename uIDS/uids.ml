@@ -174,6 +174,11 @@ let split_argv argv =
     let args' = String.concat ~sep:" " args in
     (exe, args')
 
+let string_of_json json =
+  json |>
+  Yojson.Basic.to_string |>
+  String.map ~f:(fun c -> if c = '"' then '\'' else c)
+
 let node_of_operation state op =
   let json =
     match op with
@@ -211,7 +216,7 @@ let node_of_operation state op =
       jsonify [(Sf.net_dport, [port'])]
     | Exit ->
       jsonify [] in
-  Yojson.Basic.to_string json
+  string_of_json json
 
 let labeled label node =
   { node= node; node_label=label }
@@ -670,7 +675,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "repeated a jump" in
       let preds = BehaviorGraph.Node.preds tid graph in
       let first = Seq.nth_exn preds 0 in
-      let edge' = BehaviorGraph.Edge.create last_tid first "" in
+      let edge' = BehaviorGraph.Edge.create first first "" in
       let () = info "making loop edge from %s" (Tid.name last_tid) in
       let loops = gs.graph |>
                   BehaviorGraph.edges |>
@@ -782,7 +787,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       ) es in
     let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
     let constraints'' = nodes' |> Seq.map ~f:(fun (name, constraints) ->
-        let jsconstraints = Yojson.Basic.from_string constraints in
+        let jsconstraints = constraints |>
+             String.map ~f:(fun c -> if c = '\'' then '"' else c) |>
+             Yojson.Basic.from_string in
         `Assoc [("node", `String name); ("constraints", jsconstraints)]) |> Seq.to_list in
     let edges'' = edges' |> Seq.map ~f:(fun (src, dst, label) ->
         `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label)]
@@ -797,6 +804,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
   let record_model () =
+    let dotfile = Out_channel.create "output.dot" in
     Machine.current () >>= fun pid ->
     let () = info "Machine %a ending!" Id.pp pid in
     if Machine.global = pid then
@@ -809,8 +817,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
                 (Tid.name tid) in
-          [`Label name]
-        ) ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge) ~channel:stdout graph in
+          [`Label name; `Shape `Box]
+        )
+        ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge)
+        ~channel:dotfile graph in
       let _ = export_model root_tid nodes graph in
       Machine.return()
     else
@@ -850,7 +860,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let get x = Future.peek_exn (Config.determined x)
 
-  let json_string data = data |> jsonify |> Yojson.Basic.pretty_to_string
+  let json_string data =
+   data |>
+   jsonify |>
+   Yojson.Basic.pretty_to_string |>
+   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
   let init () =
     let open Param in
