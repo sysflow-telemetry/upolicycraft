@@ -10,7 +10,8 @@ script:
  - docker build -f docker/Dockerfile.util -t sysflowtelemetry/uids-util:latest .
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/fork _start "/fork/fork,/bin/bash,/bin/sh" /usr/bin/bash /fork/fork.sh promiscuous
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/echo _start "/echo/echo,/echo/echo.conf" /usr/bin/bash /echo/echo.sh promiscuous --primus-lisp-channel-redirect="/echo/echo.conf:/uIDS/tests/conf/echo.conf"
- - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/apr _start "/apr" /apr.sh /apr.sh greedy
+ - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/apr _start "/apr" /bin/bash /apr.sh greedy
+ - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/CADET_00001 _start "/cgc/CADET_00001" /bin/bash /cgc/cadet.sh greedy
 
 branches:
   only:
