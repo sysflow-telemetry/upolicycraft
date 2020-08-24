@@ -36,7 +36,7 @@ esac
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=10000 \
+  --primus-limit-max-length=50000 \
   ${MODELINE} \
   --primus-uids-model \
   ${FILESYSTEM} \
