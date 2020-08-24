@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rm output.pdf
+dot -Tpdf output.dot -o output.pdf
