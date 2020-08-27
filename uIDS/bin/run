@@ -11,7 +11,8 @@ ARGV=$3
 CONTAINER_ENTRYPOINT=$4
 CONTAINER_ENTRYPOINT_ARGS=$5
 MODE=$6
-FILESYSTEM=$7
+SERVER=$7
+FILESYSTEM=$8
 
 case $MODE in
 promiscuous)
@@ -40,5 +41,6 @@ opam config exec -- bap $PROGRAM -prun \
   ${MODELINE} \
   --primus-uids-model \
   ${FILESYSTEM} \
+  --primus-uids-server-start="${SERVER}" \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"

@@ -32,6 +32,10 @@ module Param = struct
       ~doc:
         "The arguments passed to the entrypoint"
 
+  let server_start = param (string) "server-start"
+      ~doc:
+        "The location of an infinite loop."
+
 end
 
 module Sf = struct
@@ -138,10 +142,11 @@ type state = {
   root_tid : Tid.t;
   last_tid : Tid.t;
   file_opened : string option;
-  visited : Tid.Set.t;
+  loops : (Tid.t, int) Hashtbl.t;
   halted : Id.Set.t;
   graph : BehaviorGraph.t;
   arrays : (string, (Primus.Value.t * Primus.Value.t Seq.t)) Hashtbl.t;
+  server_tid : Tid.t;
 }
 
 exception InvalidArgv of string
@@ -222,14 +227,16 @@ let labeled label node =
   { node= node; node_label=label }
 
 let add_operation tid op state =
+  let () = info "Adding operation:" in
   let {nodes;graph;last_tid} = state in
   let node_label = node_of_operation state op in
   let edge_label = edge_of_operation op in
   let graph' = BehaviorGraph.Node.insert tid graph in
+  let () = info "   %s" edge_label in
   let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
   let graph'' = BehaviorGraph.Edge.insert edge graph' in
   let () = Hashtbl.set nodes ~key:tid ~data:node_label in
-  { state with visited = Tid.Set.add state.visited tid; last_tid = tid; graph=graph'' }
+  { state with last_tid = tid; graph=graph'' }
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
@@ -246,10 +253,11 @@ let state = Primus.Machine.State.declare
          file_opened = None;
          symbols = [];
          labels = Hashtbl.create (module String);
-         visited = Tid.Set.empty;
+         loops = Hashtbl.create (module Tid);
          halted = Id.Set.empty;
          graph = behavior;
          arrays = Hashtbl.create (module String);
+         server_tid = Tid.create();
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -522,6 +530,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.Local.update state ~f:(fun state' ->
             let op = (Read fd) in
             (add_operation tid op state'))
+    | "atoi" ->
+      let () = info "model atoi:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun u ->
+        let () = info " RDI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in
+        (u |> Value.to_word |> string_of_addr) >>= fun str ->
+        let () = info "  atoi: %s" str in
+        Machine.return()
     | "fopen" ->
       let () = info "model fopen:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -624,22 +640,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "called %s from %s" func (Tid.name tid) in
       Machine.return ()
 
-  let reschedule () =
-    let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
-    Machine.Global.get state >>= fun {halted} ->
-    Machine.forks () >>= fun forks ->
-    let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
-    match last active with
-    | None ->
-      info "no more pending machines";
-      Machine.switch Machine.global
-    | Some cid ->
-      Machine.current () >>= fun pid ->
-      info "uids: switch to machine %a from %a" Id.pp cid Id.pp pid;
-      info "uids: killing previous machine %a" Id.pp pid;
-      Machine.kill pid >>= fun () ->
-      Machine.switch cid
-
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
     let () = info "record statement: %s" s in
@@ -665,86 +665,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let _ = Hashtbl.set s.files ~key:fd ~data:file in
         {s with file_opened = None}
       )
-
-  let record_jmp j = Machine.current () >>= fun pid ->
-    let tid = Term.tid j in
-    let () = info "entering jump %s" (Tid.name tid) in
-    Machine.Global.get state >>= fun gs ->
-    Machine.Local.get state >>= fun {last_tid; nodes; graph; visited; last_jump_conditional} ->
-    let visited = Tid.Set.mem visited tid in
-    if visited then
-      let () = info "repeated a jump" in
-      let preds = BehaviorGraph.Node.preds tid graph in
-      let first = Seq.nth_exn preds 0 in
-      let edge' = BehaviorGraph.Edge.create tid tid "" in
-      let () = info "making loop edge from %s" (Tid.name last_tid) in
-      let loops = gs.graph |>
-                  BehaviorGraph.edges |>
-                  Seq.filter ~f:(fun edge ->
-                    (BehaviorGraph.Edge.src edge) = last_tid &&
-                    (BehaviorGraph.Edge.label edge) = "") |>
-                  Seq.length in
-      let graph' = if loops = 0 then
-                      BehaviorGraph.Edge.insert edge' graph
-                   else
-                      graph in
-        (Machine.Global.update state ~f:(fun s ->
-            let graph'' = Graphlib.union (module BehaviorGraph) s.graph graph' in
-            {s with graph=graph''}
-          ) >>= fun _ ->
-            if not last_jump_conditional then
-              reschedule()
-            else
-              Machine.return())
-    else
-      match (Jmp.kind j) with
-        Call c ->
-        let label = c |> Call.target |> Label.to_string in
-        let prefix = String.get label 0 in
-        if prefix = '@' then
-          let func = String.drop_prefix label 1 in
-          record_function tid func
-        else
-          let () = info "Indirect function call:" in
-          let prefix = String.get label 0 in
-          if prefix = '#' then
-            Machine.Global.get state >>= fun state' ->
-            let {labels} = state' in
-            let var = Hashtbl.find_exn labels label in
-            (Env.get var) >>= fun v ->
-            let target = (v |> Value.to_word)  in
-            let {symbols} = state' in
-            let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
-                let addr = block |> Block.addr in
-                let () = info "  found %s %s" name (Addr.to_string addr) in
-                addr = target) |> List.map ~f:(fun (name, block, cfg) ->
-                name
-              ) in
-            if (List.length matched) > 0 then
-              let f = List.nth_exn matched 0 in
-              let () = info "  match %s" f in
-              record_function tid f
-            else
-              let () = info "  target %s" (Addr.to_string target) in
-              Machine.return()
-          else
-            Machine.return()
-      | Goto label ->
-        let guard = Jmp.guard j in
-        let guarded = match guard with
-                        None -> false
-                      | Some _ -> true in
-        let label' = Label.to_string label in
-        let () = info "goto label %s" label' in
-        Machine.Local.update state ~f:(fun s ->
-          if guarded then
-            { s with last_jump_conditional=true }
-          else
-            s
-        )
-      | _ ->
-        let () = info "    Different kind of jump" in
-        Machine.return ()
 
   let export_model root nodes graph =
     let es = BehaviorGraph.edges graph in
@@ -802,6 +722,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let model' = Yojson.Basic.pretty_to_string model in
     printf "%s" model'
 
+
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
   let record_model () =
@@ -832,6 +753,98 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let () = info " updating global state!" in
           let graph' = Graphlib.union (module BehaviorGraph) s.graph graph in
           {s with halted = Set.add s.halted pid; graph=graph'})
+
+  let reschedule () =
+    let last = Seq.fold ~init:None ~f:(fun _ x -> Some x) in
+    Machine.Global.get state >>= fun {halted} ->
+    Machine.forks () >>= fun forks ->
+    let active = Seq.filter forks ~f:(fun id -> not (Set.mem halted id)) in
+    match last active with
+    | None ->
+      info "no more pending machines";
+      Machine.switch Machine.global
+    | Some cid ->
+      Machine.current () >>= fun pid ->
+      info "uids: switch to machine %a from %a" Id.pp cid Id.pp pid;
+      info "uids: killing previous machine %a" Id.pp pid;
+      record_model() >>= fun () ->
+      Machine.kill pid >>= fun () ->
+      Machine.switch cid
+
+
+  let record_jmp j = Machine.current () >>= fun pid ->
+    let tid = Term.tid j in
+    let () = info "entering jump %s" (Tid.name tid) in
+    let target_tid = match Jmp.dst j with
+                       None -> Tid.create()
+                     | Some dst -> (
+                       match Jmp.resolve dst with
+                         First tid ->
+                           let () = info "target tid %s" (Tid.name tid) in
+                           tid
+                     | Second _ -> Tid.create()) in
+    Machine.Global.get state >>= fun gs ->
+    Machine.Local.get state >>= fun {last_tid; nodes; graph; last_jump_conditional; loops; server_tid} ->
+      match (Jmp.kind j) with
+          Call c ->
+          let label = c |> Call.target |> Label.to_string in
+          let prefix = String.get label 0 in
+          if prefix = '@' then
+            let func = String.drop_prefix label 1 in
+            record_function tid func
+          else
+            let () = info "Indirect function call:" in
+            let prefix = String.get label 0 in
+            if prefix = '#' then
+              Machine.Global.get state >>= fun state' ->
+              let {labels} = state' in
+              let var = Hashtbl.find_exn labels label in
+              (Env.get var) >>= fun v ->
+              let target = (v |> Value.to_word) in
+              let {symbols} = state' in
+              let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
+                  let addr = block |> Block.addr in
+                  let () = info "  found %s %s" name (Addr.to_string addr) in
+                  addr = target) |> List.map ~f:(fun (name, block, cfg) ->
+                  name
+                ) in
+              if (List.length matched) > 0 then
+                let f = List.nth_exn matched 0 in
+                let () = info "  match %s" f in
+                record_function tid f
+              else
+                let () = info "  target %s" (Addr.to_string target) in
+                Machine.return()
+            else
+              Machine.return()
+        | Goto label ->
+          let guard = Jmp.guard j in
+          let guarded = match guard with
+                          None -> false
+                        | Some _ -> true in
+          let label' = Label.to_string label in
+          let () = info "goto label %s, guarded %b" label' guarded in
+          Machine.Local.update state ~f:(fun s ->
+            let () = Hashtbl.update s.loops target_tid ~f:(fun opt ->
+              match opt with
+                None -> 1
+              | Some x -> succ x) in
+            if guarded then
+              { s with last_jump_conditional=true }
+            else
+              s) >>= fun _ ->
+              Machine.Local.get state >>= fun {loops} ->
+                let hits = match (Hashtbl.find loops target_tid) with
+                             Some i -> i
+                           | None -> 0 in
+                let () = info "Tid %s has %d hits" (Tid.name target_tid) hits in
+                if hits > 1 && target_tid = server_tid then
+                  reschedule()
+                else
+                  Machine.return()
+        | _ ->
+          let () = info "    Different kind of jump" in
+          Machine.return ()
 
   let record_finished () =
     Machine.current () >>= fun pid ->
@@ -877,6 +890,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let root = Tid.create() in
     let root' = Tid.create() in
     let proc = Tid.create() in
+    let server_tid = ok_exn (Tid.from_string (get server_start)) in
+    let () = info "Using %s as server_tid" (Tid.name server_tid) in
     let (exe, args') = args |> Array.to_list |> split_argv in
     let entry = json_string [(Sf.proc_exe, [get entrypoint]);
                              (Sf.proc_args, [get entrypoint_args])] in
@@ -905,12 +920,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
           last_jump_conditional = true;
           file_opened = None;
           labels = Hashtbl.create (module String);
-          visited = Tid.Set.empty;
+          loops = Hashtbl.create (module Tid);
           halted = Id.Set.empty;
           root_tid = root;
           last_tid = proc;
           graph = behavior;
           arrays = arrays;
+          server_tid = server_tid;
         }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -921,12 +937,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
           last_jump_conditional = true;
           file_opened = None;
           labels = Hashtbl.create (module String);
-          visited = Tid.Set.empty;
+          loops = Hashtbl.create (module Tid);
           halted = Id.Set.empty;
           root_tid = root;
           last_tid = proc;
           graph = behavior;
           arrays = arrays;
+          server_tid = server_tid;
         })
 end
 
