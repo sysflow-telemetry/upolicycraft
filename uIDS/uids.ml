@@ -24,6 +24,10 @@ module Param = struct
       ~doc:
         "Derive a process model for a binary."
 
+  let detect_syscalls = flag "detect-syscalls"
+      ~doc:
+        "Detect the system calls reachable from the entry."
+
   let entrypoint = param (string) "entrypoint"
       ~doc:
         "The entrypoint for the container"
@@ -116,6 +120,7 @@ module Sf = struct
 end
 
 type fd = int
+type status = int
 
 type operation =
   | Clone of string list
@@ -128,7 +133,7 @@ type operation =
   | Close of fd
   | Recv of fd
   | Send of fd
-  | Exit
+  | Exit of status
 
 module BehaviorGraph = Graphlib.Make(Tid)(String)
 
@@ -164,7 +169,7 @@ let edge_of_operation op =
   | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
-  | Exit -> "EXIT"
+  | Exit status -> "EXIT"
 
 let jsonify xs =
   `Assoc (List.map ~f:(fun (key, vs) ->
@@ -219,8 +224,9 @@ let node_of_operation state op =
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
-    | Exit ->
-      jsonify [] in
+    | Exit status ->
+      let status' = string_of_int status in
+      jsonify [(Sf.ret, [status'])] in
   string_of_json json
 
 let labeled label node =
@@ -617,8 +623,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation tid op state'))
     | "_terminate" ->
       let () = info "model terminate:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let status = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
-          let op = Exit in
+          let op = Exit status in
           (add_operation tid op state'))
     | "receive" ->
       let () = info "model receive:" in

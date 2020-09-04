@@ -33,11 +33,12 @@ esac
 # --primus-lisp-channel-redirect=/echo/echo.conf:/uIDS/images/echo/4/echo/echo.conf =
 # --primus-promiscuous-mode \
 # --primus-greedy-scheduler \
+# --report-progress \
 
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=50000 \
+  --primus-limit-max-length=10000000 \
   ${MODELINE} \
   --primus-uids-model \
   ${FILESYSTEM} \
