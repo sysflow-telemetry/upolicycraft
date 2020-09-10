@@ -117,6 +117,9 @@ module Sf = struct
 
   let special id attr = Printf.sprintf "%%%s.%s" id attr
 
+  let stdin_fd = 0
+  let stdout_fd = 1
+
 end
 
 type fd = int
@@ -572,6 +575,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
+    | "printf" ->
+      let () = info "model printf:" in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Write Sf.stdout_fd) in
+          (add_operation tid op state')
+      )
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -915,8 +924,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
-    let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/stdin" in
-    let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/stdout" in
+    let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/pts/0" in
+    let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/pts/0" in
     let () = Hashtbl.add_exn files ~key:2 ~data:"/dev/stderr" in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in

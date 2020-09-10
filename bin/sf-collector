@@ -2,6 +2,11 @@
 
 # -e FILTER="container.name != sf-collector and container.name != sf-exporter" \
 
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 container-name"
+  exit 1
+fi
+
 docker run -d --privileged --name sf-collector \
          -v /var/run/docker.sock:/host/var/run/docker.sock \
          -v /dev:/host/dev -v /proc:/host/proc:ro \
@@ -10,6 +15,6 @@ docker run -d --privileged --name sf-collector \
          -e INTERVAL=60                              \
          -e EXPORTER_ID=${HOSTNAME}                  \
          -e OUTPUT=/mnt/data/                        \
-         -e FILTER="container.name = echo" \
+         -e FILTER="container.name = $1" \
          --rm sysflowtelemetry/sf-collector:edge
 

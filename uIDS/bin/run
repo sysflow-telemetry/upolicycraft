@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$#" -lt 6 ]; then
-  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode [redirects]"
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode server-start path-length [redirects]"
   exit 1
 fi
 
@@ -12,7 +12,8 @@ CONTAINER_ENTRYPOINT=$4
 CONTAINER_ENTRYPOINT_ARGS=$5
 MODE=$6
 SERVER=$7
-FILESYSTEM=$8
+PATHLENGTH=$8
+FILESYSTEM=$9
 
 case $MODE in
 promiscuous)
@@ -23,7 +24,7 @@ promiscuous)
   ;;
 esac
 
-# Limit-max-length the total number of basic blocks Primus will run
+# Limit-max-length the total number of instructions Primus will run
 
 # Useful options for tracing the execution of the Primus machine.
 # --primus-print-obs=exception,pc-changed,jumping,call,call-return,machine-switch,machine-fork,lisp-message,incident,incident-location \
@@ -38,7 +39,7 @@ esac
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
   --run-argv=${ARGV} \
-  --primus-limit-max-length=10000000 \
+  --primus-limit-max-length=${PATHLENGTH} \
   ${MODELINE} \
   --primus-uids-model \
   ${FILESYSTEM} \
