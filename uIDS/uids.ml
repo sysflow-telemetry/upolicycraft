@@ -48,6 +48,11 @@ module Sf = struct
     let pred = "pred"
   end
 
+  type flow =
+      File
+    | Network
+    | Process
+
   let typ                  = "sf.type"
   let opflags              = "sf.opflags"
   let ret                  = "sf.ret"
@@ -740,6 +745,57 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let model' = Yojson.Basic.pretty_to_string model in
     printf "%s" model'
 
+  (**
+    Fetch a field from an Association List
+  *)
+  let assoc_field pairs field =
+    let () = info "looking for field %s" field in
+    pairs |>
+    List.filter ~f:(fun (field', v) ->
+      let () = info "  found field %s" field' in
+      field = field'
+    ) |>
+    List.map ~f:(fun (field, v) ->
+      match v with
+        `List vs ->
+          vs |>
+          List.map ~f:(fun s ->
+            match s with
+              `String s' -> s'
+            | _ -> "ignored") |>
+          String.concat ~sep:" "
+      | _ -> "ignored"
+    ) |>
+    List.hd_exn
+
+  (**
+    Infer the SysFlow type from the constraints.
+  *)
+  let flowtype_of_constraints constraints =
+    let getflow key = constraints |>
+                      List.map ~f:fst |>
+                      List.filter ~f:(fun key' -> key' = key) |>
+                      List.length in
+    if (getflow Sf.file_path) > 0 then
+      Sf.File
+    else if (getflow Sf.net_dport) > 0 then
+      Sf.Network
+    else if (getflow Sf.proc_args) > 0 then
+      Sf.Process
+    else
+      Sf.Process
+
+  let label_of_node node =
+    let json = node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string in
+    match json with
+     `Assoc constraints ->
+       let flowtype = flowtype_of_constraints constraints in
+       (match flowtype with
+         File -> Printf.sprintf "FF|%s" (assoc_field constraints Sf.file_path)
+       | Network -> Printf.sprintf "NF|%s" (assoc_field constraints Sf.net_dport)
+       | Process -> Printf.sprintf "P|%s|%s" (assoc_field constraints Sf.proc_exe)
+                                             (assoc_field constraints Sf.proc_args))
+    | _ -> "ignored"
 
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
@@ -752,14 +808,17 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
       let {root_tid;nodes;graph} = state' in
-      let _ = Graphlib.to_dot (module BehaviorGraph) ~node_attrs:(fun tid ->
-          let name = try Hashtbl.find_exn nodes tid
+      let _ = Graphlib.to_dot (module BehaviorGraph)
+        ~node_attrs:(fun tid ->
+          let node = try Hashtbl.find_exn nodes tid
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
                 (Tid.name tid) in
-          [`Label name; `Shape `Box]
-        )
-        ~string_of_edge:(fun edge -> BehaviorGraph.Edge.label edge)
+          let label = label_of_node node in
+          [`Fontsize 9; `Label label; `Shape `Box])
+        ~edge_attrs:(fun edge ->
+          let label = BehaviorGraph.Edge.label edge in
+          [`Fontsize 8; `Label label;])
         ~channel:dotfile graph in
       let _ = export_model root_tid nodes graph in
       Machine.return()
