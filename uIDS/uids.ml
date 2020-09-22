@@ -745,10 +745,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let model' = Yojson.Basic.pretty_to_string model in
     printf "%s" model'
 
-  (**
-    Fetch a field from an Association List
-  *)
-  let assoc_field pairs field =
+  let assoc_field_help pairs field =
     let () = info "looking for field %s" field in
     pairs |>
     List.filter ~f:(fun (field', v) ->
@@ -765,8 +762,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
             | _ -> "ignored") |>
           String.concat ~sep:" "
       | _ -> "ignored"
-    ) |>
-    List.hd_exn
+    )
+
+  (**
+    Fetch a field from an Association List
+  *)
+  let assoc_field_exn pairs field =
+    List.hd_exn (assoc_field_help pairs field)
+
+  let assoc_field pairs field =
+    List.hd (assoc_field_help pairs field)
 
   (**
     Infer the SysFlow type from the constraints.
@@ -791,10 +796,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
-         File -> Printf.sprintf "FF|%s" (assoc_field constraints Sf.file_path)
-       | Network -> Printf.sprintf "NF|%s" (assoc_field constraints Sf.net_dport)
-       | Process -> Printf.sprintf "P|%s|%s" (assoc_field constraints Sf.proc_exe)
-                                             (assoc_field constraints Sf.proc_args))
+         File -> Printf.sprintf "FF|%s" (assoc_field_exn constraints Sf.file_path)
+       | Network -> Printf.sprintf "NF|%s" (assoc_field_exn constraints Sf.net_dport)
+       | Process ->
+         let opt = (assoc_field constraints Sf.ret) in
+         match opt with
+           Some ret -> Printf.sprintf "P|%s" ret
+         | None -> Printf.sprintf "P|%s|%s" (assoc_field_exn constraints Sf.proc_exe)
+                                            (assoc_field_exn constraints Sf.proc_args))
     | _ -> "ignored"
 
   (** Compute the union of the Local and Global
