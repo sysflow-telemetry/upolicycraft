@@ -6,6 +6,9 @@
 (require stdlib)
 (require string)
 
+(defparameter *access-used* nil
+  "has access been called")
+
 (defmacro skip-all (pred s)
   (while (pred (memory-read s)) (incr s)))
 
@@ -148,12 +151,25 @@
     (if eof (+ 20000 50000 14)
      0)))
 
+(defun uids-access (path mode)
+  (declare (external "access"))
+  (if (= *access-used* nil)
+      (let ()
+        (set *access-used* 1)
+        0)
+   -1))
+
 (defun uids-scanf (fmt a)
-   (declare (external "__isoc99_scanf"))
+  (declare (external "__isoc99_scanf"))
    (let ((x (uids-ocaml-scanf fmt)))
       (write-word ptr_t a x)
    0))
-;;
+;
+(defun uids-snprintf (s sz fmt addr)
+   (declare (external "snprintf"))
+   (let ((m (malloc sz)))
+     (uids-ocaml-snprintf s sz fmt addr)
+   0))
 
 (defun strcspn (p n)
    (declare (external "strcspn"))

@@ -149,7 +149,9 @@ typedef void * FILE;
 int printf(const char * restrict format, ...) __attribute__((format(printf,1,2)));
 int fprintf(FILE * restrict stream, const char * restrict format, ...) __attribute__((format(printf,2,3)));
 int sprintf(char * restrict str, const char * restrict format, ...) __attribute__((format(printf,2,3)));
-int snprintf(char * restrict str, size_t size, const char * restrict format, ...) __attribute__((format(printf,3,4)));
+//int snprintf(char * restrict str, size_t size, const char * restrict format, ...) __attribute__((format(printf,3,4)));
+int snprintf(char * restrict str, size_t size, const char * restrict format, int d);
+
 int scanf(const char * restrict format, ...) __attribute__((format(scanf,1,2)));
 int fscanf(FILE * restrict stream, const char * restrict format, ...) __attribute__((format(scanf,2,3)));
 int sscanf(const char * restrict str, const char * restrict format, ...) __attribute__((format(scanf,2,3)));

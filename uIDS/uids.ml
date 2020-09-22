@@ -438,6 +438,39 @@ module Scanf(Machine : Primus.Machine.S) = struct
           Value.of_word (Bitvector.of_int 64 0)
 end
 
+module Snprintf(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let trap_memory_write access =
+      Machine.catch access (function exn ->
+          let () = info "Error reading memory!" in
+          let msg = Primus.Exn.to_string exn in
+          let () = info "    %s" msg in
+          Machine.return())
+
+    (** Copy a string into memory *)
+    let copy_bytes addr s =
+      let addr' = (Value.to_word addr) in
+      let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in
+      let cont' = String.foldi ~f:(fun i cont c ->
+        let c' = int_of_char c in
+        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
+        cont >>= fun () ->
+          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
+          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
+      cont'
+
+    let run [s; sz; fmt; v] =
+      let () = info "running snprintf!" in
+      let d = v |> Value.to_word |> Bitvector.to_int_exn |> string_of_int in
+      let vfmt = Value.to_word fmt in
+      string_of_addr vfmt >>= fun fmt' ->
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:d fmt' in
+        copy_bytes s output >>= fun () ->
+          Value.of_word (Bitvector.of_int 64 0)
+ end
+
 let address_of_pos out addr =
   match Bitvector.to_int addr with
     Error s -> -1
@@ -738,10 +771,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
       match file_opened with
         None -> Machine.return()
       | Some file -> Machine.Local.update state ~f:(fun s ->
-        let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-        let _ = Hashtbl.set s.files ~key:fd ~data:file in
-        {s with file_opened = None}
-      )
+        let opt = (v |> Value.to_word |> Bitvector.to_int) in
+        match opt with
+          Ok fd ->
+            let _ = Hashtbl.set s.files ~key:fd ~data:file in
+            {s with file_opened = None}
+        | Error _ -> s)
 
   let export_model root nodes graph =
     let es = BehaviorGraph.edges graph in
@@ -1012,6 +1047,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-sscanf) tries to implement sscanf. |};
       def "uids-ocaml-scanf" (tuple [a] @-> b) (module Scanf)
       {|(uids-ocaml-scanf FMT ADDRESS) tries to implement scanf. |};
+      def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
+      {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
     ]
 
   let get x = Future.peek_exn (Config.determined x)
