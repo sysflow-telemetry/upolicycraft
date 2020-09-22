@@ -388,6 +388,56 @@ module Scan(Machine : Primus.Machine.S) = struct
         nil
 end
 
+module Scanf(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let trap_memory_write access =
+      Machine.catch access (function exn ->
+          let () = info "Error reading memory!" in
+          let msg = Primus.Exn.to_string exn in
+          let () = info "    %s" msg in
+          Machine.return())
+
+    (** Write a bitvector into an address *)
+    let write_bitvector addr x =
+      let () = info "writing %x into %x"
+        (Bitvector.to_int_exn x) (Bitvector.to_int_exn addr) in
+      let width = 8 in
+      let rec loop n addr x p =
+        if n = width then
+          p
+        else
+          let byte = Bitvector.logand x (Bitvector.of_int 64 0xff) in
+          let () = info " byte %d %x at %x" n (Bitvector.to_int_exn byte) (Bitvector.to_int_exn addr) in
+          let cont =
+            Value.of_word byte >>= fun v ->
+            (trap_memory_write (Memory.set addr v)) >>= fun () ->
+            p >>= fun () ->
+            Machine.return() in
+          let x' = Bitvector.rshift x (Bitvector.of_int 64 8) in
+          loop (succ n) (Bitvector.succ addr) x' cont in
+      loop 0 addr x (Machine.return())
+
+    let run [fmt] =
+      let () = info "running scanf!" in
+      (** let vaddr = Value.to_word addr in *)
+      let vfmt = Value.to_word fmt in
+      string_of_addr vfmt >>= fun fmt' ->
+        let chan = In_channel.stdin in
+        let line = In_channel.input_line_exn (In_channel.stdin) in
+        let () = info "read: %s" line in
+        let () = info "str %s" fmt' in
+        if fmt' = "%lu" then
+          let () = info "parsing 64 bit number!" in
+          let x = int_of_string line in
+          let () = info "  %d" x in
+          let b = Bitvector.of_int 64 x in
+          Value.of_word b
+        else
+          Value.of_word (Bitvector.of_int 64 0)
+end
+
 let address_of_pos out addr =
   match Bitvector.to_int addr with
     Error s -> -1
@@ -582,6 +632,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation tid op state'))
     | "printf" ->
       let () = info "model printf:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      let () = info " RDI: %s" path in
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write Sf.stdout_fd) in
           (add_operation tid op state')
@@ -956,6 +1010,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(array-pop ARRAY DATA) pops DATA from ARRAY. |};
       def "uids-ocaml-sscanf" (tuple [a; b] @-> bool) (module Scan)
       {|(uids-ocaml-sscanf) tries to implement sscanf. |};
+      def "uids-ocaml-scanf" (tuple [a] @-> b) (module Scanf)
+      {|(uids-ocaml-scanf FMT ADDRESS) tries to implement scanf. |};
     ]
 
   let get x = Future.peek_exn (Config.determined x)

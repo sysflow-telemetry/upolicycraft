@@ -16,10 +16,12 @@
       (ptr+1 ptr_t p))
     (if p (strchr p (cast int ?=)) p)))
 
+
 (defun abort ()
   "terminates program with exit code 1"
   (declare (external "abort"))
   (exit-with 1))
+
 
 (defun exit (code)
   (declare (external "exit" "_exit"))
@@ -32,14 +34,14 @@
 (defun ctype-b-loc ()
   (declare (external "__ctype_b_loc"))
   (if (not *cbloc*)
-    (let ((n (+ 129 255))
-          (p (malloc (* (sizeof ptr_t) n)))
-          (i 0))
-      (while (< i n)
-        (let ((q (ptr+ ptr_t p i))
-	      (chunk (malloc 8)))
-	  (write-word ptr_t q chunk))
-         (incr i))
+		(let ((n (+ 129 255))
+					(p (malloc (* (sizeof ptr_t) n)))
+					(i 0))
+			(while (< i n)
+			 (let ((q (ptr+ ptr_t p i))
+						 (chunk (malloc 8)))
+				(write-word ptr_t q chunk))
+			 (incr i))
       (set *cbloc* (ptr+ ptr_t p 129)))
   *cbloc*))
 

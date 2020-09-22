@@ -38,7 +38,7 @@
   (let ((v 0))
     (while (and (> (cast ptr_t (memory-read s)) 0)
                 (not (= (cast ptr_t (memory-read s)) 0xa)))
-      (set v (+ (* v 10) (atoi-read-digit s)))
+      (set v (+ (* v 10)  (atoi-read-digit s)))
       (incr s))
     (cast int v)))
 
@@ -148,10 +148,35 @@
     (if eof (+ 20000 50000 14)
      0)))
 
-(defun uids-sscanf (str fmt)
-  (declare (external "__isoc99_sscanf"))
-  (uids-ocaml-sscanf str fmt)
-  0)
+(defun uids-scanf (fmt a)
+   (declare (external "__isoc99_scanf"))
+   (let ((x (uids-ocaml-scanf fmt)))
+      (write-word ptr_t a x)
+   0))
+;;
+
+(defun strcspn (p n)
+   (declare (external "strcspn"))
+   (let ((i 0)
+         (s p))
+     (while (and (> (cast ptr_t (memory-read s)) 0)
+                (not (= (cast ptr_t (memory-read s)) 0xa)))
+      (incr i)
+      (incr s))
+      i))
+
+;;(let ((p (malloc (* (sizeof ptr_t) 384)))
+;;        (q p)
+;;        (i 0))
+;;    (while (< i 384)
+;;      (write-word ptr_t q (malloc 8))
+;;      (set q (ptr+1 ptr_t q))
+;;      (incr i))
+;;   (ptr+ ptr_t p 128))
+
+;;(defun ctype-b-loc ()
+;;  (declare (external "__ctype_b_loc"))
+;;  nil)
 
 (defun atol  (s) (make-converter long s))
 (defun atoll (s) (make-converter long-long s))
