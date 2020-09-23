@@ -654,6 +654,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
+    | "fwrite" ->
+      let () = info "model fwrite:" in
+      let rcx = (Var.create "RCX" reg64_t) in
+      (Env.get rcx) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info " RCX: %d" fd in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Write fd) in
+          (add_operation tid op state'))
     | "fclose" ->
       let () = info "model fclose:" in
       let rdi = (Var.create "RDI" reg64_t) in
