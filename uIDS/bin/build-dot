@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
 rm output.pdf
-sed -i 's/shape=box/shape=Mrecord/g' output.dot
-dot -Tpdf output.dot -o output.pdf
+cp output.dot output.dot.1
+sed -i 's/shape=box/shape=Mrecord/g' output.dot.1
+dot -Tpdf output.dot.1 -o output.pdf

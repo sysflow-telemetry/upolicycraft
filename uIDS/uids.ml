@@ -905,21 +905,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Sf.Process
 
   let label_of_node node (called_module, called_function) =
-    let context = Printf.sprintf "%s:%s|" called_module called_function in
+    let context = Printf.sprintf "{%s:%s}" called_module called_function in
     let json = node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string in
     match json with
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
-         File -> Printf.sprintf "FF|%s|%s" (assoc_field_exn constraints Sf.file_path) context
-       | Network -> Printf.sprintf "NF|%s|%s" (assoc_field_exn constraints Sf.net_dport) context
+         File -> Printf.sprintf "{%s|{FF|%s}}" context (assoc_field_exn constraints Sf.file_path)
+       | Network -> Printf.sprintf "{%s|{NF|%s}}" context (assoc_field_exn constraints Sf.net_dport)
        | Process ->
          let opt = (assoc_field constraints Sf.ret) in
          match opt with
-           Some ret -> Printf.sprintf "P|%s|%s" ret context
-         | None -> Printf.sprintf "P|%s|%s|%s" (assoc_field_exn constraints Sf.proc_exe)
-                                               (assoc_field_exn constraints Sf.proc_args)
-                                               context)
+           Some ret -> Printf.sprintf "{%s|{P|%s}}" context ret
+         | None -> Printf.sprintf "{%s|{P|%s|%s}}" context
+                                                 (assoc_field_exn constraints Sf.proc_exe)
+                                                 (assoc_field_exn constraints Sf.proc_args))
     | _ -> "ignored"
 
   (** Compute the union of the Local and Global
@@ -938,7 +938,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let context = try Hashtbl.find_exn functions tid
             with Not_found ->
                let () = info "missing context for node %s" name in
-               ("N/A", "N/A") in
+               ("/bin/bash", "main") in
           let node = try Hashtbl.find_exn nodes tid
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
