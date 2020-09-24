@@ -149,6 +149,7 @@ type state = {
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, string) Hashtbl.t;
+  functions : (Tid.t, (string * string)) Hashtbl.t;
   ports : (fd, int) Hashtbl.t;
   files : (fd, string) Hashtbl.t;
   last_jump_conditional: bool;
@@ -160,6 +161,9 @@ type state = {
   graph : BehaviorGraph.t;
   arrays : (string, (Primus.Value.t * Primus.Value.t Seq.t)) Hashtbl.t;
   server_tid : Tid.t;
+  current_function : string;
+  current_module : string;
+  callstack : string list;
 }
 
 exception InvalidArgv of string
@@ -242,7 +246,7 @@ let labeled label node =
 
 let add_operation tid op state =
   let () = info "Adding operation:" in
-  let {nodes;graph;last_tid} = state in
+  let {nodes;graph;last_tid;functions;callstack;current_module} = state in
   let node_label = node_of_operation state op in
   let edge_label = edge_of_operation op in
   let graph' = BehaviorGraph.Node.insert tid graph in
@@ -250,6 +254,9 @@ let add_operation tid op state =
   let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
   let graph'' = BehaviorGraph.Edge.insert edge graph' in
   let () = Hashtbl.set nodes ~key:tid ~data:node_label in
+  let current_function :: _ = callstack in
+  let () = Hashtbl.set functions ~key:tid
+                                 ~data:(current_module, current_function) in
   { state with last_tid = tid; graph=graph'' }
 
 let state = Primus.Machine.State.declare
@@ -261,6 +268,7 @@ let state = Primus.Machine.State.declare
        { root_tid = root;
          last_tid = root;
          nodes = Hashtbl.create (module Tid);
+         functions = Hashtbl.create (module Tid);
          ports = Hashtbl.create (module Int);
          files = Hashtbl.create (module Int);
          last_jump_conditional = true;
@@ -272,6 +280,9 @@ let state = Primus.Machine.State.declare
          graph = behavior;
          arrays = Hashtbl.create (module String);
          server_tid = Tid.create();
+         current_function = "main";
+         current_module = "main";
+         callstack = [];
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -462,11 +473,14 @@ module Snprintf(Machine : Primus.Machine.S) = struct
       cont'
 
     let run [s; sz; fmt; v] =
-      let () = info "running snprintf!" in
+      (**
+      The value for %d may be non-deterministic so just replace it with a regex
+      that the RM can enforce.
       let d = v |> Value.to_word |> Bitvector.to_int_exn |> string_of_int in
+      *)
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:d fmt' in
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:"[0-9]+" fmt' in
         copy_bytes s output >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
  end
@@ -757,7 +771,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation tid op state'))
     | _ ->
       let () = info "called %s from %s" func (Tid.name tid) in
-      Machine.return ()
+      Machine.Local.update state ~f:(fun state' ->
+        state'
+      )
 
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
@@ -888,20 +904,22 @@ module Monitor(Machine : Primus.Machine.S) = struct
     else
       Sf.Process
 
-  let label_of_node node =
+  let label_of_node node (called_module, called_function) =
+    let context = Printf.sprintf "%s:%s|" called_module called_function in
     let json = node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string in
     match json with
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
-         File -> Printf.sprintf "FF|%s" (assoc_field_exn constraints Sf.file_path)
-       | Network -> Printf.sprintf "NF|%s" (assoc_field_exn constraints Sf.net_dport)
+         File -> Printf.sprintf "FF|%s|%s" (assoc_field_exn constraints Sf.file_path) context
+       | Network -> Printf.sprintf "NF|%s|%s" (assoc_field_exn constraints Sf.net_dport) context
        | Process ->
          let opt = (assoc_field constraints Sf.ret) in
          match opt with
-           Some ret -> Printf.sprintf "P|%s" ret
-         | None -> Printf.sprintf "P|%s|%s" (assoc_field_exn constraints Sf.proc_exe)
-                                            (assoc_field_exn constraints Sf.proc_args))
+           Some ret -> Printf.sprintf "P|%s|%s" ret context
+         | None -> Printf.sprintf "P|%s|%s|%s" (assoc_field_exn constraints Sf.proc_exe)
+                                               (assoc_field_exn constraints Sf.proc_args)
+                                               context)
     | _ -> "ignored"
 
   (** Compute the union of the Local and Global
@@ -914,14 +932,18 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "Global machine ending." in
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
-      let {root_tid;nodes;graph} = state' in
+      let {root_tid;nodes;graph;functions} = state' in
       let _ = Graphlib.to_dot (module BehaviorGraph)
         ~node_attrs:(fun tid ->
+          let context = try Hashtbl.find_exn functions tid
+            with Not_found ->
+               let () = info "missing context for node %s" name in
+               ("N/A", "N/A") in
           let node = try Hashtbl.find_exn nodes tid
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
                 (Tid.name tid) in
-          let label = label_of_node node in
+          let label = label_of_node node context in
           [`Fontsize 9; `Label label; `Shape `Box])
         ~edge_attrs:(fun edge ->
           let label = BehaviorGraph.Edge.label edge in
@@ -931,11 +953,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.return()
     else
       Machine.Local.get state >>= fun state' ->
-      let {nodes;graph;last_tid} = state' in
+      let {nodes;graph;last_tid;functions} = state' in
       let () = info "last tid: %s" (Tid.name last_tid) in
       Machine.Global.update state ~f:(fun s ->
-          let () = info " updating global state!" in
+          let () = info "Updating global state!" in
           let graph' = Graphlib.union (module BehaviorGraph) s.graph graph in
+          let () = Hashtbl.merge_into ~src:functions ~dst:s.functions
+                                      ~f:(fun ~key:_ x y -> Set_to x) in
           {s with halted = Set.add s.halted pid; graph=graph'})
 
   let reschedule () =
@@ -1030,6 +1054,25 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let () = info "    Different kind of jump" in
           Machine.return ()
 
+  let push_sub s =
+    let name = Sub.name s in
+    let () = info "entering sub %s" name in
+    Machine.Local.update state ~f:(fun s ->
+      let {callstack} = s in
+      {s with callstack=name::callstack}
+    )
+
+  let pop_sub s =
+    let name = Sub.name s in
+    let () = info "leaving sub %s" (Sub.name s) in
+    Machine.Local.update state ~f:(fun s ->
+      let {callstack} = s in
+      match callstack with
+        [] -> s
+      | c :: cs ->
+        {s with callstack=cs}
+    )
+
   let record_finished () =
     Machine.current () >>= fun pid ->
     let () = info "machine finished!" in
@@ -1043,6 +1086,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Primus.Interpreter.written >>> record_written;
       Primus.Interpreter.enter_pos >>> record_pos;
       Primus.Interpreter.enter_jmp >>> record_jmp;
+      Primus.Interpreter.enter_sub >>> push_sub;
+      Primus.Interpreter.leave_sub >>> pop_sub;
       Primus.System.fini >>> record_model;
       def "array-make" (tuple [a; b] @-> bool) (module ArrayMake)
       {|(array-make ARRAY DATA) makes an ARRAY. |};
@@ -1081,6 +1126,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let server_tid = ok_exn (Tid.from_string (get server_start)) in
     let () = info "Using %s as server_tid" (Tid.name server_tid) in
     let (exe, args') = args |> Array.to_list |> split_argv in
+    (** Make an initialization routine. *)
     let entry = json_string [(Sf.proc_exe, [get entrypoint]);
                              (Sf.proc_args, [get entrypoint_args])] in
     let cloned_entry = json_string [(Sf.proc_exe, [get entrypoint]);
@@ -1091,6 +1137,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                                    ~nodes:[root;root';proc]
                                    ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
+    let functions = Hashtbl.create (module Tid) in
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
@@ -1103,6 +1150,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
           nodes = nodes;
+          functions = functions;
           ports = ports;
           files = files;
           last_jump_conditional = true;
@@ -1115,11 +1163,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
           graph = behavior;
           arrays = arrays;
           server_tid = server_tid;
+          current_function = "main";
+          current_module = exe;
+          callstack = [];
         }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
         { symbols = symtabs;
           nodes = nodes;
+          functions = functions;
           ports = ports;
           files = files;
           last_jump_conditional = true;
@@ -1132,6 +1184,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
           graph = behavior;
           arrays = arrays;
           server_tid = server_tid;
+          current_function = "main";
+          current_module = exe;
+          callstack = [];
         })
 end
 
