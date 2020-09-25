@@ -803,7 +803,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
             {s with file_opened = None}
         | Error _ -> s)
 
-  let export_model root nodes graph =
+  let export_model root nodes functions graph =
+    let name_and_label_of_tid tid =
+        let name = (Tid.name tid) in
+        let label = try Hashtbl.find_exn nodes tid
+          with Not_found_s s ->
+              let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
+              name in
+        (name, label) in
     let es = BehaviorGraph.edges graph in
     let edges' = Seq.map ~f:(fun edge ->
         (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
@@ -833,13 +840,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
                          BehaviorGraph.Edge.insert e g) ~init:g') ~init:graph' preds) ~init:graph in
     let ns = BehaviorGraph.nodes g' in
     let es = BehaviorGraph.edges g' in
-    let nodes' = Seq.map ~f:(fun tid ->
-        let name = (Tid.name tid) in
-        let label = try Hashtbl.find_exn nodes tid
-          with Not_found_s s ->
-              let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
-              name in
-        (name, label)) ns in
+    let nodes' = Seq.map ~f:name_and_label_of_tid ns in
+    let contexts = functions |>
+                   Hashtbl.to_alist |>
+                   List.map ~f:(fun (tid, (context, func)) ->
+                               let (name, _) = name_and_label_of_tid tid in
+                               (name, `List [`String context; `String func])) in
     let edges' = Seq.map ~f:(fun edge ->
         (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
       ) es in
@@ -854,6 +860,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       ) |> Seq.to_list in
     let model = `Assoc [("initial", `String (Tid.name root));
                         ("nodes", `List nodes'');
+                        ("contexts", `Assoc contexts);
                         ("constraints", `List constraints'');
                         ("edges", `List edges'')] in
     let model' = Yojson.Basic.pretty_to_string model in
@@ -949,7 +956,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let label = BehaviorGraph.Edge.label edge in
           [`Fontsize 8; `Label label;])
         ~channel:dotfile graph in
-      let _ = export_model root_tid nodes graph in
+      let _ = export_model root_tid nodes functions graph in
       Machine.return()
     else
       Machine.Local.get state >>= fun state' ->
