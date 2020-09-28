@@ -668,6 +668,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
+    | "fread" ->
+      let () = info "model fwrite:" in
+      let rcx = (Var.create "RCX" reg64_t) in
+      (Env.get rcx) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info " RCX: %d" fd in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Read fd) in
+          (add_operation tid op state'))
     | "fwrite" ->
       let () = info "model fwrite:" in
       let rcx = (Var.create "RCX" reg64_t) in
@@ -1061,12 +1070,32 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let () = info "    Different kind of jump" in
           Machine.return ()
 
+  let addr_of_sub_name name =
+    match String.chop_prefix ~prefix:"sub_" name with
+      None -> None
+    | Some x -> Some (int_of_string ("0x" ^ x))
+
   let push_sub s =
     let name = Sub.name s in
     let () = info "entering sub %s" name in
     Machine.Local.update state ~f:(fun s ->
-      let {callstack} = s in
-      {s with callstack=name::callstack}
+      let {callstack;symbols} = s in
+      let name' = match addr_of_sub_name name with
+                    None -> name
+                  | Some x ->
+                    let opt = symbols |>
+                              List.filter ~f:(fun (fn, block, cfg) -> fn <> name) |>
+                              List.filter ~f:(fun (fn, block, cfg) ->
+                                let addr = block |> Block.addr in
+                                let x' = (Bitvector.of_int ~width:64 x) in
+                                let addr' = (Bitvector.add addr (Bitvector.of_int ~width:64 8)) in
+                                (addr < x') && (x' < addr')) |>
+                              List.map ~f:(fun (fn, block, cfg) -> fn) |>
+                              List.hd in
+                    (match opt with
+                       None -> name
+                     | Some x -> x) in
+      {s with callstack=name'::callstack}
     )
 
   let pop_sub s =
