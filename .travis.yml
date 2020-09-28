@@ -13,6 +13,7 @@ script:
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/apr _start "/apr" /bin/bash /apr.sh greedy "%00000000" 10000
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CADET_00001 _start "/cgc/CADET_00001" /bin/bash /cgc/cadet.sh greedy "%00000f29" 10000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CADET_00001"
  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CROMU_00007 _start "/cgc/CROMU_00007" /bin/bash /cgc/cromu.sh greedy "%00000000" 10000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CROMU_00007"
+ - cat tests/everybodys_got_something_to_hide
 
 branches:
   only:
