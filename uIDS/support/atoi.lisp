@@ -157,7 +157,9 @@
       (let ()
         (set *access-used* 1)
         0)
-   -1))
+      (let ()
+        (set *access-used* nil)
+        -1)))
 
 (defun uids-scanf (fmt a)
   (declare (external "__isoc99_scanf"))
@@ -180,6 +182,10 @@
       (incr i)
       (incr s))
       i))
+
+(defun ferror (fp)
+    (declare (external "ferror"))
+    0)
 
 ;;(let ((p (malloc (* (sizeof ptr_t) 384)))
 ;;        (q p)
