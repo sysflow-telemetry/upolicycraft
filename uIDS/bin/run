@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ "$#" -lt 6 ]; then
-  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode server-start path-length [redirects]"
+  echo "usage: $0 binary entrypoint argv container-entrypoint container-argv mode exec-style server-start path-length [redirects]"
   exit 1
 fi
 
@@ -11,9 +11,10 @@ ARGV=$3
 CONTAINER_ENTRYPOINT=$4
 CONTAINER_ENTRYPOINT_ARGS=$5
 MODE=$6
-SERVER=$7
-PATHLENGTH=$8
-FILESYSTEM=$9
+EXEC=$7
+SERVER=$8
+PATHLENGTH=$9
+FILESYSTEM=$10
 
 case $MODE in
 promiscuous)
@@ -21,6 +22,14 @@ promiscuous)
   ;;
 *)
   MODELINE="--primus-greedy-scheduler"
+  ;;
+esac
+
+case $EXEC in
+inetd)
+  EXECLINE="--primus-uids-inetd-startup"
+*)
+  EXECLINE=""
   ;;
 esac
 
@@ -44,6 +53,7 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-uids-model \
   --primus-uids-inetd-startup \
   ${FILESYSTEM} \
+  ${EXEC} \
   --primus-uids-server-start="${SERVER}" \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"
