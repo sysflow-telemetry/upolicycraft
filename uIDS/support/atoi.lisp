@@ -6,7 +6,7 @@
 (require stdlib)
 (require string)
 
-(defparameter *access-used* nil
+(defparameter *access-used* 2
   "has access been called")
 
 (defmacro skip-all (pred s)
@@ -153,7 +153,11 @@
 
 (defun uids-access (path mode)
   (declare (external "access"))
-  -1)
+    (if (= *access-used* 0)
+      0
+      (let ()
+        (decr *access-used*)
+        -1)))
 
 ;;  (if (= *access-used* nil)
 ;;      (let ()
