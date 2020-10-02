@@ -28,6 +28,10 @@ module Param = struct
       ~doc:
         "Detect the system calls reachable from the entry."
 
+  let inetd_startup = flag "inetd-startup"
+      ~doc:
+        "Exec the program and connect to a socket"
+
   let entrypoint = param (string) "entrypoint"
       ~doc:
         "The entrypoint for the container"
@@ -954,7 +958,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let context = try Hashtbl.find_exn functions tid
             with Not_found ->
                let () = info "missing context for node %s" name in
-               ("/bin/bash", "main") in
+                 ("N/A", "N/A") in
           let node = try Hashtbl.find_exn nodes tid
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
@@ -1158,6 +1162,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     let root = Tid.create() in
     let root' = Tid.create() in
+    let port = Tid.create() in
     let proc = Tid.create() in
     let server_tid = ok_exn (Tid.from_string (get server_start)) in
     let () = info "Using %s as server_tid" (Tid.name server_tid) in
@@ -1168,20 +1173,40 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let cloned_entry = json_string [(Sf.proc_exe, [get entrypoint]);
                                     (Sf.proc_args, [get entrypoint_args]);
                                     (Sf.pproc_pid, [Sf.special Sf.Vars.pred Sf.proc_pid])] in
+    let accepted_port = json_string [(Sf.net_dport, ["6666"])] in
     let constraints = json_string [(Sf.proc_exe, [exe]); (Sf.proc_args, [args'])] in
-    let behavior = Graphlib.create (module BehaviorGraph)
-                                   ~nodes:[root;root';proc]
-                                   ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
+    let behavior =
+      if (get inetd_startup) then
+        Graphlib.create (module BehaviorGraph)
+                        ~nodes:[root;proc;port]
+                        ~edges:[(root,port,"CLOSE");(port,proc,"EXEC")] ()
+      else
+        Graphlib.create (module BehaviorGraph)
+                        ~nodes:[root;root';proc]
+                        ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in
     let functions = Hashtbl.create (module Tid) in
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
-    let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/pts/0" in
-    let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/pts/0" in
+    let () =
+      if (get inetd_startup) then
+        let whitelist = "0.0.0.0/0:6666" in
+        let () = Hashtbl.add_exn files ~key:0 ~data:whitelist in
+        let () = Hashtbl.add_exn files ~key:1 ~data:whitelist in
+        let () = Hashtbl.add_exn functions ~key:root ~data:("/usr/sbin/inetd", "main") in
+        let () = Hashtbl.add_exn functions ~key:port ~data:("/usr/sbin/inetd", "main") in
+        Hashtbl.add_exn functions ~key:proc ~data:("/usr/sbin/inetd", "main")
+      else
+        let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/pts/0" in
+        let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/pts/0" in
+        let () = Hashtbl.add_exn functions ~key:root ~data:("/bin/bash", "main") in
+        let () = Hashtbl.add_exn functions ~key:root' ~data:("/bin/bash", "main") in
+        Hashtbl.add_exn functions ~key:proc ~data:("/bin/bash", "main") in
     let () = Hashtbl.add_exn files ~key:2 ~data:"/dev/stderr" in
     let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
     let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
+    let () = Hashtbl.add_exn nodes ~key:port ~data:accepted_port in
     let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;

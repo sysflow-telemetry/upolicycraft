@@ -42,6 +42,7 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-limit-max-length=${PATHLENGTH} \
   ${MODELINE} \
   --primus-uids-model \
+  --primus-uids-inetd-startup \
   ${FILESYSTEM} \
   --primus-uids-server-start="${SERVER}" \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \

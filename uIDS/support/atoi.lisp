@@ -153,13 +153,15 @@
 
 (defun uids-access (path mode)
   (declare (external "access"))
-  (if (= *access-used* nil)
-      (let ()
-        (set *access-used* 1)
-        0)
-      (let ()
-        (set *access-used* nil)
-        -1)))
+  -1)
+
+;;  (if (= *access-used* nil)
+;;      (let ()
+;;        (set *access-used* 1)
+;;        -1)
+;;      (let ()
+;;        (set *access-used* nil)
+;;        0))
 
 (defun uids-scanf (fmt a)
   (declare (external "__isoc99_scanf"))
