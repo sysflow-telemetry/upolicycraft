@@ -57,7 +57,12 @@ int allocate(size_t length, int is_X, void **addr) {
     prot |= PROT_EXEC;
   }
 
-  *addr = mmap(NULL, length, prot, MAP_ANONYMOUS, -1, 0);
+  *addr = mmap(NULL, length, prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
+  if (*addr == -1) {
+     perror("mmap failed!");
+     return -1;
+  }
 
   return 0;
 }
