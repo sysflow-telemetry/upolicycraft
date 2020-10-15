@@ -10,6 +10,8 @@ WORKDIR /cgc/challenges/CADET_00001
 RUN make
 WORKDIR /cgc/challenges/CROMU_00007
 RUN make
+WORKDIR /cgc/challenges/CROMU_00046
+RUN make
 
 FROM registry.access.redhat.com/ubi7/ubi:7.8-255
 
