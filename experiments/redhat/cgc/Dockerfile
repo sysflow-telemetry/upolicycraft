@@ -1,13 +1,14 @@
 FROM registry.access.redhat.com/ubi7/ubi:7.8-255 as build
 
-RUN yum -y install gcc make 
+RUN yum -y install gcc make
 RUN mkdir /cgc
 WORKDIR /cgc
 
 ADD . /cgc/
 
 WORKDIR /cgc/challenges/CADET_00001
-
+RUN make
+WORKDIR /cgc/challenges/CROMU_00007
 RUN make
 
 FROM registry.access.redhat.com/ubi7/ubi:7.8-255

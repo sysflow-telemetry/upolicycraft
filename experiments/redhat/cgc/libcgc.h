@@ -1,6 +1,8 @@
 #ifndef _LIBCGC_H
 #define _LIBCGC_H
 
+#include <sys/types.h>
+
 #define STDIN 0
 #define STDOUT 1
 #define STDERR 2
@@ -12,12 +14,15 @@ typedef long signed int ssize_t;
 
 #define SSIZE_MAX	2147483647
 #define SIZE_MAX	4294967295
-#define	FD_SETSIZE	1024
+// #define	FD_SETSIZE	1024
 
 typedef long int _fd_mask;
 
 #define	_NFDBITS (8 * sizeof(_fd_mask))
 
+typedef fd_set fd_set_cgc;
+
+/**
 typedef struct {
 	_fd_mask _fd_bits[FD_SETSIZE / _NFDBITS];
 } fd_set_cgc;
@@ -34,11 +39,13 @@ typedef struct {
 	((set)->_fd_bits[b / _NFDBITS] &= ~(1 << (b & (_NFDBITS - 1))))
 #define	FD_ISSET(b, set) \
 	((set)->_fd_bits[b / _NFDBITS] & (1 << (b & (_NFDBITS - 1))))
+*/
 
-struct timeval1 {
+/**
+struct timeval {
 	int tv_sec;
 	int tv_usec;
-};
+};*/
 
 #define	EBADF		1
 #define	EFAULT		2
@@ -51,7 +58,7 @@ void _terminate(unsigned int status) __attribute__((__noreturn__));
 int transmit(int fd, const void *buf, size_t count, size_t *tx_bytes);
 int receive(int fd, void *buf, size_t count, size_t *rx_bytes);
 int fdwait(int nfds, fd_set_cgc *readfds, fd_set_cgc *writefds,
-	   const struct timeval1 *timeout, int *readyfds);
+	   const struct timeval *timeout, int *readyfds);
 int allocate(size_t length, int is_X, void **addr);
 int deallocate(void *addr, size_t length);
 int random_cgc(void *buf, size_t count, size_t *rnd_bytes);
