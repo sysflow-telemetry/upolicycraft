@@ -105,6 +105,8 @@ module Sf = struct
   let file_is_open_read    = "sf.file.is_open_read"
   let file_fd              = "sf.file.fd"
   let file_openflags       = "sf.file.openflags"
+  let file_perms           = "sf.file.perms"
+  let file_size            = "sf.file.size"
   let net_proto            = "sf.net.proto"
   let net_protoname        = "sf.net.protoname"
   let net_sport            = "sf.net.sport"
@@ -134,6 +136,11 @@ end
 type fd = int
 type status = int
 
+type permissions =
+  | R
+  | W
+  | X
+
 type operation =
   | Clone of string list
   | Exec of string list
@@ -145,6 +152,7 @@ type operation =
   | Close of fd
   | Recv of fd
   | Send of fd
+  | Mmap of int * (permissions list)
   | Exit of status
 
 module BehaviorGraph = Graphlib.Make(Tid)(String)
@@ -173,6 +181,12 @@ type state = {
 exception InvalidArgv of string
 exception MissingEdge of string
 
+let string_of_permission p =
+  match p with
+    R -> "READ"
+  | W -> "WRITE"
+  | X -> "EXEC"
+
 let edge_of_operation op =
   match op with
     Clone argv -> "CLONE"
@@ -185,6 +199,7 @@ let edge_of_operation op =
   | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
+  | Mmap (size, perms) -> "MMAP"
   | Exit status -> "EXIT"
 
 let jsonify xs =
@@ -240,6 +255,10 @@ let node_of_operation state op =
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
+    | Mmap (length, perms) ->
+      let perms' = List.map ~f:string_of_permission perms in
+      let length' = Printf.sprintf "%d" length in
+      jsonify [(Sf.file_perms, perms'); (Sf.file_size, [length'])]
     | Exit status ->
       let status' = string_of_int status in
       jsonify [(Sf.ret, [status'])] in
@@ -782,6 +801,18 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Write fd in
           (add_operation tid op state'))
+    | "allocate" ->
+      let () = info "model allocate:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (Env.get rsi) >>= fun u ->
+        let size = (v |> Value.to_word |> Bitvector.to_int_exn) in
+        let isX = (u |> Value.to_word |> Bitvector.to_int_exn) in
+        let perms = if isX > 0 then [R; W; X] else [R; W] in
+        Machine.Local.update state ~f:(fun state' ->
+          let op = Mmap (size, perms) in
+          (add_operation tid op state'))
     | _ ->
       let () = info "called %s from %s" func (Tid.name tid) in
       Machine.Local.update state ~f:(fun state' ->
@@ -899,13 +930,26 @@ module Monitor(Machine : Primus.Machine.S) = struct
     )
 
   (**
-    Fetch a field from an Association List
+    Fetch a field from an Association List and
+    throw an exception if it is absent.
   *)
   let assoc_field_exn pairs field =
     List.hd_exn (assoc_field_help pairs field)
 
+  (**
+    Fetch a field from an Association List
+  *)
   let assoc_field pairs field =
     List.hd (assoc_field_help pairs field)
+
+  (**
+    Fetch a field from an Association List and
+    return blank if it is absent.
+  *)
+  let assoc_field_blank pairs field =
+    match List.hd (assoc_field_help pairs field) with
+      None -> ""
+    | Some x -> x
 
   (**
     Infer the SysFlow type from the constraints.
@@ -921,6 +965,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Sf.Network
     else if (getflow Sf.proc_args) > 0 then
       Sf.Process
+    else if (getflow Sf.file_size) > 0 then
+      Sf.File
     else
       Sf.Process
 
@@ -931,15 +977,19 @@ module Monitor(Machine : Primus.Machine.S) = struct
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
-         File -> Printf.sprintf "{%s|{FF|%s}}" context (assoc_field_exn constraints Sf.file_path)
+         File ->
+           let opt = (assoc_field constraints Sf.file_size) in
+           (match opt with
+             None -> Printf.sprintf "{%s|{FF|%s}}" context (assoc_field_exn constraints Sf.file_path)
+           | Some size -> Printf.sprintf "{%s|{FF|%s|%s}}" context size (assoc_field_exn constraints Sf.file_perms))
        | Network -> Printf.sprintf "{%s|{NF|%s}}" context (assoc_field_exn constraints Sf.net_dport)
        | Process ->
          let opt = (assoc_field constraints Sf.ret) in
          match opt with
            Some ret -> Printf.sprintf "{%s|{P|%s}}" context ret
          | None -> Printf.sprintf "{%s|{P|%s|%s}}" context
-                                                 (assoc_field_exn constraints Sf.proc_exe)
-                                                 (assoc_field_exn constraints Sf.proc_args))
+                                                 (assoc_field_blank constraints Sf.proc_exe)
+                                                 (assoc_field_blank constraints Sf.proc_args))
     | _ -> "ignored"
 
   (** Compute the union of the Local and Global
@@ -1021,7 +1071,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
             let func = String.drop_prefix label 1 in
             record_function tid func
           else
-            let () = info "Indirect function call:" in
+            let () = info "Indirect function call: %s" label in
             let prefix = String.get label 0 in
             if prefix = '#' then
               Machine.Global.get state >>= fun state' ->
