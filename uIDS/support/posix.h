@@ -33,6 +33,8 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 int           htons(int);
 
+void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
+
 void          __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
 
 int           apr_app_initialize(int argc, char const *const **argv, char const *const **env);

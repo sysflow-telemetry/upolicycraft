@@ -49,6 +49,10 @@
   (declare (external "htons"))
   v)
 
+(defun uids-mmap (addr len prot flags fd offset)
+  (declare (external "mmap"))
+  (malloc len))
+
 ;; Always return success
 (defun apr-app-initialize (argc argv env)
   (declare (external "apr_app_initialize"))
