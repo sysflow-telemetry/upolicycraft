@@ -9,3 +9,4 @@ uIDS/plugins
 uIDS/setup.*
 layers/*
 *.o
+*.so

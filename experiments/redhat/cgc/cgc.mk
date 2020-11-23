@@ -7,3 +7,8 @@ OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c src/*.c))
 
 ${AUTHOR_ID}_${SERVICE_ID}: ${OBJECTS} /cgc/libcgc.o
 	gcc -o $@ $^
+
+.PHONY: clean
+
+clean:
+	rm -f ${PWD}/lib/*.o ${PWD}/src/*.o /cgc/*.o

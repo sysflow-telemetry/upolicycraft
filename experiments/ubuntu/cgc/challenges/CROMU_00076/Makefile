@@ -1,0 +1,7 @@
+AUTHOR_ID  = CROMU
+SERVICE_ID = 00076
+CFLAGS     = -std=c99 -O0 -g -Wno-error -Wno-overlength-strings -Wno-packed -fno-builtin
+LDFLAGS    = -lm
+VULN_COUNT = 1
+
+include /cgc/cgc.mk

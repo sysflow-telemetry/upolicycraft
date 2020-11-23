@@ -1,0 +1,240 @@
+service cadet_00001 
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CADET_00001/CADET_00001
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8001 
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00007 
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00007/CROMU_00007
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8002 
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00046
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00046/CROMU_00046
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8003
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00047
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00047/CROMU_00047
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8004
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+
+service cromu_00048
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00048/CROMU_00048
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8005
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00051
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00051/CROMU_00051
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8006
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00054
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00054/CROMU_00054
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8007
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00055
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00055/CROMU_00055
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8008
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00057
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00057/CROMU_00057
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8009
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00058
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00058/CROMU_00058
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8010
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00061
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00061/CROMU_00061
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8011
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00064
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00064/CROMU_00064
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8012 
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00065
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00065/CROMU_00065
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8013
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00066
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00066/CROMU_00066
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8014
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00072
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00072/CROMU_00072
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8015
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}
+
+service cromu_00076
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /cgc/challenges/CROMU_00076/CROMU_00076
+        socket_type = stream
+        protocol = tcp
+        user = root 
+        port = 8016
+        flags = REUSE
+        per_source = UNLIMITED
+	rlimit_cpu = 2
+}

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker build --target build . -t sysflowtelemetry/cgc-build:latest
