@@ -51,6 +51,7 @@ opam config exec -- bap $PROGRAM -prun \
   --run-argv=${ARGV} \
   --primus-limit-max-length=${PATHLENGTH} \
   ${MODELINE} \
+  --primus-uids-inetd-startup \
   --primus-uids-model \
   ${EXECLINE} \
   ${FILESYSTEM} \

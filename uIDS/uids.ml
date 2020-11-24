@@ -908,7 +908,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                         ("constraints", `List constraints'');
                         ("edges", `List edges'')] in
     let model' = Yojson.Basic.pretty_to_string model in
-    let oc = Out_channel.create "output.json" in
+    let oc = Out_channel.create "/tmp/output.json" in
     let _ = Printf.fprintf oc "%s" model' in
     Out_channel.close oc
 
@@ -997,7 +997,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
   let record_model () =
-    let dotfile = Out_channel.create "output.dot" in
+    let dotfile = Out_channel.create "/tmp/output.dot" in
     Machine.current () >>= fun pid ->
     let () = info "Machine %a ending!" Id.pp pid in
     if Machine.global = pid then
@@ -1225,7 +1225,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let cloned_entry = json_string [(Sf.proc_exe, [get entrypoint]);
                                     (Sf.proc_args, [get entrypoint_args]);
                                     (Sf.pproc_pid, [Sf.special Sf.Vars.pred Sf.proc_pid])] in
-    let accepted_port = json_string [(Sf.net_dport, ["6666"])] in
+    let accepted_port = json_string [(Sf.net_dport, ["8001"])] in
     let constraints = json_string [(Sf.proc_exe, [exe]); (Sf.proc_args, [args'])] in
     let behavior =
       if (get inetd_startup) then
@@ -1243,7 +1243,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let files = Hashtbl.create (module Int) in
     let () =
       if (get inetd_startup) then
-        let whitelist = "0.0.0.0/0:6666" in
+        let whitelist = "0.0.0.0/0:8001" in
         let () = Hashtbl.add_exn files ~key:0 ~data:whitelist in
         let () = Hashtbl.add_exn files ~key:1 ~data:whitelist in
         let () = Hashtbl.add_exn functions ~key:root ~data:("/usr/sbin/inetd", "main") in
