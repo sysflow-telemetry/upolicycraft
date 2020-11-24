@@ -908,7 +908,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
                         ("constraints", `List constraints'');
                         ("edges", `List edges'')] in
     let model' = Yojson.Basic.pretty_to_string model in
-    printf "%s" model'
+    let oc = Out_channel.create "output.json" in
+    let _ = Printf.fprintf oc "%s" model' in
+    Out_channel.close oc
 
   let assoc_field_help pairs field =
     let () = info "looking for field %s" field in
