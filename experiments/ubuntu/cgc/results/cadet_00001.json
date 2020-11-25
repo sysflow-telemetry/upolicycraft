@@ -1,0 +1,47 @@
+{
+  "initial": "%00002059",
+  "nodes": [
+    "%00000650", "%000014d7", "%00002059", "%0000205b", "%0000205c"
+  ],
+  "contexts": {
+    "%000014d7": [ "/cgc/CADET_00001", "receive_delim" ],
+    "%0000205c": [ "/usr/sbin/inetd", "main" ],
+    "%00002059": [ "/usr/sbin/inetd", "main" ],
+    "%0000205b": [ "/usr/sbin/inetd", "main" ],
+    "%00000650": [ "/cgc/CADET_00001", "transmit_all" ]
+  },
+  "constraints": [
+    {
+      "node": "%00000650",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
+    },
+    {
+      "node": "%000014d7",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
+    },
+    {
+      "node": "%00002059",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    { "node": "%0000205b", "constraints": { "sf.net.dport": [ "8001" ] } },
+    {
+      "node": "%0000205c",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CADET_00001" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00000650", "dst": "%00000650", "label": "WRITE" },
+    { "src": "%00000650", "dst": "%000014d7", "label": "READ" },
+    { "src": "%000014d7", "dst": "%00000650", "label": "WRITE" },
+    { "src": "%000014d7", "dst": "%000014d7", "label": "READ" },
+    { "src": "%00002059", "dst": "%0000205b", "label": "CLOSE" },
+    { "src": "%0000205b", "dst": "%0000205c", "label": "EXEC" },
+    { "src": "%0000205c", "dst": "%00000650", "label": "WRITE" }
+  ]
+}

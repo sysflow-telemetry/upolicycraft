@@ -1,6 +1,8 @@
 FROM ubuntu:16.04 as build
 
-RUN apt -y install build-essential vim gdb python gcc-multilib python-pip xinetd 
+RUN apt update
+RUN apt -y install build-essential vim gdb python gcc-multilib python-pip
+RUN pip install defusedxml yaml
 RUN mkdir /cgc
 WORKDIR /cgc
 
@@ -13,7 +15,10 @@ RUN make
 WORKDIR /cgc/challenges/CROMU_00046
 RUN make
 
-FROM ubuntu:16.04 
+FROM ubuntu:16.04
+
+RUN apt update
+RUN apt -y install xinetd
 
 RUN mkdir /cgc
 COPY --from=build /cgc/challenges /cgc/challenges

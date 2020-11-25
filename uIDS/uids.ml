@@ -268,12 +268,12 @@ let labeled label node =
   { node= node; node_label=label }
 
 let add_operation tid op state =
-  let () = info "Adding operation:" in
+  (** let () = info "Adding operation:" in *)
   let {nodes;graph;last_tid;functions;callstack;current_module} = state in
   let node_label = node_of_operation state op in
   let edge_label = edge_of_operation op in
   let graph' = BehaviorGraph.Node.insert tid graph in
-  let () = info "   %s" edge_label in
+  (** let () = info "   %s" edge_label in *)
   let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
   let graph'' = BehaviorGraph.Edge.insert edge graph' in
   let () = Hashtbl.set nodes ~key:tid ~data:node_label in
@@ -321,19 +321,19 @@ module Pre(Machine : Primus.Machine.S) = struct
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-        let () = info "Error reading memory!" in
+        (** let () = info "Error reading memory!" in *)
         let msg = Primus.Exn.to_string exn in
-        let () = info "    %s" msg in
+        (** let () = info "    %s" msg in *)
         Value.of_bool (false))
 
   let string_of_addr addr =
     let rec loop addr cs =
-      let () = info "Fetching %s" (Bitvector.to_string addr) in
+      (** let () = info "Fetching %s" (Bitvector.to_string addr) in *)
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
       if x = 0 then
         let s = (cs |> List.rev |> String.of_char_list) in
-        let () = info "  %s" s in
+        (** let () = info "  %s" s in *)
         Machine.return (s)
       else
         let c = Char.of_int_exn x in
@@ -416,9 +416,9 @@ module Scan(Machine : Primus.Machine.S) = struct
       let vfmt = Value.to_word fmt in
       string_of_addr vstr >>= fun str' ->
       string_of_addr vfmt >>= fun fmt' ->
-        let () = info "str %s %s" str' fmt' in
+        (** let () = info "str %s %s" str' fmt' in *)
         let port = (((Scanf.sscanf str') "port: %d") (fun i -> i)) in
-        let () = info "port: %d" port in
+        (** let () = info "port: %d" port in *)
         nil
 end
 
@@ -428,22 +428,23 @@ module Scanf(Machine : Primus.Machine.S) = struct
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
-          let () = info "Error reading memory!" in
+          (** let () = info "Error reading memory!" in *)
           let msg = Primus.Exn.to_string exn in
-          let () = info "    %s" msg in
+          (** let () = info "    %s" msg in *)
           Machine.return())
 
     (** Write a bitvector into an address *)
     let write_bitvector addr x =
-      let () = info "writing %x into %x"
-        (Bitvector.to_int_exn x) (Bitvector.to_int_exn addr) in
+      (**
+       let () = info "writing %x into %x"
+        (Bitvector.to_int_exn x) (Bitvector.to_int_exn addr) in *)
       let width = 8 in
       let rec loop n addr x p =
         if n = width then
           p
         else
           let byte = Bitvector.logand x (Bitvector.of_int 64 0xff) in
-          let () = info " byte %d %x at %x" n (Bitvector.to_int_exn byte) (Bitvector.to_int_exn addr) in
+          (** let () = info " byte %d %x at %x" n (Bitvector.to_int_exn byte) (Bitvector.to_int_exn addr) in *)
           let cont =
             Value.of_word byte >>= fun v ->
             (trap_memory_write (Memory.set addr v)) >>= fun () ->
@@ -454,18 +455,19 @@ module Scanf(Machine : Primus.Machine.S) = struct
       loop 0 addr x (Machine.return())
 
     let run [fmt] =
-      let () = info "running scanf!" in
+      (** let () = info "running scanf!" in *)
       (** let vaddr = Value.to_word addr in *)
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
         let chan = In_channel.stdin in
         let line = In_channel.input_line_exn (In_channel.stdin) in
+        (**
         let () = info "read: %s" line in
-        let () = info "str %s" fmt' in
+        let () = info "str %s" fmt' in *)
         if fmt' = "%lu" then
-          let () = info "parsing 64 bit number!" in
+          (** let () = info "parsing 64 bit number!" in *)
           let x = int_of_string line in
-          let () = info "  %d" x in
+          (** let () = info "  %d" x in *)
           let b = Bitvector.of_int 64 x in
           Value.of_word b
         else
@@ -478,15 +480,15 @@ module Snprintf(Machine : Primus.Machine.S) = struct
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
-          let () = info "Error reading memory!" in
+          (** let () = info "Error reading memory!" in *)
           let msg = Primus.Exn.to_string exn in
-          let () = info "    %s" msg in
+          (** let () = info "    %s" msg in *)
           Machine.return())
 
     (** Copy a string into memory *)
     let copy_bytes addr s =
       let addr' = (Value.to_word addr) in
-      let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in
+      (** let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in *)
       let cont' = String.foldi ~f:(fun i cont c ->
         let c' = int_of_char c in
         Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
@@ -525,30 +527,30 @@ module Monitor(Machine : Primus.Machine.S) = struct
   open Machine.Syntax
 
   let record_pos p = Machine.current () >>= fun pid ->
-    let () = info "recording position" in
+    (** let () = info "recording position" in *)
     match (Primus.Pos.get address p) with
       None -> Machine.return ()
     | Some addr ->
       let a = address_of_pos out addr in
-      let () = info "visiting %x\n" a in
+      (** let () = info "visiting %x\n" a in *)
       Machine.return ()
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-        let () = info "Error reading memory!" in
+        (** let () = info "Error reading memory!" in *)
         let msg = Primus.Exn.to_string exn in
-        let () = info "    %s" msg in
+        (** let () = info "    %s" msg in *)
         Value.of_bool (false))
 
   let dump_memory addr steps =
-    let () = info "dump memory" in
+    (** let () = info "dump memory" in *)
     let rec loop n addr =
       if n = steps then
         Machine.return()
       else
         allow_all_memory_access (Memory.get addr) >>= fun v ->
         let x = v |> Value.to_word |> Bitvector.to_int64_exn in
-        let () = info "  %s" (Int64.to_string x) in
+        (** let () = info "  %s" (Int64.to_string x) in *)
         loop (succ n) (Bitvector.succ addr) in
     loop 0 addr
 
@@ -563,10 +565,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
                    Value.to_word |>
                    Bitvector.to_int_exn |>
                    Bitvector.of_int ~width:64 in
-          let () = info "  %s" (Bitvector.to_string v') in
+          (** let () = info "  %s" (Bitvector.to_string v') in *)
           let shift = (Bitvector.of_int 64 (n * 8)) in
           let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
-          let () = info "  intermediate: %s" (Bitvector.to_string next) in
+          (** let () = info "  intermediate: %s" (Bitvector.to_string next) in *)
           Machine.return(next) in
         loop (succ n) (Bitvector.succ addr) cont in
     loop 0 addr (Machine.return(Bitvector.of_int 64 0))
@@ -584,22 +586,22 @@ module Monitor(Machine : Primus.Machine.S) = struct
                    Value.to_word |>
                    Bitvector.to_int_exn |>
                    Bitvector.of_int ~width:64 in
-          let () = info "  %s" (Bitvector.to_string v') in
+          (** let () = info "  %s" (Bitvector.to_string v') in *)
           let shift = (Bitvector.of_int 64 (n * 8)) in
           let next = (Bitvector.logor (Bitvector.lshift v' shift) x) in
-          let () = info "  intermediate: %s" (Bitvector.to_string next) in
+          (** let () = info "  intermediate: %s" (Bitvector.to_string next) in *)
           Machine.return(next) in
         loop (succ n) (Bitvector.succ addr) cont in
     loop 0 addr (Machine.return(Bitvector.of_int 64 0))
 
   let string_of_addr addr =
     let rec loop addr cs =
-      let () = info "Fetching %s" (Bitvector.to_string addr) in
+      (** let () = info "Fetching %s" (Bitvector.to_string addr) in *)
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
       if x = 0 then
         let s = (cs |> List.rev |> String.of_char_list) in
-        let () = info "  %s" s in
+        (** let () = info "  %s" s in *)
         Machine.return (s)
       else
         let c = Char.of_int_exn x in
@@ -607,10 +609,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
     loop addr []
 
   let strings_of_addr addr =
-    let () = info "Finding strings at %s" (Bitvector.to_string addr) in
+    (** let () = info "Finding strings at %s" (Bitvector.to_string addr) in *)
     let rec loop addr strings =
       read_address addr >>= fun v ->
-      let () = info "Read address %s" (Bitvector.to_string v) in
+      (** let () = info "Read address %s" (Bitvector.to_string v) in *)
       if v = (Bitvector.zero 64) then
         strings
       else
@@ -623,13 +625,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let record_function tid func =
     match func with
       "fork" ->
-      let () = info "model clone:" in
+      (** let () = info "model clone:" in *)
       Machine.args >>= fun args ->
       Machine.Local.update state ~f:(fun state' ->
           let op = (Clone (Array.to_list args)) in
           add_operation tid op state')
     | "execv" ->
-      let () = info "model execv:" in
+      (** let () = info "model execv:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       let rsi = (Var.create "RSI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -638,92 +640,92 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (u |> Value.to_word |> strings_of_addr) >>= fun ss ->
       let path = s in
       let argv = (String.concat ~sep:"," ss) in
-      let () = info " RDI: %s" path in
-      let () = info " RSI: %s" argv in
+      (** let () = info " RDI: %s" path in *)
+      (** let () = info " RSI: %s" argv in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Exec [path; argv]) in
           (add_operation tid op state'))
     | "apr_file_open" ->
-      let () = info "model open:" in
+      (** let () = info "model open:" in *)
       let rsi = (Var.create "RSI" reg64_t) in
       (Env.get rsi) >>= fun v ->
         (v |> Value.to_word |> string_of_addr) >>= fun path ->
-        let () = info " RSI: %s" path in
+        (** let () = info " RSI: %s" path in *)
         Machine.Local.update state ~f:(fun state' ->
             let op = (Open path) in
             (add_operation tid op state'))
     | "apr_file_gets" ->
-      let () = info "model read:" in
+      (** let () = info "model read:" in *)
       let rsi = (Var.create "RSI" reg64_t) in
       let rdx = (Var.create "RDX" reg64_t) in
       (Env.get rsi) >>= fun u ->
-        let () = info " RSI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in
+        (** let () = info " RSI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in *)
       (Env.get rdx) >>= fun v ->
         let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-        let () = info " RDX: %d" fd in
+        (** let () = info " RDX: %d" fd in *)
         Machine.Local.update state ~f:(fun state' ->
             let op = (Read fd) in
             (add_operation tid op state'))
     | "atoi" ->
-      let () = info "model atoi:" in
+      (** let () = info "model atoi:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun u ->
-        let () = info " RDI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in
+        (** let () = info " RDI: %d" (u |> Value.to_word |> Bitvector.to_int_exn) in *)
         (u |> Value.to_word |> string_of_addr) >>= fun str ->
-        let () = info "  atoi: %s" str in
+        (** let () = info "  atoi: %s" str in *)
         Machine.return()
     | "fopen" ->
-      let () = info "model fopen:" in
+      (** let () = info "model fopen:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun path ->
-      let () = info " RDI: %s" path in
+      (** let () = info " RDI: %s" path in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
           (add_operation tid op state''))
     | "fgetc" ->
-      let () = info "model fgetc:" in
+      (** let () = info "model fgetc:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      let () = info " RDI: %d" fd in
+      (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
     | "fread" ->
-      let () = info "model fwrite:" in
+      (** let () = info "model fwrite:" in *)
       let rcx = (Var.create "RCX" reg64_t) in
       (Env.get rcx) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      let () = info " RCX: %d" fd in
+      (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
     | "fwrite" ->
-      let () = info "model fwrite:" in
+      (** let () = info "model fwrite:" in *)
       let rcx = (Var.create "RCX" reg64_t) in
       (Env.get rcx) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      let () = info " RCX: %d" fd in
+      (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write fd) in
           (add_operation tid op state'))
     | "fclose" ->
-      let () = info "model fclose:" in
+      (** let () = info "model fclose:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      let () = info " RDI: %d" fd in
+      (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
     | "printf" ->
-      let () = info "model printf:" in
+      (** let () = info "model printf:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun path ->
-      let () = info " RDI: %s" path in
+      (** let () = info " RDI: %s" path in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write Sf.stdout_fd) in
           (add_operation tid op state')
@@ -778,7 +780,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Send fd in
           (add_operation tid op state'))
     | "_terminate" ->
-      let () = info "model terminate:" in
+      (** let () = info "model terminate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let status = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -786,7 +788,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Exit status in
           (add_operation tid op state'))
     | "receive" ->
-      let () = info "model receive:" in
+      (** let () = info "model receive:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -794,7 +796,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Read fd in
           (add_operation tid op state'))
     | "transmit" ->
-      let () = info "model transmit:" in
+      (** let () = info "model transmit:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -802,7 +804,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Write fd in
           (add_operation tid op state'))
     | "allocate" ->
-      let () = info "model allocate:" in
+      (** let () = info "model allocate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       let rsi = (Var.create "RSI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -814,21 +816,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Mmap (size, perms) in
           (add_operation tid op state'))
     | _ ->
-      let () = info "called %s from %s" func (Tid.name tid) in
+      (** let () = info "called %s from %s" func (Tid.name tid) in *)
       Machine.Local.update state ~f:(fun state' ->
         state'
       )
 
   let record_stmt stmt = Machine.current () >>= fun pid ->
     let s = Stmt.to_string stmt in
-    let () = info "record statement: %s" s in
+    (** let () = info "record statement: %s" s in *)
     Machine.return()
 
   (** This is just for debugging:
       Primus maintains the value of all the variables in the Env.module. *)
   let record_written (x, v) =
     let name = Var.to_string x in
-    let () = info "Variable %s <- %s" name (Value.to_string v) in
+    (** let () = info "Variable %s <- %s" name (Value.to_string v) in *)
     let start = String.get name 0 in
     Machine.Local.get state >>= fun {file_opened} ->
     if start = '#' then
@@ -852,7 +854,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let name = (Tid.name tid) in
         let label = try Hashtbl.find_exn nodes tid
           with Not_found_s s ->
-              let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
+              (** let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in *)
               name in
         (name, label) in
     let es = BehaviorGraph.edges graph in
@@ -913,10 +915,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
     Out_channel.close oc
 
   let assoc_field_help pairs field =
-    let () = info "looking for field %s" field in
+    (** let () = info "looking for field %s" field in *)
     pairs |>
     List.filter ~f:(fun (field', v) ->
-      let () = info "  found field %s" field' in
+      (** let () = info "  found field %s" field' in *)
       field = field'
     ) |>
     List.map ~f:(fun (field, v) ->
@@ -1026,9 +1028,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     else
       Machine.Local.get state >>= fun state' ->
       let {nodes;graph;last_tid;functions} = state' in
-      let () = info "last tid: %s" (Tid.name last_tid) in
+      (** let () = info "last tid: %s" (Tid.name last_tid) in *)
       Machine.Global.update state ~f:(fun s ->
-          let () = info "Updating global state!" in
+          (** let () = info "Updating global state!" in *)
           let graph' = Graphlib.union (module BehaviorGraph) s.graph graph in
           let () = Hashtbl.merge_into ~src:functions ~dst:s.functions
                                       ~f:(fun ~key:_ x y -> Set_to x) in
@@ -1054,13 +1056,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let record_jmp j = Machine.current () >>= fun pid ->
     let tid = Term.tid j in
-    let () = info "entering jump %s" (Tid.name tid) in
+    (** let () = info "entering jump %s" (Tid.name tid) in *)
     let target_tid = match Jmp.dst j with
                        None -> Tid.create()
                      | Some dst -> (
                        match Jmp.resolve dst with
                          First tid ->
-                           let () = info "target tid %s" (Tid.name tid) in
+                           (** let () = info "target tid %s" (Tid.name tid) in *)
                            tid
                      | Second _ -> Tid.create()) in
     Machine.Global.get state >>= fun gs ->
@@ -1073,7 +1075,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
             let func = String.drop_prefix label 1 in
             record_function tid func
           else
-            let () = info "Indirect function call: %s" label in
+            (** let () = info "Indirect function call: %s" label in *)
             let prefix = String.get label 0 in
             if prefix = '#' then
               Machine.Global.get state >>= fun state' ->
@@ -1084,16 +1086,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
               let {symbols} = state' in
               let matched = symbols |> List.filter ~f:(fun (name, block, cfg) ->
                   let addr = block |> Block.addr in
-                  let () = info "  found %s %s" name (Addr.to_string addr) in
+                  (** let () = info "  found %s %s" name (Addr.to_string addr) in *)
                   addr = target) |> List.map ~f:(fun (name, block, cfg) ->
                   name
                 ) in
               if (List.length matched) > 0 then
                 let f = List.nth_exn matched 0 in
-                let () = info "  match %s" f in
+                (** let () = info "  match %s" f in *)
                 record_function tid f
               else
-                let () = info "  target %s" (Addr.to_string target) in
+                (** let () = info "  target %s" (Addr.to_string target) in *)
                 Machine.return()
             else
               Machine.return()
@@ -1103,7 +1105,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                           None -> false
                         | Some _ -> true in
           let label' = Label.to_string label in
-          let () = info "goto label %s, guarded %b" label' guarded in
+          (** let () = info "goto label %s, guarded %b" label' guarded in *)
           Machine.Local.update state ~f:(fun s ->
             let () = Hashtbl.update s.loops target_tid ~f:(fun opt ->
               match opt with
@@ -1117,13 +1119,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
                 let hits = match (Hashtbl.find loops target_tid) with
                              Some i -> i
                            | None -> 0 in
-                let () = info "Tid %s has %d hits" (Tid.name target_tid) hits in
+                (** let () = info "Tid %s has %d hits" (Tid.name target_tid) hits in *)
                 if hits > 1 && target_tid = server_tid then
                   reschedule()
                 else
                   Machine.return()
         | _ ->
-          let () = info "    Different kind of jump" in
+          (** let () = info "    Different kind of jump" in *)
           Machine.return ()
 
   let addr_of_sub_name name =
@@ -1133,7 +1135,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let push_sub s =
     let name = Sub.name s in
-    let () = info "entering sub %s" name in
+    (** let () = info "entering sub %s" name in *)
     Machine.Local.update state ~f:(fun s ->
       let {callstack;symbols} = s in
       let name' = match addr_of_sub_name name with
@@ -1156,7 +1158,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let pop_sub s =
     let name = Sub.name s in
-    let () = info "leaving sub %s" (Sub.name s) in
+    (** let () = info "leaving sub %s" (Sub.name s) in *)
     Machine.Local.update state ~f:(fun s ->
       let {callstack} = s in
       match callstack with
@@ -1217,7 +1219,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let port = Tid.create() in
     let proc = Tid.create() in
     let server_tid = ok_exn (Tid.from_string (get server_start)) in
-    let () = info "Using %s as server_tid" (Tid.name server_tid) in
+    (** let () = info "Using %s as server_tid" (Tid.name server_tid) in *)
     let (exe, args') = args |> Array.to_list |> split_argv in
     (** Make an initialization routine. *)
     let entry = json_string [(Sf.proc_exe, [get entrypoint]);

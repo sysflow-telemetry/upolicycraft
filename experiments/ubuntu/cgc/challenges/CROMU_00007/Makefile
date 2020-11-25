@@ -2,7 +2,7 @@ POLLS_RELEASE_SEED= -802674260
 POLLS_TESTING_SEED= -690922790
 AUTHOR_ID  = CROMU
 SERVICE_ID = 00007
-CFLAGS     = -O0 -g -Wno-overlength-strings -Wno-packed
+CFLAGS     = -O0 -g -Wno-overlength-strings -Wno-packed -fno-stack-protector
 
 POLLS_RELEASE_COUNT = 100
 POLLS_TESTING_COUNT = 900

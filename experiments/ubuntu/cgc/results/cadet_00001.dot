@@ -1,0 +1,24 @@
+digraph G {
+  3 [shape=Mrecord,
+     label="{{/cgc/CADET_00001:transmit_all}|{FF|0.0.0.0/0:8001}}",
+     fontsize=9, ];
+  4 [shape=Mrecord,
+     label="{{/cgc/CADET_00001:receive_delim}|{FF|0.0.0.0/0:8001}}",
+     fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/inetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/inetd:main}|{NF|8001}}", fontsize=9, ];
+  2 [shape=Mrecord, label="{{/usr/sbin/inetd:main}|{P|/cgc/CADET_00001|}}",
+     fontsize=9, ];
+  
+  
+  3 -> 3 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="READ", fontsize=8, ];
+  4 -> 3 [label="WRITE", fontsize=8, ];
+  4 -> 4 [label="READ", fontsize=8, ];
+  0 -> 1 [label="CLOSE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="WRITE", fontsize=8, ];
+  
+  }
