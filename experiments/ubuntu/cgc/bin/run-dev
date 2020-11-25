@@ -1,0 +1,3 @@
+#!/usr/bin/env bash 
+
+docker run --name cgc-build --rm -it sysflowtelemetry/cgc-build:latest $1
