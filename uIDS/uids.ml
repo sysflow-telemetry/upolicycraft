@@ -532,7 +532,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       None -> Machine.return ()
     | Some addr ->
       let a = address_of_pos out addr in
-      (** let () = info "visiting %x\n" a in *)
+      let () = info "visiting %x\n" a in
       Machine.return ()
 
   let allow_all_memory_access access =

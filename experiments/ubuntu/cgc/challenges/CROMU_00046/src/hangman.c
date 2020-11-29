@@ -34,7 +34,7 @@ char *renderBoard(gamestate *state);
 char *pickaword(gamestate *state);
 
 char *pickaword(gamestate *state) {
-	return words[hugsnextrand(state) % (sizeof(words) / 4)];
+	return words[hugsnextrand(state) % (sizeof(words) / 8)];
 }
 
 void hangman() {
@@ -49,6 +49,8 @@ void hangman() {
 
 	bzero(correct, 128);
 	toguess = pickaword(state);
+        put(toguess);
+        put("\n");
 	len = strlen(toguess);
 	state->hangmanguess = 0;
 
@@ -60,10 +62,14 @@ void hangman() {
 	{
 		right = 0;
 		bzero(guess, 4);
-		put(renderBoard(state));
-		for(i=0;i<len;i++)
+                put(itoa(len));
+                put("Before board\n");
+		//put(renderBoard(state));
+                put("Post board\n");
+
+		for (i=0;i<len;i++)
 		{
-			if(correct[i] == 0)
+			if (correct[i] == 0)
 				put("_");
 			else {
 				put(&correct[i]);
@@ -72,8 +78,17 @@ void hangman() {
 		}
 
 		put("\n");
+                put(itoa(len));
 		put("Please enter a guess: ");
-		recvUntil(0, guess, 3, '\n');
+
+		recvUntil(0, guess, 2, '\n');
+                put(itoa(len));
+                put(guess);
+                put("\n");
+                put("Received\n");
+                put("\n");
+                put(itoa(len));
+                put("\n");
 		for(i=0;i<len;i++)
 		{
 			if(guess[0] == toguess[i])
@@ -83,9 +98,11 @@ void hangman() {
 				correctcount++;
 			}
 		}
-		if(right == 0)
+                put("Updated\n");
+		if (right == 0) {
 			state->hangmanguess++;
-		if(strlen(correct) == strlen(toguess))
+                }
+		if (strlen(correct) == strlen(toguess))
 		{
 			handleOutcome(state, 1, wagered);
 			return;
@@ -133,5 +150,6 @@ ______\n";
 |\n\
 ______\n";
 	}
+        put("Unknown\n");
 	return "???\n";
 }

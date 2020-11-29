@@ -52,7 +52,7 @@ unsigned int hugsnextrand(gamestate *state) {
 
 	bits = ((state->gamerand >> 0) ^ (state->gamerand >> 2) ^ (state->gamerand >> 3) ^ (state->gamerand >> 5)) & 1;
 	state->gamerand = (state->gamerand >> 1) | (bits << 31);
-    return state->gamerand;
+        return state->gamerand;
 }
 
 void handleOutcome(gamestate *state, char outcome, unsigned int wagered) {

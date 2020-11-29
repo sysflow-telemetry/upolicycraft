@@ -29,6 +29,7 @@ THE SOFTWARE.
 extern gamestate *state;
 
 char *cardName(int cardNum) {
+        /**
 	switch(cardNum+1) {
 		case 1:
 			return "two";
@@ -56,7 +57,7 @@ char *cardName(int cardNum) {
 			return "king";
 		case 13:
 			return "ace";
-	}
+	} */
 	return "?";
 }
 
@@ -86,8 +87,8 @@ void war() {
 	playerCard = hugsnextrand(state);
 	dealerCard = hugsnextrand(state);
 	top:
-	if(dealerCard % 13 > playerCard % 13) {
-		put("Dealer's ");
+	if (dealerCard % 13 > playerCard % 13) {
+		put("Dealers's ");
 		put(cardName(dealerCard % 13));
 		put(" of ");
 		put(cardSuite(dealerCard % 4));
@@ -100,6 +101,7 @@ void war() {
 	} else if (dealerCard % 13 < playerCard % 13) {
 		put("Player's ");
 		put(cardName(playerCard % 13));
+                put("\n");
 		put(" of ");
 		put(cardSuite(playerCard % 4));
 		put(" beats dealer's ");
