@@ -1,0 +1,27 @@
+digraph G {
+  4 [shape=box, label="{{/cgc/CROMU_00046:put}|{FF|0.0.0.0/0:8001}}",
+     fontsize=9, ];
+  6 [shape=box, label="{{/cgc/CROMU_00046:recvUntil}|{FF|0.0.0.0/0:8001}}",
+     fontsize=9, ];
+  3 [shape=box, label="{{/cgc/CROMU_00046:main}|{FF|4096|READ WRITE EXEC}}",
+     fontsize=9, ];
+  5 [shape=box, label="{{/cgc/CROMU_00046:main}|{P|0}}", fontsize=9, ];
+  0 [shape=box,
+     label="{{/usr/sbin/inetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=box, label="{{/usr/sbin/inetd:main}|{NF|8001}}", fontsize=9, ];
+  2 [shape=box, label="{{/usr/sbin/inetd:main}|{P|/cgc/CROMU_00046|}}",
+     fontsize=9, ];
+  
+  
+  4 -> 4 [label="WRITE", fontsize=8, ];
+  4 -> 6 [label="READ", fontsize=8, ];
+  4 -> 5 [label="EXIT", fontsize=8, ];
+  6 -> 4 [label="WRITE", fontsize=8, ];
+  6 -> 6 [label="READ", fontsize=8, ];
+  3 -> 4 [label="WRITE", fontsize=8, ];
+  0 -> 1 [label="CLOSE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="MMAP", fontsize=8, ];
+  
+  }
