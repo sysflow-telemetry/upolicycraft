@@ -49,24 +49,18 @@ void hangman() {
 
 	bzero(correct, 128);
 	toguess = pickaword(state);
-        put(toguess);
-        put("\n");
 	len = strlen(toguess);
 	state->hangmanguess = 0;
 
 	wagered = getBet(state);
-	if(wagered == -1)
+	if (wagered == -1)
 		return;
 
-	while(state->hangmanguess < 5)
+	while (state->hangmanguess < 5)
 	{
 		right = 0;
 		bzero(guess, 4);
-                put(itoa(len));
-                put("Before board\n");
-		//put(renderBoard(state));
-                put("Post board\n");
-
+		// put(renderBoard(state));
 		for (i=0;i<len;i++)
 		{
 			if (correct[i] == 0)
@@ -76,19 +70,10 @@ void hangman() {
 				i+= strlen(&correct[i])-1;
 			}
 		}
-
 		put("\n");
-                put(itoa(len));
 		put("Please enter a guess: ");
-
 		recvUntil(0, guess, 2, '\n');
-                put(itoa(len));
-                put(guess);
-                put("\n");
-                put("Received\n");
-                put("\n");
-                put(itoa(len));
-                put("\n");
+
 		for(i=0;i<len;i++)
 		{
 			if(guess[0] == toguess[i])
@@ -98,7 +83,7 @@ void hangman() {
 				correctcount++;
 			}
 		}
-                put("Updated\n");
+
 		if (right == 0) {
 			state->hangmanguess++;
                 }

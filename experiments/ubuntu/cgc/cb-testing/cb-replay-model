@@ -467,6 +467,11 @@ class Throw(object):
             Exception: if 'expr' argument is provided and 'assign' is not
         """
         data = ''
+        self.log("Reading from Challenge Binary.")
+
+        from pdb import set_trace
+        set_trace()
+
         try:
             if 'length' in read_args:
                 data = self._read_len(read_args['length'])
