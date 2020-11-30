@@ -1,12 +1,10 @@
-all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so
+all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so
 
-OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c src/*.c))
-OBJECTS := $(patsubst %.cc,%.o,$(wildcard lib/*.cc src/*.cc)) ${OBJECTS}
-OBJECTS := $(patsubst %.c,%.o,$(wildcard cb_1/lib/*.c cb_1/src/*.c)) ${OBJECTS}
-OBJECTS := $(patsubst %.c,%.o,$(wildcard cb_1/lib/*.cc cb_1/src/*.cc)) ${OBJECTS}
+LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c lib/*.cc))
+CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/*.cc))
 
-/cgc/libcgc.o: /cgc/libcgc.c
-	gcc -fPIC -I /cgc/ ${CFLAGS} -c -o $@ $<
+/cgc/libcgc.so: /cgc/libcgc.c
+	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -c -o $@ $<
 
 %.o: %.c
 	gcc -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib -I ${PWD}/cb_1/include -I ${PWD}/cb_1/lib ${CFLAGS} -c -o $@ $<
@@ -14,10 +12,13 @@ OBJECTS := $(patsubst %.c,%.o,$(wildcard cb_1/lib/*.cc cb_1/src/*.cc)) ${OBJECTS
 %.o: %.cc
 	g++ -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib -I ${PWD}/cb_1/include -I ${PWD}/cb_1/lib  ${CXXFLAGS} -c -o $@ $<
 
-${AUTHOR_ID}_${SERVICE_ID}: ${OBJECTS} /cgc/libcgc.o
+lib.so: ${LIB_OBJECTS}
+	gcc -shared -o $@ $^
+
+${AUTHOR_ID}_${SERVICE_ID}: ${CHALL_OBJECTS} lib.so /cgc/libcgc.so
 	gcc -o $@ $^ ${LDFLAGS}
 
-${AUTHOR_ID}_${SERVICE_ID}.so: ${OBJECTS} /cgc/libcgc.o
+${AUTHOR_ID}_${SERVICE_ID}.so: ${CHALL_OBJECTS}
 	gcc -shared -o $@ $^ ${LDFLAGS}
 
 .PHONY: clean

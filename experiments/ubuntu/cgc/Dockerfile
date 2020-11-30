@@ -2,7 +2,7 @@ FROM ubuntu:16.04 as build
 
 RUN apt update
 RUN apt -y install build-essential vim gdb python gcc-multilib python-pip
-RUN pip install defusedxml yaml
+RUN pip install defusedxml pyyaml
 RUN mkdir /cgc
 WORKDIR /cgc
 
