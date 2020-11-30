@@ -31,6 +31,9 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 // uids
 
+int           transmit_all(int fd, const char *buf, const size_t size);
+int           receive_delim(int fd, char *buf, const size_t size, char delim);
+
 int           htons(int);
 
 void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
