@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 
-sudo rm /mnt/data/15*
-
-
+sudo rm /mnt/data/1*
