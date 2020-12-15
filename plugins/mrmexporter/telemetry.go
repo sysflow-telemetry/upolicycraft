@@ -28,6 +28,8 @@ import (
 	"github.com/sysflow-telemetry/sf-processor/core/policyengine/engine"
 )
 
+var incidentCtxKey int = 128 
+
 // SysFlow record components
 const (
 	proc      = "proc"
@@ -39,6 +41,8 @@ const (
 	node      = "node"
 )
 
+type ExporterContext engine.Context 
+
 // TelemetryRecord type
 type TelemetryRecord struct {
 	Version     string `json:"version,omitempty"`
@@ -46,6 +50,15 @@ type TelemetryRecord struct {
 	*DataRecord `json:",omitempty"`
 	Hashes      *engine.HashSet `json:"hashes,omitempty"`
 	Policies    []Policy        `json:"policies,omitempty"`
+        Incidents   []Incident      `json:"incidents,omitempty"`
+}
+
+// GetIncidents fetches the alerts in the context.
+func (s ExporterContext) GetIncidents() []Incident {
+	if s[incidentCtxKey] != nil {
+		return s[incidentCtxKey].([]Incident)
+	}
+	return nil
 }
 
 // FlatRecord type
