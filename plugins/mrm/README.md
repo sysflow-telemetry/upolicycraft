@@ -1,4 +1,4 @@
-# RM Usage
+# MRM Usage
 
 To demonstrate the Microservice-Aware Reference Monitor (MRM), run the following command. Models can be found in the `resources/models` folder.
 

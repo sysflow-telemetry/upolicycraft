@@ -1,0 +1,96 @@
+digraph G {
+  4 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:get_num}|{FF|0.0.0.0/0:6666}}",
+     fontsize=9, ];
+  3 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:welcome_message}|{FF|0.0.0.0/0:6666}}",
+     fontsize=9, ];
+  20 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:print_menu}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  21 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  14 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  15 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  16 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+      fontsize=9, ];
+  17 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+      fontsize=9, ];
+  18 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+      fontsize=9, ];
+  19 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:create_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  13 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:rate_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  10 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:rate_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  11 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:rate_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  12 [shape=Mrecord,
+      label="{{/everybodys_got_something_to_hide:rate_song}|{FF|0.0.0.0/0:6666}}",
+      fontsize=9, ];
+  5 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:view_song}|{FF|0.0.0.0/0:6666}}",
+     fontsize=9, ];
+  6 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:view_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+     fontsize=9, ];
+  7 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:view_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+     fontsize=9, ];
+  8 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:view_song}|{FF|/home/chall/service/append/song_[0-9]+0}}",
+     fontsize=9, ];
+  9 [shape=Mrecord,
+     label="{{/everybodys_got_something_to_hide:view_song}|{FF|0.0.0.0/0:6666}}",
+     fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/inetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/inetd:main}|{NF|6666}}", fontsize=9, ];
+  2 [shape=Mrecord,
+     label="{{/usr/sbin/inetd:main}|{P|/everybodys_got_something_to_hide|}}",
+     fontsize=9, ];
+  
+  
+  4 -> 21 [label="WRITE", fontsize=8, ];
+  4 -> 14 [label="READ", fontsize=8, ];
+  4 -> 13 [label="WRITE", fontsize=8, ];
+  4 -> 10 [label="READ", fontsize=8, ];
+  4 -> 5 [label="WRITE", fontsize=8, ];
+  3 -> 20 [label="WRITE", fontsize=8, ];
+  20 -> 4 [label="READ", fontsize=8, ];
+  21 -> 4 [label="READ", fontsize=8, ];
+  14 -> 14 [label="READ", fontsize=8, ];
+  14 -> 15 [label="WRITE", fontsize=8, ];
+  15 -> 16 [label="OPEN", fontsize=8, ];
+  16 -> 17 [label="WRITE", fontsize=8, ];
+  17 -> 18 [label="CLOSE", fontsize=8, ];
+  18 -> 19 [label="WRITE", fontsize=8, ];
+  19 -> 20 [label="WRITE", fontsize=8, ];
+  13 -> 4 [label="READ", fontsize=8, ];
+  10 -> 11 [label="WRITE", fontsize=8, ];
+  11 -> 12 [label="WRITE", fontsize=8, ];
+  12 -> 20 [label="WRITE", fontsize=8, ];
+  5 -> 6 [label="OPEN", fontsize=8, ];
+  6 -> 7 [label="READ", fontsize=8, ];
+  7 -> 8 [label="CLOSE", fontsize=8, ];
+  8 -> 9 [label="WRITE", fontsize=8, ];
+  9 -> 20 [label="WRITE", fontsize=8, ];
+  0 -> 1 [label="CLOSE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="WRITE", fontsize=8, ];
+  
+  }

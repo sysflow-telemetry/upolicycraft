@@ -1,0 +1,168 @@
+{
+  "initial": "%0000220d",
+  "nodes": [
+    "%0000073f", "%00000c4a", "%00000d72", "%00000e8e", "%00000fc2",
+    "%0000100b", "%0000114c", "%000011b1", "%000011ce", "%00001232",
+    "%0000130d", "%00001414", "%0000145d", "%000014f4", "%00001603",
+    "%000017b7", "%00001cd0", "%00001d3d", "%00001d68", "%0000220d",
+    "%0000220f", "%00002210"
+  ],
+  "contexts": {
+    "%00001414": [ "/everybodys_got_something_to_hide", "rate_song" ],
+    "%000014f4": [ "/everybodys_got_something_to_hide", "rate_song" ],
+    "%0000130d": [ "/everybodys_got_something_to_hide", "rate_song" ],
+    "%00001603": [ "/everybodys_got_something_to_hide", "view_song" ],
+    "%00001cd0": [ "/everybodys_got_something_to_hide", "view_song" ],
+    "%00000e8e": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%0000145d": [ "/everybodys_got_something_to_hide", "rate_song" ],
+    "%000011ce": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%00000d72": [ "/everybodys_got_something_to_hide", "print_menu" ],
+    "%000011b1": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%00001d3d": [ "/everybodys_got_something_to_hide", "view_song" ],
+    "%000017b7": [ "/everybodys_got_something_to_hide", "view_song" ],
+    "%00000fc2": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%00002210": [ "/usr/sbin/inetd", "main" ],
+    "%0000100b": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%00000c4a": [ "/everybodys_got_something_to_hide", "welcome_message" ],
+    "%00001232": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%0000114c": [ "/everybodys_got_something_to_hide", "create_song" ],
+    "%0000220f": [ "/usr/sbin/inetd", "main" ],
+    "%0000220d": [ "/usr/sbin/inetd", "main" ],
+    "%00001d68": [ "/everybodys_got_something_to_hide", "view_song" ],
+    "%0000073f": [ "/everybodys_got_something_to_hide", "get_num" ]
+  },
+  "constraints": [
+    {
+      "node": "%0000073f",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00000c4a",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00000d72",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00000e8e",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00000fc2",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%0000100b",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%0000114c",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%000011b1",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%000011ce",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%00001232",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%0000130d",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00001414",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%0000145d",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%000014f4",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%00001603",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%000017b7",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%00001cd0",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%00001d3d",
+      "constraints": {
+        "sf.file.path": [ "/home/chall/service/append/song_[0-9]+" ]
+      }
+    },
+    {
+      "node": "%00001d68",
+      "constraints": { "sf.file.path": [ "0.0.0.0/0:6666" ] }
+    },
+    {
+      "node": "%0000220d",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    { "node": "%0000220f", "constraints": { "sf.net.dport": [ "6666" ] } },
+    {
+      "node": "%00002210",
+      "constraints": {
+        "sf.proc.exe": [ "/home/chall/service/ro/everybodys_got_something_to_hide" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%0000073f", "dst": "%00000e8e", "label": "WRITE" },
+    { "src": "%0000073f", "dst": "%00000fc2", "label": "READ" },
+    { "src": "%0000073f", "dst": "%0000130d", "label": "WRITE" },
+    { "src": "%0000073f", "dst": "%00001414", "label": "READ" },
+    { "src": "%0000073f", "dst": "%00001603", "label": "WRITE" },
+    { "src": "%00000c4a", "dst": "%00000d72", "label": "WRITE" },
+    { "src": "%00000d72", "dst": "%0000073f", "label": "READ" },
+    { "src": "%00000e8e", "dst": "%0000073f", "label": "READ" },
+    { "src": "%00000fc2", "dst": "%00000fc2", "label": "READ" },
+    { "src": "%00000fc2", "dst": "%0000100b", "label": "WRITE" },
+    { "src": "%0000100b", "dst": "%0000114c", "label": "OPEN" },
+    { "src": "%0000114c", "dst": "%000011b1", "label": "WRITE" },
+    { "src": "%000011b1", "dst": "%000011ce", "label": "CLOSE" },
+    { "src": "%000011ce", "dst": "%00001232", "label": "WRITE" },
+    { "src": "%00001232", "dst": "%00000d72", "label": "WRITE" },
+    { "src": "%0000130d", "dst": "%0000073f", "label": "READ" },
+    { "src": "%00001414", "dst": "%0000145d", "label": "WRITE" },
+    { "src": "%0000145d", "dst": "%000014f4", "label": "WRITE" },
+    { "src": "%000014f4", "dst": "%00000d72", "label": "WRITE" },
+    { "src": "%00001603", "dst": "%000017b7", "label": "OPEN" },
+    { "src": "%000017b7", "dst": "%00001cd0", "label": "READ" },
+    { "src": "%00001cd0", "dst": "%00001d3d", "label": "CLOSE" },
+    { "src": "%00001d3d", "dst": "%00001d68", "label": "WRITE" },
+    { "src": "%00001d68", "dst": "%00000d72", "label": "WRITE" },
+    { "src": "%0000220d", "dst": "%0000220f", "label": "CLOSE" },
+    { "src": "%0000220f", "dst": "%00002210", "label": "EXEC" },
+    { "src": "%00002210", "dst": "%00000c4a", "label": "WRITE" }
+  ]
+}

@@ -1,0 +1,26 @@
+digraph G {
+  3 [shape=box, label="{'sf.file.path':['/dev/pts/0']}", ];
+  4 [shape=box, label="{'sf.file.path':['/dev/pts/0']}", ];
+  0 [shape=box,
+     label="{ 'sf.proc.exe': [ '/bin/bash' ], 'sf.proc.args': [ '/cadet.sh' ] }",
+     ];
+  1 [shape=box,
+     label="{
+  'sf.proc.exe': [ '/bin/bash' ],
+  'sf.proc.args': [ '/cadet.sh' ],
+  'sf.pproc.pid': [ '%pred.sf.proc.pid' ]
+}",
+     ];
+  2 [shape=box,
+     label="{ 'sf.proc.exe': [ '/cadet' ], 'sf.proc.args': [ '' ] }", ];
+  
+  
+  3 -> 3 [label="WRITE", ];
+  3 -> 4 [label="READ", ];
+  4 -> 3 [label="WRITE", ];
+  4 -> 4 [label="READ", ];
+  0 -> 1 [label="CLONE", ];
+  1 -> 2 [label="EXEC", ];
+  2 -> 3 [label="WRITE", ];
+  
+  }

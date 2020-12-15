@@ -1,0 +1,39 @@
+digraph G {
+  graph [overlap=scale rankdir=TD splines=true]
+  edge [fontsize=8]
+
+  3 [fontsize=9, shape=Mrecord, label="FF|/echo/echo.conf", ];
+  4 [fontsize=9, shape=Mrecord, label="FF|/echo/echo.conf", ];
+  5 [fontsize=9, shape=Mrecord, label="FF|/echo/echo.conf", ];
+  6 [fontsize=9, shape=Mrecord, label="FF|/dev/pts/0", ];
+  7 [fontsize=9, shape=Mrecord, label="NF|8080", ];
+  8 [fontsize=9, shape=Mrecord, label="NF|8080", ];
+  9 [fontsize=9, shape=Mrecord, label="NF|8080", ];
+  10 [fontsize=9, shape=Mrecord, label="NF|8080", ];
+  11 [fontsize=9, shape=Mrecord, label="NF|8080", ];
+  0 [fontsize=9, shape=Mrecord,
+     label="P|/usr/bin/bash|{/echo/echo.sh}",
+     ];
+  1 [fontsize=9, shape=Mrecord,
+     label="P|/usr/bin/bash|{/echo/echo.sh}|{%pred.sf.proc.pid}",
+     ];
+  2 [fontsize=9, shape=Mrecord,
+     label="P|/echo/echo|{./echo.conf}",
+     ];
+  
+  
+  3 -> 4 [label="READ", ];
+  4 -> 4 [label="READ", ];
+  4 -> 5 [label="CLOSE", ];
+  5 -> 6 [label="WRITE", ];
+  6 -> 7 [label="BIND", ];
+  7 -> 8 [label="ACCEPT", ];
+  8 -> 9 [label="RECV", ];
+  9 -> 10 [label="RECV", ];
+  10 -> 11 [label="SEND", ];
+  11 -> 9 [label="RECV", ];
+  0 -> 1 [label="CLONE", ];
+  1 -> 2 [label="EXEC", ];
+  2 -> 3 [label="OPEN", ];
+  
+  }
