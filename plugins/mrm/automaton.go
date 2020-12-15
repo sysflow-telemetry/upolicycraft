@@ -438,7 +438,7 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 	// Submit an error to the out-channel.
 	logger.Trace.Println("Security Violation submitting to out channel!")
 	msg := fmt.Sprintf("Static model forbids %s from this state.", event)
-        ctx := MRMContext(r.Ctx)
+	ctx := MRMContext(r.Ctx)
 	ctx.AddIncident(Incident{s.FSM.Current(), msg})
 	out(r)
 }
@@ -537,7 +537,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 
 	for {
 		for op, obs := range abilities {
-			for _, ob := range obs {	
+			for _, ob := range obs {
 				logger.Trace.Printf("Attempting to use op %s\n", op)
 				model_op := TranslateOperation(op)
 				if s.CanEvent(model_op, ob.Record) {
@@ -604,7 +604,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 }
 
 /**
-// Event advances the FSM with an event given in the policy engine record 
+// Event advances the FSM with an event given in the policy engine record
 func (s *SecurityAutomaton) Event1(rs []*engine.Record, out func(r *engine.Record)) {
 	r := rs[0]
 	logger.Trace.Printf("Processing Record\n")

@@ -17,7 +17,7 @@ import (
 	"github.com/sysflow-telemetry/sf-processor/core/flattener"
 	"github.com/sysflow-telemetry/sf-processor/core/policyengine/engine"
 )
- 
+
 const (
 	pluginName  string = "rm"
 	historySize int    = 2
