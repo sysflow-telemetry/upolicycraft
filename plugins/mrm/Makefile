@@ -4,4 +4,4 @@ OUTPUT=${HOME}/work/sf-processor/resources/plugins
 
 .PHONY: all
 all:
-	mkdir -p $(OUTPUT); $(GOBUILD) -o $(OUTPUT)/rm.so .
+	mkdir -p $(OUTPUT); $(GOBUILD) -o $(OUTPUT)/mrm.so .

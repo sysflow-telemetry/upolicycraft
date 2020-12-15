@@ -19,20 +19,20 @@ import (
 )
 
 const (
-	pluginName  string = "rm"
-	historySize int    = 2
+	pluginName string = "mrm"
+	historySize int   = 2
 )
-
-// A copy of the graphlet associated with the alert event.
-
-// Plugin exports a symbol for this plugin.
-var Plugin ReferenceMonitor
 
 // Incident type
 type Incident struct {
 	State string
 	Desc  string
 }
+
+// A copy of the graphlet associated with the alert event.
+
+// Plugin exports a symbol for this plugin.
+var Plugin ReferenceMonitor
 
 // ReferenceMonitor defines a Microservice-Aware Reference Monitor (MRM)
 type ReferenceMonitor struct {
@@ -149,6 +149,15 @@ func (c MRMContext) AddIncident(a Incident) {
 		c[incidentCtxKey] = make([]Incident, 0)
 	}
 	c[incidentCtxKey] = append(c[incidentCtxKey].([]Incident), a)
+}
+
+
+// GetIncidents fetches the alerts in the context.
+func (s MRMContext) GetIncidents() []Incident {
+	if s[incidentCtxKey] != nil {
+		return s[incidentCtxKey].([]Incident)
+	}
+	return nil
 }
 
 // This function is not run when module is used as a plugin.

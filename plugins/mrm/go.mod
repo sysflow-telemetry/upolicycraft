@@ -6,7 +6,7 @@
 // Frederico Araujo <frederico.araujo@ibm.com>
 // Teryl Taylor <terylt@ibm.com>
 //
-module github.ibm.com/sysflow/sf-processor/plugins/mrm
+module github.com/sysflow-telemetry/sf-processor/plugins/mrm
 
 go 1.14
 

@@ -17,7 +17,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-package main 
+package main
 
 import (
 	"encoding/json"
@@ -27,8 +27,6 @@ import (
 
 	"github.com/sysflow-telemetry/sf-processor/core/policyengine/engine"
 )
-
-var incidentCtxKey int = 128 
 
 // SysFlow record components
 const (
@@ -41,7 +39,23 @@ const (
 	node      = "node"
 )
 
-type ExporterContext engine.Context 
+var incidentCtxKey int = 128
+
+// Incident type
+type Incident struct {
+	State string
+	Desc  string
+}
+
+type ExporterContext engine.Context
+
+// GetIncidents fetches the alerts in the context.
+func (s ExporterContext) GetIncidents() []Incident {
+	if s[incidentCtxKey] != nil {
+		return s[incidentCtxKey].([]Incident)
+	}
+	return nil
+}
 
 // TelemetryRecord type
 type TelemetryRecord struct {
@@ -50,15 +64,7 @@ type TelemetryRecord struct {
 	*DataRecord `json:",omitempty"`
 	Hashes      *engine.HashSet `json:"hashes,omitempty"`
 	Policies    []Policy        `json:"policies,omitempty"`
-        Incidents   []Incident      `json:"incidents,omitempty"`
-}
-
-// GetIncidents fetches the alerts in the context.
-func (s ExporterContext) GetIncidents() []Incident {
-	if s[incidentCtxKey] != nil {
-		return s[incidentCtxKey].([]Incident)
-	}
-	return nil
+	Incidents   []Incident      `json:"incidents,omitempty"`
 }
 
 // FlatRecord type
@@ -228,6 +234,8 @@ func extractTelemetryRecord(rec *engine.Record, config Config) TelemetryRecord {
 		r.Hashes = &hashset
 	}
 	r.Policies = extractPolicySet(rec.Ctx.GetRules())
+        exportCtx := ExporterContext(rec.Ctx)
+        r.Incidents = exportCtx.GetIncidents()
 	return r
 }
 

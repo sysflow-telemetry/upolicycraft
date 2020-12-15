@@ -159,6 +159,7 @@ github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201029230226-b00c1f55c6b0/go.mo
 github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201202234011-cb9c5a4dc2b1 h1:Ys2cyQKfee10BHQpGBPIsc5h/X8aHLfCFW+XdOhWb3Q=
 github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201202234011-cb9c5a4dc2b1/go.mod h1:rpTKky267xtopNUCoInTEZiaFkOrawhzE0HaZMEvIAI=
 github.com/sysflow-telemetry/sf-processor v0.0.0-20201207150522-7bba90fbb326 h1:rz1fL+iTAnGT8VMli5lz9irk9sIn1iQCDZtP3gzvgfw=
+github.com/sysflow-telemetry/sf-processor v0.0.0-20201207202510-2a56d1bd7ffb h1:0vUi3r8Z8WQNS21hcHWc4klc2PqXGtAsWuPlF8e2eXA=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201207150522-7bba90fbb326 h1:y/mnw4CoHGelMoMbANsDA227hn+7UaSQwU54TZV0lQw=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201207150522-7bba90fbb326/go.mod h1:ww+M+rh6WGjQctJhtZtkQwPZqVnNYRJxu9a07+BI5oI=
 github.com/tchap/go-patricia v2.3.0+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=

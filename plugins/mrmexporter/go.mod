@@ -14,8 +14,10 @@ require (
 	github.com/RackSec/srslog v0.0.0-20180709174129-a4725f04ec91
 	github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201202234011-cb9c5a4dc2b1
 	github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201207150522-7bba90fbb326
+	github.com/sysflow-telemetry/sf-processor/plugins/mrm v0.0.0-00010101000000-000000000000
 )
 
-// replace github.ibm.com/sysflow/sf-processor/core => ../../core
+replace github.com/sysflow-telemetry/sf-processor/plugins/mrm => ../mrm
+
 // replace github.ibm.com/sysflow/goutils => ../../modules/goutils
 // replace github.com/sysflow-telemetry/sf-apis/go => ../../modules/sf-apis/go
