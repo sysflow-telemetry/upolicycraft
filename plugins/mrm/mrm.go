@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	pluginName string = "mrm"
-	historySize int   = 2
+	pluginName  string = "mrm"
+	channelName string = "eventchan"
+	historySize int    = 2
 )
 
 // Incident type
@@ -34,6 +35,7 @@ var Plugin ReferenceMonitor
 
 // ReferenceMonitor defines a Microservice-Aware Reference Monitor (MRM)
 type ReferenceMonitor struct {
+	stopped bool
 	outCh   chan *engine.Record
 	new     func(int64) *SecurityAutomaton
 	sas     map[int64]*SecurityAutomaton
@@ -69,15 +71,17 @@ func (rm *ReferenceMonitor) Register(pc plugins.SFPluginCache) {
 
 // Process implements the main interface of the plugin.
 func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
-	cha := ch.(*flattener.FlatChannel)
-	record := cha.In
-	logger.Trace.Println("Example channel capacity:", cap(record))
+	in := ch.(*flattener.FlatChannel).In
+
 	defer wg.Done()
+
 	logger.Trace.Println("Starting Reference Monitor")
+	logger.Trace.Println("Example channel capacity:", cap(in))
+
 	out := func(r *engine.Record) { rm.outCh <- r }
 
 	for {
-		fc, ok := <-record
+		fc, ok := <-in
 
 		if !ok {
 			logger.Trace.Println("Channel closed. Shutting down.")
@@ -97,7 +101,11 @@ func (rm *ReferenceMonitor) SetOutChan(ch interface{}) {
 
 // Cleanup tears down plugin resources.
 func (rm *ReferenceMonitor) Cleanup() {
-	//close(rm.outCh)
+	logger.Trace.Println("Cleaning up MRM")
+	if rm.outCh != nil && !rm.stopped {
+		close(rm.outCh)
+		rm.stopped = true
+	}
 }
 
 // Compile parses and interprets an input policy defined in path.
@@ -148,7 +156,6 @@ func (c MRMContext) AddIncident(a Incident) {
 	}
 	c[incidentCtxKey] = append(c[incidentCtxKey].([]Incident), a)
 }
-
 
 // GetIncidents fetches the alerts in the context.
 func (s MRMContext) GetIncidents() []Incident {
