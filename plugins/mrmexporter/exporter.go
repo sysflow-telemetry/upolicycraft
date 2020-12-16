@@ -34,8 +34,11 @@ import (
 )
 
 const (
-	pluginName string = "exporter"
+	pluginName string = "mrmexporter"
 )
+
+// Plugin exports a symbol for this plugin.
+var Plugin Exporter
 
 // Exporter defines a syslogger plugin.
 type Exporter struct {

@@ -1,6 +1,10 @@
 # MRM Usage
 
-To demonstrate the Microservice-Aware Reference Monitor (MRM), run the following command. Models can be found in the `resources/models` folder.
+Set up a symlink to this folder from the `sf-processor/plugins` folder.
 
-    ./driver/sfprocessor -log trace -config=./driver/pipelines/echo-pipeline.json resources/traces/echo-benign/ | grep "Security Alert"
-    ./driver/sfprocessor -log trace -config=./driver/pipelines/echo-pipeline.json resources/traces/echo-exploit.sf | grep "Security Alert"
+To demonstrate the Microservice-Aware Reference Monitor (MRM), run the following command from the driver directory in the `sf-processor` repository.
+
+    ./sfprocessor -log trace -config=../plugins/mrm/resources/pipelines/echo.json ../plugins/mrm/resources/traces/echo/benign/ | grep "Security Alert"
+    ./sfprocessor -log trace -config=../plugins/mrm/resources/pipelines/echo.json ../plugins/mrm/resources/traces/echo/malicious/ | grep "Security Alert"
+
+Models can be found in the `resources/models` folder.

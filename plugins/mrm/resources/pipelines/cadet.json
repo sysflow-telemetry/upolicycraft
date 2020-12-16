@@ -9,7 +9,7 @@
      },
      {
       "processor": "mrm",
-      "model": "../resources/models/cadet_00001.json",
+      "model": "../plugins/mrm/resources/models/cadet_00001.json",
       "in": "flat flattenerchan",
       "out": "evt eventchan"
      },

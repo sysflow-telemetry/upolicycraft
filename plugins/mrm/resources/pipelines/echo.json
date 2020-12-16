@@ -8,13 +8,13 @@
       "out": "flat flattenerchan"
      },
      {
-      "processor": "rm",
-      "model": "../resources/models/echo.json",
+      "processor": "mrm",
+      "model": "../plugins/mrm/resources/models/echo.json",
       "in": "flat flattenerchan",
       "out": "evt eventchan"
      },
      {
-      "processor": "exporter",
+      "processor": "mrmexporter",
       "in": "evt eventchan",
       "export": "terminal",
       "type": "alert",

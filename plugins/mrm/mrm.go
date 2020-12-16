@@ -29,8 +29,6 @@ type Incident struct {
 	Desc  string
 }
 
-// A copy of the graphlet associated with the alert event.
-
 // Plugin exports a symbol for this plugin.
 var Plugin ReferenceMonitor
 
