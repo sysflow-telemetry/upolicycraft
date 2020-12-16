@@ -395,7 +395,7 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 				components := strings.Split(opt[1:], ".")
 				id := components[0]
 				pfield := strings.Join(components[1:], ".")
-				if id == "pred" {
+				if id == "pred" && len(s.History) > 0 {
 					// Obtain the predecessor's record
 					pred := s.History[len(s.History)-1].Record
 					pv := engine.Mapper.MapStr(pfield)(pred)
@@ -571,6 +571,8 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 		if ty == engine.TyPE {
 			s.ReportIncident(event, r, out)
 		}
+	} else {
+		s.AddObservation(r)
 	}
 }
 
@@ -595,7 +597,6 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 			// Check the validity of all the events we've seen so far.
 			s.TypeCheckTrace(out)
 			s.ClearHistory()
-
 		} else {
 			// Add this record to the history of elements.
 			s.AddObservation(r)
