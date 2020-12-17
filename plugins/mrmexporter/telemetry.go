@@ -39,7 +39,7 @@ const (
 	node      = "node"
 )
 
-var incidentCtxKey int = 128
+var incidentCtxKey int = 4
 
 // Incident type
 type Incident struct {
@@ -64,7 +64,7 @@ type TelemetryRecord struct {
 	*DataRecord `json:",omitempty"`
 	Hashes      *engine.HashSet `json:"hashes,omitempty"`
 	Policies    []Policy        `json:"policies,omitempty"`
-	Incidents   []Incident      `json:"incidents,omitempty"`
+	Tags        []string        `json:"incidents,omitempty"`
 }
 
 // FlatRecord type
@@ -224,7 +224,8 @@ func extractTelemetryRecord(rec *engine.Record, config Config) TelemetryRecord {
 						r.NodeData = new(NodeData)
 						r.NodeData.Node = make(map[string]interface{})
 					}
-					r.Node[kc[2]] = value
+					//Redact for Demo
+					//r.Node[kc[2]] = value
 				}
 			}
 		}
@@ -234,8 +235,7 @@ func extractTelemetryRecord(rec *engine.Record, config Config) TelemetryRecord {
 		r.Hashes = &hashset
 	}
 	r.Policies = extractPolicySet(rec.Ctx.GetRules())
-        exportCtx := ExporterContext(rec.Ctx)
-        r.Incidents = exportCtx.GetIncidents()
+	r.Tags = rec.Ctx.GetTags()
 	return r
 }
 

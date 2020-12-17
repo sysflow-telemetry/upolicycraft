@@ -15,11 +15,11 @@
   "constraints": [
     {
       "node": "%00000955",
-      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
+      "constraints": { "sf.net.dport": [ "8003" ] }
     },
     {
       "node": "%00002076",
-      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
+      "constraints": { "sf.net.dport": [ "8003" ] }
     },
     {
       "node": "%000023de",

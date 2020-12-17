@@ -23,6 +23,10 @@ import (
 )
 
 const (
+	SA_MMAP_EVENT string = "MMAP"
+)
+
+const (
 	EXIT_SUCCESS      string = "0"
 	EXIT_ERROR        string = "1"
 	EXIT_SHELL_MISUSE string = "2"
@@ -438,8 +442,9 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 	// Submit an error to the out-channel.
 	logger.Trace.Println("Security Violation submitting to out channel!")
 	msg := fmt.Sprintf("Static model forbids %s from this state.", event)
-	ctx := MRMContext(r.Ctx)
-	ctx.AddIncident(Incident{s.FSM.Current(), msg})
+	r.Ctx.SetTags([]string{msg})
+	//ctx := MRMContext(r.Ctx)
+	//ctx.AddIncident(Incident{s.FSM.Current(), msg})
 	out(r)
 }
 
@@ -492,8 +497,8 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 		}
 	}
 
+	// Debugging
 	logger.Trace.Printf("Observed the following operations:\n")
-
 	for op, obs := range abilities {
 		logger.Trace.Printf("%s:\n", op)
 
@@ -532,13 +537,19 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 		}
 	}
 
-	//  Enumerate the FSM with these abilities
+	// Enumerate the FSM with these abilities
 	visitedStates := make(map[string]bool)
 
 	for {
 		// Have we visited all states reachable from non-process events?
 		transitions := s.FSM.AvailableTransitions()
 		logger.Trace.Printf("Possible Transitions: %v", transitions)
+
+		// MMAP events don't appear in the SysFlow traces, so assume we always have that ability.
+		if Contains(transitions, SA_MMAP_EVENT) {
+			s.FSM.Event(SA_MMAP_EVENT)
+			visitedStates[SA_MMAP_EVENT] = true
+		}
 
 		fallback := s.FSM.Current()
 
@@ -558,9 +569,11 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 				}
 			}
 		}
-		break
-	}
 
+		if fallback == s.FSM.Current() {
+			break
+		}
+	}
 }
 
 // ClearHistory erases the type context
@@ -615,6 +628,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 			// Check the validity of all the events we've seen so far.
 			s.TypeCheckTrace(out)
 			s.ClearHistory()
+			s.HandleEvent(op, r, out)
 		} else {
 			// Add this record to the history of elements.
 			s.AddObservation(r)
@@ -623,6 +637,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 }
 
 /**
+This was  ad-hoc
 // Event advances the FSM with an event given in the policy engine record
 func (s *SecurityAutomaton) Event1(rs []*engine.Record, out func(r *engine.Record)) {
 	r := rs[0]
