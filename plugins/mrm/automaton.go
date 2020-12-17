@@ -443,6 +443,7 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 	out(r)
 }
 
+// AddObservation records an observation to the SecurityAutomaton's History
 func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 	s.History = append(s.History, Observation{false, r})
 }
@@ -532,16 +533,28 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 	}
 
 	//  Enumerate the FSM with these abilities
-	//  visitedStates := make(map[string]bool)
-	//  visitedTransitions := make(map[string]bool)
+	visitedStates := make(map[string]bool)
 
 	for {
+		// Have we visited all states reachable from non-process events?
+		transitions := s.FSM.AvailableTransitions()
+		logger.Trace.Printf("Possible Transitions: %v", transitions)
+
+		fallback := s.FSM.Current()
+
+		// Attempt to use our abilities to traverse the FSM.
 		for op, obs := range abilities {
 			for _, ob := range obs {
 				logger.Trace.Printf("Attempting to use op %s\n", op)
-				model_op := TranslateOperation(op)
-				if s.CanEvent(model_op, ob.Record) {
-					s.HandleEvent(model_op, ob.Record, out)
+				modelOp := TranslateOperation(op)
+				if s.CanEvent(modelOp, ob.Record) {
+					s.HandleEvent(modelOp, ob.Record, out)
+					if visitedStates[s.FSM.Current()] {
+						s.FSM.SetState(fallback)
+					} else {
+						ob.Used = true
+						visitedStates[s.FSM.Current()] = true
+					}
 				}
 			}
 		}
@@ -576,6 +589,7 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 	}
 }
 
+// Event processes an Individual Record
 func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) {
 	logger.Trace.Printf("Processing Record\n")
 
@@ -592,6 +606,10 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 		}
 		logger.Trace.Printf("Checking whether PE %s can initialize FSM", op)
 		s.HandleEvent(op, r, out)
+		// Start collecting events using a clean history.
+		if s.IsActive() {
+			s.ClearHistory()
+		}
 	} else {
 		if ty == engine.TyPE {
 			// Check the validity of all the events we've seen so far.

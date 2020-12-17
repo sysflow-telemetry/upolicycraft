@@ -1,8 +1,7 @@
 {
-  "initial": "%000058f9",
+  "initial": "%000058fb",
   "nodes": [
-    "%00000955", "%00002076", "%000023de", "%00004b37", "%000058f9",
-    "%000058fb", "%000058fc"
+    "%00000955", "%00002076", "%000023de", "%00004b37", "%000058fb", "%000058fc"
   ],
   "contexts": {
     "%000058fb": [ "/usr/sbin/inetd", "main" ],
@@ -31,17 +30,16 @@
     },
     { "node": "%00004b37", "constraints": { "sf.ret": [ "0" ] } },
     {
-      "node": "%000058f9",
+      "node": "%000058fb",
       "constraints": {
         "sf.proc.exe": [ "/usr/sbin/xinetd" ],
         "sf.proc.args": [ "-dontfork" ]
       }
     },
-    { "node": "%000058fb", "constraints": { "sf.net.dport": [ "8001" ] } },
     {
       "node": "%000058fc",
       "constraints": {
-        "sf.proc.exe": [ "/cgc/CROMU_00046" ],
+        "sf.proc.exe": [ "/cgc/challenges/CROMU_00046/CROMU_00046" ],
         "sf.proc.args": [ "" ]
       }
     }
@@ -53,7 +51,6 @@
     { "src": "%00002076", "dst": "%00000955", "label": "WRITE" },
     { "src": "%00002076", "dst": "%00002076", "label": "READ" },
     { "src": "%000023de", "dst": "%00000955", "label": "WRITE" },
-    { "src": "%000058f9", "dst": "%000058fb", "label": "CLOSE" },
     { "src": "%000058fb", "dst": "%000058fc", "label": "EXEC" },
     { "src": "%000058fc", "dst": "%000023de", "label": "MMAP" }
   ]
