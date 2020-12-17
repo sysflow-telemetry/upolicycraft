@@ -1,4 +1,4 @@
-service cadet_00001 
+service cadet_00001
 {
         disable = no
         type = UNLISTED
@@ -6,8 +6,36 @@ service cadet_00001
         server = /uIDS/experiments/ubuntu/cgc/scripts/cadet_00001.sh
         socket_type = stream
         protocol = tcp
-        user = opam 
-        port = 8001 
+        user = opam
+        port = 8001
         flags = REUSE
-        per_source = UNLIMITED	
+        per_source = UNLIMITED
+}
+
+service cromu_00007
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /uIDS/experiments/ubuntu/cgc/scripts/cromu_00007.sh
+        socket_type = stream
+        protocol = tcp
+        user = opam
+        port = 8002
+        flags = REUSE
+        per_source = UNLIMITED
+}
+
+service cromu_00046
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /uIDS/experiments/ubuntu/cgc/scripts/cromu_00046.sh
+        socket_type = stream
+        protocol = tcp
+        user = opam
+        port = 8003
+        flags = REUSE
+        per_source = UNLIMITED
 }
