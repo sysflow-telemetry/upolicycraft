@@ -65,7 +65,7 @@ func (rm *ReferenceMonitor) Init(conf map[string]string) error {
 
 // Register registers plugin to plugin cache.
 func (rm *ReferenceMonitor) Register(pc plugins.SFPluginCache) {
-	logger.Trace.Println("Loaded Reference Monitor!")
+	logger.Trace.Println("\nLoaded Reference Monitor!")
 	pc.AddProcessor(pluginName, NewReferenceMonitor)
 }
 
@@ -75,8 +75,8 @@ func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
-	logger.Trace.Println("Starting Reference Monitor")
-	logger.Trace.Println("Example channel capacity:", cap(in))
+	logger.Trace.Println("\nStarting Reference Monitor")
+	logger.Trace.Println("\nExample channel capacity:", cap(in))
 
 	out := func(r *engine.Record) { rm.outCh <- r }
 
@@ -84,13 +84,13 @@ func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
 		fc, ok := <-in
 
 		if !ok {
-			logger.Trace.Println("Channel closed. Shutting down.")
+			logger.Trace.Println("\nChannel closed. Shutting down.")
 			break
 		}
 		record := engine.NewRecord(*fc, cache.GetInstance())
 		rm.Event(record, out)
 	}
-	logger.Trace.Println("Exiting Reference Monitor")
+	logger.Trace.Println("\nExiting Reference Monitor")
 	rm.Cleanup()
 }
 
@@ -101,8 +101,8 @@ func (rm *ReferenceMonitor) SetOutChan(ch interface{}) {
 
 // Cleanup tears down plugin resources.
 func (rm *ReferenceMonitor) Cleanup() {
-	logger.Trace.Println("Cleaning up MRM")
 	if rm.outCh != nil && !rm.stopped {
+		logger.Trace.Println("\nCleaning up MRM")
 		close(rm.outCh)
 		rm.stopped = true
 	}
@@ -111,7 +111,7 @@ func (rm *ReferenceMonitor) Cleanup() {
 // Compile parses and interprets an input policy defined in path.
 func (rm *ReferenceMonitor) Compile(path string) {
 	rm.new = func(tID int64) *SecurityAutomaton {
-		logger.Trace.Printf("Generating a new automaton for thread %d", tID)
+		logger.Trace.Printf("\nGenerating a new automaton for thread %d", tID)
 		return NewSecurityAutomatonFromJSON(tID, path)
 	}
 	rm.sas = make(map[int64]*SecurityAutomaton)
@@ -122,15 +122,15 @@ func (rm *ReferenceMonitor) Event(r *engine.Record, out func(r *engine.Record)) 
 	tid := engine.Mapper.MapInt(engine.SF_PROC_TID)(r)
 	ppid := engine.Mapper.MapInt(engine.SF_PPROC_PID)(r)
 
-	logger.Trace.Printf("Examining record for tid: %d ppid: %d", tid, ppid)
+	logger.Trace.Printf("\nExamining record for tid: %d ppid: %d", tid, ppid)
 	rm.AddToHistory(r)
 
 	// Does there exist a security automaton for this thread?
 	if sa, ok := rm.sas[tid]; ok {
-		logger.Trace.Printf("Dispatching event to tid: %d", tid)
+		logger.Trace.Printf("\nDispatching event to tid: %d", tid)
 		sa.Event(r, out)
 	} else {
-		logger.Trace.Printf("Creating new SA for tid: %d ppid: %d", tid, ppid)
+		logger.Trace.Printf("\nCreating new SA for tid: %d ppid: %d", tid, ppid)
 		sa := rm.new(tid)
 		sa.Event(r, out)
 		rm.sas[tid] = sa

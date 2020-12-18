@@ -220,6 +220,16 @@ let string_of_json json =
   Yojson.Basic.to_string |>
   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
+let constraint_of_fd files fd =
+  let file = Hashtbl.find_exn files fd in
+  let const =
+    if String.contains file ':' then
+      let cidr :: port :: _ = String.split ~on:':' file in
+        (Sf.net_dport, [port])
+    else
+      (Sf.file_path, [file]) in
+  jsonify [const]
+
 let node_of_operation state op =
   let json =
     match op with
@@ -239,11 +249,9 @@ let node_of_operation state op =
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Read fd ->
-      let file = Hashtbl.find_exn state.files fd in
-      jsonify [(Sf.file_path, [file])]
+      constraint_of_fd state.files fd
     | Write fd ->
-      let file = Hashtbl.find_exn state.files fd in
-      jsonify [(Sf.file_path, [file])]
+      constraint_of_fd state.files fd
     | Close fd ->
       let file = Hashtbl.find_exn state.files fd in
       jsonify [(Sf.file_path, [file])]
@@ -1178,7 +1186,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let setup_tracing () =
     Machine.List.sequence [
       Primus.Interpreter.written >>> record_written;
-      (**  
+      (**
       Primus.Interpreter.enter_pos >>> record_pos;
       *)
       Primus.Interpreter.enter_jmp >>> record_jmp;
@@ -1229,13 +1237,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let cloned_entry = json_string [(Sf.proc_exe, [get entrypoint]);
                                     (Sf.proc_args, [get entrypoint_args]);
                                     (Sf.pproc_pid, [Sf.special Sf.Vars.pred Sf.proc_pid])] in
-    let accepted_port = json_string [(Sf.net_dport, ["8001"])] in
+    let accepted_port = json_string [(Sf.net_dport, ["8003"])] in
     let constraints = json_string [(Sf.proc_exe, [exe]); (Sf.proc_args, [args'])] in
     let behavior =
       if (get inetd_startup) then
         Graphlib.create (module BehaviorGraph)
-                        ~nodes:[root;proc;port]
-                        ~edges:[(root,port,"CLOSE");(port,proc,"EXEC")] ()
+                        ~nodes:[root;proc]
+                        ~edges:[(root,proc,"EXEC")] ()
       else
         Graphlib.create (module BehaviorGraph)
                         ~nodes:[root;root';proc]
@@ -1247,12 +1255,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let files = Hashtbl.create (module Int) in
     let () =
       if (get inetd_startup) then
-        let whitelist = "0.0.0.0/0:8001" in
+        let xinetd = "/usr/sbin/xinetd" in
+        let whitelist = "0.0.0.0/0:8003" in
         let () = Hashtbl.add_exn files ~key:0 ~data:whitelist in
         let () = Hashtbl.add_exn files ~key:1 ~data:whitelist in
-        let () = Hashtbl.add_exn functions ~key:root ~data:("/usr/sbin/inetd", "main") in
-        let () = Hashtbl.add_exn functions ~key:port ~data:("/usr/sbin/inetd", "main") in
-        Hashtbl.add_exn functions ~key:proc ~data:("/usr/sbin/inetd", "main")
+        let () = Hashtbl.add_exn functions ~key:root ~data:(xinetd, "main") in
+        let () = Hashtbl.add_exn functions ~key:port ~data:(xinetd, "main") in
+        Hashtbl.add_exn functions ~key:proc ~data:(xinetd, "main")
       else
         let () = Hashtbl.add_exn files ~key:0 ~data:"/dev/pts/0" in
         let () = Hashtbl.add_exn files ~key:1 ~data:"/dev/pts/0" in

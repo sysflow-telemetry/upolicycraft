@@ -99,7 +99,7 @@ func (s *Exporter) Process(ch interface{}, wg *sync.WaitGroup) {
 	defer ticker.Stop()
 	lastFlush := time.Now()
 
-	logger.Trace.Printf("Starting Exporter in mode %s with channel capacity %d", s.config.Export.String(), cap(record))
+	logger.Trace.Printf("\nStarting Exporter in mode %s with channel capacity %d", s.config.Export.String(), cap(record))
 RecLoop:
 	for {
 		select {
@@ -115,7 +115,7 @@ RecLoop:
 				}
 			} else {
 				s.process()
-				logger.Trace.Println("Channel closed. Shutting down.")
+				logger.Trace.Println("\nChannel closed. Shutting down.")
 				break RecLoop
 			}
 		case <-ticker.C:
@@ -181,7 +181,7 @@ func (s *Exporter) SetOutChan(ch interface{}) {}
 
 // Cleanup tears down plugin resources.
 func (s *Exporter) Cleanup() {
-	logger.Trace.Println("Exiting ", pluginName)
+	logger.Trace.Println("\nExiting ", pluginName)
 }
 
 // This function is not run when module is used as a plugin.

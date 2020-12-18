@@ -115,7 +115,7 @@ func TranslateOperation(op string) string {
 
 // SetOfOps transforms a sequence of operations into a set.
 func SetOfOps(op string) map[string]bool {
-	logger.Trace.Printf("OPS: %s\n", op)
+	logger.Trace.Printf("\nOPS: %s\n", op)
 	ops := make(map[string]bool)
 
 	seq := strings.Split(op, ",")
@@ -178,7 +178,7 @@ func (b *BehaviorModel) findNode(state string) *Constraint {
 
 	for _, constraint := range b.Constraints {
 		if state == constraint.Node {
-			logger.Trace.Printf("Constraints %s", constraint.Constraints)
+			logger.Trace.Printf("\nConstraints %s", constraint.Constraints)
 			return constraint
 		}
 	}
@@ -236,7 +236,7 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 
 	for i, c := range model.Constraints {
 		m[c.Node] = c.Node
-		logger.Trace.Printf("parse: %d %s", i, c.Node)
+		logger.Trace.Printf("\nparse: %d %s", i, c.Node)
 	}
 
 	var events []fsm.EventDesc
@@ -270,7 +270,7 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 
 	for _, c := range model.Constraints {
 		if c.Node == sa.Initial {
-			logger.Trace.Printf("Constraints: %v", c.Constraints[engine.SF_PROC_ARGS])
+			logger.Trace.Printf("\nConstraints: %v", c.Constraints[engine.SF_PROC_ARGS])
 			// TODO: Clean this up.
 			for k := range ParseSlice(c.Constraints[engine.SF_PROC_ARGS]) {
 				files := strings.Split(k, " ")
@@ -312,17 +312,17 @@ func NewSecurityAutomatonFromJSON(tID int64, path string) *SecurityAutomaton {
 
 	defer jsonFile.Close()
 
-	logger.Trace.Printf("model file: %s", jsonFile)
+	logger.Trace.Printf("\nmodel file: %s", jsonFile)
 
 	// read our opened jsonFile as a byte array.
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	json.Unmarshal([]byte(byteValue), &fsm)
 
-	logger.Trace.Println("Parsed FSM from JSON file!")
-	logger.Trace.Println(fsm.Nodes[0])
-	logger.Trace.Println(fsm.Constraints[0].Constraints)
-	logger.Trace.Println(fsm.Edges[0].Src)
+	logger.Trace.Println("\nParsed FSM from JSON file!")
+	logger.Trace.Println("\n",fsm.Nodes[0])
+	logger.Trace.Println("\n",fsm.Constraints[0].Constraints)
+	logger.Trace.Println("\n",fsm.Edges[0].Src)
 
 	sa := ParseSecurityAutomaton(fsm)
 	sa.TID = tID
@@ -364,36 +364,36 @@ func (s *SecurityAutomaton) Can(r *engine.Record) bool {
 func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 	exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
 	pexe := engine.Mapper.MapStr(engine.SF_PPROC_EXE)(r)
-	logger.Trace.Printf("Checking if FSM can transition with %s\n", e)
+	logger.Trace.Printf("\nChecking if FSM can transition with %s\n", e)
 	logger.Trace.Printf("\n\tCurrent state: %s\n\tAvailable transitions: %v\n\tEvent: %v\n\texe: %s, pexe:%s",
 		s.FSM.Current(), s.FSM.AvailableTransitions(), e, exe, pexe)
 
 	edge, _ := s.FindEdge(e)
 
 	if edge == nil {
-		logger.Trace.Println("No edge found!")
+		logger.Trace.Println("\nNo edge found!")
 		return false
 	}
 
 	dst := edge.Dst
 
-	logger.Trace.Printf("Looking for node %s\n", dst)
+	logger.Trace.Printf("\nLooking for node %s\n", dst)
 
 	node := s.Model.findNode(dst)
 
 	if node.Constraints == nil {
-		logger.Trace.Println("No constraints!")
+		logger.Trace.Println("\nNo constraints!")
 		return true
 	}
 
-	logger.Trace.Printf("  constraints:")
+	logger.Trace.Printf("\n\tconstraints:")
 	for field, optionsJSON := range node.Constraints {
 		v := engine.Mapper.MapStr(field)(r)
 		options := ParseSlice(optionsJSON)
 		found := false
 
 		for opt := range options {
-			logger.Trace.Println("  opt:", opt)
+			logger.Trace.Println("\n\t\topt:", opt)
 			// Check for special identifiers
 			if strings.HasPrefix(opt, "%") {
 				components := strings.Split(opt[1:], ".")
@@ -409,7 +409,7 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 					}
 				}
 			} else {
-				logger.Trace.Println("  v:", v)
+				logger.Trace.Println("\n\tv:", v)
 				if opt == v {
 					found = true
 					break
@@ -419,7 +419,7 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 
 		// All constraints need to be satisfied
 		if found == false {
-			logger.Trace.Println("    Could not satisfy constraint.")
+			logger.Trace.Println("\n\tCould not satisfy constraint.")
 			return false
 		}
 	}
@@ -428,8 +428,7 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 }
 
 func (s *SecurityAutomaton) enterState(e *fsm.Event) {
-	logger.Trace.Printf("Entering state\n")
-	logger.Trace.Printf("Thread %d is entering state %s\n", s.TID, e.Dst)
+	logger.Trace.Printf("\nThread %d is entering state %s\n", s.TID, e.Dst)
 }
 
 // IsActive checks whether the SA is active.
@@ -440,7 +439,7 @@ func (s *SecurityAutomaton) IsActive() bool {
 // ReportIncident submits an incident to the output Channel.
 func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out func(r *engine.Record)) {
 	// Submit an error to the out-channel.
-	logger.Trace.Println("Security Violation submitting to out channel!")
+	logger.Trace.Println("\n\tSecurity Violation submitting to out channel!")
 	msg := fmt.Sprintf("Static model forbids %s from this state.", event)
 	r.Ctx.SetTags([]string{msg})
 	//ctx := MRMContext(r.Ctx)
@@ -457,7 +456,7 @@ func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 // A run of flows inhabits the model if every item in the flow can be used to traverse the FSM corresponding
 // to the program's execution.
 func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
-	logger.Trace.Printf("TypeChecking Trace!")
+	logger.Trace.Printf("\nTypeChecking Trace!")
 
 	// Ignore activity on files used by the linker or the entrypoint.
 	whiteListedFiles := []string{
@@ -475,7 +474,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 		op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
 		path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 
-		logger.Trace.Printf("\n\n    Type: %s\n    Ops: %s\n   Path: %s", ty, op, path)
+		logger.Trace.Printf("\n\nType: %s\n    Ops: %s\n   Path: %s", ty, op, path)
 
 		switch ty {
 		case engine.TyPE:
@@ -483,7 +482,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			break
 		case engine.TyFF:
 			if RegexpArrayMem(whiteListedFiles, path) || path == "" {
-				logger.Trace.Printf("Skipping whitelisted file %s", path)
+				logger.Trace.Printf("\nSkipping whitelisted file %s", path)
 				continue
 			}
 			fallthrough
@@ -498,9 +497,9 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 	}
 
 	// Debugging
-	logger.Trace.Printf("Observed the following operations:\n")
+	logger.Trace.Printf("\nObserved the following operations:\n")
 	for op, obs := range abilities {
-		logger.Trace.Printf("%s:\n", op)
+		logger.Trace.Printf("\n%s:\n", op)
 
 		for _, ob := range obs {
 			r := ob.Record
@@ -510,15 +509,15 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			switch ty {
 			case engine.TyPE:
 				exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
-				logger.Trace.Printf("%4s", exe)
+				logger.Trace.Printf("\n%4s", exe)
 				break
 			case engine.TyNF:
 				port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
-				logger.Trace.Printf("%4s", port)
+				logger.Trace.Printf("\n%4s", port)
 				ops := SetOfOps(op)
 				for o := range ops {
 					if ops[o] {
-						logger.Trace.Printf("%s ", o)
+						logger.Trace.Printf("\n%s ", o)
 					}
 					logger.Trace.Printf("\n")
 				}
@@ -526,10 +525,10 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			case engine.TyFF:
 				ops := SetOfOps(op)
 				path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
-				logger.Trace.Printf("%s: ", path)
+				logger.Trace.Printf("\n%s: ", path)
 				for o := range ops {
 					if ops[o] {
-						logger.Trace.Printf("%s ", o)
+						logger.Trace.Printf("\n%s ", o)
 					}
 					logger.Trace.Printf("\n")
 				}
@@ -543,7 +542,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 	for {
 		// Have we visited all states reachable from non-process events?
 		transitions := s.FSM.AvailableTransitions()
-		logger.Trace.Printf("Possible Transitions: %v", transitions)
+		logger.Trace.Printf("\nPossible Transitions: %v", transitions)
 
 		// MMAP events don't appear in the SysFlow traces, so assume we always have that ability.
 		if Contains(transitions, SA_MMAP_EVENT) {
@@ -556,7 +555,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 		// Attempt to use our abilities to traverse the FSM.
 		for op, obs := range abilities {
 			for _, ob := range obs {
-				logger.Trace.Printf("Attempting to use op %s\n", op)
+				logger.Trace.Printf("\nAttempting to use op %s\n", op)
 				modelOp := TranslateOperation(op)
 				if s.CanEvent(modelOp, ob.Record) {
 					s.HandleEvent(modelOp, ob.Record, out)
@@ -591,7 +590,7 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 		s.FSM.Current(), s.FSM.AvailableTransitions(), event, exe, pexe)
 
 	if s.CanEvent(event, r) {
-		logger.Trace.Printf("\n\t\tAdvancing FSM!")
+		logger.Trace.Printf("\nAdvancing FSM!")
 		s.FSM.Event(event)
 	} else if s.IsActive() {
 		if ty == engine.TyPE {
@@ -604,20 +603,20 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 
 // Event processes an Individual Record
 func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) {
-	logger.Trace.Printf("Processing Record\n")
+	logger.Trace.Printf("\nProcessing Record\n")
 
 	ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 	op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
 	port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
 	tid := engine.Mapper.MapStr(engine.SF_PROC_TID)(r)
 
-	logger.Trace.Printf("OP: %s %s %s %s", tid, port, ty, op)
+	logger.Trace.Printf("\nOP: %s %s %s %s", tid, port, ty, op)
 
 	if !s.IsActive() {
 		if ty != engine.TyPE {
 			return
 		}
-		logger.Trace.Printf("Checking whether PE %s can initialize FSM", op)
+		logger.Trace.Printf("\nChecking whether PE %s can initialize FSM", op)
 		s.HandleEvent(op, r, out)
 		// Start collecting events using a clean history.
 		if s.IsActive() {
@@ -641,7 +640,7 @@ This was  ad-hoc
 // Event advances the FSM with an event given in the policy engine record
 func (s *SecurityAutomaton) Event1(rs []*engine.Record, out func(r *engine.Record)) {
 	r := rs[0]
-	logger.Trace.Printf("Processing Record\n")
+	logger.Trace.Printf("\nProcessing Record\n")
 
 	ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 	op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
@@ -794,19 +793,19 @@ func (s *SecurityAutomaton) Event1(rs []*engine.Record, out func(r *engine.Recor
 		missingEvents := Difference(observations, visitedTransitions)
 		if len(missingEvents) > 0 {
 			missingMsg := strings.Join(missingEvents, ",")
-			logger.Trace.Printf("Possible Violation! Observed events not expressed in behavior model [%s]", missingMsg)
+			logger.Trace.Printf("\nPossible Violation! Observed events not expressed in behavior model [%s]", missingMsg)
 			s.SuspiciousRecord = r
 		} else if s.SuspiciousRecord != nil {
 			// More context alleviated the problem.
 			if s.SuspiciousRecord == rs[0] || s.SuspiciousRecord == rs[1] {
 				s.SuspiciousRecord = nil
 			} else {
-				logger.Trace.Printf("Security Violation! Observed events not expressed in behavior model")
+				logger.Trace.Printf("\nSecurity Violation! Observed events not expressed in behavior model")
 			}
 		}
-		logger.Trace.Println("Finished File Flow!")
+		logger.Trace.Println("\nFinished File Flow!")
 	case engine.TyPE:
-		logger.Trace.Printf("Handling PE %s", op)
+		logger.Trace.Printf("\nHandling PE %s", op)
 		s.HandleEvent(op, rs, out)
 	}
 } */

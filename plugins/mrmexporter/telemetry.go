@@ -140,7 +140,7 @@ func (s TelemetryRecord) ToJSONStr() string {
 
 // ToJSON returns a JSON bytearray representation of an observation
 func (s TelemetryRecord) ToJSON() []byte {
-	o, _ := json.Marshal(s)
+	o, _ := json.MarshalIndent(s, "", "    ")
 	return o
 }
 
