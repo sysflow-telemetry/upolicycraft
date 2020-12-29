@@ -1,0 +1,31 @@
+{
+   "_comment": "Dynamic plugin example. To build the plugin, run `make` under ../plugins/example.",
+   "pipeline":[
+     {
+      "processor": "sysflowreader",
+      "handler": "flattener",
+      "in": "sysflow sysflowchan",
+      "out": "flat flattenerchan"
+     },
+     {
+      "processor": "mrm",
+      "model": "../plugins/mrm/resources/models/cromu_00046.json",
+      "in": "flat flattenerchan",
+      "out": "evt eventchan"
+     },
+     {
+      "processor": "mrmexporter",
+      "in": "evt eventchan",
+      "export": "terminal",
+      "type": "alert",
+      "format": "json",
+      "flat": "false",
+      "path": "./export.out",
+      "proto": "tcp",
+      "tag": "sysflow",
+      "host": "localhost",
+      "port": "514",
+      "buffer": "0"
+     }
+  ]
+}

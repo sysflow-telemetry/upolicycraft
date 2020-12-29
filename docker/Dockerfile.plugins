@@ -27,3 +27,5 @@ RUN make OUTPUT=/root/sf-processor/resources/plugins
 WORKDIR /root/sf-processor/plugins/mrmexporter
 
 RUN make OUTPUT=/root/sf-processor/resources/plugins
+
+WORKDIR /root/sf-processor
