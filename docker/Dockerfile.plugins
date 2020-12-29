@@ -22,8 +22,8 @@ COPY plugins/mrmexporter /root/sf-processor/plugins/mrmexporter
 
 WORKDIR /root/sf-processor/plugins/mrm
 
-RUN make
+RUN make OUTPUT=/root/sf-processor/resources/plugins
 
 WORKDIR /root/sf-processor/plugins/mrmexporter
 
-RUN make 
+RUN make OUTPUT=/root/sf-processor/resources/plugins
