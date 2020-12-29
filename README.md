@@ -60,7 +60,7 @@ Start SysFlow Collector
 
     ./bin/sf-collector
 
-Run the`server`the process.
+Run the `server` process.
 
     docker run -it sysflowtelemetry/echo
 
