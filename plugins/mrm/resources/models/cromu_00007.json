@@ -1,8 +1,7 @@
 {
   "initial": "%00008ab4",
   "nodes": [
-    "%00000597", "%00001301", "%000080cd", "%00008ab4", "%00008ab6",
-    "%00008ab7"
+    "%00000597", "%00001301", "%000080cd", "%00008ab4", "%00008ab7"
   ],
   "contexts": {
     "%00000597": [ "/cgc/CROMU_00007", "receive_until" ],
@@ -33,7 +32,7 @@
     {
       "node": "%00008ab7",
       "constraints": {
-        "sf.proc.exe": [ "/cgc/CROMU_00007" ],
+        "sf.proc.exe": [ "/cgc/challenges/CROMU_00007/CROMU_00007" ],
         "sf.proc.args": [ "" ]
       }
     }
@@ -44,8 +43,7 @@
     { "src": "%00001301", "dst": "%00000597", "label": "READ" },
     { "src": "%00001301", "dst": "%00001301", "label": "WRITE" },
     { "src": "%00001301", "dst": "%000080cd", "label": "EXIT" },
-    { "src": "%00008ab4", "dst": "%00008ab6", "label": "CLOSE" },
-    { "src": "%00008ab6", "dst": "%00008ab7", "label": "EXEC" },
+    { "src": "%00008ab4", "dst": "%00008ab7", "label": "EXEC" },
     { "src": "%00008ab7", "dst": "%00000597", "label": "READ" }
   ]
 }
