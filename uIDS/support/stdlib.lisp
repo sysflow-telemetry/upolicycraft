@@ -16,12 +16,14 @@
       (ptr+1 ptr_t p))
     (if p (strchr p (cast int ?=)) p)))
 
-
 (defun abort ()
   "terminates program with exit code 1"
   (declare (external "abort"))
   (exit-with 1))
 
+(defun rand ()
+  (declare (external "rand"))
+  0)
 
 (defun exit (code)
   (declare (external "exit" "_exit"))

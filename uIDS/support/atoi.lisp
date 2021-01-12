@@ -184,9 +184,9 @@
    0))
 
 (defun strcspn (p n)
-   (declare (external "strcspn"))
-   (let ((i 0)
-         (s p))
+  (declare (external "strcspn"))
+  (let ((i 0)
+        (s p))
      (while (and (> (cast ptr_t (memory-read s)) 0)
                 (not (= (cast ptr_t (memory-read s)) 0xa)))
       (incr i)

@@ -110,14 +110,20 @@
   (declare (external "getchar"))
   (fgetc *standard-input*))
 
+(defun uids-printf (fmt)
+  (declare (external "printf"))
+  (puts fmt)
+  (channel-flush *standard-output*)
+  0)
+
 (defmethod machine-kill ()
   (channel-flush *standard-output*)
   (channel-flush *standard-error*))
 
 (defun transmit-all (fd buf size)
-    (declare (external "transmit_all"))
-    (write fd buf size)
-    0)
+  (declare (external "transmit_all"))
+  (write fd buf size)
+  0)
 
 (defun receive-delim (fd buf size delim)
     (declare (external "receive_delim"))
