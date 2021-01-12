@@ -1143,7 +1143,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let push_sub s =
     let name = Sub.name s in
-    (** let () = info "entering sub %s" name in *)
+    let () = info "entering sub %s" name in
     Machine.Local.update state ~f:(fun s ->
       let {callstack;symbols} = s in
       let name' = match addr_of_sub_name name with

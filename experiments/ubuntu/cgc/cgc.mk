@@ -4,7 +4,7 @@ LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c lib/*.cc))
 CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/*.cc))
 
 /cgc/libcgc.so: /cgc/libcgc.c
-	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -c -o $@ $<
+	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -o $@ $<
 
 %.o: %.c
 	gcc -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib -I ${PWD}/cb_1/include -I ${PWD}/cb_1/lib ${CFLAGS} -c -o $@ $<

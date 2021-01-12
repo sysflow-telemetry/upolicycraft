@@ -453,6 +453,7 @@ class Throw(object):
         depth = self._read_buffer.index(delim) + len(delim)
         data = self._read_buffer[:depth]
         self._read_buffer = self._read_buffer[depth:]
+
         return data
 
     def read(self, read_args):
