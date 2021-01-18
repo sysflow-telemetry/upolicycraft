@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "libc.h"
 #include "timecard.h"
 
-int main(void) 
+int main(void)
 {
 	int i;
 	char inbuf[80];
@@ -39,7 +39,7 @@ int main(void)
 	int week;
 	int blank_line = 1;
 	int query = 0;
-	// Store of all employee data 
+	// Store of all employee data
 	employee employee_list[NUMBER_OF_EMPLOYEES];
 
 	for( i=0; i<NUMBER_OF_EMPLOYEES; i++)
@@ -81,7 +81,7 @@ int main(void)
 				week = 0;
 				blank_line = 1;
 				query = 0;
-				break;			
+				break;
 			case KEY_VALUE_RECEIVED:
 				// If this is a query line remember it for processing later
 				if ((blank_line == 1) && (equals(key, "query")))
@@ -108,5 +108,5 @@ int main(void)
 				break;
 		}
 	}
-	
+
 }

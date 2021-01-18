@@ -36,6 +36,15 @@
 (defun my-atoi-read-digit (s)
   (cast int (- (memory-read s) ?0)))
 
+(defun uids-allocate (n isx addr)
+  (declare (external "allocate"))
+  (let ((buf (malloc n)))
+     (write-word ptr_t (cast ptr_t addr) buf)
+   0))
+
+(defun succ (n)
+  (+ n 1))
+
 (defun uids-atoi (s)
   (declare (external "atoi"))
   (let ((v 0))
@@ -44,6 +53,13 @@
       (set v (+ (* v 10)  (atoi-read-digit s)))
       (incr s))
     (cast int v)))
+
+(defun uids-itoa (n)
+  (declare (external "itoa"))
+  (let ((chunk (malloc 16)))
+   (memory-write chunk 0x30)
+   (memory-write (succ chunk) 0x0)
+   chunk))
 
 (defun htons (v)
   (declare (external "htons"))
@@ -212,3 +228,11 @@
 
 (defun atol  (s) (make-converter long s))
 (defun atoll (s) (make-converter long-long s))
+
+(defun term (code)
+  (declare (external "terminate"))
+  (exit-with code))
+
+(defun random-cgc (buf n rnd-bytes)
+  (declare (external "random_cgc"))
+  0)

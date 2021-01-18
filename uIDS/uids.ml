@@ -630,6 +630,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
+  let write_to_stdout tid =
+    (** let () = info "model print:" in *)
+    Machine.Local.update state ~f:(fun state' ->
+      let op = (Write Sf.stdout_fd) in
+      (add_operation tid op state')
+    )
+
   let record_function tid func =
     match func with
       "fork" ->
@@ -728,16 +735,13 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
+    | "print" ->
+      (write_to_stdout tid)
+    | "put" ->
+      (write_to_stdout tid)
     | "printf" ->
       (** let () = info "model printf:" in *)
-      let rdi = (Var.create "RDI" reg64_t) in
-      (Env.get rdi) >>= fun v ->
-      (v |> Value.to_word |> string_of_addr) >>= fun path ->
-      (** let () = info " RDI: %s" path in *)
-      Machine.Local.update state ~f:(fun state' ->
-          let op = (Write Sf.stdout_fd) in
-          (add_operation tid op state')
-      )
+      (write_to_stdout tid)
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -787,7 +791,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Send fd in
           (add_operation tid op state'))
-    | "_terminate" ->
+    | "terminate" ->
       (** let () = info "model terminate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -795,13 +799,42 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Exit status in
           (add_operation tid op state'))
-    | "receive" ->
+    | "recvUntil" ->
       (** let () = info "model receive:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
+          (add_operation tid op state'))
+    | "receive_delim" ->
+      let () = info "model receive_delim:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
+          (add_operation tid op state'))
+    | "receive_delim" ->
+      let () = info "model receive_delim:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
+          (add_operation tid op state'))
+    | "receive_until" ->
+      let () = info "model receive_until:" in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read Sf.stdout_fd in
+          (add_operation tid op state'))
+    | "transmit_all" ->
+      let () = info "model transmit:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Write fd in
           (add_operation tid op state'))
     | "transmit" ->
       (** let () = info "model transmit:" in *)

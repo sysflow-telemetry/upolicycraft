@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "libc.h"
 
 // Receive until 'length' chars read OR 'end' char found OR newline. Up to 'length'
-// chars written to 'dest', including 'end' char.  
-// Returns 0 on success, otherwise error code. 
+// chars written to 'dest', including 'end' char.
+// Returns 0 on success, otherwise error code.
 // Number of bytes read is returned in 'bytes_read'.
 int receive_until(char *dest, size_t length, char end, size_t *bytes_read)
 {
@@ -38,7 +38,7 @@ int receive_until(char *dest, size_t length, char end, size_t *bytes_read)
 	int receive_status;
 	size_t receive_bytes;
 
-	do 
+	do
 	{
 		receive_status = receive( STDIN , (void *)&c, 1, &receive_bytes);
 		if ((receive_status != 0) || (receive_bytes != 1))
@@ -131,7 +131,7 @@ int atoi(char *str)
 
 }
 
-// itoa - Does not check output buffer size. 
+// itoa - Does not check output buffer size.
 // Can potentially write up to 12 characters ("-2147483648\0") to str.
 void itoa(char *str, int i)
 {
@@ -180,7 +180,7 @@ void memset(char *dst, char c, size_t size)
 {
 	char *end = dst + size;
 	while(dst < end)
-	{	
+	{
 		*dst++ = c;
 	}
 }

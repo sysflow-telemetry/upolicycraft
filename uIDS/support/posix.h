@@ -31,8 +31,24 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 // uids
 
+char          *itoa(unsigned int number);
+
+void          terminate(unsigned int status);
+int           transmit(int fd, const void *buf, size_t count, size_t *tx_bytes);
+int           receive(int fd, void *buf, size_t count, size_t *rx_bytes);
+int           fdwait(int nfds, void *readfds, void *writefds,
+                     const struct timeval *timeout, int *readyfds);
+int           allocate(size_t length, int is_X, void **addr);
+int           deallocate(void *addr, size_t length);
+int           random_cgc(void *buf, size_t count, size_t *rnd_bytes);
+
 int           transmit_all(int fd, const char *buf, const size_t size);
 int           receive_delim(int fd, char *buf, const size_t size, char delim);
+int           receive_delim(int fd, char *buf, const size_t size, char delim);
+int           receive_until(char *dest, size_t length, char end, size_t *bytes_read);
+int           recvUntil(int fd, char *buf, int max, char delim);
+int           print(char *buf);
+int           put(char *buf);
 
 int           htons(int);
 

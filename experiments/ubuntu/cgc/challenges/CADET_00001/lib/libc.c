@@ -6,7 +6,7 @@ int transmit_all(int fd, const char *buf, const size_t size) {
     size_t sent_now = 0;
     int ret;
 
-    if (!buf) 
+    if (!buf)
         return 1;
 
     if (!size)
@@ -33,7 +33,7 @@ int receive_delim(int fd, char *buf, const size_t size, char delim) {
     size_t rx_now = 0;
     int ret;
 
-    if (!buf) 
+    if (!buf)
         return 1;
 
     if (!size)
