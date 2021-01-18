@@ -823,6 +823,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
           (add_operation tid op state'))
+    | "receive" ->
+      let () = info "model receive:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
+          (add_operation tid op state'))
     | "receive_until" ->
       let () = info "model receive_until:" in
       Machine.Local.update state ~f:(fun state' ->
