@@ -130,10 +130,21 @@
   (fwrite buf count 1 fd)
   (write-word int tx-bytes count))
 
+;; (n (fread buf count 1 fd))
+
+(defun receive-step (ptr len str i)
+  (let ((c (channel-input str)))
+    (if (= c -1) 0
+      (memory-write (+ ptr i) (cast char c)))))
+
 (defun receive (fd buf count rx-bytes)
   (declare (external "receive"))
-  (let ((n (fread buf count 1 fd)))
-    (write-word int rx-bytes n)))
+  (let ((z 0))
+    (while (and (< z count)
+                (receive-step buf count fd z))
+      (incr z))
+    (write-word ptr_t (cast ptr_t rx-bytes) z)
+    0))
 
 (defun transmit-all (fd buf size)
   (declare (external "transmit_all"))

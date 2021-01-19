@@ -1,0 +1,22 @@
+digraph G {
+  2 [shape=box, label="{{/cgc/CROMU_00047:main}|{NF|8003}}", fontsize=9, ];
+  4 [shape=box, label="{{/cgc/CROMU_00047:display_packets}|{NF|8003}}",
+     fontsize=9, ];
+  5 [shape=box, label="{{/cgc/CROMU_00047:display_packets}|{NF|8003}}",
+     fontsize=9, ];
+  3 [shape=box, label="{{/cgc/CROMU_00047:main}|{NF|8003}}", fontsize=9, ];
+  0 [shape=box,
+     label="{{/usr/sbin/xinetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=box, label="{{/usr/sbin/xinetd:main}|{P|/cgc/CROMU_00047|}}",
+     fontsize=9, ];
+  
+  
+  2 -> 3 [label="READ", fontsize=8, ];
+  4 -> 5 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="WRITE", fontsize=8, ];
+  3 -> 3 [label="READ", fontsize=8, ];
+  0 -> 1 [label="EXEC", fontsize=8, ];
+  1 -> 2 [label="WRITE", fontsize=8, ];
+  
+  }

@@ -1,7 +1,7 @@
 all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so
 
-LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c lib/*.cc))
-CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/*.cc))
+LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c)) $(patsubst %.cc,%.o,$(wildcard lib/*.cc))
+CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cc,%.o,$(wildcard src/*.cc))
 
 /cgc/libcgc.so: /cgc/libcgc.c
 	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -o $@ $<

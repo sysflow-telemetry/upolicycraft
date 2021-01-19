@@ -88,7 +88,7 @@ void PrintAspMenu(void) {
 		cromu_printf("Selection: ");
 	
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {
@@ -99,7 +99,7 @@ void PrintAspMenu(void) {
 			case '1':
 				cromu_printf("Which ASP 0-$d: ", NumAsp-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 		
 				if (len != 1) {
@@ -112,7 +112,7 @@ void PrintAspMenu(void) {
 
 				cromu_printf("New aeration percent: ");
 				if ((len = read_until(buf, '\n', 8)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				NewPct = cromu_atof(buf);
 				if (NewPct < 0 || NewPct > 100.0) {
@@ -125,7 +125,7 @@ void PrintAspMenu(void) {
 			case '2':
 				cromu_printf("Which ASP 0-$d: ", NumAsp-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 		
 				if (len != 1) {
@@ -138,7 +138,7 @@ void PrintAspMenu(void) {
 
 				cromu_printf("New glycerin rate (0-100 gallons/hr): ");
 				if ((len = read_until(buf, '\n', 8)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				NewRate = cromu_atof(buf);
 				if (NewRate < 0 || NewRate > 100.0) {
@@ -151,7 +151,7 @@ void PrintAspMenu(void) {
 			case '3':
 				cromu_printf("Which ASP 0-$d: ", NumAsp-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 		
 				if (len != 1) {
@@ -164,7 +164,7 @@ void PrintAspMenu(void) {
 
 				cromu_printf("New alum rate (0-100 gallons/hr): ");
 				if ((len = read_until(buf, '\n', 8)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				NewRate = cromu_atof(buf);
 				if (NewRate < 0 || NewRate > 100.0) {
@@ -194,7 +194,7 @@ void PrintFilterMenu(void) {
 		cromu_printf("Selection: ");
 	
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {
@@ -205,7 +205,7 @@ void PrintFilterMenu(void) {
 			case '1':
 				cromu_printf("Which Filter 0-$d: ", NumFilters-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 		
 				if (len != 1) {
@@ -218,7 +218,7 @@ void PrintFilterMenu(void) {
 
 				cromu_printf("How many filters (0-$d): ", Filter[Num].MaxFilters);
 				if ((len = read_until(buf, '\n', 7)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				NumActiveFilters = cromu_atoi(buf);
 				if (NumActiveFilters < 0 || NumActiveFilters > Filter[Num].MaxFilters) {
@@ -250,7 +250,7 @@ void PrintDisinfectionMenu(void) {
 		cromu_printf("Selection: ");
 	
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {
@@ -261,7 +261,7 @@ void PrintDisinfectionMenu(void) {
 			case '1':
 				cromu_printf("Which Disinfection system 0-$d: ", NumDisinfection-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 		
 				if (len != 1) {
@@ -274,7 +274,7 @@ void PrintDisinfectionMenu(void) {
 
 				cromu_printf("New chlorine rate (0-100): ");
 				if ((len = read_until(buf, '\n', 8)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				NewChlorineRate = cromu_atof(buf);
 				if (NewChlorineRate < 0.0 || NewChlorineRate > 100.0) {
@@ -310,7 +310,7 @@ void PrintRenameMenu(void) {
 		cromu_printf("Selection: ");
 
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {
@@ -321,21 +321,21 @@ void PrintRenameMenu(void) {
 			case '1':
 				cromu_printf("New Influent name: ");
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Influent.Name, buf, len+1);
 				break;
 			case '2':
 				cromu_printf("New Headworks name: ");
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Headworks.Name, buf, len+1);
 				break;
 			case '3':
 				cromu_printf("Which ASP 0-$d: ", NumAsp-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				if (len != 1) {
 					continue;
@@ -346,14 +346,14 @@ void PrintRenameMenu(void) {
 				}
 				cromu_printf("New ASP$d name: ", Num);
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Asp[Num].Name, buf, len+1);
 				break;
 			case '4':
 				cromu_printf("Which Filter 0-$d: ", NumFilters-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				if (len != 1) {
 					continue;
@@ -364,14 +364,14 @@ void PrintRenameMenu(void) {
 				}
 				cromu_printf("New Filter$d name: ", Num);
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Filter[Num].Name, buf, len+1);
 				break;
 			case '5':
 				cromu_printf("Which Disinfection system 0-$d: ", NumAsp-1);
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				if (len != 1) {
 					continue;
@@ -382,14 +382,14 @@ void PrintRenameMenu(void) {
 				}
 				cromu_printf("New Disinfection$d name: ", Num);
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Disinfection[Num].Name, buf, len+1);
 				break;
 			case '6':
 				cromu_printf("New Effluent name: ");
 				if ((len = read_until(buf, '\n', 31)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				strncpy(Effluent.Name, buf, len+1);
 				break;
@@ -400,7 +400,7 @@ void PrintRenameMenu(void) {
 				cromu_puts("4. V4");
 				cromu_printf("Which valve: ");
 				if ((len = read_until(buf, '\n', 3)) == -1) {
-					_terminate(-1);
+					terminate(-1);
 				}
 				if (len != 1) {
 					continue;
@@ -409,32 +409,32 @@ void PrintRenameMenu(void) {
 				if (Num == 1) {
 					cromu_printf("New V1 name: ");
 					if ((len = read_until(buf, '\n', 31)) == -1) {
-						_terminate(-1);
+						terminate(-1);
 					}
 					strncpy(HeadworksOutputValve.Name, buf, len+1);
 				} else if (Num == 2) {
 					cromu_printf("New V2 name: ");
 					if ((len = read_until(buf, '\n', 31)) == -1) {
-						_terminate(-1);
+						terminate(-1);
 					}
 					strncpy(AspOutputValve.Name, buf, len+1);
 				} else if (Num == 3) {
 					cromu_printf("New V3 name: ");
 					if ((len = read_until(buf, '\n', 31)) == -1) {
-						_terminate(-1);
+						terminate(-1);
 					}
 					strncpy(FilterOutputValve.Name, buf, len+1);
 				} else if (Num == 4) {
 					cromu_printf("New V4 name: ");
 #ifdef PATCHED_1
 					if ((len = read_until(buf, '\n', 31)) == -1) {
-						_terminate(-1);
+						terminate(-1);
 					}
 					strncpy(DisinfectionOutputValve.Name, buf, len+1);
 
 #else
 					if (read_until(buf, '\n', 255) == -1) {
-						_terminate(-1);
+						terminate(-1);
 					}
 					len = strlen(buf);
 					if (len < 31) {
@@ -468,7 +468,7 @@ void PrintValveMenu(void) {
 		cromu_printf("Selection: ");
 	
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {
@@ -482,7 +482,7 @@ void PrintValveMenu(void) {
 		// which valve output?
 		cromu_printf("Valve Output: ");
 		if ((len = read_until(buf, '\n', 3)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 		if (len != 1) {
 			continue;
@@ -492,7 +492,7 @@ void PrintValveMenu(void) {
 		// what percent open?
 		cromu_printf("Percent Open (0.00-100.00): ");
 		if ((len = read_until(buf, '\n', 8)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 		if (len > 6) {
 			continue;
@@ -546,7 +546,7 @@ uint8_t PrintMenu(void) {
 		cromu_printf("Selection: ");
 	
 		if ((len = read_until(buf, '\n', 4)) == -1) {
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (len != 1) {

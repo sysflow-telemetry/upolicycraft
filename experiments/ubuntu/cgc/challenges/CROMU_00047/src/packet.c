@@ -112,7 +112,7 @@ void receive_packet( uint8_t *pData, uint8_t dataLen, uint16_t packetCRC )
 #endif
 
 	// Process and receive packet
-#if DEBUG_PACKET	
+#if DEBUG_PACKET
 	printf( "Packet received %d!\n", pData[0] );
 #endif
 
@@ -149,15 +149,15 @@ void add_new_packet( uint8_t packetType, fpPacketTypeHandler fpHandler, uint8_t 
 	pNewPacket->fpHandler = fpHandler;
 
 	pNewPacket->pNextPacket = NULL;
-	
+
 	pNewPacket->dataLen = dataLen;
-	
-	// Copy in the data	
+
+	// Copy in the data
 	memcpy( pNewPacket->packetData, pData, dataLen );
 
 	// Add packet to receive list
 	if ( g_packetData.pPacketList == NULL )
-		g_packetData.pPacketList = pNewPacket;	
+		g_packetData.pPacketList = pNewPacket;
 	else
 	{
 		pNewPacket->pNextPacket = g_packetData.pPacketList;
@@ -180,8 +180,8 @@ void display_packets( void )
 
 		// Display packet data
 		(*pCur->fpHandler)( pCur->packetData, pCur->dataLen );
-	
-		packetNum++;	
+
+		packetNum++;
 	}
 }
 
@@ -377,7 +377,7 @@ void HandleConnectPacket( uint8_t *pData, uint32_t dataLen )
 	if ( connectUserNameLen >= MAX_USERNAME_LENGTH )
 	{
 		printf( "[CONNECT MESSAGE]Username length was too large\n" );
-		return;	
+		return;
 	}
 
 	// Display message
@@ -386,7 +386,7 @@ void HandleConnectPacket( uint8_t *pData, uint32_t dataLen )
 	memcpy( szUsername, pData+1, connectUserNameLen );
 	szUsername[connectUserNameLen] = '\0';
 
-	printf( "[CONNECT MESSAGE]$s connected\n", szUsername );	
+	printf( "[CONNECT MESSAGE]$s connected\n", szUsername );
 }
 
 void HandleDisconnectPacket( uint8_t *pData, uint32_t dataLen )
@@ -414,7 +414,7 @@ void HandleDisconnectPacket( uint8_t *pData, uint32_t dataLen )
 	if ( disconnectUserNameLen >= MAX_USERNAME_LENGTH )
 	{
 		printf( "[DISCONNECT MESSAGE]Username length was too large\n" );
-		return;	
+		return;
 	}
 
 	// Display message
@@ -423,5 +423,5 @@ void HandleDisconnectPacket( uint8_t *pData, uint32_t dataLen )
 	memcpy( szUsername, pData+1, disconnectUserNameLen );
 	szUsername[disconnectUserNameLen] = '\0';
 
-	printf( "[DISCONNECT MESSAGE]$s disconnected\n", szUsername );	
+	printf( "[DISCONNECT MESSAGE]$s disconnected\n", szUsername );
 }

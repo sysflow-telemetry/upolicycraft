@@ -32,6 +32,11 @@ module Param = struct
       ~doc:
         "Exec the program and connect to a socket"
 
+  let symbolic_arguments = flag "symbolic-arguments"
+      ~doc:
+        "Ingore concrete values for printf style functions"
+
+
   let entrypoint = param (string) "entrypoint"
       ~doc:
         "The entrypoint for the container"
@@ -479,7 +484,7 @@ module Scanf(Machine : Primus.Machine.S) = struct
           let b = Bitvector.of_int 64 x in
           Value.of_word b
         else
-          Value.of_word (Bitvector.of_int 64 0)
+          Value.of_word (Bitvector.of_int 65 0)
 end
 
 module Snprintf(Machine : Primus.Machine.S) = struct
@@ -506,14 +511,15 @@ module Snprintf(Machine : Primus.Machine.S) = struct
       cont'
 
     let run [s; sz; fmt; v] =
+      let open Param in
       (**
       The value for %d may be non-deterministic so just replace it with a regex
-      that the RM can enforce.
-      let d = v |> Value.to_word |> Bitvector.to_int_exn |> string_of_int in
+      that the MRM can enforce.
       *)
+      let d = v |> Value.to_word |> Bitvector.to_int_exn |> string_of_int in
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:"[0-9]+" fmt' in
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:d fmt' in
         copy_bytes s output >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
  end
@@ -742,6 +748,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
     | "printf" ->
       (** let () = info "model printf:" in *)
       (write_to_stdout tid)
+    | "uids_log" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun message ->
+      let () = info " LOG: %s" message in
+      Machine.return()
     | "open64" ->
       let () = info "model open:" in
       let rdi = (Var.create "RDI" reg64_t) in
