@@ -36,7 +36,6 @@ module Param = struct
       ~doc:
         "Ingore concrete values for printf style functions"
 
-
   let entrypoint = param (string) "entrypoint"
       ~doc:
         "The entrypoint for the container"
@@ -50,6 +49,9 @@ module Param = struct
         "The location of an infinite loop."
 
 end
+
+(** For fetching arguments. *)
+let get x = Future.peek_exn (Config.determined x)
 
 module Sf = struct
 
@@ -516,10 +518,16 @@ module Snprintf(Machine : Primus.Machine.S) = struct
       The value for %d may be non-deterministic so just replace it with a regex
       that the MRM can enforce.
       *)
-      let d = v |> Value.to_word |> Bitvector.to_int_exn |> string_of_int in
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:d fmt' in
+        let v' =
+         if (get symbolic_arguments) then
+           "[0-9]+"
+         else
+           v |> Value.to_word
+             |> Bitvector.to_int_exn
+             |> string_of_int in
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:v' fmt' in
         copy_bytes s output >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
  end
@@ -1261,8 +1269,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
     ]
-
-  let get x = Future.peek_exn (Config.determined x)
 
   let json_string data =
    data |>

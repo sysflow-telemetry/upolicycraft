@@ -53,6 +53,7 @@ opam config exec -- bap $PROGRAM -prun \
   ${MODELINE} \
   --primus-uids-inetd-startup \
   --primus-uids-model \
+  --primus-uids-symbolic-arguments \
   ${EXECLINE} \
   ${FILESYSTEM} \
   --primus-uids-server-start="${SERVER}" \
