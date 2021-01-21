@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ "$#" -lt 1 ]; then
+  echo "usage: $0 file.dot"
+  exit 1
+fi
+
+sed -i 's/shape=box/shape=Mrecord/g' $1 
+
