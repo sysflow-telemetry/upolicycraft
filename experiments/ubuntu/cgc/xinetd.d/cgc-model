@@ -39,3 +39,31 @@ service cromu_00046
         flags = REUSE
         per_source = UNLIMITED
 }
+
+service cromu_00047
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /uIDS/experiments/ubuntu/cgc/scripts/cromu_00047.sh
+        socket_type = stream
+        protocol = tcp
+        user = opam
+        port = 8004
+        flags = REUSE
+        per_source = UNLIMITED
+}
+
+service cromu_00048
+{
+        disable = no
+        type = UNLISTED
+        wait = no
+        server = /uIDS/experiments/ubuntu/cgc/scripts/cromu_00048.sh
+        socket_type = stream
+        protocol = tcp
+        user = opam
+        port = 8005
+        flags = REUSE
+        per_source = UNLIMITED
+}

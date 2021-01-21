@@ -489,6 +489,52 @@ module Scanf(Machine : Primus.Machine.S) = struct
           Value.of_word (Bitvector.of_int 65 0)
 end
 
+(**
+  TODO: Merge Sprintf and Snprintf
+*)
+module Sprintf(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let trap_memory_write access =
+      Machine.catch access (function exn ->
+          (** let () = info "Error reading memory!" in *)
+          let msg = Primus.Exn.to_string exn in
+          (** let () = info "    %s" msg in *)
+          Machine.return())
+
+    (** Copy a string into memory *)
+    let copy_bytes addr s =
+      let addr' = (Value.to_word addr) in
+      (** let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in *)
+      let cont' = String.foldi ~f:(fun i cont c ->
+        let c' = int_of_char c in
+        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
+        cont >>= fun () ->
+          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
+          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
+      cont'
+
+    let run [s; fmt; v] =
+      let open Param in
+      (**
+      The value for %d may be non-deterministic so just replace it with a regex
+      that the MRM can enforce.
+      *)
+      let vfmt = Value.to_word fmt in
+      string_of_addr vfmt >>= fun fmt' ->
+        let v' =
+         if (get symbolic_arguments) then
+           "[0-9]+"
+         else
+           v |> Value.to_word
+             |> Bitvector.to_int_exn
+             |> string_of_int in
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:v' fmt' in
+        copy_bytes s output >>= fun () ->
+          Value.of_word (Bitvector.of_int 64 0)
+end
+
 module Snprintf(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
@@ -530,7 +576,7 @@ module Snprintf(Machine : Primus.Machine.S) = struct
         let output = String.substr_replace_all ~pattern:"%d" ~with_:v' fmt' in
         copy_bytes s output >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
- end
+end
 
 let address_of_pos out addr =
   match Bitvector.to_int addr with
@@ -752,6 +798,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     | "print" ->
       (write_to_stdout tid)
     | "put" ->
+      (write_to_stdout tid)
+    | "puts" ->
       (write_to_stdout tid)
     | "printf" ->
       (** let () = info "model printf:" in *)
@@ -1266,6 +1314,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-sscanf) tries to implement sscanf. |};
       def "uids-ocaml-scanf" (tuple [a] @-> b) (module Scanf)
       {|(uids-ocaml-scanf FMT ADDRESS) tries to implement scanf. |};
+      def "uids-ocaml-sprintf" (tuple [a; b; c] @-> bool) (module Sprintf)
+      {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
     ]
