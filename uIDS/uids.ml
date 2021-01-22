@@ -538,6 +538,7 @@ module Sprintf(Machine : Primus.Machine.S) = struct
       *)
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
+        let () = info "sprintf: %s" fmt' in
         let v' =
          if (get symbolic_arguments) then
            "[0-9]+"

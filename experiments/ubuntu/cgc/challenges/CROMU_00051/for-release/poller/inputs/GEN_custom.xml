@@ -1,0 +1,69 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE pov SYSTEM "/usr/share/cgc-docs/replay.dtd">
+<pov>
+<cbid>service</cbid>
+<replay>
+    <read><length>8</length><match><data>crs\x40CB\x3e </data></match></read>
+    <write><data>chuser root\x0a\x0d</data></write>
+    <read><delim>\x0d</delim><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>10</length><match><data>Password: </data></match></read>
+    <write><data>$s\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><delim>\x0d</delim><match><data>Authentication success for user \x27root\x27\x0a\x0d</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>newuser root root\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>28</length><match><data>User \x27root\x27 already exists\x0a\x0d</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>id\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>15</length><match><data>uid\x3d$s gid\x3d$s\x0a\x0d</data></match></read>
+    <read><length>6</length><match><data>$s\x40CB\x3e </data></match></read>
+    <write><data>print rLEQcPj\x0a\x0d</data></write>
+    <read><delim>\x0d</delim><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><delim>\x0d</delim><match><data>rLEQcPj\x0a\x0d</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>\x1b\x5bA</data></write>
+    <read><length>4</length><match><data>\x1b\x5b0G</data></match></read>
+    <read><length>3</length><match><data>\x1b\x5bK</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <read><length>13</length><match><data>print rLEQcPj</data></match></read>
+    <write><data>\x1b\x5bA</data></write>
+    <read><length>4</length><match><data>\x1b\x5b0G</data></match></read>
+    <read><length>3</length><match><data>\x1b\x5bK</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <read><length>2</length><match><data>id</data></match></read>
+    <write><data>\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>19</length><match><data>uid\x3droot gid\x3droot\x0a\x0d</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>\x1b\x5bA</data></write>
+    <read><length>4</length><match><data>\x1b\x5b0G</data></match></read>
+    <read><length>3</length><match><data>\x1b\x5bK</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <read><length>2</length><match><data>id</data></match></read>
+    <write><data>\x1b\x5bB</data></write>
+    <read><length>4</length><match><data>\x1b\x5b0G</data></match></read>
+    <read><length>3</length><match><data>\x1b\x5bK</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>9</length><match><data>root\x40CB\x3e </data></match></read>
+    <write><data>print cXfJW\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>7</length><match><data>cXfJW\x0a\x0d</data></match></read>
+    <read><length>6</length><match><data>$s\x40CB\x3e </data></match></read>
+    <write><data>list\x0a\x0d</data></write>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>19</length><match><data>Directory listing\x0a\x0d</data></match></read>
+    <read><delim>\x0d</delim><match><pcre>.*\s+.*\s+.*\s+.*</pcre></match></read>
+    <read><delim>\x0d</delim><match><pcre>.*\s+.*\s+.*\s+\d+</pcre></match></read>
+    <read><delim>\x0d</delim><match><pcre>.*\s+.*\s+.*\s+\d+</pcre></match></read>
+    <read><length>6</length><match><data>$s\x40CB\x3e </data></match></read>
+    <read><length>6</length><match><data>\x08\x08  \x08\x08</data></match></read>
+    <write><data>exit\x0a\x0d</data></write>
+    <read><length>6</length><match><data>exit  </data></match></read>
+    <read><length>8</length><match><data>\x08\x08  \x08\x08\x0a\x0d</data></match></read>
+    <read><length>8</length><match><data>logout\x0a\x0d</data></match></read>
+</replay>
+</pov>
