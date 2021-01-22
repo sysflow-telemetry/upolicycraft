@@ -29,7 +29,8 @@ THE SOFTWARE.
 
 #import random
 #import unittest
-from Crypto.Cipher import AES
+# from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 
 class PRNG(object):
     """

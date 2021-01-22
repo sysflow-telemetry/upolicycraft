@@ -1,7 +1,7 @@
 all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so
 
-LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c)) $(patsubst %.cc,%.o,$(wildcard lib/*.cc))
-CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cc,%.o,$(wildcard src/*.cc))
+LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c lib/*.cc))
+CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/*.cc))
 
 /cgc/libcgc.so: /cgc/libcgc.c
 	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -o $@ $<
@@ -18,10 +18,10 @@ lib.so: ${LIB_OBJECTS}
 ${AUTHOR_ID}_${SERVICE_ID}: ${CHALL_OBJECTS} lib.so /cgc/libcgc.so
 	gcc -o $@ $^ ${LDFLAGS}
 
-${AUTHOR_ID}_${SERVICE_ID}.so: ${CHALL_OBJECTS}
+${AUTHOR_ID}_${SERVICE_ID}.so: ${CHALL_OBJECTS} ${LIB_OBJECTS} /cgc/libcgc.so
 	gcc -shared -o $@ $^ ${LDFLAGS}
 
 .PHONY: clean
 
 clean:
-	rm -f ${PWD}/${AUTHOR_ID}_${SERVICE_ID} ${PWD}/${AUTHOR_ID}_${SERVICE_ID}.so ${PWD}/lib/*.o ${PWD}/src/*.o ${PWD}/cb_1/lib/*.o ${PWD}/cb_1/src/*.o /cgc/*.o
+	rm -f ${PWD}/${AUTHOR_ID}_${SERVICE_ID} ${PWD}/${AUTHOR_ID}_${SERVICE_ID}.so ${PWD}/lib.so ${PWD}/lib/*.o ${PWD}/src/*.o /cgc/*.o

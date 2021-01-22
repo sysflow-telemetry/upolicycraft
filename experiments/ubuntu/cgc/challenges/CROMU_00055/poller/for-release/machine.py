@@ -26,7 +26,7 @@ class MyClass(Actions):
         self.RESP_RENAME_FAILED         = "\x05"
         self.RESP_TOO_MANY_OPEN_FILES   = "\x06"
 
-        self.dll = ct.CDLL('build/patched/so/CROMU_00055.so')
+        self.dll = ct.CDLL('/host/ubuntu/cgc/challenges/CROMU_00055/CROMU_00055.so')
         self.seed_prng = self.dll.seed_prng
         self.seed_prng.argtypes = [ ct.c_uint ]
         self.seed_prng.restype = None
