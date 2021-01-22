@@ -175,6 +175,7 @@ int sprintf(char * restrict str, const char * restrict format, ...) __attribute_
 int printf(const char * restrict format);
 
 int snprintf(char * restrict str, size_t size, const char * restrict format, int d);
+int sprintf(char * restrict str, const char * restrict format, int d);
 
 int scanf(const char * restrict format, ...) __attribute__((format(scanf,1,2)));
 int fscanf(FILE * restrict stream, const char * restrict format, ...) __attribute__((format(scanf,2,3)));
@@ -220,8 +221,9 @@ int _IO_getc(FILE *stream);
 int _IO_putc(int c, FILE *stream);
 int _IO_puts(const char *s);
 
-
 // string.h
+
+char *strtok(char *str, const char *delim);
 
 size_t
 strcspn(const char *s, const char *charset);

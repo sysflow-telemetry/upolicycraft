@@ -490,6 +490,21 @@ module Scanf(Machine : Primus.Machine.S) = struct
 end
 
 (**
+  A debugging module for tracing the values of LISP modules.
+*)
+module Debug(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [v] =
+      let v' = v |> Value.to_word
+                 |> Bitvector.to_int_exn
+                 |> string_of_int in
+      let () = info "primus-debug: %s" v' in
+      nil
+end
+
+(**
   TODO: Merge Sprintf and Snprintf
 *)
 module Sprintf(Machine : Primus.Machine.S) = struct
@@ -1318,6 +1333,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
+      def "uids-ocaml-debug" (tuple [a] @-> b) (module Debug)
+      {|(uids-ocaml-debug DATA) logs a lisp value for debugging. |};
     ]
 
   let json_string data =

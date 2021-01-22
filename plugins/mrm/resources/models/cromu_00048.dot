@@ -1,0 +1,159 @@
+digraph G {
+  2 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  3 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  4 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  5 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  6 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  7 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  8 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  9 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+     fontsize=9, ];
+  10 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  11 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  12 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  13 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  14 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  15 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  16 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  17 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  18 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  19 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantSchematic}|{NF|8003}}",
+      fontsize=9, ];
+  20 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintPlantStatus}|{NF|8003}}",
+      fontsize=9, ];
+  38 [shape=Mrecord, label="{{/cgc/CROMU_00048:read_until}|{NF|8003}}",
+      fontsize=9, ];
+  43 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  44 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  45 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  46 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  47 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  48 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  21 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintSystemBanner}|{NF|8003}}",
+      fontsize=9, ];
+  22 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintSystemBanner}|{NF|8003}}",
+      fontsize=9, ];
+  23 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintSystemBanner}|{NF|8003}}",
+      fontsize=9, ];
+  24 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintSystemBanner}|{NF|8003}}",
+      fontsize=9, ];
+  25 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintSystemBanner}|{NF|8003}}",
+      fontsize=9, ];
+  26 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  27 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  28 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  29 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  30 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  31 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  32 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  33 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  34 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  35 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  36 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  37 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  41 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintMenu}|{NF|8003}}",
+      fontsize=9, ];
+  40 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  39 [shape=Mrecord, label="{{/cgc/CROMU_00048:PrintValveMenu}|{NF|8003}}",
+      fontsize=9, ];
+  42 [shape=Mrecord, label="{{/cgc/CROMU_00048:main}|{NF|8003}}", fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/xinetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/xinetd:main}|{P|/cgc/CROMU_00048|}}",
+     fontsize=9, ];
+  
+  
+  2 -> 3 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="WRITE", fontsize=8, ];
+  4 -> 5 [label="WRITE", fontsize=8, ];
+  5 -> 6 [label="WRITE", fontsize=8, ];
+  6 -> 7 [label="WRITE", fontsize=8, ];
+  7 -> 8 [label="WRITE", fontsize=8, ];
+  8 -> 9 [label="WRITE", fontsize=8, ];
+  9 -> 10 [label="WRITE", fontsize=8, ];
+  10 -> 11 [label="WRITE", fontsize=8, ];
+  11 -> 12 [label="WRITE", fontsize=8, ];
+  12 -> 13 [label="WRITE", fontsize=8, ];
+  13 -> 14 [label="WRITE", fontsize=8, ];
+  14 -> 15 [label="WRITE", fontsize=8, ];
+  15 -> 16 [label="WRITE", fontsize=8, ];
+  16 -> 17 [label="WRITE", fontsize=8, ];
+  17 -> 18 [label="WRITE", fontsize=8, ];
+  18 -> 19 [label="WRITE", fontsize=8, ];
+  19 -> 20 [label="WRITE", fontsize=8, ];
+  20 -> 21 [label="WRITE", fontsize=8, ];
+  20 -> 26 [label="WRITE", fontsize=8, ];
+  38 -> 38 [label="READ", fontsize=8, ];
+  38 -> 43 [label="WRITE", fontsize=8, ];
+  38 -> 26 [label="WRITE", fontsize=8, ];
+  38 -> 41 [label="WRITE", fontsize=8, ];
+  38 -> 40 [label="WRITE", fontsize=8, ];
+  38 -> 39 [label="WRITE", fontsize=8, ];
+  43 -> 44 [label="WRITE", fontsize=8, ];
+  44 -> 45 [label="WRITE", fontsize=8, ];
+  45 -> 46 [label="WRITE", fontsize=8, ];
+  46 -> 47 [label="WRITE", fontsize=8, ];
+  47 -> 48 [label="WRITE", fontsize=8, ];
+  48 -> 38 [label="READ", fontsize=8, ];
+  21 -> 22 [label="WRITE", fontsize=8, ];
+  22 -> 23 [label="WRITE", fontsize=8, ];
+  23 -> 24 [label="WRITE", fontsize=8, ];
+  24 -> 25 [label="WRITE", fontsize=8, ];
+  25 -> 26 [label="WRITE", fontsize=8, ];
+  26 -> 27 [label="WRITE", fontsize=8, ];
+  27 -> 28 [label="WRITE", fontsize=8, ];
+  28 -> 29 [label="WRITE", fontsize=8, ];
+  29 -> 30 [label="WRITE", fontsize=8, ];
+  30 -> 31 [label="WRITE", fontsize=8, ];
+  31 -> 32 [label="WRITE", fontsize=8, ];
+  32 -> 33 [label="WRITE", fontsize=8, ];
+  33 -> 34 [label="WRITE", fontsize=8, ];
+  34 -> 35 [label="WRITE", fontsize=8, ];
+  35 -> 36 [label="WRITE", fontsize=8, ];
+  36 -> 37 [label="WRITE", fontsize=8, ];
+  37 -> 38 [label="READ", fontsize=8, ];
+  41 -> 20 [label="WRITE", fontsize=8, ];
+  41 -> 43 [label="WRITE", fontsize=8, ];
+  41 -> 42 [label="WRITE", fontsize=8, ];
+  40 -> 38 [label="READ", fontsize=8, ];
+  39 -> 38 [label="READ", fontsize=8, ];
+  0 -> 1 [label="EXEC", fontsize=8, ];
+  1 -> 2 [label="WRITE", fontsize=8, ];
+  
+  }
