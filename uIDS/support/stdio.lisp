@@ -128,7 +128,8 @@
 (defun transmit (fd buf count tx-bytes)
   (declare (external "transmit"))
   (fwrite buf count 1 fd)
-  (write-word int tx-bytes count))
+  (write-word int tx-bytes count)
+  0)
 
 ;; (n (fread buf count 1 fd))
 

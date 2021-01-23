@@ -497,9 +497,7 @@ module Debug(Machine : Primus.Machine.S) = struct
     include Pre(Machine)
 
     let run [v] =
-      let v' = v |> Value.to_word
-                 |> Bitvector.to_int_exn
-                 |> string_of_int in
+      let v' = Value.to_string v in
       let () = info "primus-debug: %s" v' in
       nil
 end
