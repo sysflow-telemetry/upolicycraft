@@ -37,11 +37,15 @@ uint32_t ReadBytes(char *buf, uint32_t len) {
 
 	while (TotalBytes < len) {
 		if (receive(STDIN, buf+TotalBytes, len-TotalBytes, &rx_bytes) != 0) {
-			_terminate(0);
-		}
+			terminate(0);
+		}	
 		if (rx_bytes == 0) {
-			_terminate(0);
+			uids_log("ending since nothing was received");
+			terminate(0);
 		}
+        	char debug[50];
+        	sprintf(debug, "received %d\n", rx_bytes);
+		uids_log(debug);
 		TotalBytes += rx_bytes;
 	}
 
@@ -54,10 +58,12 @@ uint32_t SendBytes(char *buf, uint32_t len) {
 
 	while (TotalBytes < len) {
 		if (transmit(STDOUT, buf+TotalBytes, len-TotalBytes, &tx_bytes) != 0) {
-			_terminate(0);
+			uids_log("transmit not equal to 0");
+			terminate(0);
 		}
 		if (tx_bytes != len-TotalBytes) {
-			_terminate(0);
+			uids_log("tx_bytes != len-TotalBytes");
+			terminate(0);
 		}
 		TotalBytes += tx_bytes;
 	}
@@ -66,22 +72,25 @@ uint32_t SendBytes(char *buf, uint32_t len) {
 }
 
 #ifdef PATCHED_1
-void CallocAndRead(char **buf, uint32_t len) {
+void* CallocAndRead(uint32_t len) {
 #else 
-void CallocAndRead(char **buf, uint8_t len) {
+void* CallocAndRead(uint8_t len) {
 #endif
+	char *buf;
 	// extra byte to be sure strings are null terminated
 	len++;
-	if ((*buf = calloc(len)) == NULL) {
-		_terminate(0);
+	if ((buf = calloc(len, 1)) == NULL) {
+		terminate(0);
 	}
+
 #ifdef DEBUG
 	char debug[50];
-	sprintf(debug, "calloc($d)=$08x\n", len, *buf);
+	sprintf(debug, "calloc0($d)=$08x\n", len, *buf);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
 	len--;
-	ReadBytes(*buf, len);
+	ReadBytes(buf, len);
+	return buf;
 }
 
 pRequest ReceiveRequest(void) {
@@ -90,90 +99,88 @@ pRequest ReceiveRequest(void) {
 	pRequest pReq;
 
 	// Allocate a struct to hold the request
-	if ((pReq = calloc(sizeof(Request))) == NULL) {
-		_terminate(0);
+	if ((pReq = calloc(sizeof(Request), 1)) == NULL) {
+		terminate(0);
 	}
 #ifdef DEBUG
 	char debug[50];
-	sprintf(debug, "calloc($d)=$08x\n", sizeof(Request), pReq);
+	sprintf(debug, "calloc0($d)=$08x\n", sizeof(Request), pReq);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
-
+	uids_log("Parsing Bytes!");
 	// Receive until we have RequestHeader length bytes
 	ReadBytes(buf, REQUEST_HEADER_LEN);
+
+	uids_log("Read Header");
 
 	// See what type of packet we have and
 	// receive the bytes for the specified type header
 	pReq->Type = pReqHdr->Type;
-	switch (pReqHdr->Type) {
-		case (CFS_LOGIN): 
+        char debug[50];
+        sprintf(debug, "type %d\n", pReqHdr->Type);
+	uids_log(debug);
+
+	printf("pReqHdr->Type: %d\n", pReqHdr->Type);
+
+	if (pReqHdr->Type == CFS_LOGIN) {
+			uids_log("Logging in");
 			ReadBytes(buf+REQUEST_HEADER_LEN, sizeof(LoginHeader));
 			pLoginHeader pLoginHdr = (pLoginHeader)(buf+REQUEST_HEADER_LEN);
 
 			// allocate space to hold the username and read it in
-			CallocAndRead(&(pReq->Username), pLoginHdr->UsernameLen);
-			
+			pReq->Username = CallocAndRead(pLoginHdr->UsernameLen);
+
 			// allocate space to hold the password and read it in
-			CallocAndRead(&(pReq->Password), pLoginHdr->PasswordLen);
-			
-			break;
+			pReq->Password = CallocAndRead(pLoginHdr->PasswordLen);
 
-		case (CFS_DIR):
+			uids_log("Credentials");
+			uids_log(pReq->Username);
+			uids_log(pReq->Password);
+	} else if (pReqHdr->Type == CFS_DIR) {
 			// nothing more to parse
-			break;
-
-		case (CFS_READ):
+	} else if (pReqHdr->Type == CFS_READ) {
+			uids_log("Reading");
 			ReadBytes(buf+REQUEST_HEADER_LEN, sizeof(ReadHeader));
 			pReadHeader pReadHdr = (pReadHeader)(buf+REQUEST_HEADER_LEN);
 
 			// alocate space to hold the filename and read it in
-			CallocAndRead(&(pReq->Filename), pReadHdr->FilenameLen);
+			pReq->Filename = CallocAndRead(pReadHdr->FilenameLen);
 
 			// Get the read Offset and Length values
 			pReq->Offset = pReadHdr->Offset;
 			pReq->ReadWriteLength = pReadHdr->Length;
-
-			break;
-
-		case (CFS_WRITE):
-		case (CFS_WRITE_APPEND):
+	} else if (pReqHdr->Type == CFS_WRITE || pReqHdr->Type == CFS_WRITE_APPEND) {
+			uids_log("Writing");
 			ReadBytes(buf+REQUEST_HEADER_LEN, sizeof(WriteHeader));
 			pWriteHeader pWriteHdr = (pWriteHeader)(buf+REQUEST_HEADER_LEN);
 
 			// alocate space to hold the filename and read it in
-			CallocAndRead(&(pReq->Filename), pWriteHdr->FilenameLen);
+			pReq->Filename = CallocAndRead(pWriteHdr->FilenameLen);
 
 			// Get the Length value
 			pReq->ReadWriteLength = pWriteHdr->Length;
 
 			// read in the bytes to be written
 			pReq->DataLen = pWriteHdr->Length;
-			CallocAndRead(&(pReq->Data), pWriteHdr->Length);
-
-			break;
-
-		case (CFS_DEL):
+			pReq->Data = CallocAndRead(pWriteHdr->Length);
+	} else if (pReqHdr->Type == CFS_DEL) {
+			uids_log("Deleting");
 			ReadBytes(buf+REQUEST_HEADER_LEN, sizeof(DelHeader));
 			pDelHeader pDelHdr = (pDelHeader)(buf+REQUEST_HEADER_LEN);
 
 			// alocate space to hold the filename and read it in
-			CallocAndRead(&(pReq->Filename), pDelHdr->FilenameLen);
-
-			break;
-
-		case (CFS_RENAME):
+			pReq->Filename = CallocAndRead(pDelHdr->FilenameLen);
+	} else if (pReqHdr->Type == CFS_RENAME) {
+			uids_log("Renaming");
 			ReadBytes(buf+REQUEST_HEADER_LEN, sizeof(RenameHeader));
 			pRenameHeader pRenameHdr = (pRenameHeader)(buf+REQUEST_HEADER_LEN);
 
 			// alocate space to hold the original filename and read it in
-			CallocAndRead(&(pReq->Filename), pRenameHdr->OldFilenameLen);
+			pReq->Filename = CallocAndRead(pRenameHdr->OldFilenameLen);
 			
 			// alocate space to hold the new filename and read it in
-			CallocAndRead(&(pReq->Filename2), pRenameHdr->NewFilenameLen);
-			
-			break;
-		default:
-			// invalid type
+			pReq->Filename2	= CallocAndRead(pRenameHdr->NewFilenameLen);
+	} else {
 #ifdef DEBUG
 			sprintf(debug, "free($08x)\n", pReq);
 			transmit(STDERR, debug, strlen(debug), 0);
@@ -184,13 +191,17 @@ pRequest ReceiveRequest(void) {
 
 	// Return the populated Request
 	return(pReq);
-
 }
 
 uint8_t HandleLogin(pRequest pReq, pResponse pResp) {
+	uids_log("Handling login");
 	if (!pReq || !pResp) {
+		uids_log("pReq or pResp missing");
 		return(0);
 	}
+
+	uids_log(pReq->Username);
+	uids_log(pReq->Password);
 
 	if (!CheckPasswd(pReq->Username, pReq->Password)) {
 		// login failed
@@ -246,7 +257,7 @@ uint8_t HandleRead(pRequest pReq, pResponse pResp) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
-	if ((in = fopen(pReq->Filename, "r")) == NULL) {
+	if ((in = fopen0(pReq->Filename, "r")) == NULL) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
@@ -254,15 +265,15 @@ uint8_t HandleRead(pRequest pReq, pResponse pResp) {
 	// seek to the requested offset
 	for (i = 0; i < pReq->Offset; ) {
 		if ((pReq->Offset-i) > 128) {
-			if ((rx_bytes = fread(buf, 128, 1, in)) == 0) {
+			if ((rx_bytes = fread0(buf, 128, 1, in)) == 0) {
 				pResp->Code = RESP_SYSTEM_FAILURE;
-				fclose(in);
+				fclose0(in);
 				return(0);
 			}
 		} else {
-			if ((rx_bytes = fread(buf, pReq->Offset-i, 1, in)) == 0) {
+			if ((rx_bytes = fread0(buf, pReq->Offset-i, 1, in)) == 0) {
 				pResp->Code = RESP_SYSTEM_FAILURE;
-				fclose(in);
+				fclose0(in);
 				return(0);
 			}
 		}
@@ -270,27 +281,27 @@ uint8_t HandleRead(pRequest pReq, pResponse pResp) {
 	}
 	
 	// allocate space to hold the response
-	if ((pResp->Data = calloc(pReq->ReadWriteLength)) == NULL) {
+	if ((pResp->Data = calloc(pReq->ReadWriteLength, 1)) == NULL) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
-		fclose(in);
+		fclose0(in);
 		return(0);
 	}
 #ifdef DEBUG
 	char debug[50];
-	sprintf(debug, "calloc($d)=$08x\n", pReq->ReadWriteLength, pResp);
+	sprintf(debug, "calloc0($d)=$08x\n", pReq->ReadWriteLength, pResp);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
 	
 	// read the requested number of bytes
-	if ((rx_bytes = fread(pResp->Data, pReq->ReadWriteLength, 1, in)) == 0) {
+	if ((rx_bytes = fread0(pResp->Data, pReq->ReadWriteLength, 1, in)) == 0) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
-		fclose(in);
+		fclose0(in);
 		return(0);
 	}
 	pResp->DataLen = rx_bytes;
 
 	// request complete
-	fclose(in);
+	fclose0(in);
 	pResp->Code = RESP_SUCCESS;
 	return(1);
 
@@ -309,20 +320,20 @@ uint8_t HandleWrite(pRequest pReq, pResponse pResp) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
-	if ((out = fopen(pReq->Filename, "w")) == NULL) {
+	if ((out = fopen0(pReq->Filename, "w")) == NULL) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
 	
 	// write the requested number of bytes
-	if (fwrite(pReq->Data, pReq->DataLen, 1, out) == 0) {
+	if (fwrite0(pReq->Data, pReq->DataLen, 1, out) == 0) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
-		fclose(out);
+		fclose0(out);
 		return(0);
 	}
 
 	// request complete
-	fclose(out);
+	fclose0(out);
 	pResp->Code = RESP_SUCCESS;
 	return(1);
 
@@ -342,52 +353,52 @@ uint8_t HandleWriteAppend(pRequest pReq, pResponse pResp) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
-	if ((in = fopen(pReq->Filename, "r")) == NULL) {
+	if ((in = fopen0(pReq->Filename, "r")) == NULL) {
 		pResp->Code = RESP_INVALID_FILE;
 		return(0);
 	}
 	CurrFileLen = in->Inode->FileSize;
-	if ((CurrContents = calloc(CurrFileLen)) == NULL) {
+	if ((CurrContents = calloc(CurrFileLen, 1)) == NULL) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
-		fclose(in);
+		fclose0(in);
 		return(0);
 	}
 #ifdef DEBUG
 	char debug[50];
-	sprintf(debug, "calloc($d)=$08x\n", CurrFileLen, CurrContents);
+	sprintf(debug, "calloc0($d)=$08x\n", CurrFileLen, CurrContents);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
-	if (fread(CurrContents, CurrFileLen, 1, in) != CurrFileLen) {
+	if (fread0(CurrContents, CurrFileLen, 1, in) != CurrFileLen) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
 		free(CurrContents);
-		fclose(in);
+		fclose0(in);
 		return(0);
 	}
-	fclose(in);
+	fclose0(in);
 
 	// write the current contents back to the file
-	if ((out = fopen(pReq->Filename, "w")) == NULL) {
+	if ((out = fopen0(pReq->Filename, "w")) == NULL) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
 		free(CurrContents);
 		return(0);
 	}
-	if (fwrite(CurrContents, CurrFileLen, 1, out) != CurrFileLen) {
+	if (fwrite0(CurrContents, CurrFileLen, 1, out) != CurrFileLen) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
 		free(CurrContents);
-		fclose(out);
+		fclose0(out);
 		return(0);
 	}
 	free(CurrContents);
 	
 	// write the new data to the end of the file 
-	if (fwrite(pReq->Data, pReq->DataLen, 1, out) == 0) {
+	if (fwrite0(pReq->Data, pReq->DataLen, 1, out) == 0) {
 		pResp->Code = RESP_SYSTEM_FAILURE;
-		fclose(out);
+		fclose0(out);
 		return(0);
 	}
 
 	// request complete
-	fclose(out);
+	fclose0(out);
 	pResp->Code = RESP_SUCCESS;
 	return(1);
 }
@@ -428,58 +439,40 @@ pResponse HandleRequest(pRequest pReq) {
 	pResponse pResp;
 
 	if (!pReq) {
+		uids_log("missing pReq!");
 		return(NULL);
 	}
 
 	// Allocate a response
-	if ((pResp = calloc(sizeof(Response))) == NULL) {
-		_terminate(0);
+	if ((pResp = calloc(sizeof(Response), 1)) == NULL) {
+		terminate(0);
 	}
 #ifdef DEBUG
 	char debug[50];
-	sprintf(debug, "calloc($d)=$08x\n", sizeof(Response), pResp);
+	sprintf(debug, "calloc0($d)=$08x\n", sizeof(Response), pResp);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
 	pResp->Type = pReq->Type;
-
+	
 	// See what type of request we have
-	switch (pReq->Type) {
-		case (CFS_LOGIN): 
-			HandleLogin(pReq, pResp);
-			break;
-
-		case (CFS_DIR):
-			HandleDir(pReq, pResp);
-			break;
-
-		case (CFS_READ):
-			HandleRead(pReq, pResp);
-			break;
-
-		case (CFS_WRITE):
-			HandleWrite(pReq, pResp);
-			break;
-
-		case (CFS_WRITE_APPEND):
-			HandleWriteAppend(pReq, pResp);
-			break;
-
-		case (CFS_DEL):
-			HandleDel(pReq, pResp);
-			break;
-
-		case (CFS_RENAME):
-			HandleRename(pReq, pResp);
-			break;
-
-		default:
-#ifdef DEBUG
-			sprintf(debug, "free($08x)\n", pResp);
-			transmit(STDERR, debug, strlen(debug), 0);
-#endif
-			free(pResp);
-			pResp = NULL;
-			break;
+        if (pReq->Type == CFS_LOGIN) {
+		HandleLogin(pReq, pResp);
+	} else if (pReq->Type == CFS_DIR) {
+		HandleDir(pReq, pResp);
+	} else if (pReq->Type == CFS_READ) {
+		HandleRead(pReq, pResp);
+	} else if (pReq->Type == CFS_WRITE) {
+		HandleWrite(pReq, pResp);
+	} else if (pReq->Type == CFS_WRITE_APPEND) {
+		HandleWriteAppend(pReq, pResp);
+	} else if (pReq->Type == CFS_DEL) {
+		HandleDel(pReq, pResp);
+	} else if (pReq->Type == CFS_RENAME) {
+		HandleRename(pReq, pResp);
+	} else {
+		uids_log("pReq type not found");
+		free(pResp);
+		pResp = NULL;
 	}
 
 	// Return the reponse
@@ -498,15 +491,22 @@ uint8_t SendResponse(pResponse pResp) {
 		return(0);
 	}
 
+	uids_log("Sent header");
+
 	// Return if there's no extra data to send
 	if (pResp->DataLen == 0) {
+		uids_log("no data to send!");
 		return(1);
 	}
+
+	uids_log(pResp->Data);
 
 	// Send the extra data
 	if (SendBytes(pResp->Data, pResp->DataLen) != pResp->DataLen) {
 		return(0);
 	}
+
+	uids_log("Sent Data");
 
 	return(1);
 }
@@ -523,16 +523,19 @@ uint8_t FreeRequest(pRequest pReq) {
 
 	// check and free the Username
 	if (pReq->Username) {
+		uids_log("username");
 #ifdef DEBUG
 		sprintf(debug, "free($08x)\n", pReq->Username);
 		transmit(STDERR, debug, strlen(debug), 0);
 #endif
 		free(pReq->Username);
 		pReq->Username = NULL;
+		uids_log("after username");
 	}
 
 	// check and free the Password
 	if (pReq->Password) {
+		uids_log("password");
 #ifdef DEBUG
 		sprintf(debug, "free($08x)\n", pReq->Password);
 		transmit(STDERR, debug, strlen(debug), 0);
@@ -543,6 +546,7 @@ uint8_t FreeRequest(pRequest pReq) {
 
 	// check and free the Filename
 	if (pReq->Filename) {
+		uids_log("filename");
 #ifdef DEBUG
 		sprintf(debug, "free($08x)\n", pReq->Filename);
 		transmit(STDERR, debug, strlen(debug), 0);
@@ -553,6 +557,7 @@ uint8_t FreeRequest(pRequest pReq) {
 
 	// check and free the Filename2
 	if (pReq->Filename2) {
+		uids_log("filename2");
 #ifdef DEBUG
 		sprintf(debug, "free($08x)\n", pReq->Filename2);
 		transmit(STDERR, debug, strlen(debug), 0);
@@ -563,6 +568,7 @@ uint8_t FreeRequest(pRequest pReq) {
 
 	// check and free the Data
 	if (pReq->Data) {
+		uids_log("data");
 #ifdef DEBUG
 		sprintf(debug, "free($08x)\n", pReq->Data);
 		transmit(STDERR, debug, strlen(debug), 0);
@@ -575,6 +581,7 @@ uint8_t FreeRequest(pRequest pReq) {
 	sprintf(debug, "free($08x)\n", pReq);
 	transmit(STDERR, debug, strlen(debug), 0);
 #endif
+	uids_log("before free pReq");
 	free(pReq);
 	pReq = NULL;
 

@@ -41,7 +41,7 @@ int main(void) {
 	// init the filesystem
         if (!InitFilesystem(MaxFiles, "rootpasswd")) {
                 puts(FsError());
-                _terminate(0);
+                terminate(0);
         }
 
 	// init the prng
@@ -55,7 +55,7 @@ int main(void) {
 
 	// Add the random user
 	if (!AddUser("user", user_password)) {
-		_terminate(0);
+		terminate(0);
 	}
 
 	// loop receiving packets
@@ -67,6 +67,7 @@ int main(void) {
 
 		// Handle the request
 		if ((pResp = HandleRequest(pReq)) == NULL) {
+			uids_log("Invalid Request!");
 			FreeRequest(pReq);
 			continue;
 		}

@@ -64,10 +64,10 @@ uint8_t InitFilesystem(uint32_t MaxFiles, char *RootPassword);
 uint8_t RenameFile(char *OldFilename, char *NewFilename);
 uint8_t DeleteFile(char *Filename);
 uint8_t InitPasswd(char *RootPassword);
-FILE *fopen(char *Filename, char *Mode);
-uint32_t fread(char *buf, uint32_t size, uint32_t nitems, FILE *fp);
-uint32_t fwrite(char *buf, uint32_t size, uint32_t nitems, FILE *fp);
-uint8_t fclose(FILE *fp);
+FILE *fopen0(char *Filename, char *Mode);
+uint32_t fread0(char *buf, uint32_t size, uint32_t nitems, FILE *fp);
+uint32_t fwrite0(char *buf, uint32_t size, uint32_t nitems, FILE *fp);
+uint8_t fclose0(FILE *fp);
 uint8_t ListFiles(char **Buf);
 uint8_t Login(char *Username);
 void Uid(void);
@@ -77,6 +77,6 @@ uint8_t DeleteUser(char *Username);
 uint8_t ChangePasswd(char *Username, char *NewPasswd);
 uint8_t CheckPasswd(char *Username, char *Password);
 uint8_t UserExists(char *Username);
-char *fgets(char *buf, uint32_t size, FILE *fp);
+char *fgets0(char *buf, uint32_t size, FILE *fp);
 
 #endif // __FS_H__

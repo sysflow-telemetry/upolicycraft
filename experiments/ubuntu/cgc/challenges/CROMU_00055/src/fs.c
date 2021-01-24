@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-#include <fs.h>
+#include "fs.h"
 
 /* fs.c libc-cfe Filesystem library
 This library implements a single-directory filesystem with basic
@@ -45,60 +45,60 @@ int main(void) {
 
 	if (!InitFilesystem(MaxFiles, "rootpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if (!AddUser("testuser", "testpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	// it's up to the CB to validate passwords using 
 	// CheckPasswd() before calling Login
 	if (!Login("testuser")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
-	if ((fp = fopen("testfile", "w")) == NULL) {
+	if ((fp = fopen0("testfile", "w")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
-	if ((fwrite("asdf\n", strlen("asdf\n"), 1, fp)) != strlen("asdf\n")) {
+	if ((fwrite0("asdf\n", strlen("asdf\n"), 1, fp)) != strlen("asdf\n")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
-	fclose(fp);
+	fclose0(fp);
 
 	ListFiles(NULL);
 
-	if ((fp = fopen("testfile", "r")) == NULL) {
+	if ((fp = fopen0("testfile", "r")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
-	// could also use fgets() here
-	if ((fread(buf, 10, 1, fp)) == 0) {
+	// could also use fgets0() here
+	if ((fread0(buf, 10, 1, fp)) == 0) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	printf("$s", buf);
 
-	fclose(fp);
+	fclose0(fp);
 
 	if (!RenameFile("testfile", "testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
 
 	if (!DeleteFile("testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
@@ -197,14 +197,14 @@ uint8_t InitFilesystem(uint32_t MaxFiles, char *RootPassword) {
 	}
 
 	// malloc space for the filesystem
-	if ((FS = calloc(sizeof(Filesystem))) == NULL) {
-		SetFsError("calloc failed");
+	if ((FS = calloc(sizeof(Filesystem), 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(0);
 	}
 
 	// malloc space for the inode array
-	if ((FS->Inodes = calloc(sizeof(Inode)*MaxFiles)) == NULL) {
-		SetFsError("calloc failed");
+	if ((FS->Inodes = calloc(sizeof(Inode)*MaxFiles, 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		free(FS);
 		return(0);
 	}
@@ -282,14 +282,14 @@ pInode CreateEmptyFile(char *Filename, uint8_t Mode) {
 		}
 
 		// create the inode
-		if ((FS->Inodes[i] = calloc(sizeof(Inode))) == NULL) {
-			SetFsError("calloc failed");
+		if ((FS->Inodes[i] = calloc(sizeof(Inode), 1)) == NULL) {
+			SetFsError("calloc0 failed");
 			return(NULL);
 		}
 
 		// set the filename
-		if ((FS->Inodes[i]->Filename = calloc(strlen(Filename)+1)) == NULL) {
-			SetFsError("calloc failed");
+		if ((FS->Inodes[i]->Filename = calloc(strlen(Filename)+1, 1)) == NULL) {
+			SetFsError("calloc0 failed");
 			free(FS->Inodes[i]);
 			FS->Inodes[i] = NULL;
 			return(NULL);
@@ -297,8 +297,8 @@ pInode CreateEmptyFile(char *Filename, uint8_t Mode) {
 		strcpy(FS->Inodes[i]->Filename, Filename);
 
 		// set the owner
-		if ((FS->Inodes[i]->Owner = calloc(sizeof(CurrentUser)+1)) == NULL) {
-			SetFsError("calloc failed");
+		if ((FS->Inodes[i]->Owner = calloc(sizeof(CurrentUser)+1, 1)) == NULL) {
+			SetFsError("calloc0 failed");
 			free(FS->Inodes[i]->Filename);
 			FS->Inodes[i]->Filename = NULL;
 			free(FS->Inodes[i]);
@@ -327,8 +327,8 @@ pInode CreateEmptyFile(char *Filename, uint8_t Mode) {
 
 // Open a file for reading or writing
 //  Mode: must be either 'r' or 'w'
-//  Returns a file handle suitable for calls to fread, fwrite, fgets, fclose
-FILE *fopen(char *Filename, char *Mode) {
+//  Returns a file handle suitable for calls to fread0, fwrite0, fgets0, fclose0
+FILE *fopen0(char *Filename, char *Mode) {
 	uint32_t i;
 	pInode TargetInode = NULL;
 	FILE *fp;
@@ -403,8 +403,8 @@ FILE *fopen(char *Filename, char *Mode) {
 	}
 
 	// allocate a FILE record
-	if ((fp = calloc(sizeof(FILE))) == NULL) {
-		SetFsError("calloc failed");
+	if ((fp = calloc(sizeof(FILE), 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(NULL);
 	}
 
@@ -462,7 +462,7 @@ FILE *fopen(char *Filename, char *Mode) {
 }
 
 // closes an open file
-uint8_t fclose(FILE *fp) {
+uint8_t fclose0(FILE *fp) {
 	uint8_t i;
 
 	if (!fp) {
@@ -485,7 +485,7 @@ uint8_t fclose(FILE *fp) {
 	
 // reads the specified number of items of a particular size from the specified file
 //   returns the number of bytes read
-uint32_t fread(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
+uint32_t fread0(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 
 	if (!buf || !fp) {
 		SetFsError("Invalid buffer or file pointer");
@@ -511,7 +511,7 @@ uint32_t fread(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 
 // writes the specified number of items of a particular size to the specified file
 //   returns the number of bytes written
-uint32_t fwrite(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
+uint32_t fwrite0(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 	unsigned char *NewData;
 
 	if (!buf || !fp) {
@@ -520,8 +520,8 @@ uint32_t fwrite(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 	}
 
 	// allocate space to hold the current data and the new data
-	if ((NewData = calloc(fp->Inode->FileSize + size*nitems)) == NULL) {
-		SetFsError("calloc failed");
+	if ((NewData = calloc(fp->Inode->FileSize + size*nitems, 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(0);
 	}
 
@@ -546,7 +546,7 @@ uint32_t fwrite(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 
 // reads a line delimited by '\n' from the file
 //   returns a pointer to the line or NULL on EoF or error
-char *fgets(char *buf, uint32_t size, FILE *fp) {
+char *fgets0(char *buf, uint32_t size, FILE *fp) {
 	uint32_t TotalBytes = 0;
 
 	if (!buf) {
@@ -631,8 +631,8 @@ uint8_t ListFiles(char **Buf) {
 		}
 
 		// allocate the buffer
-		if ((*Buf = calloc(TotalLen)) == NULL) {
-			SetFsError("calloc failed");
+		if ((*Buf = calloc(TotalLen, 1)) == NULL) {
+			SetFsError("calloc0 failed");
 			return(0);
 		}
 	}
@@ -788,8 +788,8 @@ uint8_t RenameFile(char *OldFilename, char *NewFilename) {
 	}
 
 	// rename the file
-	if ((TempFilename = calloc(strlen(NewFilename)+1)) == NULL) {
-		SetFsError("calloc failed");
+	if ((TempFilename = calloc(strlen(NewFilename)+1, 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(0);
 	}	
 	strcpy(TempFilename, NewFilename);
@@ -865,9 +865,9 @@ uint8_t ChangeOwner(char *Filename, char *NewOwner) {
 		return(0);
 	}
 
-	// calloc some space for the new owner name
-	if ((TempOwner = calloc(strlen(NewOwner)+1)) == NULL) {
-		SetFsError("calloc failed");
+	// calloc0 some space for the new owner name
+	if ((TempOwner = calloc(strlen(NewOwner)+1, 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(0);
 	}
 	strcpy(TempOwner, NewOwner);
@@ -896,8 +896,8 @@ uint8_t Login(char *Username) {
 	}
 
 	// copy the requested username 
-	if ((NewUsername = calloc(strlen(Username)+1)) == NULL) {
-		SetFsError("calloc failed");
+	if ((NewUsername = calloc(strlen(Username)+1, 1)) == NULL) {
+		SetFsError("calloc0 failed");
 		return(0);
 	}
 	strcpy(NewUsername, Username);
@@ -944,18 +944,18 @@ uint8_t InitPasswd(char *RootPassword) {
 		return(0);
 	}
 
-	// fopen the passwd file
-	if ((fp = fopen("passwd", "w")) == NULL) {
+	// fopen0 the passwd file
+	if ((fp = fopen0("passwd", "w")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		return(0);
 	}
 
 	// write the root user
-	fwrite("root:", 5, 1, fp);
-	fwrite(RootPassword, strlen(RootPassword), 1, fp);
+	fwrite0("root:", 5, 1, fp);
+	fwrite0(RootPassword, strlen(RootPassword), 1, fp);
 
 	// close the file
-	fclose(fp);
+	fclose0(fp);
 
 	ClearFsError();
 	return(1);
@@ -974,13 +974,13 @@ uint8_t UserExists(char *Username) {
 	}
 
 	// open the passwd file
-	if ((in = fopen("passwd", "r")) == NULL) {
+	if ((in = fopen0("passwd", "r")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		return(0);
 	}
 
 	// read in each line
-	while (fgets(line, 127, in)) {
+	while (fgets0(line, 127, in)) {
 		// see if it's the target username
 		if ((User = strtok(line, ":")) == NULL) {
 			SetFsError("Failed to parse passwd file");
@@ -988,13 +988,13 @@ uint8_t UserExists(char *Username) {
 		}
 		if (!strcmp(User, Username)) {
 			// found it
-			fclose(in);
+			fclose0(in);
 			return(1);
 		}
 	}
 
 	// close the passwd file
-	fclose(in);
+	fclose0(in);
 
 	ClearFsError();
 	return(0);
@@ -1035,32 +1035,32 @@ uint8_t AddUser(char *Username, char *Password) {
 	}
 
 	// open the passwd file
-	if ((passwd = fopen("passwd", "r")) == NULL) {
+	if ((passwd = fopen0("passwd", "r")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		return(0);
 	}
 
 	// open the temp passwd file
-	if ((newpasswd = fopen("~passwd", "w")) == NULL) {
+	if ((newpasswd = fopen0("~passwd", "w")) == NULL) {
 		SetFsError("Unable to open tmp passwd file");
-		fclose(passwd);
+		fclose0(passwd);
 		return(0);
 	}
 
 	// read in each line of the passwd file
-	while (fgets(line, 127, passwd) != NULL) {
+	while (fgets0(line, 127, passwd) != NULL) {
 		// write it out to the temp passwd file
-		if (fwrite(line, strlen(line), 1, newpasswd) != strlen(line)) {
-			fclose(passwd);
-			fclose(newpasswd);
+		if (fwrite0(line, strlen(line), 1, newpasswd) != strlen(line)) {
+			fclose0(passwd);
+			fclose0(newpasswd);
 			SetFsError("Unable to write tmp passwd file");
 			DeleteFile("~passwd");
 			return(0);
 		}
 		if (line[strlen(line)-1] != '\n') {
-			if (fwrite("\n", 1, 1, newpasswd) != 1) {
-				fclose(passwd);
-				fclose(newpasswd);
+			if (fwrite0("\n", 1, 1, newpasswd) != 1) {
+				fclose0(passwd);
+				fclose0(newpasswd);
 				SetFsError("Unable to write tmp passwd file");
 				DeleteFile("~passwd");
 				return(0);
@@ -1070,13 +1070,13 @@ uint8_t AddUser(char *Username, char *Password) {
 
 	// write the new passwd entry
 	sprintf(line, "$s:$s", Username, Password);
-	fwrite(line, strlen(line), 1, newpasswd);
+	fwrite0(line, strlen(line), 1, newpasswd);
 
 	// close the passwd file
-	fclose(passwd);
+	fclose0(passwd);
 
 	// close the temp passwd file
-	fclose(newpasswd);
+	fclose0(newpasswd);
 
 	// remove the passwd file
 	DeleteFile("passwd");
@@ -1110,20 +1110,20 @@ uint8_t DeleteUser(char *Username) {
 	}
 
 	// open the passwd file
-	if ((passwd = fopen("passwd", "r")) == NULL) {
+	if ((passwd = fopen0("passwd", "r")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		return(0);
 	}
 
 	// open the temp passwd file
-	if ((newpasswd = fopen("~passwd", "w")) == NULL) {
+	if ((newpasswd = fopen0("~passwd", "w")) == NULL) {
 		SetFsError("Unable to open tmp passwd file");
-		fclose(passwd);
+		fclose0(passwd);
 		return(0);
 	}
 
 	// read in each line of the passwd file
-	while (fgets(line, 127, passwd) != NULL) {
+	while (fgets0(line, 127, passwd) != NULL) {
 		// skip blank lines
 		if (strlen(line) == 0) {
 			continue;
@@ -1132,8 +1132,8 @@ uint8_t DeleteUser(char *Username) {
 		// if it's not the user we're deleting
 		if ((User = strtok(line, ":")) == NULL) {
 			SetFsError("Failed to parse passwd file");
-			fclose(passwd);
-			fclose(newpasswd);
+			fclose0(passwd);
+			fclose0(newpasswd);
 			DeleteFile("~passwd");
 			return(0);
 		}
@@ -1147,9 +1147,9 @@ uint8_t DeleteUser(char *Username) {
 		line[strlen(User)] = ':';
 
 		// write the line to the temp passwd file
-		if (fwrite(line, strlen(line), 1, newpasswd) != strlen(line)) {
-			fclose(passwd);
-			fclose(newpasswd);
+		if (fwrite0(line, strlen(line), 1, newpasswd) != strlen(line)) {
+			fclose0(passwd);
+			fclose0(newpasswd);
 			SetFsError("Unable to write tmp passwd file");
 			DeleteFile("~passwd");
 			return(0);
@@ -1157,15 +1157,15 @@ uint8_t DeleteUser(char *Username) {
 	}
 
 	// close the passwd file
-	fclose(passwd);
+	fclose0(passwd);
 
 	// close the temp passwd file
-	fclose(newpasswd);
+	fclose0(newpasswd);
 
 	if (!Found) {
 		SetFsError("User not found");
-		fclose(passwd);
-		fclose(newpasswd);
+		fclose0(passwd);
+		fclose0(newpasswd);
 		DeleteFile("~passwd");
 		return(0);
 	}
@@ -1208,20 +1208,20 @@ uint8_t ChangePasswd(char *Username, char *NewPasswd) {
 	}
 
 	// open the passwd file
-	if ((passwd = fopen("passwd", "r")) == NULL) {
+	if ((passwd = fopen0("passwd", "r")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		return(0);
 	}
 
 	// open the temp passwd file
-	if ((newpasswd = fopen("~passwd", "w")) == NULL) {
+	if ((newpasswd = fopen0("~passwd", "w")) == NULL) {
 		SetFsError("Unable to open tmp passwd file");
-		fclose(passwd);
+		fclose0(passwd);
 		return(0);
 	}
 
 	// read in each line of the passwd file
-	while (fgets(line, 127, passwd) != NULL) {
+	while (fgets0(line, 127, passwd) != NULL) {
 		// skip blank lines
 		if (strlen(line) == 0) {
 			continue;
@@ -1230,17 +1230,17 @@ uint8_t ChangePasswd(char *Username, char *NewPasswd) {
 		// if it's not the user we're deleting
 		if ((User = strtok(line, ":")) == NULL) {
 			SetFsError("Failed to parse passwd file");
-			fclose(passwd);
-			fclose(newpasswd);
+			fclose0(passwd);
+			fclose0(newpasswd);
 			DeleteFile("~passwd");
 			return(0);
 		}
 		if (!strcmp(User, Username)) {
 			// found it, write the new passwd
 			sprintf(line, "$s:$s\n", Username, NewPasswd);
-			if (fwrite(line, strlen(line), 1, newpasswd) != strlen(line)) {
-				fclose(passwd);
-				fclose(newpasswd);
+			if (fwrite0(line, strlen(line), 1, newpasswd) != strlen(line)) {
+				fclose0(passwd);
+				fclose0(newpasswd);
 				SetFsError("Unable to write tmp passwd file");
 				DeleteFile("~passwd");
 				return(0);
@@ -1252,25 +1252,25 @@ uint8_t ChangePasswd(char *Username, char *NewPasswd) {
 		line[strlen(User)] = ':';
 
 		// restore the delimiter strtok would have removed
-		if (fwrite(line, strlen(line), 1, newpasswd) != strlen(line)) {
+		if (fwrite0(line, strlen(line), 1, newpasswd) != strlen(line)) {
 			SetFsError("Unable to write tmp passwd file");
-			fclose(passwd);
-			fclose(newpasswd);
+			fclose0(passwd);
+			fclose0(newpasswd);
 			DeleteFile("~passwd");
 			return(0);
 		}
 	}
 
 	// close the passwd file
-	fclose(passwd);
+	fclose0(passwd);
 
 	// close the temp passwd file
-	fclose(newpasswd);
+	fclose0(newpasswd);
 
 	if (!Found) {
 		SetFsError("User not found");
-		fclose(passwd);
-		fclose(newpasswd);
+		fclose0(passwd);
+		fclose0(newpasswd);
 		DeleteFile("~passwd");
 		return(0);
 	}
@@ -1313,8 +1313,8 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 	// save the current logged in user
 	if (CurrentUser) {
 		if (strcmp(CurrentUser, "root") != 0) {
-			if ((OldUser = calloc(strlen(CurrentUser)+1)) == NULL) {
-				SetFsError("calloc failed");
+			if ((OldUser = calloc(strlen(CurrentUser)+1, 1)) == NULL) {
+				SetFsError("calloc0 failed");
 				return(0);
 			}
 			strcpy(OldUser, CurrentUser);
@@ -1327,7 +1327,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 	}
 
 	// open the passwd file
-	if ((passwd = fopen("passwd", "r")) == NULL) {
+	if ((passwd = fopen0("passwd", "r")) == NULL) {
 		SetFsError("Unable to open passwd file");
 		if (OldUser) {
 			Logout();
@@ -1341,7 +1341,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 	}
 
 	// read in each line of the passwd file
-	while (fgets(line, 127, passwd) != NULL) {
+	while (fgets0(line, 127, passwd) != NULL) {
 		// skip blank lines
 		if (strlen(line) == 0) {
 			continue;
@@ -1353,7 +1353,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 		// parse the username field
 		if ((User = strtok(line, ":")) == NULL) {
 			SetFsError("Failed to parse passwd file");
-			fclose(passwd);
+			fclose0(passwd);
 			if (OldUser) {
 				Logout();
 				Login(OldUser);
@@ -1372,7 +1372,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 		// found the target user, parse the password
 		if ((CurrPassword = strtok(NULL, ":")) == NULL) {
 			SetFsError("Failed to parse passwd file");
-			fclose(passwd);
+			fclose0(passwd);
 			if (OldUser) {
 				Logout();
 				Login(OldUser);
@@ -1387,7 +1387,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 		if (!strcmp(CurrPassword, Password)) {
 			// matches
 			ClearFsError();
-			fclose(passwd);
+			fclose0(passwd);
 			if (OldUser) {
 				Logout();
 				Login(OldUser);
@@ -1402,7 +1402,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 	}
 
 	// close the passwd file
-	fclose(passwd);
+	fclose0(passwd);
 
 	if (!Found) {
 		SetFsError("User not found");
