@@ -144,13 +144,18 @@
     (while (and (< z count)
                 (receive-step buf count fd z))
       (incr z))
-    (when rx-bytes
-      (write-word ptr_t (cast ptr_t rx-bytes) z))
+      (write-word ptr_t (cast ptr_t rx-bytes) z)
     0))
 
+;; It would have been nice to implement this on top of receive,
+;; but for some reason Primus's typechecker complains.
 (defun receive-bytes (buf count)
    (declare (external "receive_bytes"))
-   (receive *standard-input* buf count nil))
+   (let ((z 0))
+    (while (and (< z count)
+                (receive-step buf count *standard-input* z))
+      (incr z))
+    0))
 
 (defun transmit-all (fd buf size)
   (declare (external "transmit_all"))
