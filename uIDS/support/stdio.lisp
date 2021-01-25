@@ -144,8 +144,13 @@
     (while (and (< z count)
                 (receive-step buf count fd z))
       (incr z))
-    (write-word ptr_t (cast ptr_t rx-bytes) z)
+    (when rx-bytes
+      (write-word ptr_t (cast ptr_t rx-bytes) z))
     0))
+
+(defun receive-bytes (buf count)
+   (declare (external "receive_bytes"))
+   (receive *standard-input* buf count nil))
 
 (defun transmit-all (fd buf size)
   (declare (external "transmit_all"))

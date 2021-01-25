@@ -44,9 +44,10 @@ int           random_cgc(void *buf, size_t count, size_t *rnd_bytes);
 
 int           transmit_all(int fd, const char *buf, const size_t size);
 int           receive_delim(int fd, char *buf, const size_t size, char delim);
-int           receive_delim(int fd, char *buf, const size_t size, char delim);
 int           receive_until(char *dest, size_t length, char end, size_t *bytes_read);
 int           recvUntil(int fd, char *buf, int max, char delim);
+int           receive_bytes ( char *buffer, size_t count);
+
 int           print(char *buf);
 int           put(char *buf);
 
