@@ -25,10 +25,10 @@ THE SOFTWARE.
 */
 
 #include <libcgc.h>
+#include "stdio.h"
 
 #include "alu.h"
 #include "cpu.h"
-#include "stdio.h"
 
 int getALUOp2(pruCPU *cpu, aluInstruction inst) {
 	if(inst.io == 0)

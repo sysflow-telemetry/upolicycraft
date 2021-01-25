@@ -51,9 +51,11 @@ void dumpState(pruCPU *cpu) {
 void execute(pruCPU *cpu) {
 	aluInstruction inst;
 	fmt2InstructionHeader fmt2Hdr;
-	while(1) {
+	while (1) {
 		int didBranch = 0;
+		uids_log("Copying instruction onto stack");
 		memcpy(&inst, (aluInstruction *)&cpu->code[cpu->pc], 4);
+
 		switch(inst.opFmt) {
 			case 0b000:
 				switch(inst.aluOp) {
@@ -160,6 +162,8 @@ void execute(pruCPU *cpu) {
 			default:
 				return;
 		}
+
+		uids_log("After memcpy");
 		if(didBranch == 0)
 			cpu->pc++;
 		cpu->numExecuted++;
@@ -177,17 +181,26 @@ int recvInt() {
 	while(totRecvd<=3) {
 		receive(0, tmp+totRecvd, 4-totRecvd, &recvd);
 		if(recvd == 0)
-			_terminate(0);
+			terminate(0);
 		totRecvd+=recvd;
 	}
 	memcpy(&ret, tmp, 4);
 	return ret;
 }
+
 int main() {
 	int numInstructions;
 	int recvd;
 	int i;
 	pruCPU cpu;
+
+	bzero(&cpu, sizeof(pruCPU));
+
+	if (cpu.pc != 0) {
+		puts("Invalid PC!");
+		terminate(1);
+	}
+
 	cpu.numExecuted = 0;
 	memset(cpu.code, 0xff, 0x4000);
 	numInstructions = recvInt();
@@ -196,6 +209,6 @@ int main() {
 	}
 	execute(&cpu);
 	dumpState(&cpu);
-	_terminate(0);
+	terminate(0);
 
 }

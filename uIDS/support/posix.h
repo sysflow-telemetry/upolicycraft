@@ -46,7 +46,7 @@ int           transmit_all(int fd, const char *buf, const size_t size);
 int           receive_delim(int fd, char *buf, const size_t size, char delim);
 int           receive_until(char *dest, size_t length, char end, size_t *bytes_read);
 int           recvUntil(int fd, char *buf, int max, char delim);
-int           receive_bytes( char *buffer, size_t count);
+int           receive_bytes ( char *buffer, size_t count);
 
 int           print(char *buf);
 int           put(char *buf);
@@ -223,6 +223,8 @@ int _IO_putc(int c, FILE *stream);
 int _IO_puts(const char *s);
 
 // string.h
+
+void bzero(void *s, size_t n);
 
 char *strtok(char *str, const char *delim);
 
