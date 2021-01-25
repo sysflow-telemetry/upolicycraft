@@ -1,0 +1,35 @@
+{
+  "initial": "%0000ccb6",
+  "nodes": [ "%00003724", "%0000b0e2", "%0000ccb6", "%0000ccb9" ],
+  "contexts": {
+    "%0000ccb9": [ "/usr/sbin/xinetd", "main" ],
+    "%0000ccb6": [ "/usr/sbin/xinetd", "main" ],
+    "%0000b0e2": [ "/cgc/CROMU_00061", "_ZN3CVM3RunEv" ],
+    "%0000ccb8": [ "/usr/sbin/xinetd", "main" ],
+    "%00003724": [ "/cgc/CROMU_00061", "_Z9ReadBytesPhj" ]
+  },
+  "constraints": [
+    { "node": "%00003724", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000b0e2", "constraints": { "sf.net.dport": [ "8003" ] } },
+    {
+      "node": "%0000ccb6",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0000ccb9",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00061" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00003724", "dst": "%00003724", "label": "READ" },
+    { "src": "%00003724", "dst": "%0000b0e2", "label": "WRITE" },
+    { "src": "%0000ccb6", "dst": "%0000ccb9", "label": "EXEC" },
+    { "src": "%0000ccb9", "dst": "%00003724", "label": "READ" }
+  ]
+}

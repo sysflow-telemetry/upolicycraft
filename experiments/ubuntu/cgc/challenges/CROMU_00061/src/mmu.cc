@@ -104,6 +104,8 @@ bool CMMU::AddMemorySection( uint16_t address, uint8_t *pData, uint16_t dataLen,
 
 bool CMMU::Fetch16( uint16_t address, uint16_t &value )
 {
+	uids_log("Fetching 16");
+
 	address &= 0xFFFE;
 
 	uint16_t mmuPage = (address / MMU_PAGE_SIZE);

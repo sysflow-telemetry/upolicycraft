@@ -100,9 +100,10 @@ bool CVM::Run( void )
 	m_oCPU.Run();
 
 	if ( m_oCPU.HasException() )
-		printf( "Exception: $s\n", m_oCPU.GetExceptionText().c_str() );
+		// printf( "Exception: $s\n", m_oCPU.GetExceptionText().c_str() );
+		printf("Exception: $s\n");
 
-	printf( "Registers:\n$s\nEnd Registers\n", m_oCPU.DumpRegisters().c_str() );
+	//printf( "Registers:\n$s\nEnd Registers\n", m_oCPU.DumpRegisters().c_str() );
 
 	return (true);
 }

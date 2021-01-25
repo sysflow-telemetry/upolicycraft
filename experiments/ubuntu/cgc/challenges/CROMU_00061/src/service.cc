@@ -33,6 +33,7 @@ extern "C"
 #include <prng.h>
 }
 
+#include "malloc.h"
 #include "common.h"
 #include "clf.h"
 #include "vm.h"
@@ -62,14 +63,19 @@ int __attribute__((fastcall)) main(int secret_page_i, char *unused[])
 
 	uint8_t *pLoaderFile = new uint8_t[fileSize];
 
+	uids_log("Before reading loading file");
+
 	ReadBytes( pLoaderFile, fileSize );
 
+	uids_log("Before loading file");
 	// Begin loading
 	if ( !oLoader.LoadFile( pLoaderFile, fileSize ) )
 	{
 		printf( "Exiting\n" );
 		return (-1);
 	}
+
+	uids_log("After loading file");
 
 	// Delete file -- not needed anymore
 	delete pLoaderFile;

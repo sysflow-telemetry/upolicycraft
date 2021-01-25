@@ -1,16 +1,16 @@
 all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so
 
-LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c lib/*.cc))
-CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c src/*.cc))
+LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c)) $(patsubst %.cc,%.o,$(wildcard lib/*.cc))
+CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cc,%.o,$(wildcard src/*.cc))
 
 /cgc/libcgc.so: /cgc/libcgc.c
 	gcc -shared -fPIC -I /cgc/ ${CFLAGS} -o $@ $<
 
 %.o: %.c
-	gcc -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib -I ${PWD}/cb_1/include -I ${PWD}/cb_1/lib ${CFLAGS} -c -o $@ $<
+	gcc -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib ${CFLAGS} -c -o $@ $<
 
 %.o: %.cc
-	g++ -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/include -I ${PWD}/lib -I ${PWD}/cb_1/include -I ${PWD}/cb_1/lib  ${CXXFLAGS} -c -o $@ $<
+	g++ -fPIC -I /cgc/ -I ${PWD} -I ${PWD}/src -I ${PWD}/include -I ${PWD}/lib ${CXXFLAGS} -c -o $@ $<
 
 lib.so: ${LIB_OBJECTS}
 	gcc -shared -o $@ $^

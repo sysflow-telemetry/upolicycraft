@@ -35,20 +35,23 @@ extern "C"
 
 uint32_t ReadBytes( uint8_t *pDest, uint32_t numBytes )
 {
+	uids_log("Inside ReadBytes");
+
 	if ( !pDest )
 		return (0);
 
 	size_t bytes_read = 0;
 	for ( bytes_read = 0; bytes_read < numBytes; )
 	{
-		size_t num_bytes_read;
+		size_t num_bytes_read = 0;
 		size_t bytes_remaining = (numBytes - bytes_read);
 
+		uids_log("Receiving Bytes");
 		if ( receive( STDIN, (void *)(pDest+bytes_read), bytes_remaining, &num_bytes_read ) != 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		if ( num_bytes_read == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		bytes_read += num_bytes_read;
 	}

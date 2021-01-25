@@ -79,10 +79,10 @@ bool CSendDevice::Write( uint8_t *pDest, uint16_t length )
 		uint32_t writeRemaining = (length - writePos);
 
 		if ( transmit( STDOUT, (const void *)(pDest + writePos), writeRemaining, &tx_bytes ) != 0 )
-		      _terminate( -1 );
+		      terminate( -1 );
 
 		if ( tx_bytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		writePos += tx_bytes;		
 	}
@@ -119,10 +119,10 @@ bool CReadDevice::Read( uint8_t *pDest, uint16_t length )
 		uint32_t readRemaining = (length - readPos);
 
 		if ( receive( STDIN, (void *)(pDest + readPos), readRemaining, &rx_bytes ) != 0 )
-		      _terminate( -1 );
+		      terminate( -1 );
 
 		if ( rx_bytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		readPos += rx_bytes;		
 	}

@@ -111,7 +111,7 @@ CUtil::String CCPU::DumpRegisters( void )
 
 	sprintf( szTemp, "Instructions: $d\nR0  = $08X R1  = $08X R2  = $08X R3  = $08X\nR4  = $08X R5  = $08X R6  = $08X R7  = $08X\nR8  = $08X R9  = $08X R10 = $08X R11 = $08X\nR12 = $08X R13 = $08X SP  = $08X PC  = $08X", m_instrCount, m_regs[0], m_regs[1], m_regs[2], m_regs[3], m_regs[4], m_regs[5], m_regs[6], m_regs[7], m_regs[8], m_regs[9], m_regs[10], m_regs[11], m_regs[12], m_regs[13], m_regs[14], m_regs[15] );
 
-	return CUtil::String(szTemp);	
+	return CUtil::String(szTemp);
 }
 
 bool CCPU::RunSingleInstruction( void )
@@ -123,22 +123,24 @@ bool CCPU::RunSingleInstruction( void )
 
 	if ( m_instrCount++ > MAX_INSTRUCTION_COUNT )
 	{
+		uids_log("Max instructions reached!");
 		m_sExceptionText = "Max instructions reached";
 		m_bException = true;
 		return (false);
 	}
 #if DEBUG_INSTRUCTION_EXECUTION
 	{
-		printf( "DEBUG:$s\n=====\n", DumpRegisters().c_str() );
+		// printf( "DEBUG:$s\n=====\n", DumpRegisters().c_str() );
+		printf( "DEBUG:$s\n=====\n");
 	}
 #endif
 
 	// Service DMA requests (1 at a time) per instruction -- run at the same clock as the instruction dispatch
 	m_pDMA->ServiceDMA( m_pMMU );
 
-	switch( GET_BITS( instr, 13, 15 ) )
-	{
-	case 0:
+	int gb = GET_BITS( instr, 13, 15 );
+
+	if (gb == 0) {
 		if ( GET_BIT( instr, 12 ) == 0 )
 		{
 			// Load immediate value HI
@@ -148,10 +150,8 @@ bool CCPU::RunSingleInstruction( void )
 		{
 			// Load immediate value LO
 			LoadImmediateLO( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 0, 7 ) );
-		}	
-		break;
-
-	case 1:
+		}
+	} else if (gb == 1) {
 		if ( GET_BIT( instr, 12 ) == 0 )
 		{
 			AddReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
@@ -160,9 +160,7 @@ bool CCPU::RunSingleInstruction( void )
 		{
 			SubReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
 		}
-		break;
-
-	case 2:
+	} else if (gb == 2) {
 		if ( GET_BIT( instr, 12 ) == 0 )
 		{
 			MulReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
@@ -171,79 +169,44 @@ bool CCPU::RunSingleInstruction( void )
 		{
 			DivReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
 		}
-		break;
+	} else if (gb == 3) {
+		int gb1 = GET_BITS( instr, 8, 11 );
 
-	case 3:
-		switch( GET_BITS( instr, 8, 11 ) )
-		{
-		case 0:
+		if (gb1 == 0) {
 			MovReg( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 1:
+		} else if (gb1 == 1) {
 			SwapReg( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 2:
+		} else if (gb1 == 2) {
 			JumpRegZero( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 3:
+		} else if (gb1 == 3) {
 			JumpRegNotZero( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 4:
+		} else if (gb1 == 4) {
 			DMAInit( GET_BITS( instr, 0, 7 ) );
-			break;
-
-		case 5:
-			DMARead( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) ); 
-			break;
-
-		case 6:
+		} else if (gb1 == 5) {
+			DMARead( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
+		} else if (gb1 == 6) {
 			DMAWrite( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 7:
+		} else if (gb1 == 7) {
 			JumpOffset( 0, GET_BITS( instr, 0, 7 ) );
-			break;
-
-		case 8:
+		} else if (gb1 == 8) {
 			JumpOffset( 1, GET_BITS( instr, 0, 7 ) );
-			break;
-
-		case 9:
+		} else if (gb1 == 9) {
 			JumpReg( GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 10:	// GetInstrCount
+		} else if (gb1 == 10) {
 			GetInstructionCount( GET_BITS( instr, 0, 3 ), GET_BITS( instr, 4, 7 ) );
-			break;
-
-		case 11:	// GetRand
+		} else if (gb1 == 11) {
 			GetRand( GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 12:
+		} else if (gb1 == 12) {
 			GetSeedMaterial( GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 13:
+		} else if (gb1 == 13) {
 			LoadRegister( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		case 14:
+		} else if (gb1 == 14) {
 			StoreRegister( GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
-			break;
-
-		default:
+		} else {
 			m_sExceptionText = "Invalid opcode";
 			m_bException = true;
-			break;
 		}
-		break;
-
-	case 4:
+	} else if (gb == 4) {
 		switch ( GET_BITS( instr, 11, 12 ) )
 		{
 		case 0:
@@ -251,7 +214,7 @@ bool CCPU::RunSingleInstruction( void )
 			break;
 
 		case 1:
-			SubImm( GET_BITS( instr, 7, 10 ), GET_BITS( instr, 0, 6 ) ); 
+			SubImm( GET_BITS( instr, 7, 10 ), GET_BITS( instr, 0, 6 ) );
 			break;
 
 		case 2:
@@ -262,9 +225,7 @@ bool CCPU::RunSingleInstruction( void )
 			DivImm( GET_BITS( instr, 7, 10 ), GET_BITS( instr, 0, 6 ) );
 			break;
 		}
-		break;
-
-	case 5:
+	} else if (gb == 5) {
 		if ( GET_BIT( instr, 12 ) == 0 )
 		{
 			JumpLTReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
@@ -273,15 +234,10 @@ bool CCPU::RunSingleInstruction( void )
 		{
 			JumpGTReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
 		}
-		break;
-
-	case 6:
+	} else if (gb == 6) {
 		JumpOffsetZero( GET_BITS( instr, 9, 12 ), GET_BIT( instr, 8 ), GET_BITS( instr, 0, 7 ) );
-		break;	
-
-	case 7:
+	} else if (gb == 7) {
 		JumpOffsetNotZero( GET_BITS( instr, 9, 12 ), GET_BIT( instr, 8 ), GET_BITS( instr, 0, 7 ) );
-		break;
 	}
 
 	if ( m_bException )
@@ -505,7 +461,7 @@ uint16_t CCPU::FetchNextInstruction( void )
 	return (instr);
 }
 
-#if 0 
+#if 0
 uint16_t CCPU::Read16( uint16_t address )
 {
 	uint16_t value;
