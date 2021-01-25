@@ -56,7 +56,7 @@ return 0;
 }
 
 
-size_t receive_until( char *buffer, char delim, size_t limit )
+size_t receive_until0( char *buffer, char delim, size_t limit )
 {
     size_t len = 0;
     size_t rx = 0;

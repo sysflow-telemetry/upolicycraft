@@ -31,24 +31,23 @@ THE SOFTWARE.
 #include "string.h"
 #include "commands.h"
 #include "output_strings.h"
-#include "malloc.h"
 
 char *obf_strings(char *input_string);
 
 int create_product( productDefType **database, void *command_data ) {
 
-newProductMessageType *msg;
-productDefType *newProduct;
+	newProductMessageType *msg;
+	productDefType *newProduct;
 
 	msg = (newProductMessageType *)command_data;
 
 	// special case if this is the first product
 	if (*database == 0) {
 
-		*database = calloc(sizeof(productDefType));
+		*database = calloc(sizeof(productDefType), 1);
 
 		if (*database == 0)
-			_terminate(-1);
+			terminate(-1);
 
 		newProduct = *database;
 
@@ -66,10 +65,10 @@ productDefType *newProduct;
 			return(-1);
 
 		// otherwise add this new product to the end of the list
-		newProduct->next = (productDefType *)calloc(sizeof(productDefType));
+		newProduct->next = (productDefType *)calloc(sizeof(productDefType), 1);
 
 		if (newProduct->next == 0)
-			_terminate(-1);
+			terminate(-1);
 
 
 		newProduct = newProduct->next;
@@ -81,10 +80,10 @@ productDefType *newProduct;
 	newProduct->sprintList = 0;
 
 	// allocate memory for the title
-	newProduct->title = calloc(strlen((char *)&msg->title)+1);
+	newProduct->title = calloc(strlen((char *)&msg->title)+1, 1);
 
 	if (newProduct->title == 0)
-		_terminate(-1);
+		terminate(-1);
 
 
 	strncpy(newProduct->title, (char *)&msg->title, strlen(&msg->title));
@@ -276,8 +275,9 @@ int list_all_products( productDefType *database) {
 
 int list_product( productDefType *database, messageIDType *message) {
 
-sprintEntryType *sprintPtr;
-backlogItemType *PBIPtr;
+
+	sprintEntryType *sprintPtr;
+	backlogItemType *PBIPtr;
 
 
 	if (message->ID == 0) {
@@ -287,11 +287,11 @@ backlogItemType *PBIPtr;
 
 	}
 
-	while(database != 0 && database->ID != message->ID )
+	while (database != 0 && database->ID != message->ID ) {
 		database = database->next;
+	}
 
 	if (database == 0) {
-
 		return(-1);
 	}
 
@@ -299,17 +299,20 @@ backlogItemType *PBIPtr;
 	printf(obf_strings(Prod_Title), database->title);
 	printf(obf_strings(Prod_ID), database->ID);
 	printf("\n");
+	
+
 
 	PBIPtr = database->productBacklog;
 
 	printf(obf_strings(Prod_Backlog));
 	printf(obf_strings(Prod_Backlog2));
-	
+
 	while (PBIPtr != 0) {
 
 		// printf(obf_strings(Prod_Backlog3), PBIPtr->ID, PBIPtr->story_points, PBIPtr->description);
 		printf(obf_strings(Prod_Backlog3), PBIPtr->ID, PBIPtr->story_points);
 		PBIPtr = PBIPtr->next;
+		uids_log("In PBIPtr loop.");
 	}
 
 	printf("\n");
@@ -333,11 +336,12 @@ backlogItemType *PBIPtr;
 		printf("\n");
 		sprintPtr = sprintPtr->next;
 
-	}
+		uids_log("In sprintPtr loop.");
+	} 
 
 	printf("\n");
-	return(0);
 
+	return(0);
 }
 
 

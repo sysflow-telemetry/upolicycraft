@@ -45,22 +45,22 @@ int retval;
 		read_length = sizeof(command.prefix) + sizeof(command.command_length) + sizeof(command.command_type);
 
 		if (receive_bytes((unsigned char *)&command, read_length) == -1)
-			_terminate(-1);
+			terminate(-1);
 
 		if (command.prefix != COMMAND_PREFIX) {
 
-			_terminate(-1);
+			terminate(-1);
 
 		}
 
 		// check to see if the incoming data is larger than the buffer
 		if (command.command_length > COMMAND_MAX_LEN) {
 
-			_terminate(-1);
+			terminate(-1);
 		}
 
 		if (receive_bytes((unsigned char *)&command.command, command.command_length) == -1)
-			_terminate(-1);
+			terminate(-1);
 
 		switch (command.command_type) {
 

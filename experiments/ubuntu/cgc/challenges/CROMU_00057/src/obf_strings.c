@@ -52,13 +52,13 @@ char *obf_strings(char *input_string) {
 static char tmp_string[1024];
 int i;
 
-
 	for (i=0; i< strlen(input_string); i++)
 		tmp_string[i] = input_string[i] ^ 0xa9;
 
+
 	tmp_string[i] = 0;
 
-return(tmp_string);
+	return(tmp_string);
 
 
 

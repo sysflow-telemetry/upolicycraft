@@ -49,6 +49,15 @@ Dev Workflow
 
     dev
 
+Eval Workflow
+=============
+    
+    Generating input for a challenge:
+
+    If present, the xml file checked in to the challenge's folder can be passed to the cb-replay-model script.
+
+    If an "input.log" is present, you can create the model by running `cat input.log | nc localhost port-of-challenge`
+
 References
 ==========
 

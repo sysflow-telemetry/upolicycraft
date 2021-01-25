@@ -30,14 +30,12 @@ THE SOFTWARE.
 #include "stdio.h"
 #include "string.h"
 #include "commands.h"
-#include "malloc.h"
 
 
 int create_pbi( productDefType *database, newPBIMessageType *message ) {
 
 backlogItemType *newPBI;
 backlogItemType *PBIPtr;
-
 
 	while(database != 0 && database->ID != message->productID )
 		database = database->next;
@@ -48,10 +46,10 @@ backlogItemType *PBIPtr;
 	}
 
 
-	newPBI = (backlogItemType *)calloc(sizeof(backlogItemType));
+	newPBI = (backlogItemType *)calloc(sizeof(backlogItemType), 1);
 
 	if (newPBI == 0) 
-		_terminate(-1);
+		terminate(-1);
 
 
 	newPBI->ID = message->pbItemID;
@@ -59,10 +57,10 @@ backlogItemType *PBIPtr;
 	newPBI->story_points = message->user_story_points;
 	newPBI->next = 0;
 
-	newPBI->description = calloc(strlen(&message->title)+1);
+	newPBI->description = calloc(strlen(&message->title)+1, 1);
 
 	if (newPBI->description == 0)
-		_terminate(-1);
+		terminate(-1);
 
 
 	strcpy(newPBI->description, &message->title);
@@ -377,7 +375,7 @@ backlogItemType *sprintBIPtr;
 	SBIPtr->description = malloc(strlen(&message->desc)+1);
 
 	if (SBIPtr->description == 0)
-		_terminate(-1);
+		terminate(-1);
 
 #endif
 

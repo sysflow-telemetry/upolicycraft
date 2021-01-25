@@ -1,0 +1,50 @@
+digraph G {
+  3 [shape=Mrecord, label="{{/cgc/CROMU_00057:receive_commands}|{NF|8003}}",
+     fontsize=9, ];
+  4 [shape=Mrecord, label="{{/cgc/CROMU_00057:receive_commands}|{NF|8003}}",
+     fontsize=9, ];
+  6 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+     fontsize=9, ];
+  7 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+     fontsize=9, ];
+  8 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+     fontsize=9, ];
+  9 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+     fontsize=9, ];
+  10 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+      fontsize=9, ];
+  11 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+      fontsize=9, ];
+  12 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+      fontsize=9, ];
+  13 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+      fontsize=9, ];
+  14 [shape=Mrecord, label="{{/cgc/CROMU_00057:list_product}|{NF|8003}}",
+      fontsize=9, ];
+  2 [shape=Mrecord, label="{{/cgc/CROMU_00057:main}|{NF|8003}}", fontsize=9, ];
+  5 [shape=Mrecord, label="{{/cgc/CROMU_00057:main}|{P|0}}", fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/xinetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/xinetd:main}|{P|/cgc/CROMU_00057|}}",
+     fontsize=9, ];
+  
+  
+  3 -> 4 [label="READ", fontsize=8, ];
+  4 -> 3 [label="READ", fontsize=8, ];
+  4 -> 6 [label="WRITE", fontsize=8, ];
+  4 -> 5 [label="EXIT", fontsize=8, ];
+  6 -> 7 [label="WRITE", fontsize=8, ];
+  7 -> 8 [label="WRITE", fontsize=8, ];
+  8 -> 9 [label="WRITE", fontsize=8, ];
+  9 -> 10 [label="WRITE", fontsize=8, ];
+  10 -> 11 [label="WRITE", fontsize=8, ];
+  11 -> 12 [label="WRITE", fontsize=8, ];
+  12 -> 13 [label="WRITE", fontsize=8, ];
+  13 -> 14 [label="WRITE", fontsize=8, ];
+  14 -> 3 [label="READ", fontsize=8, ];
+  2 -> 3 [label="READ", fontsize=8, ];
+  0 -> 1 [label="EXEC", fontsize=8, ];
+  1 -> 2 [label="WRITE", fontsize=8, ];
+  
+  }

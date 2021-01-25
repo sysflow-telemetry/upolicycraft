@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "service.h"
 #include "stdio.h"
 #include "string.h"
-#include "malloc.h"
 
 int init_database( productDefType **database ) {
 
@@ -44,7 +43,7 @@ int init_database( productDefType **database ) {
 		pTemp = malloc(sizeof(productDefType));
 
 		if (pTemp == 0) 
-			_terminate(-1);
+			terminate(-1);
 
 	}
 

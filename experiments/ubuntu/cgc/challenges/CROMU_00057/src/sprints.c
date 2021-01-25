@@ -31,7 +31,6 @@ THE SOFTWARE.
 #include "stdio.h"
 #include "string.h"
 #include "commands.h"
-#include "malloc.h"
 
 int create_sprint( productDefType *database, newSprintMessageType *message) {
 
@@ -51,18 +50,18 @@ sprintEntryType *sprintPtr;
 
 
 	// allocate memory for the new sprint
-	newSprint = (sprintEntryType *)calloc(sizeof(sprintEntryType));
+	newSprint = (sprintEntryType *)calloc(sizeof(sprintEntryType), 1);
 
 	if (newSprint == 0)
-		_terminate(-1);
+		terminate(-1);
 
 	newSprint->ID = message->sprintID;
 
 	// add an extra byte since strlen doesn't count the null terminator
-	newSprint->title = calloc(strlen((char *)&message->title)+1);
+	newSprint->title = calloc(strlen((char *)&message->title)+1, 1);
 
 	if (newSprint->title == 0)
-		_terminate(-1);
+		terminate(-1);
 
 
 	strncpy(newSprint->title, &message->title, strlen(&message->title));

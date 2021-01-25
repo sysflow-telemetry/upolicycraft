@@ -1,0 +1,73 @@
+{
+  "initial": "%00005809",
+  "nodes": [
+    "%000006fd", "%000007e4", "%00000cd1", "%00000d20", "%00000d76",
+    "%00000d93", "%00000de2", "%00000e1c", "%00000f09", "%00000f58",
+    "%00001146", "%0000541c", "%0000546c", "%00005809", "%0000580c"
+  ],
+  "contexts": {
+    "%00000cd1": [ "/cgc/CROMU_00057", "list_product" ],
+    "%00000d20": [ "/cgc/CROMU_00057", "list_product" ],
+    "%0000580c": [ "/usr/sbin/xinetd", "main" ],
+    "%00005809": [ "/usr/sbin/xinetd", "main" ],
+    "%000007e4": [ "/cgc/CROMU_00057", "receive_commands" ],
+    "%0000580b": [ "/usr/sbin/xinetd", "main" ],
+    "%00000de2": [ "/cgc/CROMU_00057", "list_product" ],
+    "%0000546c": [ "/cgc/CROMU_00057", "main" ],
+    "%00000f58": [ "/cgc/CROMU_00057", "list_product" ],
+    "%00000f09": [ "/cgc/CROMU_00057", "list_product" ],
+    "%0000541c": [ "/cgc/CROMU_00057", "main" ],
+    "%00001146": [ "/cgc/CROMU_00057", "list_product" ],
+    "%00000d93": [ "/cgc/CROMU_00057", "list_product" ],
+    "%00000e1c": [ "/cgc/CROMU_00057", "list_product" ],
+    "%000006fd": [ "/cgc/CROMU_00057", "receive_commands" ],
+    "%00000d76": [ "/cgc/CROMU_00057", "list_product" ]
+  },
+  "constraints": [
+    { "node": "%000006fd", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000007e4", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000cd1", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000d20", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000d76", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000d93", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000de2", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000e1c", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000f09", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000f58", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00001146", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000541c", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000546c", "constraints": { "sf.ret": [ "0" ] } },
+    {
+      "node": "%00005809",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0000580c",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00057" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%000006fd", "dst": "%000007e4", "label": "READ" },
+    { "src": "%000007e4", "dst": "%000006fd", "label": "READ" },
+    { "src": "%000007e4", "dst": "%00000cd1", "label": "WRITE" },
+    { "src": "%000007e4", "dst": "%0000546c", "label": "EXIT" },
+    { "src": "%00000cd1", "dst": "%00000d20", "label": "WRITE" },
+    { "src": "%00000d20", "dst": "%00000d76", "label": "WRITE" },
+    { "src": "%00000d76", "dst": "%00000d93", "label": "WRITE" },
+    { "src": "%00000d93", "dst": "%00000de2", "label": "WRITE" },
+    { "src": "%00000de2", "dst": "%00000e1c", "label": "WRITE" },
+    { "src": "%00000e1c", "dst": "%00000f09", "label": "WRITE" },
+    { "src": "%00000f09", "dst": "%00000f58", "label": "WRITE" },
+    { "src": "%00000f58", "dst": "%00001146", "label": "WRITE" },
+    { "src": "%00001146", "dst": "%000006fd", "label": "READ" },
+    { "src": "%0000541c", "dst": "%000006fd", "label": "READ" },
+    { "src": "%00005809", "dst": "%0000580c", "label": "EXEC" },
+    { "src": "%0000580c", "dst": "%0000541c", "label": "WRITE" }
+  ]
+}

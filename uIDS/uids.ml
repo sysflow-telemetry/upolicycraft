@@ -704,8 +704,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (Bitvector.add addr (Bitvector.of_int ~width:64 8)) cont in
     loop addr (Machine.return([]))
 
+  let read_from_stdin tid =
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read Sf.stdin_fd in
+          (add_operation tid op state'))
+
   let write_to_stdout tid =
-    (** let () = info "model print:" in *)
     Machine.Local.update state ~f:(fun state' ->
       let op = (Write Sf.stdout_fd) in
       (add_operation tid op state')
@@ -914,10 +918,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Read fd in
           (add_operation tid op state'))
     | "receive_until" ->
-      let () = info "model receive_until:" in
-      Machine.Local.update state ~f:(fun state' ->
-          let op = Read Sf.stdout_fd in
-          (add_operation tid op state'))
+      let () = info "model receive_until:" in 
+      (read_from_stdin tid)
+    | "receive_bytes" ->
+      let () = info "model receive_bytes:" in
+      (read_from_stdin tid)
     | "transmit_all" ->
       let () = info "model transmit:" in
       let rdi = (Var.create "RDI" reg64_t) in

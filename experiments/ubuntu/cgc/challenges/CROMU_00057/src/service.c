@@ -49,10 +49,10 @@ int main(void) {
 	// wait for commands
  	receive_commands(&productDatabase); 
 
-	// clean up the data structures
-   destroy_database( &productDatabase );
+	// clean up the data structure
+        destroy_database( &productDatabase );
 
-    _terminate(0);
+        terminate(0);
 
 }  // main  
 
