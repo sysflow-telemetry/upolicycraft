@@ -170,11 +170,11 @@ int receive_bytes (unsigned char *buffer, size_t count)
 
 	while (TotalBytes < count) {
 		if (receive(STDIN, buffer+TotalBytes, count-TotalBytes, &rx_bytes) != 0) {
-			_terminate(0);
+			terminate(0);
 		}
 		if (rx_bytes == 0) {
 
-			_terminate(0);
+			terminate(0);
 		}
 		TotalBytes += rx_bytes;
 	}

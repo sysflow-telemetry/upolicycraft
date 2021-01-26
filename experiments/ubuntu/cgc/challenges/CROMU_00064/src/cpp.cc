@@ -40,6 +40,7 @@ void *operator new( uint32_t size )
 
 void *operator new[]( uint32_t size )
 {
+	uids_log("Calling malloc!");
 	return (void *)malloc( size );
 }
 
@@ -56,5 +57,5 @@ void operator delete[]( void *ptr )
 extern "C" void __cxa_pure_virtual( void )
 {
 	printf( "Program abort@cxa_pure_virtual\n" );
-	_terminate(-1);
+	terminate(-1);
 }

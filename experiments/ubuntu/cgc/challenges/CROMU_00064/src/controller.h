@@ -81,13 +81,13 @@ private:
 
 	// Controller vars
 	
-	int32_t m_currentProgramStep;
-	bool m_powerOn;
-	bool m_heaterOn;
-	double m_currentTemp;
-	int32_t m_version;
-	int32_t m_set_temp;
-	bool m_smokeSensorPresent;
+	int32_t m_currentProgramStep = 0;
+	bool m_powerOn = false;
+	bool m_heaterOn = false;
+	double m_currentTemp = 0.0;
+	int32_t m_version = 0;
+	int32_t m_set_temp = 0;
+	bool m_smokeSensorPresent = false;
 
 	Sensor m_smokeSensor;
 

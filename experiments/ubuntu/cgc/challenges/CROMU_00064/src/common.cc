@@ -25,6 +25,7 @@ THE SOFTWARE.
 */
 extern "C"
 {
+#include <libcgc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,14 +55,20 @@ bool HexCharToInt( char c, uint8_t &outValue )
 char* ConvertToHexChars( uint8_t *pData, uint32_t dataLen )
 {
 	int len = dataLen * 2;
-	char* str = new char[len];
+        // TODO: Check why len leads to segfaults inside uIDS 
+	char* str = new char[len+1000];
 
 	for ( uint32_t i = 0; i < dataLen; i++ )
 	{
-		sprintf( &str[ i * 2 ], "$x", (pData[i] >> 4) & 0xF );
-		sprintf( &str[ ( i * 2 )+1 ], "$x", pData[i] & 0xF );
+		//sprintf( &str[ i * 2 ], "$x", (pData[i] >> 4) & 0xF );
+		//sprintf( &str[ ( i * 2 )+1 ], "$x", pData[i] & 0xF );
+                int offs = (i * 2);
+		sprintf( &str[ offs ], "$x", (pData[i] >> 4) & 0xF );
+
+		int offs0 = ( i * 2 )+1;
+
+		sprintf( &str[offs0], "$x", pData[i] & 0xF );
 	}
-	
 	return str;
 }
 
@@ -84,7 +91,7 @@ uint16_t GetByte( CUtil::String val, int offset )
 uint8_t* ConvertBackHexChars( uint8_t *pData, uint32_t dataLen )
 {
 	int len = dataLen / 2;
-	uint8_t* str = new uint8_t[len];
+	uint8_t* str = new uint8_t[len+100];
 
 	int j = 0;
 

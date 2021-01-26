@@ -511,7 +511,7 @@ module Sprintf(Machine : Primus.Machine.S) = struct
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
-          (** let () = info "Error reading memory!" in *)
+          let () = info "Error reading memory!" in
           let msg = Primus.Exn.to_string exn in
           (** let () = info "    %s" msg in *)
           Machine.return())
@@ -526,7 +526,11 @@ module Sprintf(Machine : Primus.Machine.S) = struct
         cont >>= fun () ->
           let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
           (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
-      cont'
+      cont' >>= fun () ->
+         let n = String.length s in
+         Value.of_word (Bitvector.of_int 64 0) >>= fun z ->
+         let dst = (Bitvector.add addr' (Bitvector.of_int 64 n)) in
+         (trap_memory_write (Memory.set dst z))
 
     let run [s; fmt; v] =
       let open Param in
@@ -538,14 +542,17 @@ module Sprintf(Machine : Primus.Machine.S) = struct
       string_of_addr vfmt >>= fun fmt' ->
         let () = info "sprintf: %s" fmt' in
         let v' =
+	   v |> Value.to_word
+             |> Bitvector.to_int_exn in
+        let v'' =
          if (get symbolic_arguments) then
            "[0-9]+"
          else
-           v |> Value.to_word
-             |> Bitvector.to_int_exn
-             |> string_of_int in
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:v' fmt' in
-        copy_bytes s output >>= fun () ->
+	     string_of_int v' in
+        let v''' = Printf.sprintf "%x" v' in
+        let output = String.substr_replace_all ~pattern:"%d" ~with_:v'' fmt' in
+        let output' = String.substr_replace_all ~pattern:"$x" ~with_:v''' output in
+        copy_bytes s output' >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
 end
 
@@ -813,6 +820,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
+    | "write" ->
+      (write_to_stdout tid)
     | "print" ->
       (write_to_stdout tid)
     | "put" ->
@@ -827,6 +836,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun message ->
       let () = info " LOG: %s" message in
+      Machine.return()
+    | "uids_debug" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let v' = Value.to_string v in
+      let () = info " LOG-VALUE: %s" v' in
       Machine.return()
     | "open64" ->
       let () = info "model open:" in
@@ -918,7 +933,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = Read fd in
           (add_operation tid op state'))
     | "receive_until" ->
-      let () = info "model receive_until:" in 
+      let () = info "model receive_until:" in
       (read_from_stdin tid)
     | "receive_bytes" ->
       let () = info "model receive_bytes:" in

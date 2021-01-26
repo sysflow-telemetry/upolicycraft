@@ -67,11 +67,13 @@ uint32_t swap_int ( uint32_t val )
 //
 void OutgoingMessage::SendAsExtended()
 {
+	uids_log("Sending As Extended");
 	// 1. Construct string
 	CUtil::String message;
 	message = "a55a"; // flag 2B
 	message += m_version; // version 2B
 	message += EXT_RESPONSE; // message type 2B
+
 
 	char arr[512];
 	bzero(arr, 512);
@@ -83,16 +85,26 @@ void OutgoingMessage::SendAsExtended()
 	message += arr; // ext message size 4B
 
 	message += m_message;
-	
-	// opposite of ConvertToHexChars
-	uint8_t* final_msg = ConvertBackHexChars( ( uint8_t * )message.c_str(), message.GetLength() );
 
-	int retval = write( final_msg, message.GetLength() / 2 );
+	uids_log("Message Ready");
+
+	int n = message.GetLength();
+
+	uids_debug(n);
+	char *c_message = ( uint8_t * )message.c_str();
+	// opposite of ConvertToHexChars
+	uint8_t* final_msg = ConvertBackHexChars( ( uint8_t * )c_message, n);
+
+	uids_log("Final Message Ready");
+	uids_debug(final_msg);
+
+	int retval = write( final_msg, 1 );
 
 	if (retval == -1) 
-		_terminate(-1);
+	    terminate(-1);
 
-	delete[] final_msg;
+	//delete[] final_msg;
+	uids_log("After deleted");
 }
 
 //
@@ -119,7 +131,7 @@ void OutgoingMessage::SendAsBasic()
 	int retval = write( final_msg, 12 );
 
 	if (retval == -1) 
-		_terminate(-1);
+		terminate(-1);
 
 	delete[] final_msg;
 }
@@ -320,7 +332,10 @@ begin:
 			{
 				m_checksum_passed = true;
 				input_chars[pos] = '\0';
-				this->m_message = CUtil::String( ConvertToHexChars( ( uint8_t * )input_chars, pos ) );
+				char *input_chars0 = ConvertToHexChars( ( uint8_t * )input_chars, pos );
+				uids_log("ReadInput:");
+				uids_log(input_chars0);
+				this->m_message = CUtil::String( input_chars0 );
 				this->m_body = CUtil::String( ConvertToHexChars( ( uint8_t * )input_chars, pos ) ).SubString( body_start, body_start + (2 * body_len ) - 8 );
 			}
 			return;

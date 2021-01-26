@@ -52,18 +52,34 @@ extern "C"
 //
 int main( void )
 {
-	uint8_t *magic_page = ( uint8_t* )MAGIC_PAGE;
+	uint8_t magic_page_buf[4096];
+	uint8_t *magic_page = ( uint8_t* )magic_page_buf;
 
 	Controller ctlr;
+	
+	uids_log("before set version");
 
 	ctlr.GetMsgOut()->SetVersion(ctlr.GetVersion());
 
+	uids_log("after set version");
+
 	while ( 1 ) 
 	{
+
+		uids_log("Before read input");
+
 		ctlr.GetMsgIn()->ReadInput();
 
+		uids_log("Checking input length.");	
+
+		int len_value = ctlr.GetMsgIn()->GetLenValue();
+		int length_half = ctlr.GetMsgIn()->GetMessage().GetLength()/2 - HEADER_NUM_BYTES;
+
+		uids_debug(len_value);
+		uids_debug(length_half);
+
 		// if given length is longer than the string, NO
-		if ( ctlr.GetMsgIn()->GetLenValue() != ctlr.GetMsgIn()->GetMessage().GetLength()/2 - HEADER_NUM_BYTES)
+		if (len_value  != length_half)
 		{
 			printf("Error: length is too long\n");
 			continue;
@@ -72,21 +88,18 @@ int main( void )
 		//
 		// PARSE BODY
 		//
-		switch ( ctlr.GetMsgIn()->GetType() )
-		{
-			case POWER_ON_OFF:
-			{
+ 		int type = ctlr.GetMsgIn()->GetType();
+
+		if (type == POWER_ON_OFF) {
+				uids_log("POWER_ON_OFF");
 				int val = ctlr.GetMsgIn()->GetValue();
 				
 				ctlr.setPowerOn( ( val == 1 ) ? true : false );
 
 				ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 				ctlr.GetMsgOut()->SendAsBasic();
-
-				break;
-			}
-			case TEMP_SET:
-			{
+		} else if (type == TEMP_SET) {
+				uids_log("TEMP_SET");
 				int val = ctlr.GetMsgIn()->GetValue();
 				
 				if ( ctlr.setSetTemp( val ) == false )
@@ -100,11 +113,8 @@ int main( void )
 					ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 					ctlr.GetMsgOut()->SendAsBasic();
 				}
-
-				break;
-			}
-			case SENSOR_ADD:
-			{
+		} else if (type == SENSOR_ADD) {
+				uids_log("SENSOR_ADD");
 				if ( ctlr.IsSensorInList( ctlr.GetMsgIn()->GetSensorId() ) )
 				{
 					ctlr.GetMsgOut()->SetResponse( ERROR_ID_INUSE );
@@ -127,11 +137,8 @@ int main( void )
 				
 				ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 				ctlr.GetMsgOut()->SendAsBasic();
-
-				break;
-			}
-			case SENSOR_REMOVE:
-			{
+		} else if (type == SENSOR_REMOVE) {
+				uids_log("SENSOR_REMOVE");
 				int val = ctlr.GetMsgIn()->GetValue();
 
 				if ( ctlr.IsSensorInList( val ) == false)
@@ -143,10 +150,8 @@ int main( void )
 				ctlr.RemoveSensor( val );
 				ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 				ctlr.GetMsgOut()->SendAsBasic();
-				break;
-			}
-			case SENSOR_SMOKE:
-			{
+		} else if (type == SENSOR_SMOKE) {
+				uids_log("SENSOR_SMOKE");
 				if ( ctlr.GetMsgIn()->GetValue() )
 					ctlr.EnableSmokeSensor();
 				else
@@ -154,10 +159,8 @@ int main( void )
 
 				ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 				ctlr.GetMsgOut()->SendAsBasic();
-				break;
-			}
-			case PROGRAM_UPDATE:
-			{
+		} else if (type == PROGRAM_UPDATE) {
+				uids_log("PROGRAM_UPDATE");
 				// update our program with one sent by the CRS
 
 				// use ctlr.m_controllerProgram from incoming message
@@ -245,12 +248,12 @@ int main( void )
 				ctlr.GetMsgOut()->SetResponse( NO_ERROR );
 				ctlr.GetMsgOut()->SendAsBasic();
 				ctlr.ClearBackupProgram();
-leave_case:
-				break;
-			}
-			case PROGRAM_SEND:
-			{
-				// Send the CRS our current program
+		leave_case:
+                int x = 0;
+
+		} else if (type == PROGRAM_SEND) {
+				uids_log("PROGRAM_SEND");
+				// Send the CRS our current programi
 				uint8_t buffer[ MAX_PROGRAM_STEPS * 3 * sizeof( int ) ];
 				bzero( buffer, MAX_PROGRAM_STEPS * 3 * sizeof( int ) );
 
@@ -278,10 +281,8 @@ leave_case:
 				ctlr.GetMsgOut()->SetResponse(PROGRAM_SEND);
 				ctlr.GetMsgOut()->SetExtMessage( sizeof( buffer ), buffer );
 				ctlr.GetMsgOut()->SendAsExtended();
-				break;
-			}
-			case SIMULATE:
-			{
+		} else if (type == SIMULATE) {
+				uids_log("SIMULATE");
 				// uses current temp, set temp, power on, heater on
 
 				// duration is number of iterations over for loop
@@ -339,11 +340,8 @@ leave_case:
 				ctlr.setCurrentTemp( current_temp );
 				ctlr.setPowerOn( power_on );
 				ctlr.setHeaterOn( heater_on );
-
-				break;
-			}
-			case STATUS_SEND:
-			{
+		} else if (type == STATUS_SEND) {
+				uids_log("SENDING STATUS");
 				unsigned char buffer[ 24 ];
 
 				*( int32_t * )buffer = ctlr.GetVersion();
@@ -357,33 +355,36 @@ leave_case:
 				ctlr.GetMsgOut()->SetResponse( STATUS_SEND );
 				ctlr.GetMsgOut()->SetExtMessage( sizeof( buffer ), buffer );
 				ctlr.GetMsgOut()->SendAsExtended();
-				break;
-			}
-			case FIRMWARE_CHECK:
-			{
+		} else if (type == FIRMWARE_CHECK) {
+				uids_log("FIRMWARE_CHECK");
 				uint32_t val = 0;
 				if ( ctlr.GetVersion() != VERSION )
 				{
 					val = 1;
 				}
-				for ( int32_t i = 0; i < 4096; i++ )
-					val = val + *( magic_page + i ) * ( i + 1 );
+
+				uids_log("Building value");
+				for ( int32_t i = 0; i < 1; i++ )
+					val = val + ( i + 1 );
+
+				uids_log("Setting Response");
 
 				ctlr.GetMsgOut()->SetResponse( FIRMWARE_CHECK );
 
+				uids_log("Setting Ext Message");
+
 				ctlr.GetMsgOut()->SetExtMessage( sizeof( uint32_t ), ( uint8_t* )&val );
+
+				uids_log("Send As Extended");
 				ctlr.GetMsgOut()->SendAsExtended();
-				break;
-			}
-			case END:
-			{
-				return 0;	
-			}
-			default:
-			{
-				ctlr.GetMsgOut()->SetResponse( ERROR_BAD_COMMAND );
-				ctlr.GetMsgOut()->SendAsBasic();
-			}
+				uids_log("After Send");
+		} else if (type == END) {
+			uids_log("END");
+			return 0;
+		} else {
+			uids_log("BAD COMMAND");
+			ctlr.GetMsgOut()->SetResponse( ERROR_BAD_COMMAND );
+			ctlr.GetMsgOut()->SendAsBasic();
 		}
 	}
 
