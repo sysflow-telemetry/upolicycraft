@@ -43,10 +43,10 @@ CUtil::String ReadLine( void )
 	for ( pos = 0; pos < 511; pos++ )
 	{
 		if ( receive( STDIN, &c, 1, &num_bytes ) != 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		if ( num_bytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		if ( c == '\n' )
 			break;
@@ -102,10 +102,10 @@ CUtil::String ReadLine( void )
                 uint32_t readRemaining = (maxLen - pos);
 
                 if ( receive( STDIN, g_szLineBuffer+pos, readRemaining, &num_bytes ) != 0 )
-                        _terminate( -1 );
+                        terminate( -1 );
 
                 if ( num_bytes == 0 )
-                        _terminate( -1 );
+                        terminate( -1 );
 
                 g_lineLength += num_bytes;
         }

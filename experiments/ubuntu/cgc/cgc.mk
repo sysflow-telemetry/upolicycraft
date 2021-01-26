@@ -1,4 +1,4 @@
-all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so
+all: ${AUTHOR_ID}_${SERVICE_ID} ${AUTHOR_ID}_${SERVICE_ID}.so lib.so 
 
 LIB_OBJECTS := $(patsubst %.c,%.o,$(wildcard lib/*.c)) $(patsubst %.cc,%.o,$(wildcard lib/*.cc))
 CHALL_OBJECTS := $(patsubst %.c,%.o,$(wildcard src/*.c)) $(patsubst %.cc,%.o,$(wildcard src/*.cc))
@@ -16,7 +16,7 @@ lib.so: ${LIB_OBJECTS}
 	gcc -shared -o $@ $^
 
 ${AUTHOR_ID}_${SERVICE_ID}: ${CHALL_OBJECTS} lib.so /cgc/libcgc.so
-	gcc -o $@ $^ ${LDFLAGS}
+	gcc -o $@ $^ ${LDFLAGS} 
 
 ${AUTHOR_ID}_${SERVICE_ID}.so: ${CHALL_OBJECTS} ${LIB_OBJECTS} /cgc/libcgc.so
 	gcc -shared -o $@ $^ ${LDFLAGS}
