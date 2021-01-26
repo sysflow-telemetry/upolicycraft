@@ -1,0 +1,53 @@
+{
+  "initial": "%0000c92a",
+  "nodes": [
+    "%000049ac", "%0000616c", "%000061e6", "%00006295", "%00006380",
+    "%00007658", "%0000c92a", "%0000c92d"
+  ],
+  "contexts": {
+    "%0000c92c": [ "/usr/sbin/xinetd", "main" ],
+    "%00006380": [ "/cgc/CROMU_00064", "_ZN15IncomingMessage9ReadInputEv" ],
+    "%00006295": [ "/cgc/CROMU_00064", "_ZN15IncomingMessage9ReadInputEv" ],
+    "%0000c92d": [ "/usr/sbin/xinetd", "main" ],
+    "%0000c92a": [ "/usr/sbin/xinetd", "main" ],
+    "%00007658": [
+      "/cgc/CROMU_00064", "_ZN15OutgoingMessage14SendAsExtendedEv"
+    ],
+    "%000049ac": [
+      "/cgc/CROMU_00064", "_ZN15OutgoingMessage14SendAsExtendedEv"
+    ],
+    "%000061e6": [ "/cgc/CROMU_00064", "_ZN15IncomingMessage9ReadInputEv" ],
+    "%0000616c": [ "/cgc/CROMU_00064", "_ZN15IncomingMessage9ReadInputEv" ]
+  },
+  "constraints": [
+    { "node": "%000049ac", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000616c", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000061e6", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00006295", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00006380", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007658", "constraints": { "sf.ret": [ "4294967295" ] } },
+    {
+      "node": "%0000c92a",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0000c92d",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00064" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%000049ac", "dst": "%00007658", "label": "EXIT" },
+    { "src": "%0000616c", "dst": "%000061e6", "label": "READ" },
+    { "src": "%000061e6", "dst": "%00006295", "label": "READ" },
+    { "src": "%00006295", "dst": "%00006380", "label": "READ" },
+    { "src": "%00006380", "dst": "%000049ac", "label": "WRITE" },
+    { "src": "%0000c92a", "dst": "%0000c92d", "label": "EXEC" },
+    { "src": "%0000c92d", "dst": "%0000616c", "label": "READ" }
+  ]
+}
