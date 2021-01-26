@@ -1,0 +1,57 @@
+{
+  "initial": "%0000a8ba",
+  "nodes": [
+    "%00000b3e", "%00000c96", "%000077fd", "%00007a08", "%000099b6",
+    "%00009a0d", "%00009a54", "%00009b38", "%0000a8ba", "%0000a8bd"
+  ],
+  "contexts": {
+    "%00009a54": [ "/cgc/CROMU_00066", "_Z9ReadInputv" ],
+    "%00009a0d": [ "/cgc/CROMU_00066", "_Z9ReadInputv" ],
+    "%000099b6": [ "/cgc/CROMU_00066", "_Z9ReadInputv" ],
+    "%0000a8bc": [ "/usr/sbin/xinetd", "main" ],
+    "%00000c96": [ "/cgc/CROMU_00066", "_Z9ReadInputv" ],
+    "%0000a8bd": [ "/usr/sbin/xinetd", "main" ],
+    "%000077fd": [ "/cgc/CROMU_00066", "main" ],
+    "%00007a08": [ "/cgc/CROMU_00066", "main" ],
+    "%00009b38": [ "/cgc/CROMU_00066", "_Z9ReadInputv" ],
+    "%0000a8ba": [ "/usr/sbin/xinetd", "main" ],
+    "%00000b3e": [ "/cgc/CROMU_00066", "_Z12SendResponseth" ]
+  },
+  "constraints": [
+    { "node": "%00000b3e", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00000c96", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000077fd", "constraints": { "sf.ret": [ "0" ] } },
+    { "node": "%00007a08", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000099b6", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00009a0d", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00009a54", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00009b38", "constraints": { "sf.net.dport": [ "8003" ] } },
+    {
+      "node": "%0000a8ba",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0000a8bd",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00066" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00000b3e", "dst": "%00000c96", "label": "READ" },
+    { "src": "%00000c96", "dst": "%000099b6", "label": "READ" },
+    { "src": "%00007a08", "dst": "%00000c96", "label": "READ" },
+    { "src": "%000099b6", "dst": "%00009a0d", "label": "READ" },
+    { "src": "%00009a0d", "dst": "%00009a54", "label": "READ" },
+    { "src": "%00009a54", "dst": "%00009b38", "label": "READ" },
+    { "src": "%00009b38", "dst": "%00000b3e", "label": "WRITE" },
+    { "src": "%00009b38", "dst": "%000077fd", "label": "EXIT" },
+    { "src": "%00009b38", "dst": "%00007a08", "label": "WRITE" },
+    { "src": "%0000a8ba", "dst": "%0000a8bd", "label": "EXEC" },
+    { "src": "%0000a8bd", "dst": "%00000c96", "label": "READ" }
+  ]
+}

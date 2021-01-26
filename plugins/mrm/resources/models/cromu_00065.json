@@ -1,0 +1,70 @@
+{
+  "initial": "%0000801a",
+  "nodes": [
+    "%000005bb", "%000065f2", "%000066aa", "%00006762", "%0000681a",
+    "%00007c13", "%00007c30", "%00007c4d", "%00007c6a", "%00007c87",
+    "%00007ca4", "%00007cba", "%0000801a", "%0000801d"
+  ],
+  "contexts": {
+    "%00007c4d": [ "/cgc/CROMU_00065", "main" ],
+    "%00007ca4": [ "/cgc/CROMU_00065", "main" ],
+    "%0000801d": [ "/usr/sbin/xinetd", "main" ],
+    "%000066aa": [ "/cgc/CROMU_00065", "show_players" ],
+    "%00007c87": [ "/cgc/CROMU_00065", "main" ],
+    "%00007cba": [ "/cgc/CROMU_00065", "main" ],
+    "%00007c30": [ "/cgc/CROMU_00065", "main" ],
+    "%000005bb": [ "/cgc/CROMU_00065", "main" ],
+    "%0000801c": [ "/usr/sbin/xinetd", "main" ],
+    "%00007c6a": [ "/cgc/CROMU_00065", "main" ],
+    "%0000681a": [ "/cgc/CROMU_00065", "show_players" ],
+    "%00006762": [ "/cgc/CROMU_00065", "show_players" ],
+    "%000065f2": [ "/cgc/CROMU_00065", "show_players" ],
+    "%0000801a": [ "/usr/sbin/xinetd", "main" ],
+    "%00007c13": [ "/cgc/CROMU_00065", "main" ]
+  },
+  "constraints": [
+    { "node": "%000005bb", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000065f2", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000066aa", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00006762", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000681a", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007c13", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007c30", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007c4d", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007c6a", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007c87", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007ca4", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00007cba", "constraints": { "sf.ret": [ "0" ] } },
+    {
+      "node": "%0000801a",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0000801d",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00065" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%000005bb", "dst": "%000065f2", "label": "WRITE" },
+    { "src": "%000005bb", "dst": "%00007cba", "label": "EXIT" },
+    { "src": "%000065f2", "dst": "%000066aa", "label": "WRITE" },
+    { "src": "%000066aa", "dst": "%00006762", "label": "WRITE" },
+    { "src": "%00006762", "dst": "%0000681a", "label": "WRITE" },
+    { "src": "%0000681a", "dst": "%000065f2", "label": "WRITE" },
+    { "src": "%0000681a", "dst": "%00007c13", "label": "WRITE" },
+    { "src": "%00007c13", "dst": "%00007c30", "label": "WRITE" },
+    { "src": "%00007c30", "dst": "%00007c4d", "label": "WRITE" },
+    { "src": "%00007c4d", "dst": "%00007c6a", "label": "WRITE" },
+    { "src": "%00007c6a", "dst": "%00007c87", "label": "WRITE" },
+    { "src": "%00007c87", "dst": "%00007ca4", "label": "WRITE" },
+    { "src": "%00007ca4", "dst": "%000005bb", "label": "READ" },
+    { "src": "%0000801a", "dst": "%0000801d", "label": "EXEC" },
+    { "src": "%0000801d", "dst": "%00007c13", "label": "WRITE" }
+  ]
+}

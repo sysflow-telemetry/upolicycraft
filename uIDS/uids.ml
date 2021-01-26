@@ -820,7 +820,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
-    (** Simplified for a CGC challenge *)
+    (** Simplified for CGC challenges *)
+    | "write0" ->
+      (write_to_stdout tid)
     | "write" ->
       (write_to_stdout tid)
     | "print" ->
