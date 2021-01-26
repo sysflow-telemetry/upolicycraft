@@ -151,7 +151,7 @@ int bet;
 		}
 		else {
 
-			if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+			if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 				return -1;
 
 			bet = atoi(buffer);
@@ -161,7 +161,7 @@ int bet;
 	}
 
 	// first deal out the initial cards
-	deck = (unsigned short *)RANDOM_CARD_DATA;
+	deck = (unsigned short *)malloc(4096);
 
 	// dealer gets a card
 	dealer_cards[0] = (deck[*next_card] % 13) +1;
@@ -220,7 +220,7 @@ int bet;
 
 				printf("Do you want a hint?\n");
 
-				if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+				if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 					return -1;
 
 				if (buffer[0] == 'y' || buffer[0] == 'Y') {
@@ -259,7 +259,7 @@ int bet;
 
 			}
 			else {
-				if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+				if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 					return -1;
 			}
 			if (buffer[0] == 'S')

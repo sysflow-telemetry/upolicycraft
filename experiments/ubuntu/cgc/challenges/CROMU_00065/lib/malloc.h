@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include <libcgc.h>
 
-void *calloc( size_t);
+void *calloc( size_t );
 void *malloc( size_t );
 void free( void * );
 

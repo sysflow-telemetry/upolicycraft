@@ -49,7 +49,7 @@ int method;
 	}
 
 	printf("Enter player name\n");
-	if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+	if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 		return -1;
 
 	strcpy(playerList[i].player_name, buffer);
@@ -62,7 +62,7 @@ int method;
 
 	printf("Computer player? (y/n)\n");
 
-	if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+	if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 		return -1;
 
 	if (buffer[0] == 'y' || buffer[0] == 'Y') {
@@ -71,7 +71,7 @@ int method;
 
 		printf("Method 1-4:\n");
 
-		if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+		if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 			return -1;
 
 		method = atoi(buffer);
@@ -113,7 +113,7 @@ int method;
 		printf("Would you like to enable hints?\n");
 
 
-		if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+		if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 		return -1;
 
 		if (buffer[0] == 'y' || buffer[0] == 'Y') {
@@ -122,7 +122,7 @@ int method;
 
 			printf("Method 1-4:\n");
 
-			if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+			if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 				return -1;
 
 			method = atoi(buffer);
@@ -214,7 +214,7 @@ char buffer[20];
 
 	printf("Player to delete (1-$d):\n", x-1);
 
-	if(receive_until( buffer, '\n', sizeof(buffer) ) == 0)
+	if(receive_until0( buffer, '\n', sizeof(buffer)) == 0)
 		return -1;
 
 	delete_num = atoi(buffer);

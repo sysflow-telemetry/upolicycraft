@@ -42,6 +42,7 @@ int           allocate(size_t length, int is_X, void **addr);
 int           deallocate(void *addr, size_t length);
 int           random_cgc(void *buf, size_t count, size_t *rnd_bytes);
 
+int           receive_until0(char *dest, size_t length, char end);
 int           transmit_all(int fd, const char *buf, const size_t size);
 int           receive_delim(int fd, char *buf, const size_t size, char delim);
 int           receive_until(char *dest, size_t length, char end, size_t *bytes_read);

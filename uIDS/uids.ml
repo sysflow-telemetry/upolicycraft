@@ -933,6 +933,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
           (add_operation tid op state'))
+    | "receive_until0" ->
+      let () = info "model receive_until:" in
+      (read_from_stdin tid)
     | "receive_until" ->
       let () = info "model receive_until:" in
       (read_from_stdin tid)

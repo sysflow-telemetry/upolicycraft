@@ -59,19 +59,27 @@ unsigned short card_ptr;
 			printf("0) Exit\n");
 		}
 
+		uids_log("Before receive");
 #ifdef PATCHED_1
 
-		if(receive_until( buffer, '\n', 4 ) == 0)
+		if(receive_until0( buffer, '\n', 4) == 0)
 			continue;
 
 #else
 
-		if(receive_until( buffer, '\n', 21 ) == 0)
+		size_t resp = receive_until0( buffer, '\n', 21);
+
+		uids_log("Receive");
+		uids_debug(resp);
+
+		if (resp == 0)
 			continue;
 
 #endif
+		uids_log("Before atoi");
 		selection = atoi(buffer);
-
+		uids_log("After atoi");
+		uids_debug("");
 		switch (selection) {
 
 			case 1:
@@ -104,7 +112,7 @@ unsigned short card_ptr;
 
 	} //while
 
-	_terminate(0);
+	terminate(0);
 
 }  // main  
 
