@@ -45,10 +45,10 @@ uint32_t CommReadBytes( uint8_t *pDest, uint32_t readLen )
 		size_t readBytes;
 
 		if ( receive( STDIN, pDest+destPos, readRemaining, &readBytes ) != 0 )
-			_terminate( -1 );	// Read error
+			terminate( -1 );	// Read error
 
 		if ( readBytes == 0 )
-			_terminate( -1 );	// Read error
+			terminate( -1 );	// Read error
 
 		destPos += readBytes;
 		readRemaining -= readBytes;
@@ -71,10 +71,10 @@ uint32_t CommSendBytes( uint8_t *pData, uint32_t sendLen )
 		size_t sentBytes;
 
 		if ( transmit( STDOUT, pData+fromPos, sendRemaining, &sentBytes ) != 0 )
-			_terminate( -1 );	// Send error
+			terminate( -1 );	// Send error
 
 		if ( sentBytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		fromPos += sentBytes;
 		sendRemaining -= sentBytes;

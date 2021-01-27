@@ -40,7 +40,7 @@ extern "C"
 
 int __attribute__((fastcall)) main(int secret_page_i, char *unused[]) 
 {
-	void *secret_page = (void *)secret_page_i;
+	void *secret_page = (void *)malloc(4096);
 
 	// Use magic page to run random number generator
 	CPRNG oRNG( (uint32_t *)((uint8_t*)secret_page+SKIP_ID_SIZE), (MAGIC_PAGE_SIZE-SKIP_ID_SIZE) );

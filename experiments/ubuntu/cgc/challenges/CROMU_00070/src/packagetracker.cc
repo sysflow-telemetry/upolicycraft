@@ -84,8 +84,12 @@ void CPackageTracker::Run( void )
 	
 		uint8_t checksumData = 0;
 
+		uids_log("First Read");
+
+		size_t recvHeaderSize = CommReadBytes( (uint8_t*)&oMessageHeader, sizeof(oMessageHeader) );
+		size_t messageHeaderSize =  sizeof(oMessageHeader);
 		// Read command header
-		if ( CommReadBytes( (uint8_t*)&oMessageHeader, sizeof(oMessageHeader) ) != sizeof(oMessageHeader) )
+		if (recvHeaderSize != messageHeaderSize )
 			break;
 
 		checksumData = UpdateChecksum( (uint8_t*)&oMessageHeader, sizeof(oMessageHeader), checksumData );
@@ -93,21 +97,40 @@ void CPackageTracker::Run( void )
 		// Read command data
 		uint32_t cmdLen = oMessageHeader.cmdLength;
 
+		uids_log("Second Read");
+
 		if ( CommReadBytes( pCommandData, oMessageHeader.cmdLength ) != oMessageHeader.cmdLength )
 			break;
 
 		checksumData = UpdateChecksum( (uint8_t*)pCommandData, cmdLen, checksumData );
 
+		size_t recvFooterSize = CommReadBytes( (uint8_t*)&oMessageFooter, sizeof(oMessageFooter) );
+		size_t footerSize = sizeof(oMessageFooter);
+
+		uids_log("Footer Sizes");
+		uids_debug(recvFooterSize);
+		uids_debug(footerSize);
+
 		// Read footer
-		if ( CommReadBytes( (uint8_t*)&oMessageFooter, sizeof(oMessageFooter) ) != sizeof(oMessageFooter) )
+		if (recvFooterSize != footerSize)
 			break;
+
+		uids_log("After Reading Bytes!");
+
+		uids_debug(checksumData);
+		uids_debug(oMessageFooter.checksum);
 
 		// Check checksum
 		if ( checksumData != oMessageFooter.checksum )
 		{
+			uids_log("CheckSumData != oMessageFooter.checksum!");
 			SendResponse( oMessageHeader.cmdNum, COMMAND_RESPONSE_BAD_CHECKSUM, NULL, 0 );
 			continue;
 		}
+
+		uids_log("Checking command!");
+		uids_debug((int)m_bDeviceSleep);
+		uids_debug(oMessageHeader.cmdNum);
 		
 		if ( m_bDeviceSleep && oMessageHeader.cmdNum != COMMAND_WAKEUP && oMessageHeader.cmdNum != COMMAND_SHUTDOWN )
 		{
@@ -115,49 +138,39 @@ void CPackageTracker::Run( void )
 			continue;		
 		}
 
-		switch ( oMessageHeader.cmdNum )
-		{
-		case COMMAND_INFO:
-			DoInfo( pCommandData, cmdLen );
-			break;
+		uids_log("Handling command!");
 
-		case COMMAND_SHUTDOWN:
+		if (oMessageHeader.cmdNum == COMMAND_INFO) {
+			uids_log("INFO");
+			DoInfo( pCommandData, cmdLen );
+		} else if (oMessageHeader.cmdNum == COMMAND_SHUTDOWN) {
+			uids_log("SHUTDOWN");
 			DoShutdown( pCommandData, cmdLen );
 			bDone = true;
-			break;
-
-		case COMMAND_DEBUG:
+		} else if (oMessageHeader.cmdNum == COMMAND_DEBUG) {
+			uids_log("DEBUG");
 			DoDebug( pCommandData, cmdLen );
-			break;
-
-		case COMMAND_UPDATE_GEOFENCE:
+		} else if (oMessageHeader.cmdNum == COMMAND_UPDATE_GEOFENCE) {
+			uids_log("GEOFENCE");
 			DoUpdateGeofence( pCommandData, cmdLen );
-			break;
-
-		case COMMAND_POSITION:
+		} else if (oMessageHeader.cmdNum == COMMAND_POSITION) {
+			uids_log("POSITION");
 			DoPosition( pCommandData, cmdLen );
-			break;
-
-		case COMMAND_GPS_OFF:
+		} else if (oMessageHeader.cmdNum == COMMAND_GPS_OFF) {
+			uids_log("GPS_OFF");
 			DoGPSOff( pCommandData, cmdLen );
-			break;
-	
-		case COMMAND_GPS_ON:
+		} else if (oMessageHeader.cmdNum == COMMAND_GPS_ON) {
+			uids_log("GPS_ON");
 			DoGPSOn( pCommandData, cmdLen );
-			break;
-
-		case COMMAND_SLEEP:
+		} else if (oMessageHeader.cmdNum == COMMAND_SLEEP) {
+			uids_log("SLEEP");
 			DoSleep( pCommandData, cmdLen );
-			break;
-
-		case COMMAND_WAKEUP:
+		} else if (oMessageHeader.cmdNum == COMMAND_WAKEUP) {
+			uids_log("WAKEUP");
 			DoWakeup( pCommandData, cmdLen );
-			break;
-
-		default:
+		} else {
 			// Unknown command
 			SendResponse( oMessageHeader.cmdNum, COMMAND_RESPONSE_INVALID, NULL, 0 );
-			break;
 		}
 
 		// Check for unrecoverable error
