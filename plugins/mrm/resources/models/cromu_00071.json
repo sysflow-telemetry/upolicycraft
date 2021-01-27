@@ -1,0 +1,99 @@
+{
+  "initial": "%00005d97",
+  "nodes": [
+    "%00002da1", "%00002dc6", "%0000302a", "%000030ac", "%000030d0",
+    "%00003abd", "%00003ae1", "%00003c00", "%00003c24", "%00004f81",
+    "%00004f9e", "%00005059", "%000050e8", "%00005137", "%000052de",
+    "%00005361", "%00005582", "%000055a6", "%000056ce", "%00005d97",
+    "%00005d9a"
+  ],
+  "contexts": {
+    "%00003c24": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%00004f9e": [ "/cgc/CROMU_00071", "showAirports" ],
+    "%0000302a": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%000030ac": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%00005d97": [ "/usr/sbin/xinetd", "main" ],
+    "%00005d99": [ "/usr/sbin/xinetd", "main" ],
+    "%00005059": [ "/cgc/CROMU_00071", "showAirports" ],
+    "%000052de": [ "/cgc/CROMU_00071", "main" ],
+    "%00005d9a": [ "/usr/sbin/xinetd", "main" ],
+    "%00002dc6": [ "/cgc/CROMU_00071", "deleteAirport" ],
+    "%00003c00": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%00002da1": [ "/cgc/CROMU_00071", "deleteAirport" ],
+    "%00005361": [ "/cgc/CROMU_00071", "main" ],
+    "%00003abd": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%00005582": [ "/cgc/CROMU_00071", "main" ],
+    "%000030d0": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%000056ce": [ "/cgc/CROMU_00071", "main" ],
+    "%000050e8": [ "/cgc/CROMU_00071", "showAirports" ],
+    "%00004f81": [ "/cgc/CROMU_00071", "showAirports" ],
+    "%00003ae1": [ "/cgc/CROMU_00071", "addAirport" ],
+    "%000055a6": [ "/cgc/CROMU_00071", "main" ],
+    "%00005137": [ "/cgc/CROMU_00071", "showAirports" ]
+  },
+  "constraints": [
+    { "node": "%00002da1", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00002dc6", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%0000302a", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000030ac", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000030d0", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00003abd", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00003ae1", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00003c00", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00003c24", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00004f81", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00004f9e", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00005059", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000050e8", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00005137", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000052de", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00005361", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00005582", "constraints": { "sf.ret": [ "0" ] } },
+    { "node": "%000055a6", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000056ce", "constraints": { "sf.net.dport": [ "8003" ] } },
+    {
+      "node": "%00005d97",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%00005d9a",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00071" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00002da1", "dst": "%00002dc6", "label": "READ" },
+    { "src": "%00002dc6", "dst": "%000056ce", "label": "WRITE" },
+    { "src": "%0000302a", "dst": "%000030ac", "label": "WRITE" },
+    { "src": "%000030ac", "dst": "%000030d0", "label": "READ" },
+    { "src": "%000030d0", "dst": "%00003abd", "label": "WRITE" },
+    { "src": "%000030d0", "dst": "%000056ce", "label": "WRITE" },
+    { "src": "%00003abd", "dst": "%00003ae1", "label": "READ" },
+    { "src": "%00003ae1", "dst": "%00003c00", "label": "WRITE" },
+    { "src": "%00003c00", "dst": "%00003c24", "label": "READ" },
+    { "src": "%00003c24", "dst": "%000030ac", "label": "WRITE" },
+    { "src": "%00004f81", "dst": "%00004f9e", "label": "WRITE" },
+    { "src": "%00004f9e", "dst": "%00005059", "label": "WRITE" },
+    { "src": "%00005059", "dst": "%000050e8", "label": "WRITE" },
+    { "src": "%00005059", "dst": "%00005137", "label": "WRITE" },
+    { "src": "%000050e8", "dst": "%000050e8", "label": "WRITE" },
+    { "src": "%000050e8", "dst": "%00005137", "label": "WRITE" },
+    { "src": "%00005137", "dst": "%00004f81", "label": "WRITE" },
+    { "src": "%00005137", "dst": "%000056ce", "label": "WRITE" },
+    { "src": "%000052de", "dst": "%00005361", "label": "READ" },
+    { "src": "%00005361", "dst": "%00002da1", "label": "WRITE" },
+    { "src": "%00005361", "dst": "%0000302a", "label": "READ" },
+    { "src": "%00005361", "dst": "%00004f81", "label": "WRITE" },
+    { "src": "%00005361", "dst": "%000055a6", "label": "WRITE" },
+    { "src": "%00005361", "dst": "%000056ce", "label": "WRITE" },
+    { "src": "%000055a6", "dst": "%00005582", "label": "EXIT" },
+    { "src": "%000056ce", "dst": "%00005361", "label": "READ" },
+    { "src": "%00005d97", "dst": "%00005d9a", "label": "EXEC" },
+    { "src": "%00005d9a", "dst": "%000052de", "label": "WRITE" }
+  ]
+}

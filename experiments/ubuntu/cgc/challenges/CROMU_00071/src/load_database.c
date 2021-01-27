@@ -53,13 +53,16 @@ int connectionNum;
 	if (*airports != 0)
 		return -1;
 
-	readPtr = (unsigned char *)INITIALIZATION_DATA;
+	readPtr = (unsigned char *)"7w3mMVKgw6EurCcNVNBmjCII7MamOc6J2YsyhqlHHz5HkV8KAkfurlTQENVzrvD16pzAn6xwrPEtFM8vrJ6UHMNX7J6TzRb757XzOyrVxgSAU856BSlaoXX3zNTLcFBuD0VThlpIDhUUY9dVAEDLywMfhLPZAh7ti3TqjMrJUaAowwCIjY8fZiiRZeLvHWk1h3M8PCgXoOrEy2q20rikM72hab0QPcYisqgzhNrIrIZB4HD2fCI7cDKOiScY7md2pC0EOPeON2hRyi0zo2YsraqeGliJIySYszUCVdFjdhenTmgjqoSSybumxsKMM2ws4y1IxBJp7capyiQAUN5qGqZhZaRKAGkZ7r6CLWcCeL2S1jxrOdc0OzdJCCJEoNwj61hYRo5kSHXBVAqsaMn1ZtiZCPqUxMEluENLUaPnfDRakBC6J9ARslvbGJpogPt9yfKMKpXtJqL4JJ9juHaYIRJvYaJtUChgpVXK1IDS8nkqObTflNhTvEE4bf15biHyoUyRjR7xIhjTZwgsgovk8LLnCKzug4iukjT1f8JHY8lveIWrX6utFq1iz2zpFNDDyU9xXJv3GnMKTAwLk57QEkz7pHBLeXNaoEUf3DggaC8Ks0Sd0zQAfIFzGBH1RCf2JnXEQOesjrd9hgwWBIsZOooTTFjssb6SmI9cD16ShfgH2LCp5WkubP7yrgsWTOkHGebpqFIN2ja5EEk01iz1aiijHY8ka0tXf5L8GUVzVMhO0wsMjfmCNWRFF9D5Fwp0qFuZcFEaBm0Isl4FjMF6g081h45e8kHVMgA7o1yuwdxZylxSikAal0oMfhWFpUCSBBmgCV0HUkGwvKixtSCTsUSfFUjmLF3BI0J3ZfjOzQIoLKDEupXU8ARomv3u2BsjwwR7h8i8LpM2gRxRyadBwQj5OtQIPCXc0XDguBwS6xZnXnItECcSdaHIaufOC4IHOdtdJpalKP9RbNIxBXVt54S2o";
 	offset = 1;
 
 	airportCount = *readPtr % 16 + 5;
 
+	uids_log("Airport Count:");
+	uids_debug(airportCount);
 
-	*airports = malloc(sizeof(airportInfoType));
+	*airports = malloc(sizeof(airportInfoType));	
+	bzero(*airports, sizeof(airportInfoType));
 
 	if (*airports == 0)
 		return -1;
@@ -72,8 +75,12 @@ int connectionNum;
 
 			makeAirportCode(readPtr+offset, airportCode);
 			offset+=3;
+			uids_log("About to call check4Code");
 
-			if (check4Code(*airports, airportCode)== -1) {
+			uids_debug(*airports);
+			uids_debug((*airports)->next);
+
+			if (check4Code(*airports, airportCode) == -1) {
 
 				continue;
 			}
@@ -83,18 +90,22 @@ int connectionNum;
 			}
 
 		} // while(1)	
-		
+	
+		uids_log("After check4Code");
+
 		strcpy(tmpPtr->code, airportCode);
 
 		// if this isn't the last one, malloc memory for the next
 		if (i < airportCount -1 ) {
 
 			tmpPtr->next = malloc(sizeof(airportInfoType));
+			bzero(tmpPtr->next, sizeof(airportInfoType));
 
 			if (tmpPtr->next == 0)
 				return -1;
 
 			tmpPtr = tmpPtr->next;
+			
 		}
 		// otherewise just terminate the linked list
 		else
@@ -111,6 +122,7 @@ int connectionNum;
 		offset++;
 
 		tmpPtr->connections = malloc(sizeof(connectionListType));
+		bzero(tmpPtr->connections, sizeof(connectionListType));
 
 		if (tmpPtr->connections == 0)
 			return -1;
@@ -122,7 +134,6 @@ int connectionNum;
 
 			connectionNum = *(readPtr + offset) % airportCount;
 			offset++;
-
 
 			code = findAirportCodebyNumber(*airports, connectionNum);
 
@@ -147,6 +158,7 @@ int connectionNum;
 					if (tmpConnectionPtr->next == 0)
 						return -1;
 
+					bzero(tmpConnectionPtr->next, sizeof(connectionListType));
 					tmpConnectionPtr = tmpConnectionPtr->next;
 				}
 
@@ -184,19 +196,27 @@ int i;
 // returns 0 if its not found in the list, -1 if it is.
 int check4Code(airportInfoType *airports, char apCode[4]) {
 
-
 	// if the airport list is empty, this is a fine code obviously
 	if (airports == 0)
 		return 0;
 
-	while (airports != 0) {
+	uids_log("Airports not NULL");
 
+	while (airports != 0) {
+		uids_log("Looking at airport:");
+		uids_debug(airports->code);
 		if (apCode[0] == airports->code[0] && 
 				apCode[1] == airports->code[1] &&
-				apCode[2] == airports->code[2] ) 
+				apCode[2] == airports->code[2] ) {
+			uids_log("Check negative!");
 			return -1;
-		else
+		} else {
+			uids_log("Looking up next airport:");
+			uids_debug(airports);
+			uids_debug(airports->next);
+
 			airports = airports->next;
+		}
 
 	}
 

@@ -47,78 +47,43 @@ unsigned int databaseCheck;
 
 	// load data from the magic page
 	if (loadDB(&airports) == -1)
-		_terminate(-1);
+		terminate(-1);
 
 
-	while(1) {
-
+	while (1) {
+		uids_log("Accepting input");
 		getline(command, sizeof(command));
-
+		uids_log(command);
 		retval = execute_cmd(&airports, command);
 
 
-		switch (retval) {
-
-			case COMMAND_OK:
-
-				printf("OK\n");
-				break;
-
-			case BAD_COMMAND:
-
-				printf("BAD COMMAND FORMAT\n");
-				break;
-
-			case DUPLICATE_CODE:
-
-				printf("AIRPORT CODE EXISTS\n");
-				break;
-
-			case UNKN_CODE:
-
-				printf("UNKNOWN AIRPORT\n");
-				break;
-
-			case DATABASE_EMPTY:
-
-				printf("EMPTY DB\n");
-				break;
-
-			case COMMAND_TERMINATED:
-
-				printf("COMMAND TERMINATED\n");
-				break;
-
-			case NO_RESULTS:
-
-				printf("NO RESULTS\n");
-				break;
-
-			case UNRECOVERABLE_ERROR:
-
-				printf("TERMINATING\n");
-				_terminate(-1);
-				break;
-
-				// quit command
-			case -99:
-
-				printf("OK\n");
-				break;
-
-			default:
-
-				printf("UNSPECIFIED ERROR\n");
-
-
-		} // switch
+		if (retval == COMMAND_OK) {
+			printf("OK\n");
+		} else if  (retval == BAD_COMMAND) {
+			printf("BAD COMMAND FORMAT\n");
+		} else if (retval == DUPLICATE_CODE) {
+			printf("AIRPORT CODE EXISTS\n");
+		} else if (retval == UNKN_CODE) {
+			printf("UNKNOWN AIRPORT\n");
+		} else if (retval == DATABASE_EMPTY) {
+			printf("EMPTY DB\n");
+		} else if (retval == COMMAND_TERMINATED) {
+			printf("COMMAND TERMINATED\n");
+		} else if (retval == NO_RESULTS) {
+			printf("NO RESULTS\n");
+		} else if (retval == UNRECOVERABLE_ERROR) {
+			printf("TERMINATING\n");
+			terminate(-1);
+		} else if (retval == -99) {
+			printf("OK\n");
+		}
 
 		if (retval == -99)
 			break;
 
 	} // while
 
-    _terminate(0);
+    terminate(0);
 
 }  // main  
 

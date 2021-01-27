@@ -71,6 +71,10 @@ int results;
 		}
 
 		results = 1;
+
+		uids_log("Airport Code:");
+		uids_log(airports->code);
+
 		printf("Airport: @s\n", airports->code);
 
 		printf("Connections: ");
@@ -83,6 +87,9 @@ int results;
 			continue;
 		}
 
+		uids_log("Connections:");
+		uids_log(connection->destCode);
+
 		printf("@s (@d, @d)", connection->destCode, connection->cost, connection->time);
 
 		connection = connection->next;
@@ -90,7 +97,7 @@ int results;
 		while (connection!= 0) {
 
 			printf(", @s (@d, @d)", connection->destCode, connection->cost, connection->time);
-
+			uids_log(connection->destCode);
 			connection = connection->next;
 		}
 

@@ -342,8 +342,8 @@ int flush_input(int fd) {
     return 0;
 } // flush_input()
 
-size_t getline( char *buffer, size_t len)  {
-int count;
+size_t getline(char *buffer, size_t len)  {
+    int count;
 
     count = receive_until(buffer, '\n', len);
 

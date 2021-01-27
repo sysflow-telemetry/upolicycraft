@@ -31,47 +31,26 @@ THE SOFTWARE.
 
 
 int execute_cmd(airportInfoType **airports, char *buffer) {
-
-int value;
-int retcode;
-
+	int value;
+	int retcode;
 
 	value = atoi(buffer);
 
+	uids_log("Execute Cmd");	
+	uids_debug(value);
 
-	switch (value) {
-
-
-		case 0x1:
-
-			retcode = showAirports(*airports, buffer);
-			break;
-
-		case 0x2:
-
-			retcode = addAirport(airports, buffer);
-			break;
-
-		case 0x3:
-
-			retcode = deleteAirport(airports, buffer);
-			break;
-
-		case 0xf:
-
-			retcode = findRoutes(*airports, buffer);
-			break;
-
-
-		case 0xd:
-
-			retcode = -99;
-			break;
-
-		default:
-
-			retcode = COMMAND_OK;
-
+	if (value == 0x1) {
+		retcode = showAirports(*airports, buffer);
+	} else if (value == 0x2) {
+		retcode = addAirport(airports, buffer);
+	} else if (value == 0x3) {
+		retcode = deleteAirport(airports, buffer);
+	} else if (value == 0xf) {
+		retcode = findRoutes(*airports, buffer);
+	} else if (value == 0xd) {
+		retcode = -99;
+	} else {
+		retcode = COMMAND_OK;
 	}
 
 	return retcode;

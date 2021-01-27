@@ -31,13 +31,13 @@ THE SOFTWARE.
 // a simple routine to sum all the bytes of the magic page to use as a simple checksum test
 unsigned int check_db() {
 
-int i;
-unsigned int total;
-
+        int i;
+        unsigned int total;
+	unsigned char *rand = malloc(INIT_DATA_LEN);
 	total = 0;
 
-	for (i=0; i < INIT_DATA_LEN; ++i)  {
-	 	total += ((unsigned char *)&total)[i];
+	for (i=0; i < 1; ++i)  {
+	 	total += (rand)[i];
 	}
 
 	return total;
