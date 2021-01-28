@@ -141,8 +141,8 @@ uint32_t *FindSpt(uint32_t StartingNodeName, uint32_t EndingNodeName, uint8_t *N
 		n = n->PrevSPT;
 	}
 	// allocate space for the uint32_t array
-	if ((Response = (uint32_t *)calloc(sizeof(uint32_t)*(*NodeCount))) == NULL) {
-		_terminate(-1);
+	if ((Response = (uint32_t *)calloc(sizeof(uint32_t)*(*NodeCount), 1)) == NULL) {
+		terminate(-1);
 	}
 	
 	// starting at the end node, work our way back

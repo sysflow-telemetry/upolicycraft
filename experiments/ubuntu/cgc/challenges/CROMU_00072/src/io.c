@@ -35,7 +35,7 @@ THE SOFTWARE.
 
 extern uint32_t NumNodes;
 extern uint32_t NumEdges;
-const unsigned char *rand_page = (const unsigned char *)0x4347C000;
+const unsigned char *rand_page = "7w3mMVKgw6EurCcNVNBmjCII7MamOc6J2YsyhqlHHz5HkV8KAkfurlTQENVzrvD16pzAn6xwrPEtFM8vrJ6UHMNX7J6TzRb757XzOyrVxgSAU856BSlaoXX3zNTLcFBuD0VThlpIDhUUY9dVAEDLywMfhLPZAh7ti3TqjMrJUaAowwCIjY8fZiiRZeLvHWk1h3M8PCgXoOrEy2q20rikM72hab0QPcYisqgzhNrIrIZB4HD2fCI7cDKOiScY7md2pC0EOPeON2hRyi0zo2YsraqeGliJIySYszUCVdFjdhenTmgjqoSSybumxsKMM2ws4y1IxBJp7capyiQAUN5qGqZhZaRKAGkZ7r6CLWcCeL2S1jxrOdc0OzdJCCJEoNwj61hYRo5kSHXBVAqsaMn1ZtiZCPqUxMEluENLUaPnfDRakBC6J9ARslvbGJpogPt9yfKMKpXtJqL4JJ9juHaYIRJvYaJtUChgpVXK1IDS8nkqObTflNhTvEE4bf15biHyoUyRjR7xIhjTZwgsgovk8LLnCKzug4iukjT1f8JHY8lveIWrX6utFq1iz2zpFNDDyU9xXJv3GnMKTAwLk57QEkz7pHBLeXNaoEUf3DggaC8Ks0Sd0zQAfIFzGBH1RCf2JnXEQOesjrd9hgwWBIsZOooTTFjssb6SmI9cD16ShfgH2LCp5WkubP7yrgsWTOkHGebpqFIN2ja5EEk01iz1aiijHY8ka0tXf5L8GUVzVMhO0wsMjfmCNWRFF9D5Fwp0qFuZcFEaBm0Isl4FjMF6g081h45e8kHVMgA7o1yuwdxZylxSikAal0oMfhWFpUCSBBmgCV0HUkGwvKixtSCTsUSfFUjmLF3BI0J3ZfjOzQIoLKDEupXU8ARomv3u2BsjwwR7h8i8LpM2gRxRyadBwQj5OtQIPCXc0XDguBwS6xZnXnItECcSdaHIaufOC4IHOdtdJpalKP9RbNIxBXVt54S2o";
 
 uint32_t ReadBytes(unsigned char *Buf, uint32_t TargetLen) {
 	size_t rxbytes;
@@ -63,8 +63,8 @@ uint32_t ReadNull(uint32_t TargetLen) {
 		return(0);
 	}
 
-	if ((Buf = (unsigned char *)calloc(TargetLen)) == NULL) {
-		_terminate(0);
+	if ((Buf = (unsigned char *)calloc(TargetLen, 1)) == NULL) {
+		terminate(0);
 	}
 
 	while ((TotalLen < TargetLen) && (receive(STDIN, Buf+TotalLen, TargetLen-TotalLen, &rxbytes) == 0)) {
@@ -154,10 +154,10 @@ uint8_t ReadCmd(void) {
 			SendErrorResponse(RESP_ERROR_TOO_MANY_NODES);
 			return(0);
 		}
-		if ((NewNodeNames = (uint32_t *)calloc(sizeof(uint32_t)*Cmd.NumElements)) == NULL) {
+		if ((NewNodeNames = (uint32_t *)calloc(sizeof(uint32_t)*Cmd.NumElements, 1), 1) == NULL) {
 			DestroyNodes();
 			DestroyEdges();
-			_terminate(1);
+			terminate(1);
 		}
 		if (ReadBytes((unsigned char *)NewNodeNames, sizeof(uint32_t)*Cmd.NumElements) != sizeof(uint32_t)*Cmd.NumElements) {
 			free(NewNodeNames);
@@ -176,11 +176,11 @@ uint8_t ReadCmd(void) {
 		// Create the new nodes 
 		for (i = 0; i < Cmd.NumElements; i++) {
 			// create a new node
-			if ((NewNode = (pNode)calloc(sizeof(Node))) == NULL) {
+			if ((NewNode = (pNode)calloc(sizeof(Node), 1)) == NULL) {
 				free(NewNodeNames);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
 			NewNode->Name = NewNodeNames[i];
 			NewNode->Distance = SIZE_MAX;
@@ -189,7 +189,7 @@ uint8_t ReadCmd(void) {
 				free(NewNodeNames);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
 		}
 
@@ -203,10 +203,10 @@ uint8_t ReadCmd(void) {
 			SendErrorResponse(RESP_ERROR_TOO_MANY_EDGES);
 			return(0);
 		}
-		if ((NewEdges = (pEdgeArray)calloc(sizeof(EdgeArray)*Cmd.NumElements)) == NULL) {
+		if ((NewEdges = (pEdgeArray)calloc(sizeof(EdgeArray)*Cmd.NumElements, 1)) == NULL) {
 			DestroyNodes();
 			DestroyEdges();
-			_terminate(1);
+			terminate(1);
 		}
 		if (ReadBytes((unsigned char *)NewEdges, sizeof(EdgeArray)*Cmd.NumElements) != sizeof(EdgeArray)*Cmd.NumElements) {
 			free(NewEdges);
@@ -216,12 +216,13 @@ uint8_t ReadCmd(void) {
 		// Create the new edges 
 		for (i = 0; i < Cmd.NumElements; i++) {
 			// create a new Edge
-			if ((NewEdge = (pEdge)calloc(sizeof(Edge))) == NULL) {
+			if ((NewEdge = (pEdge)calloc(sizeof(Edge), 1)) == NULL) {
 				free(NewEdges);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
+
 			// make sure the starting and ending nodes exist
 			if ((NewEdge->NodeA = FindNode(NewEdges[i].NodeA)) == NULL) {
 				SendErrorResponse(RESP_ERROR_INVALID_NODE);
@@ -229,15 +230,16 @@ uint8_t ReadCmd(void) {
 				free(NewEdges);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
+
 			if ((NewEdge->NodeZ = FindNode(NewEdges[i].NodeZ)) == NULL) {
 				SendErrorResponse(RESP_ERROR_INVALID_NODE);
 				free(NewEdge);
 				free(NewEdges);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
 			// offset the weight by a fixed magic_page-based value
 			NewEdge->Weight = NewEdges[i].Weight + rand_page[NumNodes];
@@ -259,7 +261,7 @@ uint8_t ReadCmd(void) {
 				free(NewEdges);
 				DestroyNodes();
 				DestroyEdges();
-				_terminate(1);
+				terminate(1);
 			}
 		}
 
