@@ -1,0 +1,445 @@
+## NOTE: This one is easiest to reproduce manually, since it looks like you need
+# to wait for the server's output before providing your input. 
+
+Enter your name||
+Will
+Name: %s
+
+Level: %d
+
+Monsters:
+
+        Type: %s
+
+        Health: %d
+
+        Power: %d
+
+
+        Type: %s
+
+        Health: %d
+
+        Power: %d
+
+
+        Type: %s
+
+        Health: %d
+
+        Power: %d
+
+
+Page index: %d %d %d
+
+Page index: %d %d %d
+
+Page index: %d %d %d
+
+Page index: %d %d %d
+
+Width: %d Height: %d
+StartX: %d StartY: %d
+EndX: %d EndY: %d
+
+
+%s
+:
+d
+%s
+:
+d
+%s
+reached the end
+
+
+DUN DUN DUUUUUUUUUUUUUUN
+
+You have reached the boss!!!!!
+
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Hit Points: %d
+
+        Power: %d
+
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+%s hits %s for %d
+
+Monsters:
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+        %d}
+
+        Type: %s
+
+        Level: %d
+
+        Health: %d
+
+        Power: %d
+
+
+Selection:
+1
+You hit for %d. %d left
+
+You destroyed the boss!!!!
+
+capture monster? (y\n):
+y
+update boss name? (y\n):
+n
+You won!!!

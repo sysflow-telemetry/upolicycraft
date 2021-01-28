@@ -98,19 +98,19 @@ size_t read_line( char *outbuf, size_t length )
 
 	if ( outbuf == NULL ) {
 		printf("[ERROR] invalid arg\n");
-		_terminate(-1);
+		terminate(-1);
 		return 0;
 	}
 
 	while ( index < length && c != '\n') {
 		if ( receive( STDIN, &c, 1, &rx_bytes) != 0 ) {
 			printf("[ERROR] Failed to read byte\n");
-			_terminate(-3);
+			terminate(-3);
 		}
 
 		if ( rx_bytes == 0 ) {
 			printf("[ERROR] Error in receive\n");
-			_terminate(-4);
+			terminate(-4);
 		}
 
 		if ( c == '\n') {
@@ -137,12 +137,12 @@ size_t read_line_u( char *outbuf )
 	while ( c != '\n' ) {
 		if ( receive( STDIN, &c, 1, &rx_bytes) != 0 ) {
 			printf("[ERROR] Failed to read byte\n");
-			_terminate(0);
+			terminate(0);
 		}
 
 		if ( rx_bytes == 0 ) {
 			printf("[ERROR] Error in receive\n");
-			_terminate(0);
+			terminate(0);
 		}
 
 		if ( c == '\n') {
@@ -171,7 +171,7 @@ void add_queue( size_t x, size_t y, size_t max_x, size_t max_y )
 
 	if ( pq == NULL ) {
 		printf("[ERROR] malloc() queue structure failed.\n");
-		_terminate(-1);
+		terminate(-1);
 	}
 
 	bzero( pq, sizeof( queue ) );
@@ -240,7 +240,7 @@ void print_map( pmap pm )
 
 	if ( data == NULL ) {
 		printf("[ERROR] Failed to allocate map.\n");
-		_terminate(-5);
+		terminate(-5);
 	}
 
 	bzero( data, max + pm->height + 1);
@@ -262,7 +262,7 @@ void print_map( pmap pm )
 
 	data[map_index] = '\n';
 	
-	printf("$s", data);
+	printf("%s", data);
 
 	free(data);
 
@@ -371,7 +371,7 @@ void place_marker( pmap pm )
 		if ( index == max ) {
 			printf("FAILED\n");
 			print_map( pm );
-			_terminate(0);
+			terminate(0);
 		}
 
 		pm->last_y = index / pm->width;
@@ -396,14 +396,14 @@ void initialize_map( pmap pm )
 {
 	if ( pm == NULL ) {
 		printf("[ERROR] initialize_map() invalid argumenet.\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	pm->data = malloc( pm->width * pm->height );
 
 	if ( pm->data == NULL ) {
 		printf("[ERROR] Failed to allocate map.\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( pm->data, pm->width * pm->height);
@@ -416,21 +416,26 @@ void initialize_map( pmap pm )
 	while ( (pm->start_x==pm->end_x) || ( pm->start_x-1 == pm->end_x) || (pm->start_x+1 == pm->end_x)
 				|| (pm->start_y == pm->end_y) || ( pm->start_y+1 == pm->end_y) || (pm->start_y - 1 == pm->end_y) ) {
 
+		printf("Page index: %d %d %d\n", page_index, pm->width, pm->height);
 		/// Decide on the start and the end position
-		pm->start_x = secret_page[page_index] % pm->width;
-		update_page_index();
-
-		pm->start_y = secret_page[page_index] % pm->height;
-		update_page_index();
 
 		pm->end_x = secret_page[page_index] % pm->width;
 		update_page_index();
 
 		pm->end_y = secret_page[page_index] % pm->height;
 		update_page_index();
+
+		pm->start_x = secret_page[page_index] % pm->width;
+		update_page_index();
+
+		pm->start_y = secret_page[page_index] % pm->height;
+		update_page_index();
 	}
 
-	set_marker( pm->start_x, pm->start_y, pm, PERSON);
+	pm->start_x = pm->end_x;
+	pm->start_y = pm->end_y-2;
+
+        set_marker( pm->start_x, pm->start_y, pm, PERSON);
 	set_marker( pm->end_x, pm->end_y, pm, EXIT);
 
 	pm->current_x = pm->start_x;
@@ -452,7 +457,7 @@ void initialize_queue_matrix( pmap pm )
 
 	if ( queue_matrix == NULL ) {
 		printf("[ERROR] Failed to allocate queue matrix\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( queue_matrix, pm->width * pm->height );
@@ -482,7 +487,7 @@ pmap generate_map( size_t width, size_t height )
 
 	if ( pm == NULL ) {
 		printf("[ERROR] Failed to allocate map strucure\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( pm, sizeof(map) );
@@ -492,7 +497,7 @@ pmap generate_map( size_t width, size_t height )
 
 	initialize_map ( pm );
 
-	printf("Width: $d Height: $d\nStartX: $d StartY: $d\nEndX: $d EndY: $d\n\n", width, height, pm->start_x, pm->start_y, pm->end_x, pm->end_y);
+	printf("Width: %d Height: %d\nStartX: %d StartY: %d\nEndX: %d EndY: %d\n\n", width, height, pm->start_x, pm->start_y, pm->end_x, pm->end_y);
 
 	while ( success) {
 
@@ -502,7 +507,9 @@ pmap generate_map( size_t width, size_t height )
 		/// Initialize a new queue matrix
 		initialize_queue_matrix( pm );
 
+
 		if ( find_path( pm->start_x, pm->start_y, pm) != 1 ) {
+			uids_log("No path found");
 			/// Reverse the last marker
 			pm->data[ ( pm->width * pm->last_y) + pm->last_x ]  = 0x00;
 
@@ -556,11 +563,11 @@ pmonster select_monster( pplayer pp )
 
 	printf("Monsters: \n");
 	for ( index = 0; index < pp->mcnt; index++ ) {
-		printf("\t$d} \n", index+1);
-		printf("\tType: $s\n", pp->mons[index]->type);
-		printf("\tLevel: $d\n", pp->mons[index]->level);
-		printf("\tHealth: $d\n", pp->mons[index]->health);
-		printf("\tPower: $d\n\n", pp->mons[index]->power);
+		printf("\t%d} \n", index+1);
+		printf("\tType: %s\n", pp->mons[index]->type);
+		printf("\tLevel: %d\n", pp->mons[index]->level);
+		printf("\tHealth: %d\n", pp->mons[index]->health);
+		printf("\tPower: %d\n\n", pp->mons[index]->power);
 	}
 
 	while ( !success ) {
@@ -572,9 +579,9 @@ pmonster select_monster( pplayer pp )
 		ac = atoi( (char*)&choice );
 
 		if ( ac <= 0 || ac > pp->mcnt ) {
-			printf("bad choice: $x\n", choice);
+			printf("bad choice: %x\n", choice);
 		} else if ( pp->mons[ac-1] == NULL ) {
-			printf("bad choice: $x\n", choice);
+			printf("bad choice: %x\n", choice);
 		} else if ( pp->mons[ac-1]->health <= 0 ) {
 			printf("he dead\n");
 		} else {
@@ -608,11 +615,11 @@ void print_monster( pmonster pm )
 		return;
 	}
 
-	printf("\tType: $s\n", pm->type);
-	printf("\tLevel: $d\n", pm->level);
-	printf("\tHealth: $d\n", pm->health);
-	printf("\tHit Points: $d\n", pm->hitpoints);
-	printf("\tPower: $d\n\n", pm->power);
+	printf("\tType: %s\n", pm->type);
+	printf("\tLevel: %d\n", pm->level);
+	printf("\tHealth: %d\n", pm->health);
+	printf("\tHit Points: %d\n", pm->hitpoints);
+	printf("\tPower: %d\n\n", pm->power);
 
 	return;
 }
@@ -626,7 +633,7 @@ int oneup_monster( pmonster pm )
 	pm->experience += 1;
 
 	if ( (pm->experience % 15) == 0 ) {
-		printf("$s gained a level\n", pm->type);
+		printf("%s gained a level\n", pm->type);
 		pm->hitpoints += 1;
 		pm->power += 1;
 		pm->health = pm->hitpoints;
@@ -646,7 +653,7 @@ pmonster generate_boss( )
 
 	if ( pm == NULL ) {
 		printf("[ERROR] Failed to allocate boss monster structure\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( pm, sizeof( monster ) );
@@ -686,7 +693,7 @@ int change_monster_name( pmonster pm )
 
 	if ( final == NULL ) {
 		printf("[ERROR] Failed to malloc name buffer\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( final, index+1);
@@ -732,7 +739,7 @@ int capture_boss( pmonster pm, pplayer pp )
 
 	printf("your cart is full.\n");
 	for ( choice = 0; choice < MAX_CAPTURE; choice++ ) {
-		printf("$d} \n", choice+1);
+		printf("%d} \n", choice+1);
 		print_monster(pp->mons[choice]);
 	}
 
@@ -799,7 +806,7 @@ int daboss( pplayer pp )
 		update_page_index();
 
 		boss->health -= player_hit;
-		printf("You hit for $d. $d left\n", player_hit, boss->health);
+		printf("You hit for %d. %d left\n", player_hit, boss->health);
 
 		oneup_monster( player_current );
 
@@ -813,12 +820,12 @@ int daboss( pplayer pp )
 		target_hit = secret_page[page_index] % boss->power;
 		update_page_index();
 
-		printf("$s hits $s for $d\n", boss->type, player_current->type, target_hit);
+		printf("%s hits %s for %d\n", boss->type, player_current->type, target_hit);
 
 		player_current->health -= target_hit;
 
 		if ( player_current->health <= 0 ) {
-			printf("$s was knocked out\n", player_current->type);
+			printf("%s was knocked out\n", player_current->type);
 		}
 
 	}
@@ -852,7 +859,7 @@ int capture_monster( pmonster pm, pplayer pp )
 
 	printf("your cart is full.\n");
 	for ( choice = 0; choice < MAX_CAPTURE; choice++ ) {
-		printf("$d} \n", choice+1);
+		printf("%d} \n", choice+1);
 		print_monster(pp->mons[choice]);
 	}
 
@@ -919,12 +926,12 @@ int fight ( pplayer pp )
 		update_page_index();
 
 		pm->health -= player_hit;
-		printf("You hit for $d. $d left\n", player_hit, pm->health);
+		printf("You hit for %d. %d left\n", player_hit, pm->health);
 
 		oneup_monster( player_current );
 
 		if ( pm->health <= 0 ) {
-			printf("You knocked out $s\n", pm->type);
+			printf("You knocked out %s\n", pm->type);
 			reset_monsters(pp);
 			capture_monster( pm, pp);
 			return 1;
@@ -933,12 +940,12 @@ int fight ( pplayer pp )
 		target_hit = secret_page[page_index] % pm->power;
 		update_page_index();
 
-		printf("$s hits $s for $d\n", pm->type, player_current->type, target_hit);
+		printf("%s hits %s for %d\n", pm->type, player_current->type, target_hit);
 
 		player_current->health -= target_hit;
 
 		if ( player_current->health <= 0 ) {
-			printf("$s was knocked out\n", player_current->type);
+			printf("%s was knocked out\n", player_current->type);
 		}
 
 	}
@@ -961,11 +968,13 @@ int movement_loop( pmap pm, pplayer pp )
 
 		printf(": ");
 		rx_bytes = read_line( movement, 2 );
-
 		if ( rx_bytes == 0 ) {
 			printf("[ERROR] Failed to receive movement byte\n");
-			_terminate(-2);
+			terminate(-2);
 		}
+
+		uids_log("Movement");
+		uids_debug(movement);
 
 		check_egg( pp, movement[0]);
 
@@ -1041,7 +1050,7 @@ int movement_loop( pmap pm, pplayer pp )
 				
 				if ( fight( pp ) == 1 ) {
 					pp->level += 1;
-					printf("player gains a level. now $d\n", pp->level);
+					printf("player gains a level. now %d\n", pp->level);
 				}
 				print_map( pm );
 				
@@ -1082,7 +1091,7 @@ pmonster generate_monster( )
 
 	if ( pm == NULL ) {
 		printf("[ERROR] Failed to allocate monster structure\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( pm, sizeof( monster ) );
@@ -1124,7 +1133,7 @@ pplayer generate_player( )
 
 	if ( np == NULL ) {
 		printf("[ERROR] Failed to malloc player structure\n");
-		_terminate(0);
+		terminate(0);
 	}
 
 	bzero( np, sizeof(player) );
@@ -1149,14 +1158,14 @@ void print_player( pplayer pp )
 		return;
 	}
 
-	printf("Name: $s\n", pp->name);
-	printf("Level: $d\n", pp->level);
+	printf("Name: %s\n", pp->name);
+	printf("Level: %d\n", pp->level);
 	printf("Monsters: \n");
 
 	for ( index = 0; index < pp->mcnt; index++ ) {
-		printf("\tType: $s\n", pp->mons[index]->type);
-		printf("\tHealth: $d\n", pp->mons[index]->health);
-		printf("\tPower: $d\n\n", pp->mons[index]->power);
+		printf("\tType: %s\n", pp->mons[index]->type);
+		printf("\tHealth: %d\n", pp->mons[index]->health);
+		printf("\tPower: %d\n\n", pp->mons[index]->power);
 	}
 
 	return;
@@ -1170,7 +1179,10 @@ int main(int secret_page_i, char *unused[])
 	pplayer pp = NULL;
 
 	/// Initialized the secret page stuff
-	secret_page = (unsigned char*)&pm;
+	secret_page = (unsigned char*)"7w3mMVKgw6EurCcNVNBmjCII7MamOc6J2YsyhqlHHz5HkV8KAkfurlTQENVzrvD16pzAn6xwrPEtFM8vrJ6UHMNX7J6TzRb757XzOyrVxgSAU856BSlaoXX3zNTLcFBuD0VThlpIDhUUY9dVAEDLywMfhLPZAh7ti3TqjMrJUaAowwCIjY8fZiiRZeLvHWk1h3M8PCgXoOrEy2q20rikM72hab0QPcYisqgzhNrIrIZB4HD2fCI7cDKOiScY7md2pC0EOPeON2hRyi0zo2YsraqeGliJIySYszUCVdFjdhenTmgjqoSSybumxsKMM2ws4y1IxBJp7capyiQAUN5qGqZhZaRKAGkZ7r6CLWcCeL2S1jxrOdc0OzdJCCJEoNwj61hYRo5kSHXBVAqsaMn1ZtiZCPqUxMEluENLUaPnfDRakBC6J9ARslvbGJpogPt9yfKMKpXtJqL4JJ9juHaYIRJvYaJtUChgpVXK1IDS8nkqObTflNhTvEE4bf15biHyoUyRjR7xIhjTZwgsgovk8LLnCKzug4iukjT1f8JHY8lveIWrX6utFq1iz2zpFNDDyU9xXJv3GnMKTAwLk57QEkz7pHBLeXNaoEUf3DggaC8Ks0Sd0zQAfIFzGBH1RCf2JnXEQOesjrd9hgwWBIsZOooTTFjssb6SmI9cD16ShfgH2LCp5WkubP7yrgsWTOkHGebpqFIN2ja5EEk01iz1aiijHY8ka0tXf5L8GUVzVMhO0wsMjfmCNWRFF9D5Fwp0qFuZcFEaBm0Isl4FjMF6g081h45e8kHVMgA7o1yuwdxZylxSikAal0oMfhWFpUCSBBmgCV0HUkGwvKixtSCTsUSfFUjmLF3BI0J3ZfjOzQIoLKDEupXU8ARomv3u2BsjwwR7h8i8LpM2gRxRyadBwQj5OtQIPCXc0XDguBwS6xZnXnItECcSdaHIaufOC4IHOdtdJpalKP9RbNIxBXVt54S2o";
+
+        //33 21 28i
+
 	page_index = 0;
 	root = NULL;
 	queue_matrix = NULL;
@@ -1180,11 +1192,13 @@ int main(int secret_page_i, char *unused[])
 	print_player(pp);
 
 	/// Random value between 5 and 30
-	size_t w = (secret_page[page_index] % 31) + 5;
+	//size_t w = (secret_page[page_index] % 31) + 5;
+	size_t w = 5;
 	update_page_index();
 
 	/// Random height between 5 and 30
-	size_t h = (secret_page[page_index] % 31) + 5;
+	size_t h = 5;
+
 	update_page_index();
 
 	pm = generate_map( w, h);

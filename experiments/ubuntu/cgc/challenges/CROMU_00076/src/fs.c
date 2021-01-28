@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-#include <fs.h>
+#include "fs.h"
 
 /* fs.c libc-cfe Filesystem library
 This library implements a single-directory filesystem with basic
@@ -45,29 +45,29 @@ int main(void) {
 
 	if (!InitFilesystem(MaxFiles, "rootpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if (!AddUser("testuser", "testpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	// it's up to the CB to validate passwords using 
 	// CheckPasswd() before calling Login
 	if (!Login("testuser")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if ((fp = fopen("testfile", "w")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if ((fwrite("asdf\n", strlen("asdf\n"), 1, fp)) != strlen("asdf\n")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	fclose(fp);
@@ -76,13 +76,13 @@ int main(void) {
 
 	if ((fp = fopen("testfile", "r")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	// could also use fgets() here
 	if ((fread(buf, 10, 1, fp)) == 0) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	printf("$s", buf);
@@ -91,14 +91,14 @@ int main(void) {
 
 	if (!RenameFile("testfile", "testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
 
 	if (!DeleteFile("testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
