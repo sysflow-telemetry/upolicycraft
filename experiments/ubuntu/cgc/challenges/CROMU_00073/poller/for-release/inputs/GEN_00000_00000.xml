@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE pov SYSTEM "/usr/share/cgc-docs/replay.dtd">
+<pov>
+<cbid>service</cbid>
+<replay>
+    <!-- kajigger: 0.328484 \x24\x5cu\x12iDv\xaa \x00\x00\x13\x96\xe1\x05\xd5?\x00i\x13\x96\xe1\x05\xd5? -->
+    <!-- hello: rng 1.212836 -->
+    <read><length>11</length><match><data>\x00\x08\x00\xfe\x7frv\xc6g\xf3?</data></match></read>
+    <!-- monte check -->
+    <!-- okay: scaler 0.4956408903 splatter 5493.7685355376 -->
+    <!-- in 3360 tot 4096 ratio 0.820312 want 0.785316 -->
+    <!-- okay: buf 42 -->
+    <write><data>\x0a\x10\x00\xa2\xb7\xbe\xbe\xc4u\xb5\x40M.\x8f\x91\x94\xb8\xdf?</data></write>
+    <read><length>4</length><match><data>\x0b\x01\x00\x2a</data></match></read>
+    <!-- menu: counter 1 magic 245c7512 -->
+    <!-- doubler: can double 32 -->
+    <write><data>\x14\x05\x00PTLRB</data></write>
+    <read><length>13</length><match><data>\x15\x0a\x00PTLRBPTLRB</data></match></read>
+    <!-- menu: counter 1 magic 245c7512 -->
+    <!-- query: expect 0.676925 -->
+    <write><data>\x1e\x00\x00</data></write>
+    <read><length>11</length><match><data>\x1f\x08\x00\x7f\xdc\x19\xcf\x5d\xa9\xe5?</data></match></read>
+    <!-- menu: counter 2 magic 245c7512 -->
+    <!-- query: expect 0.015373 -->
+    <write><data>\x1e\x00\x00</data></write>
+    <read><length>11</length><match><data>\x1f\x08\x00TS\x5f\xb4\xdf\x7b\x8f?</data></match></read>
+    <!-- menu: counter 3 magic 245c7512 -->
+    <!-- query: expect 0.786103 -->
+    <write><data>\x1e\x00\x00</data></write>
+    <read><length>11</length><match><data>\x1f\x08\x00\xae\x8f\xd8\x11\xc1\x27\xe9?</data></match></read>
+    <!-- menu: counter 4 magic 245c7512 -->
+    <!-- terminate -->
+    <write><data>\x09\x00\x00</data></write>
+</replay>
+</pov>

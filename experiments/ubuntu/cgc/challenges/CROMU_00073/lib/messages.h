@@ -22,7 +22,7 @@ unrecognized_id_error_contents* extract_unrecognized_id_error(protocol_frame* fr
 // can't struct #<Message 9/terminate contents=0 decode_contents=empty bytes=0>
 #define TERMINATE_ID 9
 #define TERMINATE_EXPECTED_LENGTH 0
-void* extract_terminate(protocol_frame* frame);
+void* extractterminate(protocol_frame* frame);
 
 // check_req
 typedef struct {

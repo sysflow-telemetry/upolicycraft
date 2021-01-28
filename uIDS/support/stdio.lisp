@@ -62,9 +62,16 @@
 
 (defun write (fd buf cnt)
   (declare (external "write"))
+  (uids-ocaml-debug fd)
+  (uids-ocaml-debug buf)
+  (uids-ocaml-debug cnt)
   (let ((written (fwrite buf 1 cnt fd))
         (failure (channel-flush fd)))
     (or failure written)))
+
+(defun write-stdout (buf cnt)
+   (declare (external "write0"))
+   (write *standard-output* buf cnt))
 
 (defun input-item-nth-char (ptr size item desc i)
   (let ((c (channel-input desc)))
@@ -212,6 +219,21 @@
                 (if (= c (cast char -1))
                   (set eof true)
                   (incr z)))))
+        (memory-write (+ dest z) 0:8)
+  z))
+
+(defun getline (dest n)
+  (declare (external "getline"))
+  (let ((z 0:64)
+        (eof false))
+      (while (and (< z n)
+                  (not eof))
+        (let ((c (channel-input *standard-input*)))
+             (memory-write (+ dest z) c)
+             (if (or (= (cast char c) (cast char 0xA))
+                     (= c (cast char -1)))
+                (set eof true)
+		(incr z))))
         (memory-write (+ dest z) 0:8)
   z))
 

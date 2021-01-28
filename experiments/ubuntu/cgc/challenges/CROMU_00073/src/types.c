@@ -48,5 +48,5 @@ void types_check() {
 void chk(size_t expected, size_t got) {
   if (expected == got) return;
 
-  _terminate(-1);
+  terminate(-1);
 }

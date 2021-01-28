@@ -31,6 +31,9 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 // uids
 
+size_t        getline(char *buffer, size_t len);
+ssize_t       write0(const void *, size_t) __attribute__((warn_unused_result));
+
 char          *itoa(unsigned int number);
 
 void          terminate(unsigned int status);

@@ -38,7 +38,7 @@ void handle_double(protocol_frame* frame);
 uint8 handle(protocol_frame *frame) {
   switch (frame->id) {
   case TERMINATE_ID:
-    _terminate(0);
+    terminate(0);
     break;
   case CHECK_REQ_ID:
     handle_check(frame);
@@ -71,7 +71,7 @@ void handle_unrecognized_id(uint8 id) {
   f.length = UNRECOGNIZED_ID_ERROR_EXPECTED_LENGTH;
   f.value = (void*)&e;
   protocol_send(&f);
-  _terminate(-1);
+  terminate(-1);
 }
 
 void handle_check(protocol_frame* frame) {
@@ -121,12 +121,12 @@ void double_body(protocol_frame* frame,
   f.value = (void*)output_buf_addr;
 
   if (output_buf_len < input_buf_len) {
-    _terminate(-1);
+    terminate(-1);
   }
 
 #ifdef PATCHED_1
   if (output_buf_len < input_buf_len * 2) {
-    _terminate(-1);
+    terminate(-1);
   }
 #endif
 

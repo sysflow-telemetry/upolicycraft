@@ -1,0 +1,20 @@
+digraph G {
+  2 [shape=Mrecord, label="{{/cgc/CROMU_00073:tx}|{NF|8003}}", fontsize=9, ];
+  3 [shape=Mrecord, label="{{/cgc/CROMU_00073:rx}|{NF|8003}}", fontsize=9, ];
+  4 [shape=Mrecord, label="{{/cgc/CROMU_00073:handle}|{P|0}}", fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/xinetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/xinetd:main}|{P|/cgc/CROMU_00073|}}",
+     fontsize=9, ];
+  
+  
+  2 -> 2 [label="WRITE", fontsize=8, ];
+  2 -> 3 [label="READ", fontsize=8, ];
+  3 -> 2 [label="WRITE", fontsize=8, ];
+  3 -> 3 [label="READ", fontsize=8, ];
+  3 -> 4 [label="EXIT", fontsize=8, ];
+  0 -> 1 [label="EXEC", fontsize=8, ];
+  1 -> 2 [label="WRITE", fontsize=8, ];
+  
+  }
