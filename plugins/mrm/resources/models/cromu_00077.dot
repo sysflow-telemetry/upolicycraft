@@ -1,0 +1,22 @@
+digraph G {
+  3 [shape=Mrecord,
+     label="{{/cgc/CROMU_00077:_ZN12CNetworkComm8SendDataEPhj}|{NF|8003}}",
+     fontsize=9, ];
+  2 [shape=Mrecord,
+     label="{{/cgc/CROMU_00077:_ZN12CNetworkComm8RecvDataEPhj}|{NF|8003}}",
+     fontsize=9, ];
+  4 [shape=Mrecord, label="{{/cgc/CROMU_00077:main}|{P|0}}", fontsize=9, ];
+  0 [shape=Mrecord,
+     label="{{/usr/sbin/xinetd:main}|{P|/usr/sbin/xinetd|-dontfork}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/usr/sbin/xinetd:main}|{P|/cgc/CROMU_00077|}}",
+     fontsize=9, ];
+  
+  
+  3 -> 3 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="EXIT", fontsize=8, ];
+  2 -> 3 [label="WRITE", fontsize=8, ];
+  0 -> 1 [label="EXEC", fontsize=8, ];
+  1 -> 2 [label="READ", fontsize=8, ];
+  
+  }

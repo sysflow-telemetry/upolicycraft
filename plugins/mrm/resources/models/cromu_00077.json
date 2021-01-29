@@ -1,0 +1,40 @@
+{
+  "initial": "%0001adda",
+  "nodes": [
+    "%00010822", "%000109a0", "%00016246", "%0001adda", "%0001addd"
+  ],
+  "contexts": {
+    "%0001addc": [ "/usr/sbin/xinetd", "main" ],
+    "%0001adda": [ "/usr/sbin/xinetd", "main" ],
+    "%000109a0": [ "/cgc/CROMU_00077", "_ZN12CNetworkComm8RecvDataEPhj" ],
+    "%00010822": [ "/cgc/CROMU_00077", "_ZN12CNetworkComm8SendDataEPhj" ],
+    "%00016246": [ "/cgc/CROMU_00077", "main" ],
+    "%0001addd": [ "/usr/sbin/xinetd", "main" ]
+  },
+  "constraints": [
+    { "node": "%00010822", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%000109a0", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00016246", "constraints": { "sf.ret": [ "0" ] } },
+    {
+      "node": "%0001adda",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/sbin/xinetd" ],
+        "sf.proc.args": [ "-dontfork" ]
+      }
+    },
+    {
+      "node": "%0001addd",
+      "constraints": {
+        "sf.proc.exe": [ "/cgc/CROMU_00077" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00010822", "dst": "%00010822", "label": "WRITE" },
+    { "src": "%00010822", "dst": "%00016246", "label": "EXIT" },
+    { "src": "%000109a0", "dst": "%00010822", "label": "WRITE" },
+    { "src": "%0001adda", "dst": "%0001addd", "label": "EXEC" },
+    { "src": "%0001addd", "dst": "%000109a0", "label": "READ" }
+  ]
+}
