@@ -66,8 +66,8 @@ namespace CUtil
 	private:
 		template<class U> friend class DoubleList;
 
-		DoubleLink<T> *m_pNext;
-		DoubleLink<T> *m_pPrev;
+		DoubleLink<T> *m_pNext = NULL;
+		DoubleLink<T> *m_pPrev = NULL;
 	};
 
 	template<class T>
@@ -129,7 +129,7 @@ namespace CUtil
 	DoubleLink<T>::DoubleLink( )
 	        : m_pNext( NULL ), m_pPrev( NULL )
 	{
-
+		uids_log("Creating doubly linked list!");
 	}
 
 	template<class T>
@@ -188,10 +188,12 @@ namespace CUtil
 	template<class T>
 	void DoubleList<T>::AddFirst( T *pItem )
 	{
+		uids_log("In first");
 	        if ( !pItem )
 	        	return;
 
 		DoubleLink<T> *pItemLink = (DoubleLink<T> *)((uint8_t*)pItem + m_listLinkOffset);
+		uids_debug(pItemLink);
 
 		pItemLink->m_pNext = m_first.m_pNext;
 		pItemLink->m_pPrev = &m_first;

@@ -101,9 +101,15 @@ bool CNetworkFS::Init( CNetworkComm *pComms, uint32_t maxFiles )
 
 	m_maxFiles = maxFiles;
 
+	uids_log("Setting up CDBFS");
 	m_pFS = new CDBFS( m_pTimeGen );
 
-	m_pFS->Init( "rootpasswd", maxFiles );
+	uids_log("Init FS");
+
+	//m_pFS->Init( "rootpasswd", maxFiles );
+
+	uids_log("Add file as root");
+
 	m_pFS->AddFileAsRoot( "passwd", (uint8_t*)"root:rootpasswd", 15 );
 
 	return (true);
@@ -132,39 +138,22 @@ bool CNetworkFS::Run( void )
 			return (true);
 		}
 
-		switch( oRequestHdr.requestType )
-		{
-		case REQUEST_CFS_LOGIN:
+		if (oRequestHdr.requestType == REQUEST_CFS_LOGIN) {
 			HandleCFSLogin();
-			break;
-
-		case REQUEST_CFS_DIR:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_DIR) {
 			HandleCFSDir();
-			break;
-	
-		case REQUEST_CFS_READ:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_READ) {
 			HandleCFSRead();
-			break;
-	
-		case REQUEST_CFS_WRITE:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_WRITE) {
 			HandleCFSWrite();
-			break;
-
-		case REQUEST_CFS_WRITE_APPEND:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_WRITE_APPEND) {
 			HandleCFSWriteAppend();
-			break;
-
-		case REQUEST_CFS_DEL:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_DEL) {
 			HandleCFSDel();
-			break;
-
-		case REQUEST_CFS_RENAME:
+		} else if (oRequestHdr.requestType == REQUEST_CFS_RENAME) {
 			HandleCFSRename();
-			break;
-
-		default:
+		} else {
 			SetError( "Unknown request type!" );
-			break;
 		}
 
 		if ( HasError() )
@@ -258,6 +247,7 @@ void CNetworkFS::HandleCFSDir( void )
 		return;
 	}
 
+	uids_log("Listing File System");
 	uint32_t dataSize = 512;
 
 	CUtil::DLL_LIST( CTempFileList, m_oLink ) oSortedList;
@@ -310,8 +300,9 @@ void CNetworkFS::HandleCFSDir( void )
 
 	pos += sprintf( pszFileList, "$-32s $-32s $-8s $-4s $-10s\n", "Filename", "Owner", "Size", "Mode", "Timestamp" );
 
-	uint32_t sendSize = 0;	
-	
+	uint32_t sendSize = 0;
+	uids_log("Header");
+	/**
 	CTempFileList *pFileList;	
 	for ( pFileList = oSortedList.GetFirst(); pFileList; pFileList = oSortedList.GetNext( pFileList ) )	
 	{
@@ -333,16 +324,16 @@ void CNetworkFS::HandleCFSDir( void )
 		if ( modeBits & FS_MODE_OTHER_WRITE )
 			modeStr[3] = 'w';
 
-		pos += sprintf( pszFileList+pos, "$-32s $-32s $-8d $-4s $-10d\n", pFile->GetName().c_str(), pFile->GetOwner().c_str(), pFile->GetFileSize(), modeStr, pFile->GetAccessTime() );
-	}
+		//pos += sprintf( pszFileList+pos, "$-32s $-32s $-8d $-4s $-10d\n", pFile->GetName().c_str(), pFile->GetOwner().c_str(), pFile->GetFileSize(), modeStr, pFile->GetAccessTime() );
+	} */
 
 	// Delete all the temporary storage holders
-	oSortedList.DeleteAll();
+	//oSortedList.DeleteAll();
 
 	// Send pos worth of data for response
 	SendResponse( REQUEST_CFS_DIR, RESPONSE_SUCCESS, (uint8_t*)pszFileList, pos );
 
-	delete pszFileList;
+	//delete pszFileList;
 }
 
 void CNetworkFS::HandleCFSRead( void )

@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
+
 extern "C"
 {
 #include <libcgc.h>
@@ -232,7 +233,9 @@ bool CDBFS::Init( CUtil::String sRootPassword, uint32_t maxFiles )
 	m_userList.DeleteAll();
 	m_openFileList.DeleteAll();
 
-	m_userList.AddFirst( new CDBFSUser( "root", sRootPassword ) );
+	CDBFSUser *user = new CDBFSUser( "root", sRootPassword );
+
+	m_userList.AddFirst( user );	
 
 	m_pCurUser = NULL;
 

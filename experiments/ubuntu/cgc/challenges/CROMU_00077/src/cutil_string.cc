@@ -38,6 +38,7 @@ using namespace CUtil;
 
 String::String( )
 {
+	uids_log("In empty string constructor!");
 	m_pData = new char[1];
 	m_pData[0] = '\0';
 
@@ -47,17 +48,21 @@ String::String( )
 String::String( const String &str )
 	: m_pData( NULL ), m_length( 0 )
 {
+	uids_log("In string constructor!");
 	SetInternal( str );
 }
 
 String::String( const char *pszStr )
 	: m_pData( NULL ), m_length( 0 )
 {
+	uids_log("In C string constructor!");
 	SetInternal( pszStr );
 }
 
 String::~String( )
 {
+	uids_log("In C string deconstructor!");
+
 	if ( m_pData )
 		delete [] m_pData;
 
@@ -218,11 +223,14 @@ bool String::IsEmpty( void ) const
 
 void String::SetInternal( const char *pszStr )
 {
-	if ( m_pData )
+	if ( m_pData ) {
+		uids_log("Deleting old Data");
 		delete [] m_pData;
+	}
 
 	if ( pszStr == NULL )
 	{
+		uids_log("Deleting old Data");
 		m_pData = new char[1];
 		m_pData[0] = '\0';
 
@@ -230,9 +238,12 @@ void String::SetInternal( const char *pszStr )
 		return;
 	}
 
+	uids_log("Copying string");
 	m_length = strlen( pszStr );
 
 	m_pData = new char[m_length+1];
+
+	uids_log("New string");
 
 	memcpy( m_pData, pszStr, m_length );
 	m_pData[m_length] = '\0';

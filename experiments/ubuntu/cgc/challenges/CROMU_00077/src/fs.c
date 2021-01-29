@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
-#include <fs.h>
+#include "fs.h"
 
 /* fs.c libc-cfe Filesystem library
 This library implements a single-directory filesystem with basic
@@ -45,29 +45,29 @@ int main(void) {
 
 	if (!InitFilesystem(MaxFiles, "rootpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if (!AddUser("testuser", "testpasswd")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	// it's up to the CB to validate passwords using 
 	// CheckPasswd() before calling Login
 	if (!Login("testuser")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if ((fp = fopen("testfile", "w")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	if ((fwrite("asdf\n", strlen("asdf\n"), 1, fp)) != strlen("asdf\n")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	fclose(fp);
@@ -76,13 +76,13 @@ int main(void) {
 
 	if ((fp = fopen("testfile", "r")) == NULL) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	// could also use fgets() here
 	if ((fread(buf, 10, 1, fp)) == 0) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	printf("$s", buf);
@@ -91,14 +91,14 @@ int main(void) {
 
 	if (!RenameFile("testfile", "testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
 
 	if (!DeleteFile("testfile2")) {
 		puts(FsError());
-		_terminate(0);
+		terminate(0);
 	}
 
 	ListFiles(NULL);
@@ -197,13 +197,13 @@ uint8_t InitFilesystem(uint32_t MaxFiles, char *RootPassword) {
 	}
 
 	// malloc space for the filesystem
-	if ((FS = calloc(sizeof(Filesystem))) == NULL) {
+	if ((FS = calloc(sizeof(Filesystem), 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(0);
 	}
 
 	// malloc space for the inode array
-	if ((FS->Inodes = calloc(sizeof(Inode)*MaxFiles)) == NULL) {
+	if ((FS->Inodes = calloc(sizeof(Inode)*MaxFiles, 1)) == NULL) {
 		SetFsError("calloc failed");
 		free(FS);
 		return(0);
@@ -282,13 +282,13 @@ pInode CreateEmptyFile(char *Filename, uint8_t Mode) {
 		}
 
 		// create the inode
-		if ((FS->Inodes[i] = calloc(sizeof(Inode))) == NULL) {
+		if ((FS->Inodes[i] = calloc(sizeof(Inode), 1)) == NULL) {
 			SetFsError("calloc failed");
 			return(NULL);
 		}
 
 		// set the filename
-		if ((FS->Inodes[i]->Filename = calloc(strlen(Filename)+1)) == NULL) {
+		if ((FS->Inodes[i]->Filename = calloc(strlen(Filename)+1, 1)) == NULL) {
 			SetFsError("calloc failed");
 			free(FS->Inodes[i]);
 			FS->Inodes[i] = NULL;
@@ -297,7 +297,7 @@ pInode CreateEmptyFile(char *Filename, uint8_t Mode) {
 		strcpy(FS->Inodes[i]->Filename, Filename);
 
 		// set the owner
-		if ((FS->Inodes[i]->Owner = calloc(sizeof(CurrentUser)+1)) == NULL) {
+		if ((FS->Inodes[i]->Owner = calloc(sizeof(CurrentUser)+1, 1)) == NULL) {
 			SetFsError("calloc failed");
 			free(FS->Inodes[i]->Filename);
 			FS->Inodes[i]->Filename = NULL;
@@ -403,7 +403,7 @@ FILE *fopen(char *Filename, char *Mode) {
 	}
 
 	// allocate a FILE record
-	if ((fp = calloc(sizeof(FILE))) == NULL) {
+	if ((fp = calloc(sizeof(FILE), 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(NULL);
 	}
@@ -520,7 +520,7 @@ uint32_t fwrite(char *buf, uint32_t size, uint32_t nitems, FILE *fp) {
 	}
 
 	// allocate space to hold the current data and the new data
-	if ((NewData = calloc(fp->Inode->FileSize + size*nitems)) == NULL) {
+	if ((NewData = calloc(fp->Inode->FileSize + size*nitems, 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(0);
 	}
@@ -627,7 +627,7 @@ uint8_t ListFiles(char **Buf) {
 		}
 
 		// allocate the buffer
-		if ((*Buf = calloc(TotalLen)) == NULL) {
+		if ((*Buf = calloc(TotalLen, 1)) == NULL) {
 			SetFsError("calloc failed");
 			return(0);
 		}
@@ -784,7 +784,7 @@ uint8_t RenameFile(char *OldFilename, char *NewFilename) {
 	}
 
 	// rename the file
-	if ((TempFilename = calloc(strlen(NewFilename)+1)) == NULL) {
+	if ((TempFilename = calloc(strlen(NewFilename)+1, 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(0);
 	}	
@@ -862,7 +862,7 @@ uint8_t ChangeOwner(char *Filename, char *NewOwner) {
 	}
 
 	// calloc some space for the new owner name
-	if ((TempOwner = calloc(strlen(NewOwner)+1)) == NULL) {
+	if ((TempOwner = calloc(strlen(NewOwner)+1, 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(0);
 	}
@@ -892,7 +892,7 @@ uint8_t Login(char *Username) {
 	}
 
 	// copy the requested username 
-	if ((NewUsername = calloc(strlen(Username)+1)) == NULL) {
+	if ((NewUsername = calloc(strlen(Username)+1, 1)) == NULL) {
 		SetFsError("calloc failed");
 		return(0);
 	}
@@ -1309,7 +1309,7 @@ uint8_t CheckPasswd(char *Username, char *Password) {
 	// save the current logged in user
 	if (CurrentUser) {
 		if (strcmp(CurrentUser, "root") != 0) {
-			if ((OldUser = calloc(strlen(CurrentUser)+1)) == NULL) {
+			if ((OldUser = calloc(strlen(CurrentUser)+1, 1)) == NULL) {
 				SetFsError("calloc failed");
 				return(0);
 			}

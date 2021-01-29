@@ -94,8 +94,8 @@ namespace CUtil
 		void SetInternal( const char *pszStr );
 	
 	protected:
-		char 	*m_pData;
-		size_t	m_length;	
+		char 	*m_pData = NULL;
+		size_t	m_length = 0;	
 	};
 }
 

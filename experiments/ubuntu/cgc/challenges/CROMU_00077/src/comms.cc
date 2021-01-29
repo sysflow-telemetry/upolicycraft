@@ -62,10 +62,10 @@ uint32_t CNetworkComm::RecvData( uint8_t *pDest, uint32_t recvLen )
 		uint32_t recvRemaining = (recvLen - curRecvLen);
 
 		if ( receive( m_recvFD, (pDest+curRecvLen), recvRemaining, &num_bytes ) != 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		if ( num_bytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		curRecvLen += num_bytes;			 
 	}
@@ -89,10 +89,10 @@ uint32_t CNetworkComm::SendData( uint8_t *pSource, uint32_t sendLen )
 		uint32_t sendRemaining = (sendLen - curSendLen);
 
 		if ( transmit( m_sendFD, (pSource+curSendLen), sendRemaining, &num_bytes ) != 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		if ( num_bytes == 0 )
-			_terminate( -1 );
+			terminate( -1 );
 
 		curSendLen += num_bytes;
 	}
