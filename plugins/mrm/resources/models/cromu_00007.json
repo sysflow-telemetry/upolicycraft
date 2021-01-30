@@ -1,36 +1,25 @@
 {
-  "initial": "%00008ab4",
-  "nodes": [
-    "%00000597", "%00001301", "%000080cd", "%00008ab4", "%00008ab7"
-  ],
+  "initial": "%0000762f",
+  "nodes": [ "%000031f1", "%00007229", "%0000762f", "%00007632" ],
   "contexts": {
-    "%00000597": [ "/cgc/CROMU_00007", "receive_until" ],
-    "%00008ab4": [ "/usr/sbin/inetd", "main" ],
-    "%00001301": [ "/cgc/CROMU_00007", "print" ],
-    "%00008ab6": [ "/usr/sbin/inetd", "main" ],
-    "%000080cd": [ "/cgc/CROMU_00007", "main" ],
-    "%00008ab7": [ "/usr/sbin/inetd", "main" ]
+    "%00007632": [ "/usr/sbin/xinetd", "main" ],
+    "%00007229": [ "/cgc/CROMU_00007", "main" ],
+    "%00007631": [ "/usr/sbin/xinetd", "main" ],
+    "%0000762f": [ "/usr/sbin/xinetd", "main" ],
+    "%000031f1": [ "/cgc/CROMU_00007", "get_key_value" ]
   },
   "constraints": [
+    { "node": "%000031f1", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%00007229", "constraints": { "sf.net.dport": [ "8001" ] } },
     {
-      "node": "%00000597",
-      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
-    },
-    {
-      "node": "%00001301",
-      "constraints": { "sf.file.path": [ "0.0.0.0/0:8001" ] }
-    },
-    { "node": "%000080cd", "constraints": { "sf.ret": [ "0" ] } },
-    {
-      "node": "%00008ab4",
+      "node": "%0000762f",
       "constraints": {
         "sf.proc.exe": [ "/usr/sbin/xinetd" ],
         "sf.proc.args": [ "-dontfork" ]
       }
     },
-    { "node": "%00008ab6", "constraints": { "sf.net.dport": [ "8001" ] } },
     {
-      "node": "%00008ab7",
+      "node": "%00007632",
       "constraints": {
         "sf.proc.exe": [ "/cgc/challenges/CROMU_00007/CROMU_00007" ],
         "sf.proc.args": [ "" ]
@@ -38,12 +27,9 @@
     }
   ],
   "edges": [
-    { "src": "%00000597", "dst": "%00000597", "label": "READ" },
-    { "src": "%00000597", "dst": "%00001301", "label": "WRITE" },
-    { "src": "%00001301", "dst": "%00000597", "label": "READ" },
-    { "src": "%00001301", "dst": "%00001301", "label": "WRITE" },
-    { "src": "%00001301", "dst": "%000080cd", "label": "EXIT" },
-    { "src": "%00008ab4", "dst": "%00008ab7", "label": "EXEC" },
-    { "src": "%00008ab7", "dst": "%00000597", "label": "READ" }
+    { "src": "%000031f1", "dst": "%000031f1", "label": "READ" },
+    { "src": "%000031f1", "dst": "%00007229", "label": "WRITE" },
+    { "src": "%0000762f", "dst": "%00007632", "label": "EXEC" },
+    { "src": "%00007632", "dst": "%000031f1", "label": "READ" }
   ]
 }
