@@ -11,6 +11,8 @@ package main
 import (
 	"sync"
 
+	"time"
+
 	"github.com/sysflow-telemetry/sf-apis/go/logger"
 	"github.com/sysflow-telemetry/sf-apis/go/plugins"
 	"github.com/sysflow-telemetry/sf-processor/core/cache"
@@ -87,8 +89,14 @@ func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
 			logger.Trace.Println("\nChannel closed. Shutting down.")
 			break
 		}
+
+		start := time.Now()
+
 		record := engine.NewRecord(*fc, cache.GetInstance())
 		rm.Event(record, out)
+
+                elapsed := time.Since(start)
+                logger.Trace.Printf("MIDS:%d", elapsed.Nanoseconds())
 	}
 	logger.Trace.Println("\nExiting Reference Monitor")
 	rm.Cleanup()

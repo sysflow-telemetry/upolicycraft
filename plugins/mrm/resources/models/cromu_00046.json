@@ -1,57 +1,77 @@
 {
-  "initial": "%000058fb",
+  "initial": "%000041d4",
   "nodes": [
-    "%00000955", "%00002076", "%000023de", "%00004b37", "%000058fb", "%000058fc"
+    "%00001137", "%0000119c", "%000011b2", "%0000125c", "%00001272",
+    "%000012b9", "%000012cf", "%000013e7", "%00001428", "%0000143e",
+    "%00001494", "%0000387a", "%00003890", "%000041d4", "%000041d7"
   ],
   "contexts": {
-    "%000058fb": [ "/usr/sbin/inetd", "main" ],
-    "%00002076": [ "/cgc/CROMU_00046", "recvUntil" ],
-    "%000058fc": [ "/usr/sbin/inetd", "main" ],
-    "%00000955": [ "/cgc/CROMU_00046", "put" ],
-    "%000058f9": [ "/usr/sbin/inetd", "main" ],
-    "%000023de": [ "/cgc/CROMU_00046", "main" ],
-    "%00004b37": [ "/cgc/CROMU_00046", "main" ]
+    "%000013e7": [ "/cgc/CROMU_00046", "main" ],
+    "%00001137": [ "/cgc/CROMU_00046", "main" ],
+    "%00001494": [ "/cgc/CROMU_00046", "main" ],
+    "%000011b2": [ "/cgc/CROMU_00046", "main" ],
+    "%000012cf": [ "/cgc/CROMU_00046", "main" ],
+    "%0000119c": [ "/cgc/CROMU_00046", "main" ],
+    "%000041d7": [ "/usr/sbin/xinetd", "main" ],
+    "%000041d4": [ "/usr/sbin/xinetd", "main" ],
+    "%0000143e": [ "/cgc/CROMU_00046", "main" ],
+    "%00001428": [ "/cgc/CROMU_00046", "main" ],
+    "%00003890": [ "/cgc/CROMU_00046", "main" ],
+    "%000012b9": [ "/cgc/CROMU_00046", "main" ],
+    "%0000387a": [ "/cgc/CROMU_00046", "main" ],
+    "%000041d6": [ "/usr/sbin/xinetd", "main" ],
+    "%00001272": [ "/cgc/CROMU_00046", "main" ],
+    "%0000125c": [ "/cgc/CROMU_00046", "main" ]
   },
   "constraints": [
     {
-      "node": "%00000955",
-      "constraints": { "sf.net.dport": [ "8003" ] }
-    },
-    {
-      "node": "%00002076",
-      "constraints": { "sf.net.dport": [ "8003" ] }
-    },
-    {
-      "node": "%000023de",
+      "node": "%00001137",
       "constraints": {
         "sf.file.perms": [ "READ", "WRITE", "EXEC" ],
         "sf.file.size": [ "4096" ]
       }
     },
-    { "node": "%00004b37", "constraints": { "sf.ret": [ "0" ] } },
+    { "node": "%0000119c", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%000011b2", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%0000125c", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%00001272", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%000012b9", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%000012cf", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%000013e7", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%00001428", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%0000143e", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%00001494", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%0000387a", "constraints": { "sf.net.dport": [ "8001" ] } },
+    { "node": "%00003890", "constraints": { "sf.ret": [ "0" ] } },
     {
-      "node": "%000058fb",
+      "node": "%000041d4",
       "constraints": {
         "sf.proc.exe": [ "/usr/sbin/xinetd" ],
         "sf.proc.args": [ "-dontfork" ]
       }
     },
     {
-      "node": "%000058fc",
+      "node": "%000041d7",
       "constraints": {
-        "sf.proc.exe": [ "/cgc/challenges/CROMU_00046/CROMU_00046" ],
+        "sf.proc.exe": [  "/cgc/challenges/CROMU_00046/CROMU_00046" ],
         "sf.proc.args": [ "" ]
       }
     }
   ],
   "edges": [
-    { "src": "%00000955", "dst": "%00000955", "label": "WRITE" },
-    { "src": "%00000955", "dst": "%00002076", "label": "READ" },
-    { "src": "%00000955", "dst": "%00004b37", "label": "EXIT" },
-    { "src": "%00002076", "dst": "%00000955", "label": "WRITE" },
-    { "src": "%00002076", "dst": "%00002076", "label": "READ" },
-    { "src": "%000023de", "dst": "%00000955", "label": "WRITE" },
-    { "src": "%000058fb", "dst": "%000058fc", "label": "EXEC" },
-    { "src": "%000058fc", "dst": "%000023de", "label": "MMAP" }
+    { "src": "%00001137", "dst": "%0000119c", "label": "WRITE" },
+    { "src": "%0000119c", "dst": "%000011b2", "label": "WRITE" },
+    { "src": "%000011b2", "dst": "%0000125c", "label": "READ" },
+    { "src": "%0000125c", "dst": "%00001272", "label": "WRITE" },
+    { "src": "%00001272", "dst": "%000012b9", "label": "WRITE" },
+    { "src": "%000012b9", "dst": "%000012cf", "label": "WRITE" },
+    { "src": "%000012cf", "dst": "%000013e7", "label": "WRITE" },
+    { "src": "%000013e7", "dst": "%00001428", "label": "WRITE" },
+    { "src": "%00001428", "dst": "%0000143e", "label": "WRITE" },
+    { "src": "%0000143e", "dst": "%00001494", "label": "READ" },
+    { "src": "%00001494", "dst": "%0000387a", "label": "WRITE" },
+    { "src": "%0000387a", "dst": "%00003890", "label": "EXIT" },
+    { "src": "%000041d4", "dst": "%000041d7", "label": "EXEC" },
+    { "src": "%000041d7", "dst": "%00001137", "label": "MMAP" }
   ]
 }

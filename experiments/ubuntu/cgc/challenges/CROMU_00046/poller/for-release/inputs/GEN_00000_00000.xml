@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE pov SYSTEM "/usr/share/cgc-docs/replay.dtd">
+<pov>
+<cbid>service</cbid>
+<replay>
+    <read><delim>\x0a</delim><match><data>Welcome to the hug gambling server.</data></match></read>
+    <read><delim>\x0a</delim><match><data>What is your name?</data></match></read>
+    <write><data>vKujFvumHW\x0a</data></write>
+    <read><delim>. </delim><match><data>Hi vKujFvumHW</data></match></read>
+    <read><delim>\x0a</delim><match><data>You have 1000 hugs. Shall we play a game?</data></match></read>
+    <read><delim>\x0a</delim><match><data>1. Coin Flip</data></match></read>
+    <read><delim>\x0a</delim><match><data>2. Hangman</data></match></read>
+    <read><delim>\x0a</delim><match><data>3. Dice game</data></match></read>
+    <read><delim>\x0a</delim><match><data>4. War</data></match></read>
+    <read><delim>\x0a</delim><match><data>q. Quit</data></match></read>
+    <write><data>q\x0a</data></write>
+    <read><delim>\x0a</delim><match><data>Thanks for playing! Don\x27t spend all your hugs in one place.</data></match></read>
+</replay>
+</pov>
