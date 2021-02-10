@@ -48,7 +48,7 @@ esac
 # --primus-uids-symbolic-arguments \
 opam config exec -- bap $PROGRAM -prun \
   --run-entry-points="${ENTRYPOINT}" \
-  --run-argv=${ARGV} \
+  --run-argv="${ARGV}" \
   --primus-limit-max-length=${PATHLENGTH} \
   ${MODELINE} \
   --primus-uids-inetd-startup \

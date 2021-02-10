@@ -58,6 +58,13 @@ Eval Workflow
 
     If an "input.log" is present, you can create the model by running `cat input.log | nc localhost port-of-challenge`
 
+BAP Subtleties
+==============
+
+Passing multiple arguments to the binary under analysis.
+
+time run /uIDS/tests/nullhttpd _start '["nullhttpd", "-h"]' /bin/bash /cgc/cromu.sh greedy "%000000" 100000000
+
 References
 ==========
 
