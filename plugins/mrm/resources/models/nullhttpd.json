@@ -1,0 +1,52 @@
+{
+  "initial": "%0000e8a0",
+  "nodes": [
+    "%00000ff3", "%00005e5e", "%00008de4", "%0000d4d1", "%0000e8a0",
+    "%0000e8a3"
+  ],
+  "contexts": {
+    "%0000e8a2": [ "/usr/sbin/xinetd", "main" ],
+    "%000057f0": [ "nullhttpd", "httpdCreate" ],
+    "%0000d4d1": [ "nullhttpd", "main" ],
+    "%0000e8a0": [ "/usr/sbin/xinetd", "main" ],
+    "%00000ff3": [ "nullhttpd", "_httpd_net_write" ],
+    "%00005e5e": [ "nullhttpd", "httpdGetConnection" ],
+    "%0000e8a3": [ "/usr/sbin/xinetd", "main" ],
+    "%00008de4": [ "nullhttpd", "_httpd_net_read" ]
+  },
+  "constraints": [
+    { "node": "%00000ff3", "constraints": { "sf.net.dport": [ "8003" ] } },
+    { "node": "%00005e5e", "constraints": { "sf.net.dport": [ "2051" ] } },
+    { "node": "%00008de4", "constraints": { "sf.net.dport": [ "*" ] } },
+    {
+      "node": "%0000d4d1",
+      "constraints": {
+        "sf.proc.exe": [ "nullhttpd" ],
+        "sf.proc.args": [ "" ]
+      }
+    },
+    {
+      "node": "%0000e8a0",
+      "constraints": {
+        "sf.proc.exe": [ "/bin/bash" ],
+        "sf.proc.args": [ "/cgc/cromu.sh" ]
+      }
+    },
+    {
+      "node": "%0000e8a3",
+      "constraints": {
+        "sf.proc.exe": [ "nullhttpd" ],
+        "sf.proc.args": [ "" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%00000ff3", "dst": "%00000ff3", "label": "WRITE" },
+    { "src": "%00000ff3", "dst": "%00005e5e", "label": "ACCEPT" },
+    { "src": "%00005e5e", "dst": "%00008de4", "label": "READ" },
+    { "src": "%00008de4", "dst": "%00000ff3", "label": "WRITE" },
+    { "src": "%0000d4d1", "dst": "%00005e5e", "label": "ACCEPT" },
+    { "src": "%0000e8a0", "dst": "%0000e8a3", "label": "EXEC" },
+    { "src": "%0000e8a3", "dst": "%0000d4d1", "label": "CLONE" }
+  ]
+}

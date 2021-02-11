@@ -879,6 +879,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Accept fd in
           (add_operation tid op state'))
+    | "read" ->
+      let () = info "model read:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
+          (add_operation tid op state'))
     | "recvmsg" ->
       let () = info "model recv:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1407,6 +1415,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let arrays = Hashtbl.create (module String) in
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
+    let network = "0.0.0.0/0:*" in
+    let () = Hashtbl.add_exn files ~key:255 ~data:network in
     let () =
       if (get inetd_startup) then
         let xinetd = "/usr/sbin/xinetd" in
