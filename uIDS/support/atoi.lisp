@@ -241,3 +241,17 @@
 (defun random-cgc (buf n rnd-bytes)
   (declare (external "random_cgc"))
   0)
+
+(defun uids-socket (domain tp protocol)
+  (declare (external "socket"))
+  3)
+
+(defparameter *accept-used* 1
+  "has accept been called")
+
+(defun uids-accept (sock addr addrlen)
+  (declare (external "accept"))
+  (if (= *accept-used* 0)
+    -1
+    (decr *accept-used*)
+    sock))

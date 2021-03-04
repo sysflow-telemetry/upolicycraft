@@ -71,7 +71,7 @@
 
 (defun write-stdout (buf cnt)
    (declare (external "write0"))
-   (write *standard-output* buf cnt))
+   (write (cast int32_t *standard-output*) buf cnt))
 
 (defun input-item-nth-char (ptr size item desc i)
   (let ((c (channel-input desc)))

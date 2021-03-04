@@ -227,15 +227,21 @@ let string_of_json json =
   Yojson.Basic.to_string |>
   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
-let constraint_of_fd files fd =
-  let file = Hashtbl.find_exn files fd in
-  let const =
-    if String.contains file ':' then
-      let cidr :: port :: _ = String.split ~on:':' file in
-        (Sf.net_dport, [port])
-    else
-      (Sf.file_path, [file]) in
-  jsonify [const]
+let constraint_of_fd state fd =
+  let opt = Hashtbl.find state.ports fd in
+  match opt with
+    Some port ->
+       let port' = Printf.sprintf "%d" port in
+       jsonify [(Sf.net_dport, [port'])]
+  | None ->
+    let file = Hashtbl.find_exn state.files fd in
+    let const =
+      if String.contains file ':' then
+        let cidr :: port :: _ = String.split ~on:':' file in
+          (Sf.net_dport, [port])
+      else
+        (Sf.file_path, [file]) in
+    jsonify [const]
 
 let node_of_operation state op =
   let json =
@@ -256,14 +262,15 @@ let node_of_operation state op =
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Read fd ->
-      constraint_of_fd state.files fd
+      constraint_of_fd state fd
     | Write fd ->
-      constraint_of_fd state.files fd
+      constraint_of_fd state fd
     | Close fd ->
       let file = Hashtbl.find_exn state.files fd in
       jsonify [(Sf.file_path, [file])]
     | Recv fd ->
       let port = Hashtbl.find_exn state.ports fd in
+      let () = info "Saving port for recv: %d" port in
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
     | Send fd ->
@@ -823,8 +830,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
     (** Simplified for CGC challenges *)
     | "write0" ->
       (write_to_stdout tid)
-    | "write" ->
-      (write_to_stdout tid)
     | "print" ->
       (write_to_stdout tid)
     | "put" ->
@@ -886,6 +891,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
+          (add_operation tid op state'))
+    | "write" ->
+      let () = info "model write:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Write fd in
           (add_operation tid op state'))
     | "recvmsg" ->
       let () = info "model recv:" in
