@@ -53,7 +53,7 @@
             (write-word short q 0x400))
           (incr i)))
       (set *cbloc* p)))
-  *cbloc*)
+    *cbloc*)
 
 (defun stub ()
   "stubs that does nothing"

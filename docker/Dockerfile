@@ -9,6 +9,7 @@ RUN cp /uIDS/uIDS/support/posix.h /home/opam/.opam/4.09/share/bap-api/c/posix.h
 RUN cp /uIDS/uIDS/support/atoi.lisp /home/opam/.opam/4.09/share/primus/site-lisp/atoi.lisp
 RUN cp /uIDS/uIDS/support/stdlib.lisp /home/opam/.opam/4.09/share/primus/site-lisp/stdlib.lisp
 RUN cp /uIDS/uIDS/support/string.lisp /home/opam/.opam/4.09/share/primus/site-lisp/string.lisp
+RUN cp /uIDS/uIDS/support/simple-memory-allocator.lisp /home/opam/.opam/4.09/share/primus/site-lisp/simple-memory-allocator.lisp
 
 RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make
