@@ -68,7 +68,7 @@ int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
 int           apr_random_insecure_ready(void *r);
 char         *apr_pstrdup(void *p, const char* s);
 
-// void         **__ctype_b_loc();
+void         **__ctype_b_loc();
 
 void         *apr_hash_make(void *p);
 void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
@@ -168,6 +168,25 @@ int           unlockpt(int);
 int           unsetenv(const char *name) __attribute__((nonnull(1)));
 size_t        wcstombs(char *, const wchar_t *, size_t);
 int           wctomb(char *, wchar_t);
+
+// ctypes.h
+int isalnum(int c);
+int isalpha(int c);
+int iscntrl(int c);
+int isdigit(int c);
+int isgraph(int c);
+int islower(int c);
+int isprint(int c);
+int ispunct(int c);
+int isspace(int c);
+int isupper(int c);
+int isxdigit(int c);
+
+int isascii(int c);
+int isblank(int c);
+
+int toupper(int c);
+int tolower(int c);
 
 // stdio.h
 typedef void * FILE;
@@ -276,6 +295,9 @@ char *strcat(char * restrict dst, const char * restrict src)
 
 char *strchr(const char *s, int c)
     __attribute__((pure,nonnull(1),storage(1)));
+
+int strcasecmp(const char *s1, const char *s2)
+    __attribute__((pure, nonnull(1,2), storage(1), storage(2)));
 
 int strcmp(const char *s1, const char *s2)
     __attribute__((pure, nonnull(1,2), storage(1), storage(2)));

@@ -56,6 +56,7 @@
 
 (defun uids-itoa (n)
   (declare (external "itoa"))
+  (uids-ocaml-debug 0xfabc0de)
   (let ((chunk (malloc 16)))
    (memory-write chunk 0x30)
    (memory-write (succ chunk) 0x0)
@@ -253,5 +254,15 @@
   (declare (external "accept"))
   (if (= *accept-used* 0)
     -1
-    (decr *accept-used*)
-    sock))
+    (let ((fname (malloc 16)))
+      ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
+      (write-word char fname 0x61)
+      (write-word char (+ fname 1) 0x61)
+      (write-word char (+ fname 2) 0)
+      (puts fname)
+      (decr *accept-used*)
+      (channel-open fname))))
+
+      ;;(let ()
+      ;;  (decr *accept-used*)
+      ;;  fd))))

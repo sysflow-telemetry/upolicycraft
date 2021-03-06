@@ -8,4 +8,5 @@ fi
 docker cp $1:/home/opam/.opam/4.09/share/primus/site-lisp/atoi.lisp uIDS/support/atoi.lisp 
 docker cp $1:/home/opam/.opam/4.09/share/primus/site-lisp/stdlib.lisp uIDS/support/stdlib.lisp
 docker cp $1:/home/opam/.opam/4.09/share/primus/site-lisp/stdio.lisp uIDS/support/stdio.lisp
+docker cp $1:/home/opam/.opam/4.09/share/primus/site-lisp/string.lisp uIDS/support/string.lisp
 docker cp $1:/home/opam/.opam/4.09/share/bap-api/c/posix.h uIDS/support/posix.h
