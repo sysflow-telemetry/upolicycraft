@@ -115,7 +115,7 @@
     (while (and (< i len)
                 (fgets-step ptr len str i))
       (incr i))
-    (memory-write (+ ptr (min (-1 len) (+ ptr i))) 0:8)
+    (memory-write (+ ptr (min (-1 len) i)) 0:8)
     ptr))
 
 (defun getchar ()

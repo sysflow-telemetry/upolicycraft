@@ -196,9 +196,8 @@
 ;
 (defun uids-snprintf (s sz fmt addr)
    (declare (external "snprintf"))
-   (let ((m (malloc sz)))
-     (uids-ocaml-snprintf s sz fmt addr)
-   0))
+   (uids-ocaml-snprintf s sz fmt addr)
+   0)
 
 (defun uids-sprintf (s fmt addr)
    (declare (external "sprintf"))
