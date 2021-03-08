@@ -332,6 +332,7 @@ let state = Primus.Machine.State.declare
 
 module Pre(Machine : Primus.Machine.S) = struct
   include Machine.Syntax
+  module Env = Primus.Interpreter.Make(Machine)
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
 
@@ -340,6 +341,13 @@ module Pre(Machine : Primus.Machine.S) = struct
   let bool = function
     | false -> nil
     | true -> Value.b1
+
+    let trap_memory_write access =
+      Machine.catch access (function exn ->
+          (** let () = info "Error reading memory!" in *)
+          let msg = Primus.Exn.to_string exn in
+          (** let () = info "    %s" msg in *)
+          Machine.return())
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
@@ -350,9 +358,10 @@ module Pre(Machine : Primus.Machine.S) = struct
 
   let string_of_addr addr =
     let rec loop addr cs =
-      (** let () = info "Fetching %s" (Bitvector.to_string addr) in *)
+      let () = info "Fetching %s" (Bitvector.to_string addr) in
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info "  Fetched: %d" x in
       if x = 0 then
         let s = (cs |> List.rev |> String.of_char_list) in
         (** let () = info "  %s" s in *)
@@ -361,6 +370,24 @@ module Pre(Machine : Primus.Machine.S) = struct
         let c = Char.of_int_exn x in
         loop (Bitvector.succ addr)  (c :: cs) in
     loop addr []
+
+    (** Copy a string into memory *)
+    let copy_bytes addr s =
+      let addr' = (Value.to_word addr) in
+      let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in
+      let cont' = String.foldi ~f:(fun i cont c ->
+        let c' = int_of_char c in
+        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
+        cont >>= fun () ->
+          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
+          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
+      cont' >>= fun () ->
+         let n = String.length s in
+         Value.of_word (Bitvector.of_int 64 0) >>= fun z ->
+         let dst = (Bitvector.add addr' (Bitvector.of_int 64 n)) in
+         let () = info "writing 0 into %x" (Bitvector.to_int_exn dst) in
+         (trap_memory_write (Memory.set dst z))
+
 
 end
 
@@ -448,13 +475,6 @@ module Scanf(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
 
-    let trap_memory_write access =
-      Machine.catch access (function exn ->
-          (** let () = info "Error reading memory!" in *)
-          let msg = Primus.Exn.to_string exn in
-          (** let () = info "    %s" msg in *)
-          Machine.return())
-
     (** Write a bitvector into an address *)
     let write_bitvector addr x =
       (**
@@ -516,29 +536,6 @@ module Sprintf(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
 
-    let trap_memory_write access =
-      Machine.catch access (function exn ->
-          let () = info "Error reading memory!" in
-          let msg = Primus.Exn.to_string exn in
-          (** let () = info "    %s" msg in *)
-          Machine.return())
-
-    (** Copy a string into memory *)
-    let copy_bytes addr s =
-      let addr' = (Value.to_word addr) in
-      (** let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in *)
-      let cont' = String.foldi ~f:(fun i cont c ->
-        let c' = int_of_char c in
-        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
-        cont >>= fun () ->
-          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
-          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
-      cont' >>= fun () ->
-         let n = String.length s in
-         Value.of_word (Bitvector.of_int 64 0) >>= fun z ->
-         let dst = (Bitvector.add addr' (Bitvector.of_int 64 n)) in
-         (trap_memory_write (Memory.set dst z))
-
     let run [s; fmt; v] =
       let open Param in
       (**
@@ -567,43 +564,70 @@ module Snprintf(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
 
-    let trap_memory_write access =
-      Machine.catch access (function exn ->
-          (** let () = info "Error reading memory!" in *)
-          let msg = Primus.Exn.to_string exn in
-          (** let () = info "    %s" msg in *)
-          Machine.return())
+    type printformat =
+    | Decimal
+    | String
 
-    (** Copy a string into memory *)
-    let copy_bytes addr s =
-      let addr' = (Value.to_word addr) in
-      (** let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in *)
-      let cont' = String.foldi ~f:(fun i cont c ->
-        let c' = int_of_char c in
-        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
-        cont >>= fun () ->
-          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
-          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
-      cont'
+    let decimal_pattern = String.Search_pattern.create "%d"
+    let string_pattern = String.Search_pattern.create "%s"
 
-    let run [s; sz; fmt; v] =
+    let fetch_decimal fmt reg =
       let open Param in
       (**
       The value for %d may be non-deterministic so just replace it with a regex
-      that the MRM can enforce.
+      that the MIDS can enforce.
       *)
+      let var = (Var.create reg reg64_t) in
+      (Env.get var) >>= fun v ->
+        let v' =
+          if (get symbolic_arguments) then
+            "[0-9]+"
+          else
+            v |> Value.to_word
+              |> Bitvector.to_int_exn
+              |> string_of_int in
+        let fmt' = String.Search_pattern.replace_first ~pos:0 decimal_pattern ~in_:fmt ~with_:v' in
+        Machine.return(fmt')
+
+    let fetch_string fmt reg =
+       let var = (Var.create reg reg64_t) in
+       (Env.get var) >>= fun addr ->
+         let addr' = Value.to_word addr in
+         string_of_addr addr' >>= fun str ->
+           let () = info "Found %s from %s" str reg in
+           let fmt' = String.Search_pattern.replace_first ~pos:0 string_pattern ~in_:fmt ~with_:str in
+           Machine.return(fmt')
+
+    let run [s; sz; fmt; v] =
+      let open Param in
+      let regs = ["RCX"; "R8"; "R9"] in
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
-        let v' =
-         if (get symbolic_arguments) then
-           "[0-9]+"
-         else
-           v |> Value.to_word
-             |> Bitvector.to_int_exn
-             |> string_of_int in
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:v' fmt' in
-        copy_bytes s output >>= fun () ->
-          Value.of_word (Bitvector.of_int 64 0)
+        let () = info "Picked up %s from memory" fmt' in
+        let decimals = fmt' |>
+                       String.substr_index_all ~may_overlap:false ~pattern:"%d" |>
+                       List.map ~f:(fun i -> (Decimal, i)) in
+        let strings = fmt' |>
+                      String.substr_index_all ~may_overlap:false ~pattern:"%s" |>
+                      List.map ~f:(fun i -> (String, i)) in
+        let replacements = List.sort ~compare:(fun (_, x) (_, y) -> compare x y) (List.concat [decimals;strings]) in
+        (** Accumulate the formatted string in res. *)
+        List.foldi ~init:(Machine.return(fmt')) ~f:(fun i res (ty, _) ->
+            (** Only support 3 arguments now based on the three registers used. *)
+            if i >= 3 then
+              res
+            else
+              res >>= fun fmt' ->
+                let reg = List.nth_exn regs i in
+                match ty with
+                | Decimal -> fetch_decimal fmt' reg
+                | String -> fetch_string fmt' reg
+        ) replacements >>= fun fmt' ->
+          (**
+          let () = info "Writing %s to memory" fmt' in
+          *)
+          copy_bytes s fmt' >>= fun () ->
+            Value.of_word (Bitvector.of_int 64 0)
 end
 
 let address_of_pos out addr =
@@ -695,6 +719,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info "Fetching %s" (Bitvector.to_string addr) in *)
       (allow_all_memory_access (Memory.get addr)) >>= fun v ->
       let x = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info "  Fetched %d" x  *)
       if x = 0 then
         let s = (cs |> List.rev |> String.of_char_list) in
         (** let () = info "  %s" s in *)
@@ -783,6 +808,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.return()
     | "fopen" ->
       (** let () = info "model fopen:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      (** let () = info " RDI: %s" path in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Open path) in
+          let state'' = {state' with file_opened=Some path} in
+          (add_operation tid op state''))
+    | "open" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun path ->
