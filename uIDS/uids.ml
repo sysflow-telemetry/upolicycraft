@@ -138,6 +138,10 @@ module Sf = struct
   let stdin_fd = 0
   let stdout_fd = 1
 
+  let process_label = "P"
+  let file_label = "F"
+  let network_label = "N"
+
 end
 
 type fd = int
@@ -368,7 +372,7 @@ module Pre(Machine : Primus.Machine.S) = struct
         Machine.return (s)
       else
         let c = Char.of_int_exn x in
-        loop (Bitvector.succ addr)  (c :: cs) in
+        loop (Bitvector.succ addr) (c :: cs) in
     loop addr []
 
     (** Copy a string into memory *)
@@ -1199,16 +1203,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
          File ->
            let opt = (assoc_field constraints Sf.file_size) in
            (match opt with
-             None -> Printf.sprintf "{%s|{FF|%s}}" context (assoc_field_exn constraints Sf.file_path)
-           | Some size -> Printf.sprintf "{%s|{FF|%s|%s}}" context size (assoc_field_exn constraints Sf.file_perms))
-       | Network -> Printf.sprintf "{%s|{NF|%s}}" context (assoc_field_exn constraints Sf.net_dport)
+             None -> Printf.sprintf "{%s|{%s|%s}}" context Sf.file_label (assoc_field_exn constraints Sf.file_path)
+           | Some size -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.file_label size (assoc_field_exn constraints Sf.file_perms))
+       | Network -> Printf.sprintf "{%s|{%s|%s}}" context Sf.network_label (assoc_field_exn constraints Sf.net_dport)
        | Process ->
          let opt = (assoc_field constraints Sf.ret) in
          match opt with
-           Some ret -> Printf.sprintf "{%s|{P|%s}}" context ret
-         | None -> Printf.sprintf "{%s|{P|%s|%s}}" context
-                                                 (assoc_field_blank constraints Sf.proc_exe)
-                                                 (assoc_field_blank constraints Sf.proc_args))
+           Some ret -> Printf.sprintf "{%s|{%s|%s}}" context Sf.process_label ret
+         | None -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.process_label
+                                                    (assoc_field_blank constraints Sf.proc_exe)
+                                                    (assoc_field_blank constraints Sf.proc_args))
     | _ -> "ignored"
 
   (** Compute the union of the Local and Global
