@@ -58,6 +58,12 @@ Eval Workflow
 
     If an "input.log" is present, you can create the model by running `cat input.log | nc localhost port-of-challenge`
 
+
+Tracking Line Coverage 
+======================
+
+    https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
+
 BAP Subtleties
 ==============
 
