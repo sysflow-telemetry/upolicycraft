@@ -29,6 +29,13 @@ int           atoi(const char *)  __attribute__((pure, nonnull(1), warn_unused_r
 long          atol(const char *)  __attribute__((pure, nonnull(1), warn_unused_result));
 long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_result));
 
+long          strtol(const char *nptr, char **endptr, int base);
+
+// grp
+
+void *        getgrnam(const char *name);
+void *        getpwnam(const char *login);
+
 // uids
 
 size_t        getline(char *buffer, size_t len);

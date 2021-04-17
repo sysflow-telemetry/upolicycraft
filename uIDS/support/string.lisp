@@ -102,6 +102,7 @@
 
 (defun memcmp (p1 p2 n)
   (declare (external "memcmp"))
+  (uids-ocaml-debug n)
   (let ((res 0) (i 0))
     (while (and (< i n) (not res))
       (set res (compare (cast int (memory-read p1)) (cast int(memory-read p2))))

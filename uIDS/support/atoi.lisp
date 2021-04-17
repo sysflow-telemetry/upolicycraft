@@ -16,7 +16,12 @@
   (or (ascii-special s) (ascii-whitespace s)))
 
 (defun atoi-read-digit (s)
-  (cast ptr_t (- (memory-read s) ?0)))
+  (let ((digit (memory-read s)))
+  (if (< digit ?a)
+     (if (< digit ?A)
+       (cast ptr_t (- digit ?0))
+       (cast ptr_t (+ (- digit ?A) 10:8)))
+     (cast ptr_t (+ (- digit (cast char ?a)) 10:8)))))
 
 (defun read-ascii-word (s)
   (skip-all atoi-prefix s)
@@ -52,6 +57,17 @@
                 (not (= (cast ptr_t (memory-read s)) 0xa)))
       (set v (+ (* v 10)  (atoi-read-digit s)))
       (incr s))
+    (cast int v)))
+
+(defun uids-strtol (s endptr base)
+  (declare (external "strtol"))
+  (let ((v 0))
+    (while (and (> (cast ptr_t (memory-read s)) 0)
+                (not (= (cast ptr_t (memory-read s)) 0xa)))
+      (set v (+ (* v base)  (atoi-read-digit s)))
+      (incr s))
+    (when endptr
+        (write-word ptr_t (cast ptr_t endptr) s))
     (cast int v)))
 
 (defun uids-itoa (n)
@@ -196,8 +212,10 @@
 ;
 (defun uids-snprintf (s sz fmt addr)
    (declare (external "snprintf"))
-   (uids-ocaml-snprintf s sz fmt addr)
-   0)
+   (uids-ocaml-debug 0xfabc0de)
+   (let ((m (malloc sz)))
+     (uids-ocaml-snprintf s sz fmt addr)
+   0))
 
 (defun uids-sprintf (s fmt addr)
    (declare (external "sprintf"))
@@ -244,7 +262,15 @@
 
 (defun uids-socket (domain tp protocol)
   (declare (external "socket"))
-  3)
+  (let ((fname (malloc 16)))
+      ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
+      (write-word char fname 0x73)
+      (write-word char (+ fname 1) 0x72)
+      (write-word char (+ fname 2) 0x76)
+      (write-word char (+ fname 3) 0x0)
+      ;; (puts fname)
+      (let ((fd (channel-open fname)))
+        fd)))
 
 (defparameter *accept-used* 1
   "has accept been called")
@@ -255,13 +281,31 @@
     -1
     (let ((fname (malloc 16)))
       ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
-      (write-word char fname 0x61)
-      (write-word char (+ fname 1) 0x61)
-      (write-word char (+ fname 2) 0)
-      (puts fname)
+      (write-word char fname 0x6e)
+      (write-word char (+ fname 1) 0x65)
+      (write-word char (+ fname 2) 0x74)
+      (write-word char (+ fname 3) 0x0)
+      ;; (puts fname)
       (decr *accept-used*)
-      (channel-open fname))))
+      (let ((fd (channel-open fname)))
+        (uids-ocaml-network-fd sock fd)
+        fd))))
 
       ;;(let ()
       ;;  (decr *accept-used*)
       ;;  fd))))
+
+(defun uids-getuser-struct (name)
+  (let ((len (* (sizeof ptr_t) 3))
+        (offset (* (sizeof ptr_t) 2))
+        (m (malloc len)))
+    (write-word ptr_t (cast ptr_t (+ m offset)) 1000)
+    m))
+
+(defun uids-getgrnam (name)
+  (declare (external "getgrnam"))
+  (uids-getuser-struct name))
+
+(defun uids-getpwnam (login)
+  (declare (external "getpwnam"))
+  (uids-getuser-struct login))

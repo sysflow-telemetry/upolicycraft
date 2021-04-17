@@ -164,9 +164,11 @@ type operation =
   | Recv of fd
   | Send of fd
   | Mmap of int * (permissions list)
+  | Setuid of int
+  | Setgid of int
   | Exit of status
 
-module BehaviorGraph = Graphlib.Make(Tid)(String)
+module EffectGraph = Graphlib.Make(Tid)(String)
 
 type state = {
   symbols : Symtab.fn list;
@@ -181,7 +183,7 @@ type state = {
   file_opened : string option;
   loops : (Tid.t, int) Hashtbl.t;
   halted : Id.Set.t;
-  graph : BehaviorGraph.t;
+  graph : EffectGraph.t;
   arrays : (string, (Primus.Value.t * Primus.Value.t Seq.t)) Hashtbl.t;
   server_tid : Tid.t;
   current_function : string;
@@ -210,6 +212,8 @@ let edge_of_operation op =
   | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
+  | Setuid id -> "SETUID"
+  | Setgid id -> "SETGID"
   | Mmap (size, perms) -> "MMAP"
   | Exit status -> "EXIT"
 
@@ -232,13 +236,17 @@ let string_of_json json =
   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
 let constraint_of_fd state fd =
+  let () = info "Fetching state of file descriptor %d" fd in
+  (** let () = info "  %s" (state.ports ) *)
   let opt = Hashtbl.find state.ports fd in
   match opt with
     Some port ->
        let port' = Printf.sprintf "%d" port in
+       let () = info "  %s" port' in
        jsonify [(Sf.net_dport, [port'])]
   | None ->
     let file = Hashtbl.find_exn state.files fd in
+    let () = info "  %s" file in
     let const =
       if String.contains file ':' then
         let cidr :: port :: _ = String.split ~on:':' file in
@@ -270,8 +278,7 @@ let node_of_operation state op =
     | Write fd ->
       constraint_of_fd state fd
     | Close fd ->
-      let file = Hashtbl.find_exn state.files fd in
-      jsonify [(Sf.file_path, [file])]
+      constraint_of_fd state fd
     | Recv fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let () = info "Saving port for recv: %d" port in
@@ -281,6 +288,12 @@ let node_of_operation state op =
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
       jsonify [(Sf.net_dport, [port'])]
+    | Setuid id ->
+      let id' = Printf.sprintf "%d" id in
+      jsonify [(Sf.proc_uid, [id'])]
+    | Setgid id ->
+      let id' = Printf.sprintf "%d" id in
+      jsonify [(Sf.proc_gid, [id'])]
     | Mmap (length, perms) ->
       let perms' = List.map ~f:string_of_permission perms in
       let length' = Printf.sprintf "%d" length in
@@ -298,10 +311,10 @@ let add_operation tid op state =
   let {nodes;graph;last_tid;functions;callstack;current_module} = state in
   let node_label = node_of_operation state op in
   let edge_label = edge_of_operation op in
-  let graph' = BehaviorGraph.Node.insert tid graph in
+  let graph' = EffectGraph.Node.insert tid graph in
   (** let () = info "   %s" edge_label in *)
-  let edge = BehaviorGraph.Edge.create last_tid tid edge_label in
-  let graph'' = BehaviorGraph.Edge.insert edge graph' in
+  let edge = EffectGraph.Edge.create last_tid tid edge_label in
+  let graph'' = EffectGraph.Edge.insert edge graph' in
   let () = Hashtbl.set nodes ~key:tid ~data:node_label in
   let current_function :: _ = callstack in
   let () = Hashtbl.set functions ~key:tid
@@ -313,7 +326,7 @@ let state = Primus.Machine.State.declare
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
     (fun _ ->
        let root = Tid.create() in
-       let behavior = Graphlib.create (module BehaviorGraph) () in
+       let behavior = Graphlib.create (module EffectGraph) () in
        { root_tid = root;
          last_tid = root;
          nodes = Hashtbl.create (module Tid);
@@ -340,6 +353,7 @@ module Pre(Machine : Primus.Machine.S) = struct
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
 
+  let int_of_value v = (v |> Value.to_word |> Bitvector.to_int_exn)
   let string_of_value v = (v |> Value.to_word |> Word.to_string)
   let nil = Value.b0
   let bool = function
@@ -530,6 +544,25 @@ module Debug(Machine : Primus.Machine.S) = struct
     let run [v] =
       let v' = Value.to_string v in
       let () = info "primus-debug: %s" v' in
+      nil
+end
+
+(**
+  Connect the file descriptor representing network traffic
+  with the port the program binds to.
+*)
+module Network(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [bfd; fd] =
+      let bfd' = int_of_value bfd in
+      let fd' = int_of_value fd in
+      Machine.Local.update state ~f:(fun s ->
+        let port = Hashtbl.find_exn s.ports bfd' in
+        let () = Hashtbl.set s.ports ~key:fd' ~data:port in
+        s
+      ) >>= fun () ->
       nil
 end
 
@@ -847,6 +880,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
+    | "fprintf" ->
+      let () = info "model fprintf:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      let () = info " RDI: %d" fd in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Write fd) in
+          (add_operation tid op state'))
     | "fwrite" ->
       (** let () = info "model fwrite:" in *)
       let rcx = (Var.create "RCX" reg64_t) in
@@ -858,6 +900,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation tid op state'))
     | "fclose" ->
       (** let () = info "model fclose:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info " RDI: %d" fd in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Close fd) in
+          (add_operation tid op state'))
+    | "close" ->
+      (** let () = info "model close:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -953,6 +1004,22 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Send fd in
+          (add_operation tid op state'))
+    | "setuid" ->
+      let () = info "model setuid:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let id = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Setuid id in
+          (add_operation tid op state'))
+    | "setgid" ->
+      let () = info "model setgid:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let id = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Setgid id in
           (add_operation tid op state'))
     | "terminate" ->
       (** let () = info "model terminate:" in *)
@@ -1076,9 +1143,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
               (** let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in *)
               name in
         (name, label) in
-    let es = BehaviorGraph.edges graph in
+    let es = EffectGraph.edges graph in
     let edges' = Seq.map ~f:(fun edge ->
-        (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
+        (EffectGraph.Edge.src edge, EffectGraph.Edge.dst edge, EffectGraph.Edge.label edge)
       ) es in
     (** SysFlow traces do not contain BIND, patch the model to remove it. *)
     let g' = edges' |>
@@ -1089,22 +1156,22 @@ module Monitor(Machine : Primus.Machine.S) = struct
                  dst
                ) |>
              Seq.fold ~f:(fun g v ->
-                 let preds = BehaviorGraph.Node.preds v g in
-                 let succs = BehaviorGraph.Node.succs v g in
-                 let graph' = BehaviorGraph.Node.remove v g in
+                 let preds = EffectGraph.Node.preds v g in
+                 let succs = EffectGraph.Node.succs v g in
+                 let graph' = EffectGraph.Node.remove v g in
                  Seq.fold ~f:(fun g' p ->
                      succs |>
                      Seq.map ~f:(fun succ ->
-                         let opt = BehaviorGraph.Node.edge v succ g in
+                         let opt = EffectGraph.Node.edge v succ g in
                          match opt with
                            None -> raise (MissingEdge "Cannot find edge to successor")
                          | Some edge ->
-                             let label = BehaviorGraph.Edge.label edge in
-                             BehaviorGraph.Edge.create p succ label) |>
+                             let label = EffectGraph.Edge.label edge in
+                             EffectGraph.Edge.create p succ label) |>
                      Seq.fold ~f:(fun g e ->
-                         BehaviorGraph.Edge.insert e g) ~init:g') ~init:graph' preds) ~init:graph in
-    let ns = BehaviorGraph.nodes g' in
-    let es = BehaviorGraph.edges g' in
+                         EffectGraph.Edge.insert e g) ~init:g') ~init:graph' preds) ~init:graph in
+    let ns = EffectGraph.nodes g' in
+    let es = EffectGraph.edges g' in
     let nodes' = Seq.map ~f:name_and_label_of_tid ns in
     let contexts = functions |>
                    Hashtbl.to_alist |>
@@ -1112,7 +1179,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
                                let (name, _) = name_and_label_of_tid tid in
                                (name, `List [`String context; `String func])) in
     let edges' = Seq.map ~f:(fun edge ->
-        (BehaviorGraph.Edge.src edge, BehaviorGraph.Edge.dst edge, BehaviorGraph.Edge.label edge)
+        (EffectGraph.Edge.src edge, EffectGraph.Edge.dst edge, EffectGraph.Edge.label edge)
       ) es in
     let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
     let constraints'' = nodes' |> Seq.map ~f:(fun (name, constraints) ->
@@ -1207,10 +1274,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
            | Some size -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.file_label size (assoc_field_exn constraints Sf.file_perms))
        | Network -> Printf.sprintf "{%s|{%s|%s}}" context Sf.network_label (assoc_field_exn constraints Sf.net_dport)
        | Process ->
-         let opt = (assoc_field constraints Sf.ret) in
+         let options = [Sf.ret; Sf.proc_uid; Sf.proc_gid] in
+         let opt = List.fold_left ~f:(fun opt' field ->
+            match opt' with
+              None -> (assoc_field constraints field)
+            | _  -> opt'
+         ) ~init:None options in
          match opt with
-           Some ret -> Printf.sprintf "{%s|{%s|%s}}" context Sf.process_label ret
-         | None -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.process_label
+           Some value -> Printf.sprintf "{%s|{%s|%s}}" context Sf.process_label value
+         | None ->
+           Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.process_label
                                                     (assoc_field_blank constraints Sf.proc_exe)
                                                     (assoc_field_blank constraints Sf.proc_args))
     | _ -> "ignored"
@@ -1226,7 +1299,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
       let {root_tid;nodes;graph;functions} = state' in
-      let _ = Graphlib.to_dot (module BehaviorGraph)
+      let _ = Graphlib.to_dot (module EffectGraph)
         ~node_attrs:(fun tid ->
           let context = try Hashtbl.find_exn functions tid
             with Not_found ->
@@ -1239,7 +1312,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let label = label_of_node node context in
           [`Fontsize 9; `Label label; `Shape `Box])
         ~edge_attrs:(fun edge ->
-          let label = BehaviorGraph.Edge.label edge in
+          let label = EffectGraph.Edge.label edge in
           [`Fontsize 8; `Label label;])
         ~channel:dotfile graph in
       let _ = export_model root_tid nodes functions graph in
@@ -1250,7 +1323,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info "last tid: %s" (Tid.name last_tid) in *)
       Machine.Global.update state ~f:(fun s ->
           (** let () = info "Updating global state!" in *)
-          let graph' = Graphlib.union (module BehaviorGraph) s.graph graph in
+          let graph' = Graphlib.union (module EffectGraph) s.graph graph in
           let () = Hashtbl.merge_into ~src:functions ~dst:s.functions
                                       ~f:(fun ~key:_ x y -> Set_to x) in
           {s with halted = Set.add s.halted pid; graph=graph'})
@@ -1420,6 +1493,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
+      def "uids-ocaml-network-fd" (tuple [a; b] @-> c) (module Network)
+      {|(uids-ocaml-network-fd BINDFD NETFD) informs uIDS of the port attached to a socket returned by accept.|};
       def "uids-ocaml-debug" (tuple [a] @-> b) (module Debug)
       {|(uids-ocaml-debug DATA) logs a lisp value for debugging. |};
     ]
@@ -1454,11 +1529,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let constraints = json_string [(Sf.proc_exe, [exe]); (Sf.proc_args, [args'])] in
     let behavior =
       if (get inetd_startup) then
-        Graphlib.create (module BehaviorGraph)
+        Graphlib.create (module EffectGraph)
                         ~nodes:[root;proc]
                         ~edges:[(root,proc,"EXEC")] ()
       else
-        Graphlib.create (module BehaviorGraph)
+        Graphlib.create (module EffectGraph)
                         ~nodes:[root;root';proc]
                         ~edges:[(root,root',"CLONE"); (root',proc,"EXEC")] () in
     let nodes = Hashtbl.create (module Tid) in

@@ -44,6 +44,7 @@ esac
 # --primus-lisp-channel-redirect=/echo/echo.conf:/uIDS/images/echo/4/echo/echo.conf =
 # --primus-promiscuous-mode \
 # --primus-greedy-scheduler \
+# --primus-uids-inetd-startup \
 # --report-progress \
 # --primus-uids-symbolic-arguments \
 opam config exec -- bap $PROGRAM -prun \
@@ -51,7 +52,6 @@ opam config exec -- bap $PROGRAM -prun \
   --run-argv="${ARGV}" \
   --primus-limit-max-length=${PATHLENGTH} \
   ${MODELINE} \
-  --primus-uids-inetd-startup \
   --primus-uids-model \
   ${EXECLINE} \
   ${FILESYSTEM} \

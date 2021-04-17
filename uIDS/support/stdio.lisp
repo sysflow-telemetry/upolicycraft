@@ -103,6 +103,10 @@
   (declare (external "fgetc" "getc"))
   (channel-input stream))
 
+(defun fclose (stream)
+  (declare (external "fclose"))
+  0)
+
 (defun fgets-step (ptr len str i)
   (let ((c (channel-input str)))
     (if (= c -1) 0
