@@ -308,19 +308,9 @@ request *httpdGetConnection(server, timeout)
   char	*ipaddr;
   request	*r;
 
-  uids_log("Setting up file descriptors.");
-
   FD_ZERO(&fds);
-
-  uids_log("Setting up serverSock.");
-
-  uids_debug(server->serverSock);
-  uids_debug(&fds);
-
   FD_SET(server->serverSock, &fds);
   result = 0;
-
-  uids_log("Setting up select");
 
   while(result == 0)    {
     result = select(server->serverSock + 1, &fds, 0, 0, timeout);
@@ -336,8 +326,6 @@ request *httpdGetConnection(server, timeout)
       break;
     }
   }
-
-  uids_log("Prior to accept");
 
   /* Allocate request struct */
   r = (request *)malloc(sizeof(request));
@@ -355,8 +343,6 @@ request *httpdGetConnection(server, timeout)
     return(NULL);
   }
 
-  uids_log("prior to ntoa");
-
   ipaddr = inet_ntoa(addr.sin_addr);
   if (ipaddr) {
     strncpy(r->clientAddr, ipaddr, HTTP_IP_ADDR_LEN);
@@ -366,8 +352,6 @@ request *httpdGetConnection(server, timeout)
   }
   r->readBufRemain = 0;
   r->readBufPtr = NULL;
-
-  uids_log("before acl");
 
   /*
   ** Check the default ACL
@@ -413,7 +397,6 @@ int httpdReadRequest(httpd *server, request *r)
   inHeaders = 1;
   while (_httpd_readLine(r, buf, HTTP_MAX_LEN) > 0)
     {
-      uids_log("Read line!");
       count++;
 
       /*
@@ -430,24 +413,18 @@ int httpdReadRequest(httpd *server, request *r)
           uids_debug(cp2);
           uids_debug(*cp2);
           uids_debug(isalpha(*cp2));
-          uids_log("Before is alpha!");
 
 	  while (isalpha(*cp2)) {
-            uids_log("Incrementing cp2");
 	    cp2++;
             uids_debug(*cp2); 
           }
 	  *cp2 = 0;
-          uids_log("strcasecmp");
 	  if (strcasecmp(cp,"GET") == 0)
 	    r->request.method = HTTP_GET;
 	  if (strcasecmp(cp,"POST") == 0)
 	    r->request.method = HTTP_POST;
-          uids_log("request.method");
-          uids_log(cp2);
 	  if (r->request.method == 0)
 	  {
-              uids_log("Invalid method!");
 	      _httpd_net_write( r->clientSock,
 				HTTP_METHOD_ERROR,
 				strlen(HTTP_METHOD_ERROR));
@@ -595,7 +572,7 @@ int httpdReadRequest(httpd *server, request *r)
 		
     }
 
-  printf("Request path:%s\n", r->request.path);
+  /** printf("Request path:%s\n", r->request.path); */
   /*
   ** Process any URL i.e. GET data
   */
@@ -967,8 +944,6 @@ void httpdProcessRequest(httpd *server, request *r)
 		_httpd_writeAccessLog(server, r);
 		return;
 	}
-        uids_log("Directory Name:");
-        uids_log(dir->name);
 	entry = _httpd_findContentEntry(r, dir, entryName);
 
 	if (entry == NULL)

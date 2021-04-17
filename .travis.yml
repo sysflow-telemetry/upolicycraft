@@ -17,7 +17,8 @@ script:
  -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CADET_00001 _start "/cgc/CADET_00001" /bin/bash /cgc/cadet.sh greedy "%00000f29" 10000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CADET_00001"
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/cgc/CROMU_00046 _start "/cgc/CROMU_00046" /bin/bash /cgc/cromu.sh greedy "%000000" 1000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CROMU_00046"
  -  cat tests/input/everybodys_got_something_to_hide | docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/everybodys_got_something_to_hide _start "/home/chall/service/ro/everybodys_got_something_to_hide" "/usr/sbin/xinetd" "-dontfork" greedy "%00000001" 500000 --primus-lisp-channel-redirect="<stdin>:/uIDS/" --primus-lisp-channel-redirect=/home/chall/service/append/song_[0-9]+:/tmp/song inetd
- -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/snprintf _start "/snprintf" /bin/bash /cgc/snprintf.sh greedy "%000000" 1000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/snprintf"
+ -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/snprintf _start "/snprintf" /bin/bash /tests/snprintf.sh greedy "%000000" 1000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/snprintf"
+ -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/numbers _start "/numbers" /bin/bash /tests/numbers.sh greedy "%000000" 1000000
  - ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/benign/
  - ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/malicious/
  - ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/benign/
@@ -28,7 +29,8 @@ script:
 # Very slow test case that spends a lot of time initializing state.
 #  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CROMU_00007 _start "/cgc/CROMU_00007" /bin/bash /cgc/cromu.sh greedy "%00000000" 10000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CROMU_00007"
 
-
+# nullhttpd test case
+# time run /uIDS/tests/nullhttpd/nullhttpd _start '/nullhttpd/nullhttpd,-h,127.0.0.1,-p,80,-b,/var/www/html,-i,/var/www/html/index.html,-r,/var/www/html/404.html,-d,/var/www/nullhttpd.pid,-u,www-data,-g,www-data' /usr/bin/bash /nullhttpd/nullhttpd.sh greedy  "%00000000" 1000000 --primus-lisp-channel-redirect="net:/tmp/test.log,/var/www/html//index.html:/uIDS/tests/nullhttpd/fs/html/index.html,/var/www/nullhttpd.pid:/uIDS/tests/nullhttpd/fs/nullhttpd.pid,srv:/tmp/srv.log"
 
 branches:
   only:

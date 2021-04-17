@@ -12,14 +12,6 @@
 
 #include "main.h"
 
-void uids_log(char *s) {
-
-}
-
-void uids_debug(void *val) {
-
-}
-
 char *program_name;
 char *host = NULL;
 int port = DEFAULT_PORT;
@@ -127,17 +119,11 @@ void help() {
 int main(int argc, char *argv[]) {
 	program_name = argv[0];
 
-	uids_log("Checking out argv");
-	uids_debug(argc);
-
 	int i;
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0) {
 			i++;
 			if ((i < argc) && (argv[i][0] != '\0')) {
-				uids_log("Setting host");
-				uids_log(argv[i]);
-
 				host = argv[i];
 			}
 			else {

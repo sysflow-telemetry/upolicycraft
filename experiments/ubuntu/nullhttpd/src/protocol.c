@@ -27,7 +27,7 @@
 #include <time.h>
 #include <syslog.h> /* for debug P. Kube */
 
-#if defined(_WIN32) 
+#if defined(_WIN32)
 #else
 #include <unistd.h>
 #include <sys/file.h>
@@ -43,7 +43,7 @@ int _httpd_net_read(sock, buf, len)
 	char	*buf;
 	int	len;
 {
-#if defined(_WIN32) 
+#if defined(_WIN32)
 	return( recv(sock, buf, len, 0));
 #else
 	/*return( read(sock, buf, len));*/
@@ -52,7 +52,7 @@ int _httpd_net_read(sock, buf, len)
 	int		nfds;
 	fd_set		readfds;
 	struct timeval	timeout;
-	
+
 	FD_ZERO(&readfds);
 	FD_SET(sock, &readfds);
 	timeout.tv_sec = 10;
@@ -63,8 +63,6 @@ int _httpd_net_read(sock, buf, len)
 
 	if (nfds > 0) {
                 int x = read(sock, buf, len);
-                uids_log("After read!");
-                uids_log(buf);
 		return x;
 	}
 	return(nfds);
@@ -77,7 +75,7 @@ int _httpd_net_write(sock, buf, len)
 	char	*buf;
 	int	len;
 {
-#if defined(_WIN32) 
+#if defined(_WIN32)
 	return( send(sock, buf, len, 0));
 #else
 	return( write(sock, buf, len));
@@ -89,11 +87,8 @@ int _httpd_readChar(request *r, char *cp)
 	if (r->readBufRemain == 0)
 	{
 		bzero(r->readBuf, HTTP_READ_BUF_LEN + 1);
-		r->readBufRemain = _httpd_net_read(r->clientSock, 
+		r->readBufRemain = _httpd_net_read(r->clientSock,
 			r->readBuf, HTTP_READ_BUF_LEN);
-                uids_log("Reading Socket:");
-                uids_debug(r->clientSock);
-                uids_debug(r->readBufRemain);
 		if (r->readBufRemain < 1)
 			return(0);
 		r->readBuf[r->readBufRemain] = 0;
@@ -110,7 +105,7 @@ int _httpd_readLine(request *r, char *destBuf, int len)
 	char	curChar,
 		*dst;
 	int	count;
-	
+
 
 	count = 0;
 	dst = destBuf;
@@ -145,7 +140,7 @@ int _httpd_readBuf(request *r, char *destBuf, int len)
 	char	curChar,
 		*dst;
 	int	count;
-	
+
 
 	count = 0;
 	dst = destBuf;
@@ -173,9 +168,9 @@ void _httpd_writeAccessLog(httpd *server, request *r)
 	timePtr = localtime(&clock);
 	strftime(dateBuf, 30, "%d/%b/%Y:%T %Z",  timePtr);
 	responseCode = atoi(r->response.response);
-	fprintf(server->accessLog, "%s - - [%s] %s \"%s\" %d %d\n", 
-		r->clientAddr, dateBuf, httpdRequestMethodName(r), 
-		httpdRequestPath(r), responseCode, 
+	fprintf(server->accessLog, "%s - - [%s] %s \"%s\" %d %d\n",
+		r->clientAddr, dateBuf, httpdRequestMethodName(r),
+		httpdRequestPath(r), responseCode,
 		r->response.responseLength);
 	*/
 
@@ -234,9 +229,9 @@ int _httpd_decode (bufcoded, bufplain, outbufsize)
     		'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
     		'a','b','c','d','e','f','g','h','i','j','k','l','m',
     		'n','o','p','q','r','s','t','u','v','w','x','y','z',
-    		'0','1','2','3','4','5','6','7','8','9','+','/'   
+    		'0','1','2','3','4','5','6','7','8','9','+','/'
 	};
-  
+
 	static unsigned char pr2six[256];
 
 	/* single character decode */
@@ -254,7 +249,7 @@ int _httpd_decode (bufcoded, bufplain, outbufsize)
 	** If this is the first call, initialize the mapping table.
 	** This code should work even on non-ASCII machines.
 	*/
-	if(first) 
+	if(first)
 	{
 		first = 0;
 		for(j=0; j<256; j++) pr2six[j] = _DECODE_MAXVAL+1;
@@ -274,13 +269,13 @@ int _httpd_decode (bufcoded, bufplain, outbufsize)
 	while(pr2six[(int)*(bufin++)] <= _DECODE_MAXVAL);
 	nprbytes = bufin - bufcoded - 1;
 	nbytesdecoded = ((nprbytes+3)/4) * 3;
-	if(nbytesdecoded > outbufsize) 
+	if(nbytesdecoded > outbufsize)
 	{
 		nprbytes = (outbufsize*4)/3;
 	}
 	bufin = bufcoded;
-   
-	while (nprbytes > 0) 
+
+	while (nprbytes > 0)
 	{
 		*(bufout++)=(DEC(*bufin)<<2|DEC(bufin[1])>>4);
 		*(bufout++)=(DEC(bufin[1])<<4|DEC(bufin[2])>>2);
@@ -288,13 +283,13 @@ int _httpd_decode (bufcoded, bufplain, outbufsize)
 		bufin += 4;
 		nprbytes -= 4;
 	}
-	if(nprbytes & 03) 
+	if(nprbytes & 03)
 	{
-		if(pr2six[(int)bufin[-2]] > _DECODE_MAXVAL) 
+		if(pr2six[(int)bufin[-2]] > _DECODE_MAXVAL)
 		{
 			nbytesdecoded -= 2;
 		}
-		else 
+		else
 		{
 			nbytesdecoded -= 1;
 		}
@@ -340,7 +335,7 @@ char * _httpd_unescape(str)
 
     *q++ = 0;
     return str;
-} 
+}
 
 void _httpd_freeVariables(var)
 	httpVar	*var;
@@ -375,7 +370,7 @@ void _httpd_storeData(request *r, char *query)
                 return;
 
 	var = (char *)malloc(strlen(query));
-	
+
 	cp = query;
 	cp2 = var;
         bzero(var, strlen(query));
@@ -435,7 +430,7 @@ void _httpd_formatTimeString(char *ptr, int clock)
 	struct 	tm *timePtr;
 
 	if (clock == 0)
-		clock = time(0); 
+		clock = time(0);
 
         // Clang didn't like profiling 32-bit programs.
         time_t now = time(0);
@@ -444,7 +439,7 @@ void _httpd_formatTimeString(char *ptr, int clock)
         if (!timePtr) {
             printf("time: %p\n", timePtr);
             perror("gmtime returned NULL");
-        } 
+        }
 
 
 
@@ -462,9 +457,9 @@ void _httpd_sendHeaders(request *r, int contentLength, int modTime)
 
 	r->response.headersSent = 1;
 	_httpd_net_write(r->clientSock, "HTTP/1.0 ", 9);
-	_httpd_net_write(r->clientSock, r->response.response, 
+	_httpd_net_write(r->clientSock, r->response.response,
 		strlen(r->response.response));
-	_httpd_net_write(r->clientSock, r->response.headers, 
+	_httpd_net_write(r->clientSock, r->response.headers,
 		strlen(r->response.headers));
 
 	_httpd_formatTimeString(timeBuf, 0);
@@ -474,7 +469,7 @@ void _httpd_sendHeaders(request *r, int contentLength, int modTime)
 
 	_httpd_net_write(r->clientSock, "Connection: close\n", 18);
 	_httpd_net_write(r->clientSock, "Content-Type: ", 14);
-	_httpd_net_write(r->clientSock, r->response.contentType, 
+	_httpd_net_write(r->clientSock, r->response.contentType,
 		strlen(r->response.contentType));
 	_httpd_net_write(r->clientSock, "\n", 1);
 
@@ -504,7 +499,9 @@ httpDir *_httpd_findContentDir(server, dir, createFlag)
 		*curChild;
 
 	strncpy(buffer, dir, HTTP_MAX_URL);
+
 	curItem = server->content;
+
 	curDir = strtok(buffer,"/");
 	while(curDir)
 	{
@@ -540,11 +537,11 @@ httpDir *_httpd_findContentDir(server, dir, createFlag)
 httpContent *_httpd_findContentEntry(request *r, httpDir *dir, char *entryName)
 {
 	httpContent *curEntry;
-        printf("entryName: %s\n", entryName);
+        /**printf("entryName: %s\n", entryName); */
 	curEntry = dir->entries;
 	while(curEntry)
 	{
-		if (curEntry->type == HTTP_WILDCARD || 
+		if (curEntry->type == HTTP_WILDCARD ||
 		    curEntry->type ==HTTP_C_WILDCARD)
 			break;
 		if (*entryName == 0 && curEntry->indexFlag)
@@ -612,12 +609,8 @@ void _httpd_catFile(request *r, char *path)
 		len;
 	char	buf[HTTP_MAX_LEN];
 
-        uids_log("Opening file.");
-        uids_log(path);
 	fd = open(path,O_RDONLY);
 	if (fd < 0) {
-                uids_log("Could not read file!");
-		uids_log(path);
 		return;
         }
 	len = read(fd, buf, HTTP_MAX_LEN);
@@ -651,16 +644,16 @@ void _httpd_sendFile(httpd *server, request *r, char *path)
 	suffix = rindex(path, '.');
 	if (suffix != NULL)
 	{
-		if (strcasecmp(suffix,".gif") == 0) 
+		if (strcasecmp(suffix,".gif") == 0)
 			strcpy(r->response.contentType,"image/gif");
-		if (strcasecmp(suffix,".jpg") == 0) 
+		if (strcasecmp(suffix,".jpg") == 0)
 			strcpy(r->response.contentType,"image/jpeg");
-		if (strcasecmp(suffix,".xbm") == 0) 
+		if (strcasecmp(suffix,".xbm") == 0)
 			strcpy(r->response.contentType,"image/xbm");
-		if (strcasecmp(suffix,".png") == 0) 
+		if (strcasecmp(suffix,".png") == 0)
 			strcpy(r->response.contentType,"image/png");
 		/* To handle css files --P. Kube */
-		if (strcasecmp(suffix,".css") == 0) 
+		if (strcasecmp(suffix,".css") == 0)
 			strcpy(r->response.contentType,"text/css");
 	}
 	if (stat(path, &sbuf) < 0)
@@ -684,10 +677,10 @@ int _httpd_sendDirectoryEntry(httpd *server, request *r, httpContent *entry,
 		char *entryName)
 {
 	char		path[HTTP_MAX_URL];
-	/* We do not want to serve directory entry directly. */ 
-	if (entryName[0] == '\0') { 
-	  return(-1); 
-	} 
+	/* We do not want to serve directory entry directly. */
+	if (entryName[0] == '\0') {
+	  return(-1);
+	}
 	snprintf(path, HTTP_MAX_URL, "%s/%s", entry->path, entryName);
 	_httpd_sendFile(server, r, path);
 	return(0);
@@ -729,7 +722,7 @@ static unsigned char isAcceptable[96] =
          7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,7,       /* 5X  PQRSTUVWXYZ[\]^_ */
          0,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,       /* 6x  `abcdefghijklmno */
          7,7,7,7,7,7,7,7,7,7,7,0,0,0,0,0 };     /* 7X  pqrstuvwxyz{\}~ DEL */
- 
+
 #define ACCEPTABLE(a)   ( a>=32 && a<128 && ((isAcceptable[a-32]) & mask))
 
 static char *hex = "0123456789ABCDEF";
@@ -824,7 +817,7 @@ void _httpd_sanitiseUrl(url)
 	from = to = last = url;
 	while(*from)
 	{
-		if (*from == '/' && *(from+1) == '.' && 
+		if (*from == '/' && *(from+1) == '.' &&
 			*(from+2)=='.' && *(from+3)=='/')
 		{
 			to = last;
