@@ -1,0 +1,5 @@
+GET /docs/missing HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+

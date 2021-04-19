@@ -108,7 +108,7 @@
 
 ;; void          *_Znwm(size_t);
 ;; void          *_Znam(size_t);
-;; 
+;;
 ;; void          _ZdlPv(void *p);
 ;; void          _ZdaPv(void *p);
 

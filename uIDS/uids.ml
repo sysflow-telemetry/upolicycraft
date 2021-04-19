@@ -48,6 +48,11 @@ module Param = struct
       ~doc:
         "The location of an infinite loop."
 
+  let test_cases = param (int) "no-test-cases"
+      ~default:0
+      ~doc:
+        "The number of test cases."
+
 end
 
 (** For fetching arguments. *)
@@ -189,6 +194,7 @@ type state = {
   current_function : string;
   current_module : string;
   callstack : string list;
+  no_test_cases : int;
 }
 
 exception InvalidArgv of string
@@ -345,6 +351,7 @@ let state = Primus.Machine.State.declare
          current_function = "main";
          current_module = "main";
          callstack = [];
+         no_test_cases = 0;
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -531,7 +538,21 @@ module Scanf(Machine : Primus.Machine.S) = struct
           let b = Bitvector.of_int 64 x in
           Value.of_word b
         else
-          Value.of_word (Bitvector.of_int 65 0)
+          Value.of_word (Bitvector.of_int 64 0)
+end
+
+(**
+  Communicating the number of test cases available for micro-execution.
+*)
+module NetworkTestCases(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [] =
+      Machine.Local.get state >>= fun s ->
+        let {no_test_cases} = s in
+        (Value.of_int ~width:64 no_test_cases)
+
 end
 
 (**
@@ -1497,6 +1518,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-network-fd BINDFD NETFD) informs uIDS of the port attached to a socket returned by accept.|};
       def "uids-ocaml-debug" (tuple [a] @-> b) (module Debug)
       {|(uids-ocaml-debug DATA) logs a lisp value for debugging. |};
+      def "uids-ocaml-network-test-cases" (tuple [] @-> b) (module NetworkTestCases)
+      {|(uids-ocaml-network-test-cases) reports the number of test cases available for micro-execution.|};
     ]
 
   let json_string data =
@@ -1505,11 +1528,23 @@ module Monitor(Machine : Primus.Machine.S) = struct
    Yojson.Basic.pretty_to_string |>
    String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
+  let find_test_cases test_case_dir =
+      let f = Unix.opendir test_case_dir in
+      let rec find_files files =
+        try
+          let next = Unix.readdir f in
+          find_files (next :: files)
+        with End_of_file ->
+          let () = Unix.closedir f in
+          files in
+      find_files []
+
   let init () =
     let open Param in
     setup_tracing () >>= fun () ->
     Machine.get () >>= fun proj ->
     Machine.args >>= fun args ->
+    let no_test_cases = (get test_cases) in
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     let root = Tid.create() in
@@ -1582,7 +1617,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           current_function = "main";
           current_module = exe;
           callstack = [];
-        }
+	  no_test_cases = no_test_cases;
+	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
         { symbols = symtabs;
@@ -1603,6 +1639,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           current_function = "main";
           current_module = exe;
           callstack = [];
+          no_test_cases = no_test_cases;
         })
 end
 
@@ -1616,7 +1653,7 @@ let main {Config.get=(!)} =
     Primus.Machine.add_component (module Monitor) [@warning "-D"];
     Primus.Components.register_generic "uids" (module Monitor)
       ~package:"bap"
-      ~desc:("Enables the uIDS modeler. " ^ desc)
+      ~desc:("Runs the uIDS modeler. " ^ desc)
 
 let () =
   Config.when_ready (fun conf ->

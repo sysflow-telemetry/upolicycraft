@@ -1,0 +1,5 @@
+GET /recv HTTP/1.1
+Host: localhost:80
+Authorization: Basic d2RibGFpcjpwYXNzd29yZA==
+User-Agent: curl/7.47.0
+Accept: */*

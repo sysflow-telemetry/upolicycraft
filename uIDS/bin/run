@@ -55,6 +55,7 @@ opam config exec -- bap $PROGRAM -prun \
   --primus-uids-model \
   ${EXECLINE} \
   ${FILESYSTEM} \
+  --primus-uids-no- test-cases="${PWD}/testcases/" \
   --primus-uids-server-start="${SERVER}" \
   --primus-uids-entrypoint="${CONTAINER_ENTRYPOINT}" \
   --primus-uids-entrypoint-args="${CONTAINER_ENTRYPOINT_ARGS}"

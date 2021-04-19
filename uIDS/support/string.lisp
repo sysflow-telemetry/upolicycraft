@@ -184,7 +184,7 @@
   (let ((str (read-word ptr_t ptr))
         (del (+ str (uids-strcspn str sep)))
         (next (if (points-to-null del) del (+ del 1))))
-      (if (points-to-null str) nil 
+      (if (points-to-null str) nil
          (memory-write del 0)
          (write-word ptr_t ptr next)
          str)))

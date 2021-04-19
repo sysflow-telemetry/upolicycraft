@@ -70,14 +70,6 @@
         (write-word ptr_t (cast ptr_t endptr) s))
     (cast int v)))
 
-(defun uids-itoa (n)
-  (declare (external "itoa"))
-  (uids-ocaml-debug 0xfabc0de)
-  (let ((chunk (malloc 16)))
-   (memory-write chunk 0x30)
-   (memory-write (succ chunk) 0x0)
-   chunk))
-
 (defun htons (v)
   (declare (external "htons"))
   v)
@@ -272,24 +264,40 @@
       (let ((fd (channel-open fname)))
         fd)))
 
-(defparameter *accept-used* 1
+;; This reverses the number, but it works for generating an id.
+(defun uids-itoa (buf n)
+  (let ((started false))
+    (while (or (> n 0) (not started))
+      (set started true)
+      (let ((digit (mod n 10)))
+        (write-word char buf (+ (cast char digit) ?0))
+        (set n (/ digit 10))
+        (incr buf)))
+  (write-word char buf 0x0)))
+
+(defparameter *accept-used* 0
   "has accept been called")
+
+(defparameter *network-test-case* 0
+  "The current test case")
 
 (defun uids-accept (sock addr addrlen)
   (declare (external "accept"))
-  (if (= *accept-used* 0)
-    -1
-    (let ((fname (malloc 16)))
+  (let ((no-test-cases (uids-ocaml-network-test-cases)))
+    (if (= *network-test-case* no-test-cases)
+      -1
+      (let ((fname (malloc 16)))
       ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
-      (write-word char fname 0x6e)
-      (write-word char (+ fname 1) 0x65)
-      (write-word char (+ fname 2) 0x74)
-      (write-word char (+ fname 3) 0x0)
-      ;; (puts fname)
-      (decr *accept-used*)
-      (let ((fd (channel-open fname)))
-        (uids-ocaml-network-fd sock fd)
-        fd))))
+        (write-word char fname 0x6e)
+        (write-word char (+ fname 1) 0x65)
+        (write-word char (+ fname 2) 0x74)
+        (uids-itoa (+ fname 3) *network-test-case*)
+        ;;(write-word char (+ fname 3) 0x0)
+        ;; (puts fname)
+        (incr *network-test-case*)
+        (let ((fd (channel-open fname)))
+          (uids-ocaml-network-fd sock fd)
+          fd)))))
 
       ;;(let ()
       ;;  (decr *accept-used*)

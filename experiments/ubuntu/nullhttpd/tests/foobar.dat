@@ -1,0 +1,4 @@
+GET /foobar/?passwd=foobar&uids_foo=wicked&uids_content=waycomes&uids_directory=root&passwd=baz HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
