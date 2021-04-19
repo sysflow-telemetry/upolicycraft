@@ -59,6 +59,9 @@ int           receive_until(char *dest, size_t length, char end, size_t *bytes_r
 int           recvUntil(int fd, char *buf, int max, char delim);
 int           receive_bytes ( char *buffer, size_t count);
 
+int           stat(const char *pathname, void *buf);
+int           __xstat(int vers, const char *name, void *buf);
+
 int           print(char *buf);
 int           put(char *buf);
 

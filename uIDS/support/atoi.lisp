@@ -264,7 +264,6 @@
       (let ((fd (channel-open fname)))
         fd)))
 
-;; This reverses the number, but it works for generating an id.
 (defun uids-itoa (buf n)
   (let ((started false))
     (while (or (> n 0) (not started))
@@ -317,3 +316,12 @@
 (defun uids-getpwnam (login)
   (declare (external "getpwnam"))
   (uids-getuser-struct login))
+
+(defun uids-stat (vers path buf)
+  (declare (external "__xstat"))
+  (let ((fd (channel-open path)))
+    (if (= fd -1)
+      -1
+      (let ()
+        (channel-close fd)
+        0))))
