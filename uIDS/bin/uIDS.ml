@@ -85,6 +85,17 @@ let parse_redirections opt =
 let redirect_tests tests =
   List'.mapi ~f:(fun i test -> Printf.sprintf "net%d:%s" i test) tests
 
+let add_exec_style exec_style bap_argv =
+  match exec_style with
+    None -> bap_argv
+  | Some exec -> List'.append bap_argv [exec]
+
+let add_report_progress reportprogress bap_argv =
+  if reportprogress then
+    List'.append bap_argv ["--report-progress"]
+  else
+    bap_argv
+
 let handle_command binary entrypoint argv
                    container_entrypoint container_argv
                    path_length mode exec_style redirections
@@ -107,12 +118,11 @@ let handle_command binary entrypoint argv
   let bap_argv = ["config"; "exec"; "--"; "bap"; binary; "-prun";
                   entrypoints'; argv'; path_length'; mode'; "--primus-uids-model";
                   redirections'''; no_tests; container_entrypoint'; container_argv'] in
-  let bap_argv' = match exec_style' with
-                    None -> bap_argv
-                  | Some exec -> List'.append bap_argv [exec] in
-  let bap_argv'' = if reportprogress then List'.append bap_argv ["--report-progress"]
-                   else bap_argv' in
-  run "opam" bap_argv''
+  let bap_argv' = bap_argv |>
+                  add_exec_style exec_style' |>
+                  add_report_progress reportprogress in
+  run "opam" bap_argv'
+  (** printf "%s" (String.concat ~sep:" " bap_argv'') *)
 
 let main =
   let open Command.Let_syntax in

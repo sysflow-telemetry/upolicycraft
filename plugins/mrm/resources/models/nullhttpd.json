@@ -1,38 +1,40 @@
 {
-  "initial": "%0000eb36",
+  "initial": "%0000eb6c",
   "nodes": [
-    "%00001f17", "%00002801", "%00002859", "%000062eb", "%00006350",
-    "%0000643f", "%00006463", "%000095ab", "%0000d4b8", "%0000d52c",
-    "%0000d575", "%0000d709", "%0000d9c6", "%0000dd59", "%0000eb36",
-    "%0000eb37", "%0000eb39"
+    "%00001f17", "%00002801", "%00002859", "%000062ee", "%00006353",
+    "%00006442", "%00006466", "%000095e1", "%0000d475", "%0000d4ee",
+    "%0000d562", "%0000d5ab", "%0000d73f", "%0000d9fc", "%0000dd8f",
+    "%0000eb6c", "%0000eb6d", "%0000eb6f"
   ],
   "contexts": {
-    "%000062eb": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000d4b8": [ "/nullhttpd/nullhttpd", "main" ],
-    "%000095ab": [ "/nullhttpd/nullhttpd", "httpdEndRequest" ],
+    "%00006353": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
+    "%0000dd8f": [ "/nullhttpd/nullhttpd", "main" ],
+    "%0000d4ee": [ "/nullhttpd/nullhttpd", "main" ],
     "%00002859": [ "/nullhttpd/nullhttpd", "_httpd_net_read" ],
+    "%0000d9fc": [ "/nullhttpd/nullhttpd", "main" ],
+    "%0000d5ab": [ "/nullhttpd/nullhttpd", "main" ],
+    "%000062ee": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
     "%00002801": [ "/nullhttpd/nullhttpd", "_httpd_net_write" ],
-    "%0000d52c": [ "/nullhttpd/nullhttpd", "main" ],
-    "%0000eb39": [ "/bin/bash", "main" ],
-    "%0000d709": [ "/nullhttpd/nullhttpd", "main" ],
-    "%0000643f": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000d9c6": [ "/nullhttpd/nullhttpd", "main" ],
-    "%0000d575": [ "/nullhttpd/nullhttpd", "main" ],
-    "%00006350": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000dd59": [ "/nullhttpd/nullhttpd", "main" ],
+    "%0000eb6c": [ "/bin/bash", "main" ],
+    "%0000d562": [ "/nullhttpd/nullhttpd", "main" ],
+    "%0000eb6f": [ "/bin/bash", "main" ],
+    "%000095e1": [ "/nullhttpd/nullhttpd", "httpdEndRequest" ],
+    "%0000eb6d": [ "/bin/bash", "main" ],
+    "%0000d73f": [ "/nullhttpd/nullhttpd", "main" ],
     "%00001f17": [ "/nullhttpd/nullhttpd", "httpdGetConnection" ],
     "%000018a9": [ "/nullhttpd/nullhttpd", "httpdCreate" ],
-    "%0000eb37": [ "/bin/bash", "main" ],
-    "%00006463": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000eb36": [ "/bin/bash", "main" ]
+    "%00006442": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
+    "%0000d475": [ "/nullhttpd/nullhttpd", "main" ],
+    "%00006466": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ]
   },
   "constraints": [
     { "node": "%00001f17", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
     { "node": "%00002801", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
     { "node": "%00002859", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
     {
-      "node": "%000062eb",
+      "node": "%000062ee",
       "constraints": [
+        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
         { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
         { "sf.file.path": [ "/var/www/html//index.html" ] },
         { "sf.file.path": [ "/var/www/html/404.html" ] },
@@ -40,8 +42,9 @@
       ]
     },
     {
-      "node": "%00006350",
+      "node": "%00006353",
       "constraints": [
+        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
         { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
         { "sf.file.path": [ "/var/www/html//index.html" ] },
         { "sf.file.path": [ "/var/www/html/404.html" ] },
@@ -49,8 +52,9 @@
       ]
     },
     {
-      "node": "%0000643f",
+      "node": "%00006442",
       "constraints": [
+        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
         { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
         { "sf.file.path": [ "/var/www/html//index.html" ] },
         { "sf.file.path": [ "/var/www/html/404.html" ] },
@@ -58,29 +62,34 @@
       ]
     },
     {
-      "node": "%00006463",
+      "node": "%00006466",
       "constraints": [
+        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
         { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
         { "sf.file.path": [ "/var/www/html//index.html" ] },
         { "sf.file.path": [ "/var/www/html/404.html" ] },
         { "sf.file.path": [ "/var/www/html/index.html" ] }
       ]
     },
-    { "node": "%000095ab", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
+    { "node": "%000095e1", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
     {
-      "node": "%0000d4b8",
+      "node": "%0000d475",
+      "constraints": [ { "sf.file.path": [ "/dev/pts/0" ] } ]
+    },
+    {
+      "node": "%0000d4ee",
       "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
     },
     {
-      "node": "%0000d52c",
+      "node": "%0000d562",
       "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
     },
     {
-      "node": "%0000d575",
+      "node": "%0000d5ab",
       "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
     },
     {
-      "node": "%0000d709",
+      "node": "%0000d73f",
       "constraints": [
         {
           "sf.proc.exe": [ "/nullhttpd/nullhttpd" ],
@@ -90,10 +99,10 @@
         }
       ]
     },
-    { "node": "%0000d9c6", "constraints": [ { "sf.proc.uid": [ "1000" ] } ] },
-    { "node": "%0000dd59", "constraints": [ { "sf.proc.gid": [ "1000" ] } ] },
+    { "node": "%0000d9fc", "constraints": [ { "sf.proc.uid": [ "1000" ] } ] },
+    { "node": "%0000dd8f", "constraints": [ { "sf.proc.gid": [ "1000" ] } ] },
     {
-      "node": "%0000eb36",
+      "node": "%0000eb6c",
       "constraints": [
         {
           "sf.proc.exe": [ "/usr/bin/bash" ],
@@ -102,7 +111,7 @@
       ]
     },
     {
-      "node": "%0000eb37",
+      "node": "%0000eb6d",
       "constraints": [
         {
           "sf.proc.exe": [ "/usr/bin/bash" ],
@@ -112,7 +121,7 @@
       ]
     },
     {
-      "node": "%0000eb39",
+      "node": "%0000eb6f",
       "constraints": [
         {
           "sf.proc.exe": [ "/nullhttpd/nullhttpd" ],
@@ -126,23 +135,25 @@
   "edges": [
     { "src": "%00001f17", "dst": "%00002859", "label": "READ" },
     { "src": "%00002801", "dst": "%00002801", "label": "WRITE" },
-    { "src": "%00002801", "dst": "%000062eb", "label": "OPEN" },
-    { "src": "%00002801", "dst": "%0000643f", "label": "READ" },
+    { "src": "%00002801", "dst": "%000062ee", "label": "OPEN" },
+    { "src": "%00002801", "dst": "%00006442", "label": "READ" },
+    { "src": "%00002801", "dst": "%0000d475", "label": "WRITE" },
     { "src": "%00002859", "dst": "%00002801", "label": "WRITE" },
-    { "src": "%00002859", "dst": "%000095ab", "label": "CLOSE" },
-    { "src": "%000062eb", "dst": "%00006350", "label": "READ" },
-    { "src": "%00006350", "dst": "%00002801", "label": "WRITE" },
-    { "src": "%0000643f", "dst": "%00006463", "label": "CLOSE" },
-    { "src": "%00006463", "dst": "%000095ab", "label": "CLOSE" },
-    { "src": "%000095ab", "dst": "%00001f17", "label": "ACCEPT" },
-    { "src": "%0000d4b8", "dst": "%0000d52c", "label": "WRITE" },
-    { "src": "%0000d52c", "dst": "%0000d575", "label": "CLOSE" },
-    { "src": "%0000d575", "dst": "%00001f17", "label": "ACCEPT" },
-    { "src": "%0000d709", "dst": "%0000d4b8", "label": "OPEN" },
-    { "src": "%0000d9c6", "dst": "%0000d709", "label": "CLONE" },
-    { "src": "%0000dd59", "dst": "%0000d9c6", "label": "SETUID" },
-    { "src": "%0000eb36", "dst": "%0000eb37", "label": "CLONE" },
-    { "src": "%0000eb37", "dst": "%0000eb39", "label": "EXEC" },
-    { "src": "%0000eb39", "dst": "%0000dd59", "label": "SETGID" }
+    { "src": "%00002859", "dst": "%000095e1", "label": "CLOSE" },
+    { "src": "%000062ee", "dst": "%00006353", "label": "READ" },
+    { "src": "%00006353", "dst": "%00002801", "label": "WRITE" },
+    { "src": "%00006442", "dst": "%00006466", "label": "CLOSE" },
+    { "src": "%00006466", "dst": "%000095e1", "label": "CLOSE" },
+    { "src": "%000095e1", "dst": "%00001f17", "label": "ACCEPT" },
+    { "src": "%0000d475", "dst": "%000095e1", "label": "CLOSE" },
+    { "src": "%0000d4ee", "dst": "%0000d562", "label": "WRITE" },
+    { "src": "%0000d562", "dst": "%0000d5ab", "label": "CLOSE" },
+    { "src": "%0000d5ab", "dst": "%00001f17", "label": "ACCEPT" },
+    { "src": "%0000d73f", "dst": "%0000d4ee", "label": "OPEN" },
+    { "src": "%0000d9fc", "dst": "%0000d73f", "label": "CLONE" },
+    { "src": "%0000dd8f", "dst": "%0000d9fc", "label": "SETUID" },
+    { "src": "%0000eb6c", "dst": "%0000eb6d", "label": "CLONE" },
+    { "src": "%0000eb6d", "dst": "%0000eb6f", "label": "EXEC" },
+    { "src": "%0000eb6f", "dst": "%0000dd8f", "label": "SETGID" }
   ]
 }

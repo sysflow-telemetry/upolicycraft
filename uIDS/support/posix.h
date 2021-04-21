@@ -42,6 +42,7 @@ size_t        getline(char *buffer, size_t len);
 ssize_t       write0(const void *, size_t) __attribute__((warn_unused_result));
 
 char          *itoa(unsigned int number);
+void          itoa1(char *buf, int number);
 
 void          terminate(unsigned int status);
 int           transmit(int fd, const void *buf, size_t count, size_t *tx_bytes);

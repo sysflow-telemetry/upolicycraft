@@ -8,19 +8,21 @@ digraph G {
       fontsize=9, ];
   11 [shape=Mrecord, label="{{/nullhttpd/nullhttpd:_httpd_net_read}|{N|{80}}}",
       fontsize=9, ];
-  16 [shape=Mrecord,
-      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
-      fontsize=9, ];
   17 [shape=Mrecord,
-      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
+      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//docs/old/test.html}|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
       fontsize=9, ];
-  13 [shape=Mrecord,
-      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
+  18 [shape=Mrecord,
+      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//docs/old/test.html}|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
       fontsize=9, ];
   14 [shape=Mrecord,
-      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
+      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//docs/old/test.html}|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
       fontsize=9, ];
-  15 [shape=Mrecord, label="{{/nullhttpd/nullhttpd:httpdEndRequest}|{N|{80}}}",
+  15 [shape=Mrecord,
+      label="{{/nullhttpd/nullhttpd:_httpd_catFile}|{F|{/var/www/html//docs/old/test.html}|{/var/www/html//giphy.gif}|{/var/www/html//index.html}|{/var/www/html/404.html}|{/var/www/html/index.html}}}",
+      fontsize=9, ];
+  16 [shape=Mrecord, label="{{/nullhttpd/nullhttpd:httpdEndRequest}|{N|{80}}}",
+      fontsize=9, ];
+  13 [shape=Mrecord, label="{{/nullhttpd/nullhttpd:main}|{F|{/dev/pts/0}}}",
       fontsize=9, ];
   7 [shape=Mrecord,
      label="{{/nullhttpd/nullhttpd:main}|{F|{/var/www/nullhttpd.pid}}}",
@@ -50,15 +52,17 @@ digraph G {
   3 -> 4 [label="SETGID", fontsize=8, ];
   10 -> 11 [label="READ", fontsize=8, ];
   12 -> 12 [label="WRITE", fontsize=8, ];
-  12 -> 16 [label="OPEN", fontsize=8, ];
-  12 -> 13 [label="READ", fontsize=8, ];
+  12 -> 17 [label="OPEN", fontsize=8, ];
+  12 -> 14 [label="READ", fontsize=8, ];
+  12 -> 13 [label="WRITE", fontsize=8, ];
   11 -> 12 [label="WRITE", fontsize=8, ];
-  11 -> 15 [label="CLOSE", fontsize=8, ];
-  16 -> 17 [label="READ", fontsize=8, ];
-  17 -> 12 [label="WRITE", fontsize=8, ];
-  13 -> 14 [label="CLOSE", fontsize=8, ];
+  11 -> 16 [label="CLOSE", fontsize=8, ];
+  17 -> 18 [label="READ", fontsize=8, ];
+  18 -> 12 [label="WRITE", fontsize=8, ];
   14 -> 15 [label="CLOSE", fontsize=8, ];
-  15 -> 10 [label="ACCEPT", fontsize=8, ];
+  15 -> 16 [label="CLOSE", fontsize=8, ];
+  16 -> 10 [label="ACCEPT", fontsize=8, ];
+  13 -> 16 [label="CLOSE", fontsize=8, ];
   7 -> 8 [label="WRITE", fontsize=8, ];
   8 -> 9 [label="CLOSE", fontsize=8, ];
   9 -> 10 [label="ACCEPT", fontsize=8, ];
