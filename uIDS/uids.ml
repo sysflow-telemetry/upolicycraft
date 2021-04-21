@@ -152,6 +152,8 @@ end
 type fd = int
 type status = int
 
+module ArgSet = Set.Make(String)
+
 type permissions =
   | R
   | W
@@ -178,7 +180,7 @@ module EffectGraph = Graphlib.Make(Tid)(String)
 type state = {
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
-  nodes : (Tid.t, string) Hashtbl.t;
+  nodes : (Tid.t, ArgSet.t) Hashtbl.t;
   functions : (Tid.t, (string * string)) Hashtbl.t;
   ports : (fd, int) Hashtbl.t;
   files : (fd, string) Hashtbl.t;
@@ -321,7 +323,12 @@ let add_operation tid op state =
   (** let () = info "   %s" edge_label in *)
   let edge = EffectGraph.Edge.create last_tid tid edge_label in
   let graph'' = EffectGraph.Edge.insert edge graph' in
-  let () = Hashtbl.set nodes ~key:tid ~data:node_label in
+  let opt = Hashtbl.find nodes tid in
+  let argSet = match opt with
+                 None -> ArgSet.empty
+               | Some set -> set in
+  let argSet' = ArgSet.add argSet node_label in
+  let () = Hashtbl.set nodes ~key:tid ~data:argSet' in
   let current_function :: _ = callstack in
   let () = Hashtbl.set functions ~key:tid
                                  ~data:(current_module, current_function) in
@@ -1159,11 +1166,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let export_model root nodes functions graph =
     let name_and_label_of_tid tid =
         let name = (Tid.name tid) in
-        let label = try Hashtbl.find_exn nodes tid
+        let labels = try Hashtbl.find_exn nodes tid
           with Not_found_s s ->
               (** let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in *)
-              name in
-        (name, label) in
+              ArgSet.singleton name in
+        (name, (ArgSet.to_list labels)) in
     let es = EffectGraph.edges graph in
     let edges' = Seq.map ~f:(fun edge ->
         (EffectGraph.Edge.src edge, EffectGraph.Edge.dst edge, EffectGraph.Edge.label edge)
@@ -1204,10 +1211,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
       ) es in
     let nodes'' = nodes' |> Seq.map ~f:(fun (name, label) -> `String name) |> Seq.to_list in
     let constraints'' = nodes' |> Seq.map ~f:(fun (name, constraints) ->
-        let jsconstraints = constraints |>
-             String.map ~f:(fun c -> if c = '\'' then '"' else c) |>
-             Yojson.Basic.from_string in
-        `Assoc [("node", `String name); ("constraints", jsconstraints)]) |> Seq.to_list in
+        let constraints' = `List (List.map ~f:(fun const ->
+                                   const |>
+                                   String.map ~f:(fun c -> if c = '\'' then '"' else c) |>
+                                   Yojson.Basic.from_string) constraints) in
+        `Assoc [("node", `String name); ("constraints", constraints')]) |> Seq.to_list in
     let edges'' = edges' |> Seq.map ~f:(fun (src, dst, label) ->
         `Assoc [("src", `String (Tid.name src)); ("dst", `String (Tid.name dst)); ("label", `String label)]
       ) |> Seq.to_list in
@@ -1247,6 +1255,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let assoc_field_exn pairs field =
     List.hd_exn (assoc_field_help pairs field)
 
+  exception InvalidConstraint of string
+
+  let list_assoc_field_exn xs field =
+    xs |>
+    List.map ~f:(fun assoc ->
+      match assoc with
+        `Assoc constraints -> Printf.sprintf "{%s}" (assoc_field_exn constraints field)
+      | _ -> raise (InvalidConstraint "Constraint not represented as Assoc")) |>
+    String.concat ~sep:"|"
+
   (**
     Fetch a field from an Association List
   *)
@@ -1283,17 +1301,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let label_of_node node (called_module, called_function) =
     let context = Printf.sprintf "{%s:%s}" called_module called_function in
-    let json = node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string in
-    match json with
+    let nodes = ArgSet.to_list node in
+    let nodes' = List.map ~f:(fun node ->
+       node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string
+    ) nodes in
+    let hd :: _ = nodes' in
+    match hd with
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
          File ->
            let opt = (assoc_field constraints Sf.file_size) in
            (match opt with
-             None -> Printf.sprintf "{%s|{%s|%s}}" context Sf.file_label (assoc_field_exn constraints Sf.file_path)
-           | Some size -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.file_label size (assoc_field_exn constraints Sf.file_perms))
-       | Network -> Printf.sprintf "{%s|{%s|%s}}" context Sf.network_label (assoc_field_exn constraints Sf.net_dport)
+             None -> Printf.sprintf "{%s|{%s|%s}}" context Sf.file_label (list_assoc_field_exn nodes' Sf.file_path)
+           | Some size -> Printf.sprintf "{%s|{%s|%s|%s}}" context Sf.file_label size (list_assoc_field_exn nodes' Sf.file_perms))
+       | Network -> Printf.sprintf "{%s|{%s|%s}}" context Sf.network_label (list_assoc_field_exn nodes' Sf.net_dport)
        | Process ->
          let options = [Sf.ret; Sf.proc_uid; Sf.proc_gid] in
          let opt = List.fold_left ~f:(fun opt' field ->
@@ -1329,7 +1351,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let node = try Hashtbl.find_exn nodes tid
             with Not_found_s s ->
                 let () = info "missing node %s %s" name (Sexplib0.Sexp.to_string_hum s) in
-                (Tid.name tid) in
+                ArgSet.singleton (Tid.name tid) in
           let label = label_of_node node context in
           [`Fontsize 9; `Label label; `Shape `Box])
         ~edge_attrs:(fun edge ->
@@ -1594,10 +1616,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let () = Hashtbl.add_exn functions ~key:root' ~data:("/bin/bash", "main") in
         Hashtbl.add_exn functions ~key:proc ~data:("/bin/bash", "main") in
     let () = Hashtbl.add_exn files ~key:2 ~data:"/dev/stderr" in
-    let () = Hashtbl.add_exn nodes ~key:root ~data:entry in
-    let () = Hashtbl.add_exn nodes ~key:root' ~data:cloned_entry in
-    let () = Hashtbl.add_exn nodes ~key:port ~data:accepted_port in
-    let () = Hashtbl.add_exn nodes ~key:proc ~data:constraints in
+    let () = Hashtbl.add_exn nodes ~key:root  ~data:(ArgSet.singleton entry) in
+    let () = Hashtbl.add_exn nodes ~key:root' ~data:(ArgSet.singleton cloned_entry) in
+    let () = Hashtbl.add_exn nodes ~key:port  ~data:(ArgSet.singleton accepted_port) in
+    let () = Hashtbl.add_exn nodes ~key:proc  ~data:(ArgSet.singleton constraints) in
     Machine.Global.update state ~f:(fun s ->
         { symbols = symtabs;
           nodes = nodes;
