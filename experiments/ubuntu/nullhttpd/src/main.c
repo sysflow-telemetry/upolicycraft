@@ -44,9 +44,7 @@ void server_check(httpd *server, request *r) {
     httpVar *s = httpdGetVariableByPrefixedName(r, "uids_", "content");
     
     httpdGetNextVariableByPrefix(v, "uids");
-    printf("%p %p %p\n", u, v, s);
-
-    httpdPrintf(r, "vars: %s %s %s", u->value, v->value, s->value); 
+    httpdPrintf(r, "vars: %s %s %s\n", u->value, v->value, s->value);
 }
 
 void null() {
@@ -275,12 +273,14 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "Could not set process user to %u/%s: %s.\n", pw->pw_uid, pw->pw_name, strerror(errno));
 			return 4;
 		}
+                /**
+                // For some reason initgroups yields an permission denied error even in a privileged container.
 		// By convention the effective group ID (the first member of the group access list) is
 		// duplicated so we use getegid here and not getgid
 		if (initgroups(pw->pw_name, getegid()) == -1) {
 			fprintf(stderr, "Could not init process groups to %u/%s groups: %s.\n", pw->pw_uid, pw->pw_name, strerror(errno));
 			return 4;
-		}
+		} */
 	}
 
 	struct sigaction action;

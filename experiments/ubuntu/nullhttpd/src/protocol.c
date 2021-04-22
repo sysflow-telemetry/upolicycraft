@@ -36,7 +36,7 @@
 #include "httpd.h"
 #include "httpd_priv.h"
 
-void uids_log(char *s);
+// void uids_log(char *s);
 
 int _httpd_net_read(sock, buf, len)
 	int	sock;

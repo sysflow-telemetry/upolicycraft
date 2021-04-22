@@ -410,13 +410,8 @@ int httpdReadRequest(httpd *server, request *r)
 	  */
 	  cp = cp2 = buf;
 
-          uids_debug(cp2);
-          uids_debug(*cp2);
-          uids_debug(isalpha(*cp2));
-
 	  while (isalpha(*cp2)) {
 	    cp2++;
-            uids_debug(*cp2); 
           }
 	  *cp2 = 0;
 	  if (strcasecmp(cp,"GET") == 0)
@@ -438,7 +433,7 @@ int httpdReadRequest(httpd *server, request *r)
 	  while(*cp == ' ')
 	    cp++;
 	  cp2 = cp;
-	  while(*cp2 != ' ' && *cp2 != 0)
+	  while (*cp2 != ' ' && *cp2 != 0)
 	    cp2++;
 	  *cp2 = 0;
 	  strncpy(r->request.path,cp,HTTP_MAX_URL);
@@ -960,8 +955,6 @@ void httpdProcessRequest(httpd *server, request *r)
 			return;
 		}
 	}
-
-        uids_debug(entry->type);
 
         if (entry->type == HTTP_C_FUNCT || entry->type == HTTP_C_WILDCARD) {
             (entry->function)(server, r);

@@ -1,15 +1,18 @@
 FROM ubuntu:16.04 as build
 
-RUN apt update
-RUN apt install build-essential
+RUN apt-get update
+RUN apt-get -y install build-essential
 
 COPY src /nullhttpd
 
 WORKDIR /nullhttpd
 
+RUN make
+
 FROM ubuntu:16.04
 
 COPY --from=build /nullhttpd/nullhttpd /bin/nullhttpd
-COPY static /var/www/html
+COPY html /var/www/html
+COPY nullhttpd.sh /nullhttpd.sh
 
-CMD ["/bin/nullhttpd", "-h", "127.0.0.1", "-p", "2051", "-b", "../html", "-i", "../html/index.html", "-r", "../404.html", "-d", "../nullhttpd.pid", "-u", "0", "-g", "0"]
+CMD ["/nullhttpd.sh"]

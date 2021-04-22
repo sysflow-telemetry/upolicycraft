@@ -6,8 +6,8 @@
 #define DEFAULT_BASE "./"
 #define BUFFER_LENGTH 100
 
-void uids_log(char *msg);
-void uids_debug(void *p);
+//void uids_log(char *msg);
+//void uids_debug(void *p);
 
 // LibHTTPD internal function
 void _httpd_catFile(request *r, char *path);

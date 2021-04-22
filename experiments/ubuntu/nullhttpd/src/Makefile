@@ -1,6 +1,8 @@
 all: nullhttpd
 
-nullhttpd: main.o api.o ip_acl.o protocol.o version.o ${HOME}/uids/uids.so
+# ${HOME}/uids/uids.so
+
+nullhttpd: main.o api.o ip_acl.o protocol.o version.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
