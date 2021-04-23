@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2020 IBM Corporation.
+// Copyright (C) 2021 IBM Corporation.
 //
 // Authors:
 // William Blair <wdblair@ibm.com>
@@ -320,9 +320,9 @@ func NewSecurityAutomatonFromJSON(tID int64, path string) *SecurityAutomaton {
 	json.Unmarshal([]byte(byteValue), &fsm)
 
 	logger.Trace.Println("\nParsed FSM from JSON file!")
-	logger.Trace.Println("\n",fsm.Nodes[0])
-	logger.Trace.Println("\n",fsm.Constraints[0].Constraints)
-	logger.Trace.Println("\n",fsm.Edges[0].Src)
+	logger.Trace.Println("\n", fsm.Nodes[0])
+	logger.Trace.Println("\n", fsm.Constraints[0].Constraints)
+	logger.Trace.Println("\n", fsm.Edges[0].Src)
 
 	sa := ParseSecurityAutomaton(fsm)
 	sa.TID = tID
