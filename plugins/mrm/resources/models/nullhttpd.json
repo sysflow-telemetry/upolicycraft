@@ -229,7 +229,7 @@
       "node": "%0000eb6c",
       "constraints": [
         {
-          "sf.proc.exe": [ "/usr/bin/bash" ],
+          "sf.proc.exe": [ "/bin/bash" ],
           "sf.proc.args": [ "./nullhttpd.sh" ]
         }
       ]
@@ -238,7 +238,7 @@
       "node": "%0000eb6d",
       "constraints": [
         {
-          "sf.proc.exe": [ "/usr/bin/bash" ],
+          "sf.proc.exe": [ "/bin/bash" ],
           "sf.proc.args": [ "./nullhttpd.sh" ],
           "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
         }

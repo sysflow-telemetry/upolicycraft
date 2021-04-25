@@ -31,9 +31,9 @@ digraph G {
   6 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|33}}", fontsize=9, ];
   5 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|0}}", fontsize=9, ];
   4 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|0}}", fontsize=9, ];
-  0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/usr/bin/bash|./nullhttpd.sh}}",
+  0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./nullhttpd.sh}}",
      fontsize=9, ];
-  1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/usr/bin/bash|./nullhttpd.sh}}",
+  1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./nullhttpd.sh}}",
      fontsize=9, ];
   2 [shape=Mrecord,
      label="{{/bin/bash:main}|{P|/bin/nullhttpd|-h 127.0.0.1 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data}}",
