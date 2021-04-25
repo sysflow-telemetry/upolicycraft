@@ -50,8 +50,15 @@ module Param = struct
 
   let test_cases = param (int) "no-test-cases"
       ~default:0
-      ~doc:
-        "The number of test cases."
+      ~doc:"The number of test cases."
+
+  let user_id = param (int) "user-id"
+      ~default:0
+      ~doc:"The default user id."
+
+  let group_id = param (int) "group-id"
+      ~default:0
+      ~doc:"The default group id."
 
 end
 
@@ -153,6 +160,7 @@ type fd = int
 type status = int
 
 module ArgSet = Set.Make(String)
+module OperationSet = Set.Make(String)
 
 type permissions =
   | R
@@ -178,6 +186,8 @@ type operation =
 module EffectGraph = Graphlib.Make(Tid)(String)
 
 type state = {
+  uid : int;
+  gid : int;
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, ArgSet.t) Hashtbl.t;
@@ -243,44 +253,64 @@ let string_of_json json =
   Yojson.Basic.to_string |>
   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
+(** Some binaries erroneously build paths with extra slashes. *)
+let sanitise_path path =
+    String.substr_replace_all path ~pattern:"//" ~with_:"/"
+
+(** Restrict activity to a given user when applicable. *)
+let restrict_to_user state constr =
+  let {uid;gid} = state in
+  let uid' = string_of_int uid in
+  let gid' = string_of_int gid in
+  let restrict field value constr =
+    if List.Assoc.mem constr ~equal:String.equal field then
+      constr
+    else
+      List.Assoc.add constr ~equal:String.equal field [value] in
+  constr |>
+  restrict Sf.proc_uid uid' |>
+  restrict Sf.proc_gid gid'
+
 let constraint_of_fd state fd =
-  let () = info "Fetching state of file descriptor %d" fd in
-  (** let () = info "  %s" (state.ports ) *)
+  let () = info "Fetching state of file descriptor %d:" fd in
+  (** let () = info "  %s" (state.ports) *)
   let opt = Hashtbl.find state.ports fd in
   match opt with
     Some port ->
        let port' = Printf.sprintf "%d" port in
        let () = info "  %s" port' in
-       jsonify [(Sf.net_dport, [port'])]
+       [(Sf.net_dport, [port'])]
   | None ->
     let file = Hashtbl.find_exn state.files fd in
-    let () = info "  %s" file in
+    let file' = sanitise_path file in
+    let () = info "  %s" file' in
     let const =
       if String.contains file ':' then
         let cidr :: port :: _ = String.split ~on:':' file in
           (Sf.net_dport, [port])
       else
-        (Sf.file_path, [file]) in
-    jsonify [const]
+        (Sf.file_path, [file']) in
+    [const]
 
 let node_of_operation state op =
-  let json =
+  let constr =
     match op with
       Clone argv ->
       let (exe, args) = split_argv argv in
-      jsonify [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
+      [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Exec argv ->
       let (exe, args) = split_argv argv in
-      jsonify [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
+      [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Open path ->
-      jsonify [(Sf.file_path, [path])]
+      let path' = sanitise_path path in
+      [(Sf.file_path, [path'])]
     | Bind (fd, port) ->
       let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.net_dport, [port'])]
+      [(Sf.net_dport, [port'])]
     | Accept fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.net_dport, [port'])]
+      [(Sf.net_dport, [port'])]
     | Read fd ->
       constraint_of_fd state fd
     | Write fd ->
@@ -291,25 +321,28 @@ let node_of_operation state op =
       let port = Hashtbl.find_exn state.ports fd in
       let () = info "Saving port for recv: %d" port in
       let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.net_dport, [port'])]
+      [(Sf.net_dport, [port'])]
     | Send fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
-      jsonify [(Sf.net_dport, [port'])]
+      [(Sf.net_dport, [port'])]
     | Setuid id ->
       let id' = Printf.sprintf "%d" id in
-      jsonify [(Sf.proc_uid, [id'])]
+      [(Sf.proc_uid, [id'])]
     | Setgid id ->
       let id' = Printf.sprintf "%d" id in
-      jsonify [(Sf.proc_gid, [id'])]
+      [(Sf.proc_gid, [id'])]
     | Mmap (length, perms) ->
       let perms' = List.map ~f:string_of_permission perms in
       let length' = Printf.sprintf "%d" length in
-      jsonify [(Sf.file_perms, perms'); (Sf.file_size, [length'])]
+      [(Sf.file_perms, perms'); (Sf.file_size, [length'])]
     | Exit status ->
       let status' = string_of_int status in
-      jsonify [(Sf.ret, [status'])] in
-  string_of_json json
+      [(Sf.ret, [status'])] in
+  constr |>
+  restrict_to_user state |>
+  jsonify |>
+  string_of_json
 
 let labeled label node =
   { node= node; node_label=label }
@@ -359,6 +392,8 @@ let state = Primus.Machine.State.declare
          current_module = "main";
          callstack = [];
          no_test_cases = 0;
+	 uid = 0;
+         gid = 0;
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -1039,16 +1074,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (Env.get rdi) >>= fun v ->
       let id = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
-          let op = Setuid id in
-          (add_operation tid op state'))
+          let {uid} = state' in
+          let op = Setuid uid in
+          let state'' = (add_operation tid op state') in
+          { state'' with uid = id })
     | "setgid" ->
       let () = info "model setgid:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let id = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
-          let op = Setgid id in
-          (add_operation tid op state'))
+          let {gid} = state' in
+          let op = Setgid gid in
+          let state'' = (add_operation tid op state') in
+          { state'' with gid = id })
     | "terminate" ->
       (** let () = info "model terminate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1163,7 +1202,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
             {s with file_opened = None}
         | Error _ -> s)
 
+
   let export_model root nodes functions graph =
+    let redundant_ops = ["BIND"; "SETGID"] |>
+                        List.fold ~f:(fun set op -> OperationSet.add set op)
+                                  ~init:(OperationSet.empty) in
     let name_and_label_of_tid tid =
         let name = (Tid.name tid) in
         let labels = try Hashtbl.find_exn nodes tid
@@ -1178,11 +1221,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
     (** SysFlow traces do not contain BIND, patch the model to remove it. *)
     let g' = edges' |>
              Seq.filter ~f:(fun (src, dst, label) ->
-                 label = "BIND"
-               ) |>
+               OperationSet.mem redundant_ops label
+             ) |>
              Seq.map ~f:(fun (src, dst, label) ->
                  dst
-               ) |>
+             ) |>
              Seq.fold ~f:(fun g v ->
                  let preds = EffectGraph.Node.preds v g in
                  let succs = EffectGraph.Node.succs v g in
@@ -1599,6 +1642,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let ports = Hashtbl.create (module Int) in
     let files = Hashtbl.create (module Int) in
     let network = "0.0.0.0/0:*" in
+    let uid = (get user_id) in
+    let gid = (get group_id) in
     let () = Hashtbl.add_exn files ~key:255 ~data:network in
     let () =
       if (get inetd_startup) then
@@ -1640,6 +1685,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           current_module = exe;
           callstack = [];
 	  no_test_cases = no_test_cases;
+          uid = uid;
+          gid = gid;
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -1662,6 +1709,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           current_module = exe;
           callstack = [];
           no_test_cases = no_test_cases;
+          uid = uid;
+          gid = gid;
         })
 end
 
