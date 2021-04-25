@@ -188,6 +188,8 @@ module EffectGraph = Graphlib.Make(Tid)(String)
 type state = {
   uid : int;
   gid : int;
+  saved_uid : int option;
+  saved_gid : int option;
   symbols : Symtab.fn list;
   labels : (string, Var.t) Hashtbl.t;
   nodes : (Tid.t, ArgSet.t) Hashtbl.t;
@@ -347,10 +349,32 @@ let node_of_operation state op =
 let labeled label node =
   { node= node; node_label=label }
 
+let operation_affects_privilege op =
+  match op with
+    Setuid _ -> true
+  | Setgid _ -> true
+  | _ -> false
+
+let escalate_privileges state =
+  let {saved_uid;saved_gid} = state in
+  let state' = match saved_uid with
+                 Some uid ->
+                 { state with uid = uid; saved_uid = None }
+               | None -> state in
+  let state'' = match saved_gid with
+                 Some gid -> { state' with gid = gid; saved_gid = None }
+                | None -> state' in
+  state''
+
 let add_operation tid op state =
   (** let () = info "Adding operation:" in *)
   let {nodes;graph;last_tid;functions;callstack;current_module} = state in
-  let node_label = node_of_operation state op in
+  let state' =
+    if not (operation_affects_privilege op) then
+      escalate_privileges state
+    else
+      state in
+  let node_label = node_of_operation state' op in
   let edge_label = edge_of_operation op in
   let graph' = EffectGraph.Node.insert tid graph in
   (** let () = info "   %s" edge_label in *)
@@ -365,7 +389,9 @@ let add_operation tid op state =
   let current_function :: _ = callstack in
   let () = Hashtbl.set functions ~key:tid
                                  ~data:(current_module, current_function) in
-  { state with last_tid = tid; graph=graph'' }
+  { state' with last_tid = tid; graph=graph'' }
+
+
 
 let state = Primus.Machine.State.declare
     ~name:"uids"
@@ -394,6 +420,8 @@ let state = Primus.Machine.State.declare
          no_test_cases = 0;
 	 uid = 0;
          gid = 0;
+         saved_uid = None;
+         saved_gid = None;
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -411,16 +439,16 @@ module Pre(Machine : Primus.Machine.S) = struct
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
-          (** let () = info "Error reading memory!" in *)
+          (** let () = info "Error reading memory!" in
           let msg = Primus.Exn.to_string exn in
-          (** let () = info "    %s" msg in *)
+          let () = info "    %s" msg in *)
           Machine.return())
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-        (** let () = info "Error reading memory!" in *)
+        (** let () = info "Error reading memory!" in
         let msg = Primus.Exn.to_string exn in
-        (** let () = info "    %s" msg in *)
+        let () = info "    %s" msg in *)
         Value.of_bool (false))
 
   let string_of_addr addr =
@@ -532,9 +560,9 @@ module Scan(Machine : Primus.Machine.S) = struct
       let vfmt = Value.to_word fmt in
       string_of_addr vstr >>= fun str' ->
       string_of_addr vfmt >>= fun fmt' ->
-        (** let () = info "str %s %s" str' fmt' in *)
+        (** let () = info "str %s %s" str' fmt' in
         let port = (((Scanf.sscanf str') "port: %d") (fun i -> i)) in
-        (** let () = info "port: %d" port in *)
+        let () = info "port: %d" port in *)
         nil
 end
 
@@ -568,7 +596,7 @@ module Scanf(Machine : Primus.Machine.S) = struct
       (** let vaddr = Value.to_word addr in *)
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
-        let chan = In_channel.stdin in
+        (** let chan = In_channel.stdin in *)
         let line = In_channel.input_line_exn (In_channel.stdin) in
         (**
         let () = info "read: %s" line in
@@ -757,9 +785,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let allow_all_memory_access access =
     Machine.catch access (function exn ->
-        (** let () = info "Error reading memory!" in *)
+        (** let () = info "Error reading memory!" in
         let msg = Primus.Exn.to_string exn in
-        (** let () = info "    %s" msg in *)
+        let () = info "    %s" msg in *)
         Value.of_bool (false))
 
   let dump_memory addr steps =
@@ -769,8 +797,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.return()
       else
         allow_all_memory_access (Memory.get addr) >>= fun v ->
+        (**
         let x = v |> Value.to_word |> Bitvector.to_int64_exn in
-        (** let () = info "  %s" (Int64.to_string x) in *)
+        let () = info "  %s" (Int64.to_string x) in *)
         loop (succ n) (Bitvector.succ addr) in
     loop 0 addr
 
@@ -1074,10 +1103,11 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (Env.get rdi) >>= fun v ->
       let id = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
+          let () = info "Saving uid: %d" id in
           let {uid} = state' in
           let op = Setuid uid in
-          let state'' = (add_operation tid op state') in
-          { state'' with uid = id })
+          let state'' = {state' with saved_uid = Some id} in
+          (add_operation tid op state''))
     | "setgid" ->
       let () = info "model setgid:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1086,8 +1116,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let {gid} = state' in
           let op = Setgid gid in
-          let state'' = (add_operation tid op state') in
-          { state'' with gid = id })
+          let state'' = { state' with saved_gid = Some id } in
+          (add_operation tid op state''))
     | "terminate" ->
       (** let () = info "model terminate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1175,8 +1205,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       )
 
   let record_stmt stmt = Machine.current () >>= fun pid ->
+    (**
     let s = Stmt.to_string stmt in
-    (** let () = info "record statement: %s" s in *)
+    let () = info "record statement: %s" s in *)
     Machine.return()
 
   (** This is just for debugging:
@@ -1218,7 +1249,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let edges' = Seq.map ~f:(fun edge ->
         (EffectGraph.Edge.src edge, EffectGraph.Edge.dst edge, EffectGraph.Edge.label edge)
       ) es in
-    (** SysFlow traces do not contain BIND, patch the model to remove it. *)
+    (** Remove non-SysFlow events from the model. *)
     let g' = edges' |>
              Seq.filter ~f:(fun (src, dst, label) ->
                OperationSet.mem redundant_ops label
@@ -1482,8 +1513,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let guarded = match guard with
                           None -> false
                         | Some _ -> true in
-          let label' = Label.to_string label in
-          (** let () = info "goto label %s, guarded %b" label' guarded in *)
+          (** let label' = Label.to_string label in
+              let () = info "goto label %s, guarded %b" label' guarded in *)
           Machine.Local.update state ~f:(fun s ->
             let () = Hashtbl.update s.loops target_tid ~f:(fun opt ->
               match opt with
@@ -1535,8 +1566,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     )
 
   let pop_sub s =
+    (**
     let name = Sub.name s in
-    (** let () = info "leaving sub %s" (Sub.name s) in *)
+    let () = info "leaving sub %s" (Sub.name s) in *)
     Machine.Local.update state ~f:(fun s ->
       let {callstack} = s in
       match callstack with
@@ -1687,6 +1719,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
 	  no_test_cases = no_test_cases;
           uid = uid;
           gid = gid;
+          saved_uid = None;
+          saved_gid = None;
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -1711,6 +1745,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
           no_test_cases = no_test_cases;
           uid = uid;
           gid = gid;
+          saved_uid = None;
+          saved_gid = None;
         })
 end
 

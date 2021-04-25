@@ -28,7 +28,7 @@ digraph G {
      fontsize=9, ];
   9 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{F|{/var/www/nullhttpd.pid}}}",
      fontsize=9, ];
-  6 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|33}}", fontsize=9, ];
+  6 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|0}}", fontsize=9, ];
   5 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|0}}", fontsize=9, ];
   4 [shape=Mrecord, label="{{/bin/nullhttpd:main}|{P|0}}", fontsize=9, ];
   0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./nullhttpd.sh}}",
