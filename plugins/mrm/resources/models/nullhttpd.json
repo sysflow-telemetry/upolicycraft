@@ -3,110 +3,234 @@
   "nodes": [
     "%00001f17", "%00002801", "%00002859", "%000062ee", "%00006353",
     "%00006442", "%00006466", "%000095e1", "%0000d475", "%0000d4ee",
-    "%0000d562", "%0000d5ab", "%0000d73f", "%0000d9fc", "%0000dd8f",
-    "%0000eb6c", "%0000eb6d", "%0000eb6f"
+    "%0000d562", "%0000d5ab", "%0000d73f", "%0000d9fc", "%0000eb6c",
+    "%0000eb6d", "%0000eb6f"
   ],
   "contexts": {
-    "%00006353": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000dd8f": [ "/nullhttpd/nullhttpd", "main" ],
-    "%0000d4ee": [ "/nullhttpd/nullhttpd", "main" ],
-    "%00002859": [ "/nullhttpd/nullhttpd", "_httpd_net_read" ],
-    "%0000d9fc": [ "/nullhttpd/nullhttpd", "main" ],
-    "%0000d5ab": [ "/nullhttpd/nullhttpd", "main" ],
-    "%000062ee": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%00002801": [ "/nullhttpd/nullhttpd", "_httpd_net_write" ],
+    "%00006353": [ "/bin/nullhttpd", "_httpd_catFile" ],
+    "%0000dd8f": [ "/bin/nullhttpd", "main" ],
+    "%0000d4ee": [ "/bin/nullhttpd", "main" ],
+    "%00002859": [ "/bin/nullhttpd", "_httpd_net_read" ],
+    "%0000d9fc": [ "/bin/nullhttpd", "main" ],
+    "%0000d5ab": [ "/bin/nullhttpd", "main" ],
+    "%000062ee": [ "/bin/nullhttpd", "_httpd_catFile" ],
+    "%00002801": [ "/bin/nullhttpd", "_httpd_net_write" ],
     "%0000eb6c": [ "/bin/bash", "main" ],
-    "%0000d562": [ "/nullhttpd/nullhttpd", "main" ],
+    "%0000d562": [ "/bin/nullhttpd", "main" ],
     "%0000eb6f": [ "/bin/bash", "main" ],
-    "%000095e1": [ "/nullhttpd/nullhttpd", "httpdEndRequest" ],
+    "%000095e1": [ "/bin/nullhttpd", "httpdEndRequest" ],
     "%0000eb6d": [ "/bin/bash", "main" ],
-    "%0000d73f": [ "/nullhttpd/nullhttpd", "main" ],
-    "%00001f17": [ "/nullhttpd/nullhttpd", "httpdGetConnection" ],
-    "%000018a9": [ "/nullhttpd/nullhttpd", "httpdCreate" ],
-    "%00006442": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ],
-    "%0000d475": [ "/nullhttpd/nullhttpd", "main" ],
-    "%00006466": [ "/nullhttpd/nullhttpd", "_httpd_catFile" ]
+    "%0000d73f": [ "/bin/nullhttpd", "main" ],
+    "%00001f17": [ "/bin/nullhttpd", "httpdGetConnection" ],
+    "%000018a9": [ "/bin/nullhttpd", "httpdCreate" ],
+    "%00006442": [ "/bin/nullhttpd", "_httpd_catFile" ],
+    "%0000d475": [ "/bin/nullhttpd", "main" ],
+    "%00006466": [ "/bin/nullhttpd", "_httpd_catFile" ]
   },
   "constraints": [
-    { "node": "%00001f17", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
-    { "node": "%00002801", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
-    { "node": "%00002859", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
+    {
+      "node": "%00001f17",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "80" ]
+        }
+      ]
+    },
+    {
+      "node": "%00002801",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "80" ]
+        }
+      ]
+    },
+    {
+      "node": "%00002859",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "80" ]
+        }
+      ]
+    },
     {
       "node": "%000062ee",
       "constraints": [
-        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
-        { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
-        { "sf.file.path": [ "/var/www/html//index.html" ] },
-        { "sf.file.path": [ "/var/www/html/404.html" ] },
-        { "sf.file.path": [ "/var/www/html/index.html" ] }
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/404.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/docs/old/test.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/giphy.gif" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/index.html" ]
+        }
       ]
     },
     {
       "node": "%00006353",
       "constraints": [
-        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
-        { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
-        { "sf.file.path": [ "/var/www/html//index.html" ] },
-        { "sf.file.path": [ "/var/www/html/404.html" ] },
-        { "sf.file.path": [ "/var/www/html/index.html" ] }
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/404.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/docs/old/test.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/giphy.gif" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/index.html" ]
+        }
       ]
     },
     {
       "node": "%00006442",
       "constraints": [
-        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
-        { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
-        { "sf.file.path": [ "/var/www/html//index.html" ] },
-        { "sf.file.path": [ "/var/www/html/404.html" ] },
-        { "sf.file.path": [ "/var/www/html/index.html" ] }
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/404.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/docs/old/test.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/giphy.gif" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/index.html" ]
+        }
       ]
     },
     {
       "node": "%00006466",
       "constraints": [
-        { "sf.file.path": [ "/var/www/html//docs/old/test.html" ] },
-        { "sf.file.path": [ "/var/www/html//giphy.gif" ] },
-        { "sf.file.path": [ "/var/www/html//index.html" ] },
-        { "sf.file.path": [ "/var/www/html/404.html" ] },
-        { "sf.file.path": [ "/var/www/html/index.html" ] }
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/404.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/docs/old/test.html" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/giphy.gif" ]
+        },
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/html/index.html" ]
+        }
       ]
     },
-    { "node": "%000095e1", "constraints": [ { "sf.net.dport": [ "80" ] } ] },
+    {
+      "node": "%000095e1",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "80" ]
+        }
+      ]
+    },
     {
       "node": "%0000d475",
-      "constraints": [ { "sf.file.path": [ "/dev/pts/0" ] } ]
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/dev/pts/0" ]
+        }
+      ]
     },
     {
       "node": "%0000d4ee",
-      "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/nullhttpd.pid" ]
+        }
+      ]
     },
     {
       "node": "%0000d562",
-      "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/nullhttpd.pid" ]
+        }
+      ]
     },
     {
       "node": "%0000d5ab",
-      "constraints": [ { "sf.file.path": [ "/var/www/nullhttpd.pid" ] } ]
+      "constraints": [
+        {
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/www/nullhttpd.pid" ]
+        }
+      ]
     },
     {
       "node": "%0000d73f",
       "constraints": [
         {
-          "sf.proc.exe": [ "/nullhttpd/nullhttpd" ],
+          "sf.proc.gid": [ "33" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.proc.exe": [ "/bin/nullhttpd" ],
           "sf.proc.args": [
             "-h 127.0.0.1 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
           ]
         }
       ]
     },
-    { "node": "%0000d9fc", "constraints": [ { "sf.proc.uid": [ "1000" ] } ] },
-    { "node": "%0000dd8f", "constraints": [ { "sf.proc.gid": [ "1000" ] } ] },
+    {
+      "node": "%0000d9fc",
+      "constraints": [ { "sf.proc.gid": [ "33" ], "sf.proc.uid": [ "0" ] } ]
+    },
     {
       "node": "%0000eb6c",
       "constraints": [
         {
           "sf.proc.exe": [ "/usr/bin/bash" ],
-          "sf.proc.args": [ "/nullhttpd/nullhttpd.sh" ]
+          "sf.proc.args": [ "./nullhttpd.sh" ]
         }
       ]
     },
@@ -115,7 +239,7 @@
       "constraints": [
         {
           "sf.proc.exe": [ "/usr/bin/bash" ],
-          "sf.proc.args": [ "/nullhttpd/nullhttpd.sh" ],
+          "sf.proc.args": [ "./nullhttpd.sh" ],
           "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
         }
       ]
@@ -124,7 +248,7 @@
       "node": "%0000eb6f",
       "constraints": [
         {
-          "sf.proc.exe": [ "/nullhttpd/nullhttpd" ],
+          "sf.proc.exe": [ "/bin/nullhttpd" ],
           "sf.proc.args": [
             "-h 127.0.0.1 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
           ]
@@ -151,9 +275,8 @@
     { "src": "%0000d5ab", "dst": "%00001f17", "label": "ACCEPT" },
     { "src": "%0000d73f", "dst": "%0000d4ee", "label": "OPEN" },
     { "src": "%0000d9fc", "dst": "%0000d73f", "label": "CLONE" },
-    { "src": "%0000dd8f", "dst": "%0000d9fc", "label": "SETUID" },
     { "src": "%0000eb6c", "dst": "%0000eb6d", "label": "CLONE" },
     { "src": "%0000eb6d", "dst": "%0000eb6f", "label": "EXEC" },
-    { "src": "%0000eb6f", "dst": "%0000dd8f", "label": "SETGID" }
+    { "src": "%0000eb6f", "dst": "%0000d9fc", "label": "SETUID" }
   ]
 }
