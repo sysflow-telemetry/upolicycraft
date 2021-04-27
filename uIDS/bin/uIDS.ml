@@ -99,7 +99,7 @@ let add_report_progress reportprogress bap_argv =
 let handle_command binary entrypoint argv
                    container_entrypoint container_argv
                    path_length mode exec_style redirections
-                   testcases reportprogress =
+                   testcases reportprogress verbose =
   let mode' = parse_mode mode in
   let tests' = parse_test_cases testcases in
   let exec_style' = parse_exec_style exec_style in
@@ -121,8 +121,11 @@ let handle_command binary entrypoint argv
   let bap_argv' = bap_argv |>
                   add_exec_style exec_style' |>
                   add_report_progress reportprogress in
-  run "opam" bap_argv'
-  (** printf "%s" (String.concat ~sep:" " bap_argv'') *)
+  if verbose then
+    printf "%s" (String.concat ~sep:" " bap_argv') >>
+    run "opam" bap_argv'
+  else
+    run "opam" bap_argv'
 
 let main =
   let open Command.Let_syntax in
@@ -139,10 +142,11 @@ let main =
         and exec_style = flag "-e" (optional string) ~doc:"Exec An alternative execution style for the model (inetd)."
         and redirections = flag "-fs" (optional string) ~doc:"FileSystem Reveal programs to the micro-executed program to the host path/to/file:path/to/host/file."
         and testcases = flag "-t" (optional string) ~doc:"TestCases A folder containing test inputs."
-        and reportprogress = flag "-r" no_arg ~doc:"ReportProgress Report micro-execution progress." in
+        and reportprogress = flag "-r" no_arg ~doc:"ReportProgress Report micro-execution progress."
+        and verbose = flag "-v" no_arg ~doc:"Verbose Show the BAP command executed." in
        fun () ->
           try
-            eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections testcases reportprogress)
+            eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections testcases reportprogress verbose)
           with e ->
             let msg = Exn.to_string e in
             Printf.eprintf "error: %s" msg

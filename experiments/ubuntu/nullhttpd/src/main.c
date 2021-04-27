@@ -254,6 +254,8 @@ int main(int argc, char *argv[]) {
 
 	}
 
+        printf("Before %d %d\n", getuid(), geteuid());
+
 	if (uid != NULL) {
 		struct passwd *pw;
 		if (strspn(uid, "1234567890") != strlen(uid)) {
@@ -283,6 +285,8 @@ int main(int argc, char *argv[]) {
 		} */
 	}
 
+        printf("After but before Fork: %d %d\n", getuid(), geteuid());
+
 	struct sigaction action;
 	sigemptyset(&action.sa_mask);
 	action.sa_flags = 0;
@@ -303,12 +307,15 @@ int main(int argc, char *argv[]) {
 	if (!foreground) {
 		int child = fork();
 		if (child > 0) {
+                        printf("Parent %d %d\n", getuid(), geteuid());
 			return 0;
 		}
 		else if (child < 0) {
 			fprintf(stderr, "Could not fork: %s.\n", strerror(errno));
 			return 5;
-		}
+		} else {
+                        printf("Child %d %d\n", getuid(), geteuid());
+                }
 	}
 
 	if (pid_file != NULL) {
