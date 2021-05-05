@@ -7,14 +7,16 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
+# normal: sysflowtelemetry/sf-collector:edge
+
 docker run -d --privileged --name sf-collector \
          -v /var/run/docker.sock:/host/var/run/docker.sock \
          -v /dev:/host/dev -v /proc:/host/proc:ro \
          -v /boot:/host/boot:ro -v /lib/modules:/host/lib/modules:ro \
          -v /usr:/host/usr:ro -v /mnt/data:/mnt/data \
-         -e INTERVAL=60                              \
+         -e INTERVAL=10                              \
          -e EXPORTER_ID=${HOSTNAME}                  \
          -e OUTPUT=/mnt/data/                        \
          -e FILTER="container.name = $1" \
-         --rm sysflowtelemetry/sf-collector:edge
+         --rm sf-collector:multi-0.27.1
 

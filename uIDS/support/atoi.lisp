@@ -318,7 +318,7 @@
   (let ((len (* (sizeof ptr_t) 3))
         (offset (* (sizeof ptr_t) 2))
         (m (malloc len)))
-    (write-word ptr_t (cast ptr_t (+ m offset)) 1000)
+    (write-word ptr_t (cast ptr_t (+ m offset)) 33)
     m))
 
 (defun uids-getgrnam (name)
@@ -337,3 +337,19 @@
       (let ()
         (channel-close fd)
         0))))
+
+;; struct tm {
+;;     int tm_sec;    /* Seconds (0-60) */
+;;     int tm_min;    /* Minutes (0-59) */
+;;     int tm_hour;   /* Hours (0-23) */
+;;     int tm_mday;   /* Day of the month (1-31) */
+;;     int tm_mon;    /* Month (0-11) */
+;;     int tm_year;   /* Year - 1900 */
+;;     int tm_wday;   /* Day of the week (0-6, Sunday = 0) */
+;;     int tm_yday;   /* Day in the year (0-365, 1 Jan = 0) */
+;;     int tm_isdst;  /* Daylight saving time */
+;; }
+
+(defun uids-localtime-r (time tm)
+  (declare (external "localtime_r"))
+  (memset tm 0 (* (sizeof int) 9)))

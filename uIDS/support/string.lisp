@@ -197,3 +197,7 @@
     (set *strtok-static-storage* (malloc (sizeof ptr_t))))
     (strtok_r str sep *strtok-static-storage*))
 
+(defun strerror (errnum)
+  (declare (external "strerror"))
+  0)
+

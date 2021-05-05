@@ -68,6 +68,8 @@ int           put(char *buf);
 
 int           htons(int);
 
+void          *localtime_r(int, void *tm);
+
 void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
 
 void          __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
@@ -257,6 +259,8 @@ int _IO_putc(int c, FILE *stream);
 int _IO_puts(const char *s);
 
 // string.h
+
+char *strerror(int errnum);
 
 void bzero(void *s, size_t n);
 
