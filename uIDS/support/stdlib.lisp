@@ -8,18 +8,21 @@
 (defparameter *cbloc* nil
   "the starting address of the cbloc-arena")
 
+;; PATH=/usr/bin
+
 (defun getenv (name)
   "finds a value of an environment variable with the given name"
   (declare (external "getenv"))
   (let ((p environ)
         (n (strlen name))
         (r (read-word ptr_t p))
-        (result nil))
-    (while (and (not (points-to-null p))
-                (= result nil))
-      (let ((s (read-word ptr_t p)))
-        (if (= (memcmp s name n) 0)
-             (set result (+ (strchr s (cast int ?=)) 1))
+        (result 0))
+    (while (and (> (read-word ptr_t p) 0)
+                (= result 0))
+      (let ((s (read-word ptr_t p))
+            (m (cast ptr_t (min n (strlen s)))))
+        (if (not (memcmp s name m))
+             (set result (ptr+1 char (strchr s (cast int ?=))))
              nil)
         (set p (ptr+1 ptr_t p))))
     result))
