@@ -11,11 +11,18 @@
 (defun getenv (name)
   "finds a value of an environment variable with the given name"
   (declare (external "getenv"))
-  (let ((p environ))
+  (let ((p environ)
+        (n (strlen name))
+        (r (read-word ptr_t p))
+        (result nil))
     (while (and (not (points-to-null p))
-                (/= (strcmp p name) 0))
-      (ptr+1 ptr_t p))
-    (if p (strchr p (cast int ?=)) p)))
+                (= result nil))
+      (let ((s (read-word ptr_t p)))
+        (if (= (memcmp s name n) 0)
+             (set result (+ (strchr s (cast int ?=)) 1))
+             nil)
+        (set p (ptr+1 ptr_t p))))
+    result))
 
 (defun abort ()
   "terminates program with exit code 1"

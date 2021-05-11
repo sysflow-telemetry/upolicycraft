@@ -27,6 +27,12 @@
 (defparameter *malloc-initial-value* 0
   "initialize allocated memory with the said value")
 
+(defun posix-memalign (memptr alignment size)
+  (declare (external "posix_memalign"))
+  (let ()
+    (write-word ptr_t (cast ptr_t memptr) (malloc size))
+    0))
+
 (defun memory/allocate (ptr len)
   (if *malloc-initialize-memory*
       (memory-allocate ptr len *malloc-initial-value*)

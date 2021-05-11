@@ -142,6 +142,8 @@ long          lrand48(void);
 void         *malloc(size_t size)
     __attribute__((malloc, warn_unused_result, alloc_size(1)));
 
+int           posix_memalign(void **memptr, size_t alignment, size_t size);
+
 int           mblen(const char *, size_t);
 size_t        mbstowcs(wchar_t *, const char *, size_t);
 int           mbtowc(wchar_t *, const char *, size_t);

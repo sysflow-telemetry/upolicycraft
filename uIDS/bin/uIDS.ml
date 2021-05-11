@@ -27,6 +27,7 @@ module Modes = struct
 	let promiscuous = "--primus-promiscuous-mode"
 
         let inetd = "--primus-uids-inetd-startup"
+
 end
 
 let find_test_cases test_case_dir =
@@ -90,6 +91,15 @@ let add_exec_style exec_style bap_argv =
     None -> bap_argv
   | Some exec -> List'.append bap_argv [exec]
 
+let add_environment env bap_argv =
+  let default = "--run-env=PATH=/usr/bin,PWD=/root" in
+  match env with
+    None -> List'.append bap_argv [default]
+  | Some env ->
+    let env' = default ^ "," ^ env ^ "'" in
+    let () = Printf.printf "env : %s" env' in
+    List'.append bap_argv [env']
+
 let add_report_progress reportprogress bap_argv =
   if reportprogress then
     List'.append bap_argv ["--report-progress"]
@@ -99,7 +109,7 @@ let add_report_progress reportprogress bap_argv =
 let handle_command binary entrypoint argv
                    container_entrypoint container_argv
                    path_length mode exec_style redirections
-                   testcases reportprogress verbose =
+                   env testcases reportprogress verbose =
   let mode' = parse_mode mode in
   let tests' = parse_test_cases testcases in
   let exec_style' = parse_exec_style exec_style in
@@ -119,6 +129,7 @@ let handle_command binary entrypoint argv
                   entrypoints'; argv'; path_length'; mode'; "--primus-uids-model";
                   redirections'''; no_tests; container_entrypoint'; container_argv'] in
   let bap_argv' = bap_argv |>
+                  add_environment env |>
                   add_exec_style exec_style' |>
                   add_report_progress reportprogress in
   if verbose then
@@ -139,14 +150,15 @@ let main =
         and container_argv = anon ("container-argv" %: string)
         and path_length = anon ("path-length" %: int)
         and mode = flag "-m" (optional string) ~doc:"Mode The micro-execution mode (greedy|promiscuous)"
-        and exec_style = flag "-e" (optional string) ~doc:"Exec An alternative execution style for the model (inetd)."
+        and exec_style = flag "-s" (optional string) ~doc:"Exec An alternative execution style for the model (inetd)."
         and redirections = flag "-fs" (optional string) ~doc:"FileSystem Reveal programs to the micro-executed program to the host path/to/file:path/to/host/file."
+        and env = flag "-e" (optional string) ~doc:"Environment The program's environment variables."
         and testcases = flag "-t" (optional string) ~doc:"TestCases A folder containing test inputs."
         and reportprogress = flag "-r" no_arg ~doc:"ReportProgress Report micro-execution progress."
         and verbose = flag "-v" no_arg ~doc:"Verbose Show the BAP command executed." in
        fun () ->
           try
-            eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections testcases reportprogress verbose)
+            eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections env testcases reportprogress verbose)
           with e ->
             let msg = Exn.to_string e in
             Printf.eprintf "error: %s" msg

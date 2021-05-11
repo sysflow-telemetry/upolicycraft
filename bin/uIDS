@@ -1,5 +1,9 @@
 #!/usr/bin/env ocaml
 
+(**
+  This is meant as a utility for inspecting docker images.
+*)
+
 #use "topfind"
 
 (**

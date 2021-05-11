@@ -1636,11 +1636,19 @@ module Monitor(Machine : Primus.Machine.S) = struct
           files in
       find_files []
 
+  let set_word name x =
+    let t = Type.imm (Word.bitwidth x) in
+    let var = Var.create name t in
+    Value.of_word x >>=
+    Env.set var
+
   let init () =
     let open Param in
     setup_tracing () >>= fun () ->
     Machine.get () >>= fun proj ->
     Machine.args >>= fun args ->
+    Machine.envp >>= fun envp ->
+    (** let () = envp |> Array.to_list |> List.iter ~f:(fun e -> Printf.printf "envp: %s\n" e) in *)
     let no_test_cases = (get test_cases) in
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
