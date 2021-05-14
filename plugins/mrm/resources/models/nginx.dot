@@ -1,0 +1,49 @@
+digraph G {
+  4 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_read_file}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
+     fontsize=9, ];
+  7 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_write_fd@40dbf0}|{F|{/dev/stderr}|{/usr/local/nginx/logs/error.log}}}",
+     fontsize=9, ];
+  9 [shape=Mrecord, label="{{/bin/nginx:ngx_event_core_init_conf}|{F|{epoll}}}",
+     fontsize=9, ];
+  5 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_conf_parse}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
+     fontsize=9, ];
+  10 [shape=Mrecord,
+      label="{{/bin/nginx:ngx_conf_parse}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
+      fontsize=9, ];
+  8 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_init_cycle}|{F|{/usr/local/nginx/logs/access.log}|{/usr/local/nginx/logs/error.log}}}",
+     fontsize=9, ];
+  6 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_init_cycle}|{F|{/usr/local/nginx/logs/access.log}|{/usr/local/nginx/logs/error.log}}}",
+     fontsize=9, ];
+  3 [shape=Mrecord,
+     label="{{/bin/nginx:ngx_log_init}|{F|{/usr/local/nginx/logs/error.log}}}",
+     fontsize=9, ];
+  0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./nginx.sh}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./nginx.sh}}",
+     fontsize=9, ];
+  2 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/nginx|}}", fontsize=9, ];
+  
+  
+  4 -> 4 [label="READ", fontsize=8, ];
+  4 -> 9 [label="CLOSE", fontsize=8, ];
+  4 -> 5 [label="CLOSE", fontsize=8, ];
+  7 -> 7 [label="WRITE", fontsize=8, ];
+  7 -> 8 [label="CLOSE", fontsize=8, ];
+  9 -> 10 [label="OPEN", fontsize=8, ];
+  5 -> 5 [label="CLOSE", fontsize=8, ];
+  5 -> 6 [label="OPEN", fontsize=8, ];
+  10 -> 4 [label="READ", fontsize=8, ];
+  8 -> 8 [label="CLOSE", fontsize=8, ];
+  6 -> 7 [label="WRITE", fontsize=8, ];
+  6 -> 6 [label="OPEN", fontsize=8, ];
+  3 -> 10 [label="OPEN", fontsize=8, ];
+  0 -> 1 [label="CLONE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="OPEN", fontsize=8, ];
+  
+  }
