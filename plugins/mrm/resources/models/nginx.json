@@ -1,22 +1,21 @@
 {
   "initial": "%001e488b",
   "nodes": [
-    "%000046f4", "%00008e16", "%00055498", "%00058246", "%00058876",
-    "%001bf9f9", "%001c2c60", "%001d6396", "%001e488b", "%001e488c",
-    "%001e488e"
+    "%000046f4", "%00055498", "%00058246", "%00058876", "%001c2c60",
+    "%001cb222", "%001d6396", "%001e488b", "%001e488c", "%001e488e"
   ],
   "contexts": {
     "%001c2c60": [ "/bin/nginx", "ngx_init_cycle" ],
     "%00058246": [ "/bin/nginx", "ngx_conf_parse" ],
     "%001e488e": [ "/bin/bash", "main" ],
     "%001e488c": [ "/bin/bash", "main" ],
+    "%001cb222": [ "/bin/nginx", "ngx_daemon" ],
     "%00058876": [ "/bin/nginx", "ngx_conf_parse" ],
-    "%00008e16": [ "/bin/nginx", "ngx_write_fd@40dbf0" ],
     "%000046f4": [ "/bin/nginx", "ngx_read_file" ],
+    "%001c89ce": [ "/bin/nginx", "ngx_open_listening_sockets" ],
     "%00055498": [ "/bin/nginx", "ngx_event_core_init_conf" ],
     "%001d6396": [ "/bin/nginx", "ngx_log_init" ],
-    "%001e488b": [ "/bin/bash", "main" ],
-    "%001bf9f9": [ "/bin/nginx", "ngx_init_cycle" ]
+    "%001e488b": [ "/bin/bash", "main" ]
   },
   "constraints": [
     {
@@ -31,21 +30,6 @@
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "0" ],
           "sf.file.path": [ "/usr/local/nginx/conf/nginx.conf" ]
-        }
-      ]
-    },
-    {
-      "node": "%00008e16",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/dev/stderr" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/usr/local/nginx/logs/error.log" ]
         }
       ]
     },
@@ -90,7 +74,7 @@
       ]
     },
     {
-      "node": "%001bf9f9",
+      "node": "%001c2c60",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -105,17 +89,13 @@
       ]
     },
     {
-      "node": "%001c2c60",
+      "node": "%001cb222",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/usr/local/nginx/logs/access.log" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/usr/local/nginx/logs/error.log" ]
+          "sf.proc.exe": [ "/bin/nginx" ],
+          "sf.proc.args": [ "" ]
         }
       ]
     },
@@ -156,15 +136,12 @@
     { "src": "%000046f4", "dst": "%000046f4", "label": "READ" },
     { "src": "%000046f4", "dst": "%00055498", "label": "CLOSE" },
     { "src": "%000046f4", "dst": "%00058246", "label": "CLOSE" },
-    { "src": "%00008e16", "dst": "%00008e16", "label": "WRITE" },
-    { "src": "%00008e16", "dst": "%001bf9f9", "label": "CLOSE" },
     { "src": "%00055498", "dst": "%00058876", "label": "OPEN" },
     { "src": "%00058246", "dst": "%00058246", "label": "CLOSE" },
     { "src": "%00058246", "dst": "%001c2c60", "label": "OPEN" },
     { "src": "%00058876", "dst": "%000046f4", "label": "READ" },
-    { "src": "%001bf9f9", "dst": "%001bf9f9", "label": "CLOSE" },
-    { "src": "%001c2c60", "dst": "%00008e16", "label": "WRITE" },
     { "src": "%001c2c60", "dst": "%001c2c60", "label": "OPEN" },
+    { "src": "%001c2c60", "dst": "%001cb222", "label": "CLONE" },
     { "src": "%001d6396", "dst": "%00058876", "label": "OPEN" },
     { "src": "%001e488b", "dst": "%001e488c", "label": "CLONE" },
     { "src": "%001e488c", "dst": "%001e488e", "label": "EXEC" },
