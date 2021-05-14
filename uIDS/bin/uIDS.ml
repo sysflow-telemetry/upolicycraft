@@ -125,9 +125,10 @@ let handle_command binary entrypoint argv
                         (String.concat ~sep:"," (redirect_tests tests)) ^ "," ^ redirections' in
   let no_tests = Printf.sprintf "--primus-uids-no-test-cases=%d" (count_tests tests') in
   let redirections''' = Printf.sprintf "--primus-lisp-channel-redirect=%s" redirections'' in
+  let redirections'''' = Printf.sprintf "--primus-uids-filesystem=%s" redirections'' in
   let bap_argv = ["config"; "exec"; "--"; "bap"; binary; "-prun";
                   entrypoints'; argv'; path_length'; mode'; "--primus-uids-model";
-                  redirections'''; no_tests; container_entrypoint'; container_argv'] in
+                  redirections'''; redirections''''; no_tests; container_entrypoint'; container_argv'] in
   let bap_argv' = bap_argv |>
                   add_environment env |>
                   add_exec_style exec_style' |>

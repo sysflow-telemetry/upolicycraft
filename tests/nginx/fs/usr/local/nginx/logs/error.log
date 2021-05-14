@@ -1,0 +1,5 @@
+1900/01/00 00:00:00 [emerg] 7183872#0: pread() returned only 2656 bytes instead of 4096 in /usr/local/nginx/conf/nginx.conf:1
+1900/01/00 00:00:00 [emerg] 7183872#0: pread() returned only 0 bytes instead of 1135 in /usr/local/nginx/conf/mime.types:76
+1900/01/00 00:00:00 [emerg] 7183872#0: pread() returned only 0 bytes instead of 1135 in /usr/local/nginx/conf/mime.types:76
+1900/01/00 00:00:00 [emerg] 7169904#0: open() "/usr/local/nginx/logs/access.log" failed (6: Unknown error)
+1900/01/00 00:00:00 [emerg] 7169904#0: open() "/usr/local/nginx/logs/nginx.pid" failed (7: Unknown error)

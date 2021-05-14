@@ -60,6 +60,8 @@ int           receive_until(char *dest, size_t length, char end, size_t *bytes_r
 int           recvUntil(int fd, char *buf, int max, char delim);
 int           receive_bytes ( char *buffer, size_t count);
 
+int           fileno(void *file);
+int           fstat64(int fd, void *buf);
 int           stat(const char *pathname, void *buf);
 int           __xstat(int vers, const char *name, void *buf);
 
@@ -244,6 +246,8 @@ int remove(const char *);
 int rename(const char *, const char *);
 int ungetc(int c, FILE *stream);
 
+ssize_t pread64(int fd, void *buf, size_t count, size_t offset);
+
 size_t fread(void * restrict ptr, size_t size, size_t nmemb, FILE * restrict stream)
     __attribute__((warn_unused_result, storage(1,2,3)));
 size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, FILE * restrict stream)
@@ -367,6 +371,10 @@ size_t strxfrm(char * restrict dst, const char * restrict src, size_t n)
 
 // unix
 typedef int mode_t;
+
+int epoll_create(int);
+
+int open64(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
 int open(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
 int creat(const char *pathname, mode_t mode) __attribute__((nonnull(1)));
 

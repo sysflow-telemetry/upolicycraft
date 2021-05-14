@@ -32,12 +32,17 @@
 ;; file descriptors, as they both are represented as integers. We are currently
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
-  (declare (external "fopen" "open"))
+  (declare (external "fopen" "open" "open64"))
   (channel-open path))
 
-(defun open3 (path flags mode)
-  (declare (external "open"))
-  (fopen path mode))
+;; Primus treats file descriptors and file handles interchangeably.
+(defun fileno (fd)
+  (declare (external "fileno"))
+  fd)
+
+;;(defun open3 (path flags mode)
+;;  (declare (external "open"))
+;;  (fopen path mode))
 
 (defun output-item-nth-char (ptr size item fd i)
   (= 0 (channel-output
@@ -62,9 +67,6 @@
 
 (defun write (fd buf cnt)
   (declare (external "write"))
-  (uids-ocaml-debug fd)
-  (uids-ocaml-debug buf)
-  (uids-ocaml-debug cnt)
   (let ((written (fwrite buf 1 cnt fd))
         (failure (channel-flush fd)))
     (or failure written)))
@@ -94,6 +96,20 @@
             (= size (input-item ptr size i stream)))
       (incr i))
     i))
+
+(defun pread64 (fd buf size offset)
+  (declare (external "pread64"))
+  (uids-ocaml-debug 0xfebc0de)
+  (uids-ocaml-debug fd)
+  (uids-ocaml-debug size)
+  (uids-ocaml-debug offset)
+  ;;(let ((skip 0)
+  ;;      (n 0))
+  ;;  (while (< skip offset)
+  ;;    (channel-input fd)
+  ;;    (incr skip))
+  ;;  (uids-ocaml-debug 0xababa))
+  (fread buf 1 size fd))
 
 (defun read (fd buf n)
   (declare (external "read"))

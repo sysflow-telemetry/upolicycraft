@@ -280,6 +280,7 @@
     (while (or (> n 0) (not started))
       (set started true)
       (let ((digit (mod n 10)))
+        (uids-ocaml-debug digit)
         (write-word char buf (+ (cast char digit) ?0))
         (set n (/ n 10))
         (incr buf)))
@@ -329,7 +330,29 @@
   (declare (external "getpwnam"))
   (uids-getuser-struct login))
 
-(defun uids-stat (vers path buf)
+;;  struct stat {
+;;  dev_t     st_dev;         /* ID of device containing file */
+;;  ino_t     st_ino;         /* Inode number */
+;;  mode_t    st_mode;        /* File type and mode */
+;;  nlink_t   st_nlink;       /* Number of hard links */
+;;  uid_t     st_uid;         /* User ID of owner */
+;;  gid_t     st_gid;         /* Group ID of owner */
+;;  dev_t     st_rdev;        /* Device ID (if special file) */
+;;  off_t     st_size;        /* Total size, in bytes */
+;;  blksize_t st_blksize;     /* Block size for filesystem I/O */
+;;  blkcnt_t  st_blocks;      /* Number of 512B blocks allocated */
+
+(defun epoll-create (x)
+  (declare (external "epoll_create"))
+  1024)
+
+(defun uids-fstat (fd buf)
+  (declare (external "fstat64"))
+  (let ((offset 48))
+    ;; (write-word ptr_t (+ buf offset) size)
+    (uids-ocaml-fstat fd buf)))
+
+(defun uids-xstat (vers path buf)
   (declare (external "__xstat"))
   (let ((fd (channel-open path)))
     (if (= fd -1)

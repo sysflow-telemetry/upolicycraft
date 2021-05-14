@@ -60,6 +60,10 @@ module Param = struct
       ~default:0
       ~doc:"The default group id."
 
+  let filesystem = param (string) "filesystem"
+      ~default:""
+      ~doc:"The mapping of the analysis filesystem to the host filesystem."
+
 end
 
 (** For fetching arguments. *)
@@ -209,6 +213,7 @@ type state = {
   current_module : string;
   callstack : string list;
   no_test_cases : int;
+  filesystem : (string, string) Hashtbl.t;
 }
 
 exception InvalidArgv of string
@@ -391,8 +396,6 @@ let add_operation tid op state =
                                  ~data:(current_module, current_function) in
   { state' with last_tid = tid; graph=graph'' }
 
-
-
 let state = Primus.Machine.State.declare
     ~name:"uids"
     ~uuid:"ba442400-63dd-11ea-a41a-06f59637065f"
@@ -422,6 +425,7 @@ let state = Primus.Machine.State.declare
          gid = 0;
          saved_uid = None;
          saved_gid = None;
+         filesystem = Hashtbl.create (module String);
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -432,6 +436,7 @@ module Pre(Machine : Primus.Machine.S) = struct
 
   let int_of_value v = (v |> Value.to_word |> Bitvector.to_int_exn)
   let string_of_value v = (v |> Value.to_word |> Word.to_string)
+  let zero = Value.of_word (Bitvector.of_int ~width:64 0)
   let nil = Value.b0
   let bool = function
     | false -> nil
@@ -483,7 +488,18 @@ module Pre(Machine : Primus.Machine.S) = struct
          let () = info "writing 0 into %x" (Bitvector.to_int_exn dst) in
          (trap_memory_write (Memory.set dst z))
 
-
+    (** Copy an 8 byte integer into an address. *)
+    let copy_int addr x =
+      let () = info "Writing %d into address" x in
+      let rec loop addr x i =
+        if i = 0 then
+          Machine.return()
+        else
+          let v = x land 0xff in
+          Value.of_word (Bitvector.of_int 8 v) >>= fun v' ->
+          trap_memory_write (Memory.set addr v') >>= fun () ->
+            loop (Bitvector.succ addr) (x lsr 8) (pred i) in
+      loop addr x 8
 end
 
 module ArrayMake(Machine : Primus.Machine.S) = struct
@@ -763,6 +779,36 @@ let address_of_pos out addr =
     Error s -> -1
   | Ok v -> v
 
+module Stat(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let size_offset = 48
+
+    let run [fd; buf] =
+      Machine.Local.get state >>= fun {files;filesystem} ->
+        (** Consult the mapping for the true file and fstat that. *)
+        let fd' = int_of_value fd in
+        let opt = Hashtbl.find files fd' in
+        match opt with
+          None ->
+            let () = info "Could not find fd=%d" fd' in
+            zero
+        | Some filename -> (
+          let opt = Hashtbl.find filesystem filename in
+          match opt with
+            None ->
+              let () = info "Could not find file=%s" filename in
+              zero
+          | Some hostfile ->
+            let () = info "Calling stat on %s" hostfile in
+            let buf' = Unix.stat hostfile in
+            let buf'' = (Value.to_word buf) in
+            copy_int (Bitvector.add buf'' (Bitvector.of_int 8 size_offset)) buf'.st_size >>= fun _ ->
+            zero
+        )
+end
+
 let out = std_formatter
 
 module Monitor(Machine : Primus.Machine.S) = struct
@@ -954,12 +1000,30 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
           (add_operation tid op state''))
+    | "open64" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      (** let () = info " RDI: %s" path in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Open path) in
+          let state'' = {state' with file_opened=Some path} in
+          (add_operation tid op state''))
     | "fgetc" ->
       (** let () = info "model fgetc:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       (** let () = info " RDI: %d" fd in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Read fd) in
+          (add_operation tid op state'))
+    | "pread64" ->
+      (** let () = info "model fwrite:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
@@ -1611,6 +1675,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
+      def "uids-ocaml-fstat" (tuple [a; b] @-> c)  (module Stat)
+      {|(uids-ocaml-fstat FD BUF) implements fstat. |};
       def "uids-ocaml-network-fd" (tuple [a; b] @-> c) (module Network)
       {|(uids-ocaml-network-fd BINDFD NETFD) informs uIDS of the port attached to a socket returned by accept.|};
       def "uids-ocaml-debug" (tuple [a] @-> b) (module Debug)
@@ -1636,6 +1702,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
           files in
       find_files []
 
+  let parse_filesystem filesystem =
+    filesystem |>
+    String.split_on_chars ~on:[','] |>
+    List.filter ~f:(fun s -> s <> "") |>
+    List.fold_left ~f:(fun tbl s ->
+      let file :: dst :: _ = String.split_on_chars ~on:[':'] s in
+      let () = Hashtbl.set tbl ~key:file ~data:dst in
+      tbl) ~init:(Hashtbl.create (module String))
+
+  (** For adding variables to Primus LISP (if needed) *)
   let set_word name x =
     let t = Type.imm (Word.bitwidth x) in
     let var = Var.create name t in
@@ -1650,6 +1726,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     Machine.envp >>= fun envp ->
     (** let () = envp |> Array.to_list |> List.iter ~f:(fun e -> Printf.printf "envp: %s\n" e) in *)
     let no_test_cases = (get test_cases) in
+    let filesystem = parse_filesystem (get filesystem) in
     let symtab = Project.symbols proj in
     let symtabs = (symtab |> Symtab.to_sequence |> Seq.to_list) in
     let root = Tid.create() in
@@ -1685,6 +1762,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let uid = (get user_id) in
     let gid = (get group_id) in
     let () = Hashtbl.add_exn files ~key:255 ~data:network in
+    let () = Hashtbl.add_exn files ~key:1024 ~data:"epoll" in
     let () =
       if (get inetd_startup) then
         let xinetd = "/usr/sbin/xinetd" in
@@ -1729,6 +1807,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           gid = gid;
           saved_uid = None;
           saved_gid = None;
+          filesystem = filesystem;
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -1755,6 +1834,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           gid = gid;
           saved_uid = None;
           saved_gid = None;
+          filesystem = filesystem;
         })
 end
 

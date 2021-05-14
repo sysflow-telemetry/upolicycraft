@@ -104,8 +104,10 @@
 (defun calloc (n s)
   "allocates memory and initializes it with zero"
   (declare (external "calloc"))
+  (uids-ocaml-debug n)
   (let ((m (* n s))
         (p (malloc m)))
+    (uids-ocaml-debug p)
     (bzero p m)
     p)) ; in our implementation malloc zeros memory
 

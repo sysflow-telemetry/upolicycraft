@@ -102,11 +102,11 @@
 
 (defun memcmp (p1 p2 n)
   (declare (external "memcmp"))
-  (let ((res 0) (i 0) (contin 1))
+  (let ((res 0) (i 0))
     (while (and (< i n) (not res))
-      (set res (compare (cast int (memory-read p1)) (cast int (memory-read p2))))
       ;;(uids-ocaml-debug (memory-read p1))
       ;;(uids-ocaml-debug (memory-read p2))
+      (set res (compare (cast int (memory-read p1)) (cast int (memory-read p2))))
       (incr p1 p2 i))
     res))
 
@@ -149,8 +149,10 @@
   (let ((found 0)
         (n (strlen needle)))
     (while (and (memory-read hay) (not found))
-      (set found (not (compare hay needle n)))
-      (incr hay))))
+      (if (not (compare hay needle n))
+        (set found 1)
+        (incr hay)))
+    (if found hay 0)))
 
 (defun strstr (hay needle)
   (declare (external "strstr"))
