@@ -111,6 +111,14 @@
   ;;  (uids-ocaml-debug 0xababa))
   (fread buf 1 size fd))
 
+(defun pwrite64 (fd buf size offset)
+  (declare (external "pwrite64"))
+  (uids-ocaml-debug 0xfeebc0de)
+  (uids-ocaml-debug fd)
+  (uids-ocaml-debug size)
+  (uids-ocaml-debug offset)
+  (fwrite buf 1 size fd))
+
 (defun read (fd buf n)
   (declare (external "read"))
   (fread buf 1 n fd))

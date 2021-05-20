@@ -421,7 +421,7 @@ let state = Primus.Machine.State.declare
          current_module = "main";
          callstack = [];
          no_test_cases = 0;
-	 uid = 0;
+	       uid = 0;
          gid = 0;
          saved_uid = None;
          saved_gid = None;
@@ -642,6 +642,24 @@ module NetworkTestCases(Machine : Primus.Machine.S) = struct
 end
 
 (**
+  Add a socket to uIDS's internal state.
+*)
+module AddSocket(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [fd] =
+      let fd' = int_of_value fd in
+      Machine.Local.update state ~f:(fun s ->
+        let {files} = s in
+        let () = Hashtbl.add_exn files ~key:fd' ~data:"socket" in
+        s
+     ) >>= fun _ ->
+       zero
+
+end
+
+(**
   A debugging module for tracing the values of LISP modules.
 *)
 module Debug(Machine : Primus.Machine.S) = struct
@@ -779,35 +797,73 @@ let address_of_pos out addr =
     Error s -> -1
   | Ok v -> v
 
-module Stat(Machine : Primus.Machine.S) = struct
-    [@@@warning "-P"]
-    include Pre(Machine)
+module StatPre(Machine : Primus.Machine.S) = struct
+   [@@@warning "-P"]
+   include Pre(Machine)
 
-    let size_offset = 48
+   let size_offset = 48
+   let mode_offset = 24
+   let uid_offset = 28
+
+   let stat_file state filename buf =
+     let {filesystem;uid} = state in
+     let opt = Hashtbl.find filesystem filename in
+     match opt with
+        None ->
+          let () = info "Could not find file=%s" filename in
+          zero
+      | Some hostfile ->
+        let () = info "Calling stat on %s" hostfile in
+        let buf' = Unix.stat hostfile in
+        let buf'' = (Value.to_word buf) in
+        copy_int (Bitvector.add buf'' (Bitvector.of_int 8 size_offset)) buf'.st_size >>= fun _ ->
+          let reg_file = 0o100000 in
+          let dir_file = 0o40000 in
+          let mode = match buf'.st_kind with
+                      S_REG -> reg_file
+                    | S_DIR -> dir_file
+                    | _ -> 0 in
+          copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) mode >>= fun _ ->
+            copy_int (Bitvector.add buf'' (Bitvector.of_int 8 uid_offset)) uid >>= fun _ ->
+              zero
+end
+
+module FStat(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include StatPre(Machine)
 
     let run [fd; buf] =
-      Machine.Local.get state >>= fun {files;filesystem} ->
+      Machine.Local.get state >>= fun state ->
         (** Consult the mapping for the true file and fstat that. *)
+        let {files} = state in
         let fd' = int_of_value fd in
         let opt = Hashtbl.find files fd' in
         match opt with
           None ->
             let () = info "Could not find fd=%d" fd' in
             zero
-        | Some filename -> (
-          let opt = Hashtbl.find filesystem filename in
-          match opt with
-            None ->
-              let () = info "Could not find file=%s" filename in
-              zero
-          | Some hostfile ->
-            let () = info "Calling stat on %s" hostfile in
-            let buf' = Unix.stat hostfile in
-            let buf'' = (Value.to_word buf) in
-            copy_int (Bitvector.add buf'' (Bitvector.of_int 8 size_offset)) buf'.st_size >>= fun _ ->
-            zero
-        )
+        | Some filename -> (stat_file state filename buf)
+
 end
+
+module Stat(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include StatPre(Machine)
+
+    let run [filename; buf] =
+      filename |> Value.to_word |> string_of_addr >>= fun filename' ->
+      Machine.Local.get state >>= fun state -> (stat_file state filename' buf)
+end
+
+module GetUid(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [] =
+      Machine.Local.get state >>= fun {uid} ->
+        Value.of_word (Bitvector.of_int 64 uid)
+end
+
 
 let out = std_formatter
 
@@ -1054,6 +1110,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write fd) in
           (add_operation tid op state'))
+    | "pwrite64" ->
+      (** let () = info "model fwrite:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info " RCX: %d" fd in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Write fd) in
+          (add_operation tid op state'))
     | "fclose" ->
       (** let () = info "model fclose:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1064,7 +1129,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = (Close fd) in
           (add_operation tid op state'))
     | "close" ->
-      (** let () = info "model close:" in *)
+      let () = info "model close:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -1675,14 +1740,20 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
-      def "uids-ocaml-fstat" (tuple [a; b] @-> c)  (module Stat)
+      def "uids-ocaml-fstat" (tuple [a; b] @-> c)  (module FStat)
       {|(uids-ocaml-fstat FD BUF) implements fstat. |};
+      def "uids-ocaml-stat" (tuple [a; b] @-> c)  (module Stat)
+      {|(uids-ocaml-stat FD BUF) implements stat. |};
       def "uids-ocaml-network-fd" (tuple [a; b] @-> c) (module Network)
       {|(uids-ocaml-network-fd BINDFD NETFD) informs uIDS of the port attached to a socket returned by accept.|};
       def "uids-ocaml-debug" (tuple [a] @-> b) (module Debug)
       {|(uids-ocaml-debug DATA) logs a lisp value for debugging. |};
       def "uids-ocaml-network-test-cases" (tuple [] @-> b) (module NetworkTestCases)
       {|(uids-ocaml-network-test-cases) reports the number of test cases available for micro-execution.|};
+      def "uids-ocaml-add-socket" (tuple [a] @-> bool) (module AddSocket)
+      {|(uids-ocaml-add-socket) adds a file descriptor representing a socket to the micro-execution state.|};
+      def "uids-ocaml-getuid" (tuple [] @-> a) (module GetUid)
+      {|(uids-ocaml-getuid) fetches the current user id.|};
     ]
 
   let json_string data =

@@ -41,6 +41,10 @@
 (defun my-atoi-read-digit (s)
   (cast int (- (memory-read s) ?0)))
 
+(defun getpagesize ()
+  (declare (external "getpagesize"))
+  4096)
+
 (defun uids-allocate (n isx addr)
   (declare (external "allocate"))
   (let ((buf (malloc n)))
@@ -213,6 +217,30 @@
    (uids-ocaml-sprintf s fmt addr)
    (strlen s))
 
+(defun epoll-wait (epfd events nevents timeout)
+   (declare (external "epoll_wait"))
+   nevents)
+
+(defmacro open-socket-fd ()
+    (let ((fname (malloc 16)))
+      (uids-ocaml-debug 0xdeadc00de)
+      ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
+      (write-word char fname 0x73)
+      (write-word char (+ fname 1) 0x72)
+      (write-word char (+ fname 2) 0x76)
+      (write-word char (+ fname 3) 0x0)
+      ;; (puts fname)
+      (let ((fd (channel-open fname)))
+        (uids-ocaml-add-socket fd)
+        fd)))
+
+(defun socketpair (domain type protocol socket-vector)
+  (declare (external "socketpair"))
+  (let ((fd (open-socket-fd)))
+    (write-word int32_t socket-vector fd)
+    (write-word int32_t (+ socket-vector (sizeof int32_t)) fd)
+    0))
+
 ;;(defun strcspn (p n)
 ;;  (declare (external "strcspn"))
 ;;  (let ((i 0)
@@ -253,15 +281,7 @@
 
 (defun uids-socket (domain tp protocol)
   (declare (external "socket"))
-  (let ((fname (malloc 16)))
-      ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
-      (write-word char fname 0x73)
-      (write-word char (+ fname 1) 0x72)
-      (write-word char (+ fname 2) 0x76)
-      (write-word char (+ fname 3) 0x0)
-      ;; (puts fname)
-      (let ((fd (channel-open fname)))
-        fd)))
+  (open-socket-fd))
 
 (defun reverse-string (start end)
   (let ((p start)
@@ -344,6 +364,7 @@
 
 (defun epoll-create (x)
   (declare (external "epoll_create"))
+  (uids-ocaml-debug 0xccccd)
   1024)
 
 (defun uids-fstat (fd buf)
@@ -361,6 +382,18 @@
         (channel-close fd)
         0))))
 
+(defparameter *uids-errno* 0
+  "uIDS errno")
+
+(defun uids-errno ()
+  (declare (external "__errno_location"))
+  (when (not *uids-errno*)
+     (set *uids-errno* (malloc (sizeof int)))
+     (write-word ptr_t *uids-errno* 0))
+  (uids-ocaml-debug 0xeee)
+  (uids-ocaml-debug *uids-errno*)
+  *uids-errno*)
+
 ;; struct tm {
 ;;     int tm_sec;    /* Seconds (0-60) */
 ;;     int tm_min;    /* Minutes (0-59) */
@@ -376,3 +409,7 @@
 (defun uids-localtime-r (time tm)
   (declare (external "localtime_r"))
   (memset tm 0 (* (sizeof int) 9)))
+
+(defun uids-fork ()
+  (declare (external "fork"))
+  0)

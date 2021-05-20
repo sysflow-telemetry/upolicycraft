@@ -1,16 +1,20 @@
 {
   "initial": "%001e488b",
   "nodes": [
-    "%000046f4", "%00055498", "%00058246", "%00058876", "%001c2c60",
-    "%001cb222", "%001d6396", "%001e488b", "%001e488c", "%001e488e"
+    "%000046f4", "%0002591f", "%00055498", "%00058246", "%00058876",
+    "%001c2c60", "%001cb222", "%001cb790", "%001cb8bd", "%001d6396",
+    "%001e488b", "%001e488c", "%001e488e"
   ],
   "contexts": {
     "%001c2c60": [ "/bin/nginx", "ngx_init_cycle" ],
+    "%0002591f": [ "/bin/nginx", "ngx_create_pidfile" ],
     "%00058246": [ "/bin/nginx", "ngx_conf_parse" ],
+    "%001cb8bd": [ "/bin/nginx", "ngx_daemon" ],
     "%001e488e": [ "/bin/bash", "main" ],
     "%001e488c": [ "/bin/bash", "main" ],
     "%001cb222": [ "/bin/nginx", "ngx_daemon" ],
     "%00058876": [ "/bin/nginx", "ngx_conf_parse" ],
+    "%001cb790": [ "/bin/nginx", "ngx_daemon" ],
     "%000046f4": [ "/bin/nginx", "ngx_read_file" ],
     "%001c89ce": [ "/bin/nginx", "ngx_open_listening_sockets" ],
     "%00055498": [ "/bin/nginx", "ngx_event_core_init_conf" ],
@@ -30,6 +34,16 @@
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "0" ],
           "sf.file.path": [ "/usr/local/nginx/conf/nginx.conf" ]
+        }
+      ]
+    },
+    {
+      "node": "%0002591f",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/usr/local/nginx/logs/nginx.pid" ]
         }
       ]
     },
@@ -100,6 +114,26 @@
       ]
     },
     {
+      "node": "%001cb790",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/null" ]
+        }
+      ]
+    },
+    {
+      "node": "%001cb8bd",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/null" ]
+        }
+      ]
+    },
+    {
       "node": "%001d6396",
       "constraints": [
         {
@@ -142,6 +176,9 @@
     { "src": "%00058876", "dst": "%000046f4", "label": "READ" },
     { "src": "%001c2c60", "dst": "%001c2c60", "label": "OPEN" },
     { "src": "%001c2c60", "dst": "%001cb222", "label": "CLONE" },
+    { "src": "%001cb222", "dst": "%001cb790", "label": "OPEN" },
+    { "src": "%001cb790", "dst": "%001cb8bd", "label": "CLOSE" },
+    { "src": "%001cb8bd", "dst": "%0002591f", "label": "OPEN" },
     { "src": "%001d6396", "dst": "%00058876", "label": "OPEN" },
     { "src": "%001e488b", "dst": "%001e488c", "label": "CLONE" },
     { "src": "%001e488c", "dst": "%001e488e", "label": "EXEC" },

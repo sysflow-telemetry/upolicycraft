@@ -2,12 +2,15 @@ digraph G {
   4 [shape=Mrecord,
      label="{{/bin/nginx:ngx_read_file}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
      fontsize=9, ];
-  9 [shape=Mrecord, label="{{/bin/nginx:ngx_event_core_init_conf}|{F|{epoll}}}",
-     fontsize=9, ];
+  11 [shape=Mrecord,
+      label="{{/bin/nginx:ngx_create_pidfile}|{F|{/usr/local/nginx/logs/nginx.pid}}}",
+      fontsize=9, ];
+  12 [shape=Mrecord, label="{{/bin/nginx:ngx_event_core_init_conf}|{F|{epoll}}}",
+      fontsize=9, ];
   5 [shape=Mrecord,
      label="{{/bin/nginx:ngx_conf_parse}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
      fontsize=9, ];
-  10 [shape=Mrecord,
+  13 [shape=Mrecord,
       label="{{/bin/nginx:ngx_conf_parse}|{F|{/usr/local/nginx/conf/mime.types}|{/usr/local/nginx/conf/nginx.conf}}}",
       fontsize=9, ];
   6 [shape=Mrecord,
@@ -16,6 +19,10 @@ digraph G {
   7 [shape=Mrecord, label="{{/bin/nginx:ngx_open_listening_sockets}|{N|{80}}}",
      fontsize=9, ];
   8 [shape=Mrecord, label="{{/bin/nginx:ngx_daemon}|{P|0}}", fontsize=9, ];
+  9 [shape=Mrecord, label="{{/bin/nginx:ngx_daemon}|{F|{/dev/null}}}",
+     fontsize=9, ];
+  10 [shape=Mrecord, label="{{/bin/nginx:ngx_daemon}|{F|{/dev/null}}}",
+      fontsize=9, ];
   3 [shape=Mrecord,
      label="{{/bin/nginx:ngx_log_init}|{F|{/usr/local/nginx/logs/error.log}}}",
      fontsize=9, ];
@@ -27,16 +34,19 @@ digraph G {
   
   
   4 -> 4 [label="READ", fontsize=8, ];
-  4 -> 9 [label="CLOSE", fontsize=8, ];
+  4 -> 12 [label="CLOSE", fontsize=8, ];
   4 -> 5 [label="CLOSE", fontsize=8, ];
-  9 -> 10 [label="OPEN", fontsize=8, ];
+  12 -> 13 [label="OPEN", fontsize=8, ];
   5 -> 5 [label="CLOSE", fontsize=8, ];
   5 -> 6 [label="OPEN", fontsize=8, ];
-  10 -> 4 [label="READ", fontsize=8, ];
+  13 -> 4 [label="READ", fontsize=8, ];
   6 -> 6 [label="OPEN", fontsize=8, ];
   6 -> 7 [label="BIND", fontsize=8, ];
   7 -> 8 [label="CLONE", fontsize=8, ];
-  3 -> 10 [label="OPEN", fontsize=8, ];
+  8 -> 9 [label="OPEN", fontsize=8, ];
+  9 -> 10 [label="CLOSE", fontsize=8, ];
+  10 -> 11 [label="OPEN", fontsize=8, ];
+  3 -> 13 [label="OPEN", fontsize=8, ];
   0 -> 1 [label="CLONE", fontsize=8, ];
   1 -> 2 [label="EXEC", fontsize=8, ];
   2 -> 3 [label="OPEN", fontsize=8, ];

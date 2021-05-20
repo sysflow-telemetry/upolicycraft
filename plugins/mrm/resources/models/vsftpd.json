@@ -1,0 +1,77 @@
+{
+  "initial": "%00047dc1",
+  "nodes": [
+    "%00001772", "%00011571", "%0004346e", "%00047dc1", "%00047dc2",
+    "%00047dc4"
+  ],
+  "contexts": {
+    "%00047dc4": [ "/bin/bash", "main" ],
+    "%00047dc1": [ "/bin/bash", "main" ],
+    "%00001772": [ "/bin/vsftpd", "vsf_sysutil_read" ],
+    "%0004346e": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
+    "%00011571": [ "/bin/vsftpd", "vsf_sysutil_write" ],
+    "%00047dc2": [ "/bin/bash", "main" ]
+  },
+  "constraints": [
+    {
+      "node": "%00001772",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd.conf" ]
+        }
+      ]
+    },
+    {
+      "node": "%00011571",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/pts/0" ]
+        }
+      ]
+    },
+    {
+      "node": "%0004346e",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd.conf" ]
+        }
+      ]
+    },
+    {
+      "node": "%00047dc1",
+      "constraints": [
+        { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./vsftpd.sh" ] }
+      ]
+    },
+    {
+      "node": "%00047dc2",
+      "constraints": [
+        {
+          "sf.proc.exe": [ "/bin/bash" ],
+          "sf.proc.args": [ "./vsftpd.sh" ],
+          "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
+        }
+      ]
+    },
+    {
+      "node": "%00047dc4",
+      "constraints": [
+        { "sf.proc.exe": [ "/bin/vsftpd" ], "sf.proc.args": [ "" ] }
+      ]
+    }
+  ],
+  "edges": [
+    { "src": "%00001772", "dst": "%00011571", "label": "WRITE" },
+    { "src": "%00011571", "dst": "%00011571", "label": "WRITE" },
+    { "src": "%0004346e", "dst": "%00001772", "label": "READ" },
+    { "src": "%00047dc1", "dst": "%00047dc2", "label": "CLONE" },
+    { "src": "%00047dc2", "dst": "%00047dc4", "label": "EXEC" },
+    { "src": "%00047dc4", "dst": "%0004346e", "label": "OPEN" }
+  ]
+}

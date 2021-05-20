@@ -38,6 +38,17 @@ void *        getpwnam(const char *login);
 
 // uids
 
+int *         __errno_location();
+
+int           getpagesize();
+
+int           socketpair(int domain,
+                         int type,
+                         int protocol,
+                         int socket_vector[2]);
+
+int           epoll_wait(int epfd, struct epoll_event *events, int nevents, int timeout);
+
 size_t        getline(char *buffer, size_t len);
 ssize_t       write0(const void *, size_t) __attribute__((warn_unused_result));
 
@@ -247,6 +258,7 @@ int rename(const char *, const char *);
 int ungetc(int c, FILE *stream);
 
 ssize_t pread64(int fd, void *buf, size_t count, size_t offset);
+ssize_t pwrite64(int fd, void *buf, size_t count, size_t offset);
 
 size_t fread(void * restrict ptr, size_t size, size_t nmemb, FILE * restrict stream)
     __attribute__((warn_unused_result, storage(1,2,3)));

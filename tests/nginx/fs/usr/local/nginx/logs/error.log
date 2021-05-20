@@ -4,3 +4,4 @@
 1900/01/00 00:00:00 [emerg] 7169904#0: open() "/usr/local/nginx/logs/access.log" failed (6: Unknown error)
 1900/01/00 00:00:00 [emerg] 7169904#0: open() "/usr/local/nginx/logs/nginx.pid" failed (7: Unknown error)
 1900/01/00 00:00:00 [emerg] 7169904#0: socket() 0.0.0.0:59456 failed (4: Unknown error)
+1900/01/00 00:00:00 [alert] 7169904#0: epoll_wait() timed out (110: Unknown error)

@@ -1,0 +1,24 @@
+digraph G {
+  4 [shape=Mrecord,
+     label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}}}",
+     fontsize=9, ];
+  5 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_write}|{F|{/dev/pts/0}}}",
+     fontsize=9, ];
+  3 [shape=Mrecord,
+     label="{{/bin/vsftpd:vsf_sysutil_open_file}|{F|{/etc/vsftpd.conf}}}",
+     fontsize=9, ];
+  0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./vsftpd.sh}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./vsftpd.sh}}",
+     fontsize=9, ];
+  2 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/vsftpd|}}", fontsize=9, ];
+  
+  
+  4 -> 5 [label="WRITE", fontsize=8, ];
+  5 -> 5 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="READ", fontsize=8, ];
+  0 -> 1 [label="CLONE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="OPEN", fontsize=8, ];
+  
+  }
