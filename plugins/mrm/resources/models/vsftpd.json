@@ -1,16 +1,19 @@
 {
-  "initial": "%00047dc1",
+  "initial": "%0004762e",
   "nodes": [
-    "%00001772", "%00011571", "%0004346e", "%00047dc1", "%00047dc2",
-    "%00047dc4"
+    "%00001772", "%00003a4f", "%0000a109", "%000115d5", "%0004354c",
+    "%0004762e", "%0004762f", "%00047631"
   ],
   "contexts": {
-    "%00047dc4": [ "/bin/bash", "main" ],
-    "%00047dc1": [ "/bin/bash", "main" ],
+    "%00047631": [ "/bin/bash", "main" ],
+    "%0000a109": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
+    "%0004354c": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
+    "%00009ed6": [ "/bin/vsftpd", "vsf_sysutil_bind" ],
+    "%0004762f": [ "/bin/bash", "main" ],
     "%00001772": [ "/bin/vsftpd", "vsf_sysutil_read" ],
-    "%0004346e": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
-    "%00011571": [ "/bin/vsftpd", "vsf_sysutil_write" ],
-    "%00047dc2": [ "/bin/bash", "main" ]
+    "%00003a4f": [ "/bin/vsftpd", "vsf_sysutil_close" ],
+    "%000115d5": [ "/bin/vsftpd", "vsf_sysutil_write" ],
+    "%0004762e": [ "/bin/bash", "main" ]
   },
   "constraints": [
     {
@@ -24,17 +27,7 @@
       ]
     },
     {
-      "node": "%00011571",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/dev/pts/0" ]
-        }
-      ]
-    },
-    {
-      "node": "%0004346e",
+      "node": "%00003a4f",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -44,13 +37,43 @@
       ]
     },
     {
-      "node": "%00047dc1",
+      "node": "%0000a109",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.net.dport": [ "21" ]
+        }
+      ]
+    },
+    {
+      "node": "%000115d5",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/pts/0" ]
+        }
+      ]
+    },
+    {
+      "node": "%0004354c",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd.conf" ]
+        }
+      ]
+    },
+    {
+      "node": "%0004762e",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./vsftpd.sh" ] }
       ]
     },
     {
-      "node": "%00047dc2",
+      "node": "%0004762f",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -60,18 +83,20 @@
       ]
     },
     {
-      "node": "%00047dc4",
+      "node": "%00047631",
       "constraints": [
         { "sf.proc.exe": [ "/bin/vsftpd" ], "sf.proc.args": [ "" ] }
       ]
     }
   ],
   "edges": [
-    { "src": "%00001772", "dst": "%00011571", "label": "WRITE" },
-    { "src": "%00011571", "dst": "%00011571", "label": "WRITE" },
-    { "src": "%0004346e", "dst": "%00001772", "label": "READ" },
-    { "src": "%00047dc1", "dst": "%00047dc2", "label": "CLONE" },
-    { "src": "%00047dc2", "dst": "%00047dc4", "label": "EXEC" },
-    { "src": "%00047dc4", "dst": "%0004346e", "label": "OPEN" }
+    { "src": "%00001772", "dst": "%00003a4f", "label": "CLOSE" },
+    { "src": "%00003a4f", "dst": "%0000a109", "label": "ACCEPT" },
+    { "src": "%0000a109", "dst": "%000115d5", "label": "WRITE" },
+    { "src": "%000115d5", "dst": "%000115d5", "label": "WRITE" },
+    { "src": "%0004354c", "dst": "%00001772", "label": "READ" },
+    { "src": "%0004762e", "dst": "%0004762f", "label": "CLONE" },
+    { "src": "%0004762f", "dst": "%00047631", "label": "EXEC" },
+    { "src": "%00047631", "dst": "%0004354c", "label": "OPEN" }
   ]
 }

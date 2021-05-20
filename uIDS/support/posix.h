@@ -31,12 +31,18 @@ long long     atoll(const char *) __attribute__((pure, nonnull(1), warn_unused_r
 
 long          strtol(const char *nptr, char **endptr, int base);
 
+int           sigfillset(void *set);
+int           sigaction(int signum, void *act, void *oldact);
+
 // grp
 
 void *        getgrnam(const char *name);
 void *        getpwnam(const char *login);
 
 // uids
+
+int           mprotect(void *addr, size_t len, int prot);
+
 
 int *         __errno_location();
 
@@ -73,6 +79,7 @@ int           receive_bytes ( char *buffer, size_t count);
 
 int           fileno(void *file);
 int           fstat64(int fd, void *buf);
+int           stat64(const char *path, void *buf);
 int           stat(const char *pathname, void *buf);
 int           __xstat(int vers, const char *name, void *buf);
 
@@ -84,6 +91,7 @@ int           htons(int);
 void          *localtime_r(int, void *tm);
 
 void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
+int           munmap(void *addr, size_t length);
 
 void          __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
 

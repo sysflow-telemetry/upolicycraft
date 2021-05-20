@@ -373,6 +373,12 @@
     ;; (write-word ptr_t (+ buf offset) size)
     (uids-ocaml-fstat fd buf)))
 
+(defun uids-stat (filename buf)
+  (declare (external "stat64"))
+  (let ((offset 48))
+    ;; (write-word ptr_t (+ buf offset) size)
+    (uids-ocaml-stat filename buf)))
+
 (defun uids-xstat (vers path buf)
   (declare (external "__xstat"))
   (let ((fd (channel-open path)))
@@ -394,6 +400,14 @@
   (uids-ocaml-debug *uids-errno*)
   *uids-errno*)
 
+(defun uids-mprotect (addr len prot)
+  (declare (external "mprotect"))
+  0)
+
+(defun uids-munmap (addr len)
+  (declare (external "munmap"))
+  0)
+
 ;; struct tm {
 ;;     int tm_sec;    /* Seconds (0-60) */
 ;;     int tm_min;    /* Minutes (0-59) */
@@ -412,4 +426,20 @@
 
 (defun uids-fork ()
   (declare (external "fork"))
+  0)
+
+(defun uids-getuid ()
+  (declare (external "getuid"))
+  (uids-ocaml-getuid))
+
+(defun uids-setsockopt (fd level opt optval len)
+  (declare (external "setsockopt"))
+  0)
+
+(defun uids-sigfillset (st)
+  (declare (external "sigfillset"))
+  0)
+
+(defun uids-sigaction (sm act oldact)
+  (declare (external "sigaction"))
   0)
