@@ -443,3 +443,7 @@
 (defun uids-sigaction (sm act oldact)
   (declare (external "sigaction"))
   0)
+
+(defun uids-dup2 (oldfd newfd)
+  (declare (external "dup2"))
+  newfd)

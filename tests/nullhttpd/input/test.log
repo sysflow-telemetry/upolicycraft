@@ -1,0 +1,70 @@
+GET / HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /docs/static_file.html HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /docs/static_file.html HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /recv HTTP/1.1
+Host: localhost:80
+Authorization: Basic d2RibGFpcjpwYXNzd29yZA==
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /foobar/?passwd=foobar&uids_foo=wicked&uids_content=waycomes&uids_directory=root&passwd=baz HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /index.html HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /docs/old/test.html HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /docs/missing HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /etc/passwd HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /nonexistant.html HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+GET /giphy.gif HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+POST /recv HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+Content-Type: application/json
+Content-Length: 14
+{"foo": "bar"}
+
+PUT / HTTP/1.1
+Host: localhost:80
+User-Agent: curl/7.47.0
+Accept: */*
+
+

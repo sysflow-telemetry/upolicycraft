@@ -3,12 +3,17 @@ digraph G {
      label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}}}",
      fontsize=9, ];
   5 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_close}|{F|{/etc/vsftpd.conf}}}",
+     label="{{/bin/vsftpd:vsf_sysutil_close}|{F|{/dev/null}|{/etc/vsftpd.conf}}}",
+     fontsize=9, ];
+  9 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_fork_failok}|{P|0}}",
      fontsize=9, ];
   6 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_bind}|{N|{21}}}",
      fontsize=9, ];
   7 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_accept_timeout}|{N|{21}}}",
      fontsize=9, ];
+  10 [shape=Mrecord,
+      label="{{/bin/vsftpd:vsf_sysutil_reopen_standard_fds}|{F|{/dev/null}}}",
+      fontsize=9, ];
   8 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_write}|{F|{/dev/pts/0}}}",
      fontsize=9, ];
   3 [shape=Mrecord,
@@ -22,9 +27,12 @@ digraph G {
   
   
   4 -> 5 [label="CLOSE", fontsize=8, ];
+  5 -> 9 [label="CLONE", fontsize=8, ];
   5 -> 6 [label="BIND", fontsize=8, ];
+  9 -> 10 [label="OPEN", fontsize=8, ];
   6 -> 7 [label="ACCEPT", fontsize=8, ];
   7 -> 8 [label="WRITE", fontsize=8, ];
+  10 -> 5 [label="CLOSE", fontsize=8, ];
   8 -> 8 [label="WRITE", fontsize=8, ];
   3 -> 4 [label="READ", fontsize=8, ];
   0 -> 1 [label="CLONE", fontsize=8, ];
