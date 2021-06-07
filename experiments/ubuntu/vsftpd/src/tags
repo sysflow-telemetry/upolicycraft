@@ -1,0 +1,1321 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CC	Makefile	/^CC 	=       gcc $/;"	m
+CFLAGS	Makefile	/^CFLAGS	= -emit-llvm -fno-stack-protector  \\$/;"	m
+CLONE_NEWIPC	sysdeputil.c	76;"	d	file:
+CLONE_NEWNET	sysdeputil.c	79;"	d	file:
+CLONE_NEWPID	sysdeputil.c	73;"	d	file:
+CMSG_ALIGN	port/cmsg_extras.h	9;"	d
+CMSG_LEN	port/cmsg_extras.h	19;"	d
+CMSG_SPACE	port/cmsg_extras.h	14;"	d
+DIE_DEBUG	utility.c	13;"	d	file:
+ESysdepCapabilities	sysdeputil.h	/^enum ESysdepCapabilities$/;"	g
+EVSFLogEntryType	logging.h	/^enum EVSFLogEntryType$/;"	g
+EVSFPrivopLoginResult	privops.h	/^enum EVSFPrivopLoginResult$/;"	g
+EVSFRWTarget	readwrite.h	/^enum EVSFRWTarget$/;"	g
+EVSFSysStrOpenMode	sysstr.h	/^enum EVSFSysStrOpenMode$/;"	g
+EVSFSysUtilError	sysutil.h	/^enum EVSFSysUtilError$/;"	g
+EVSFSysUtilInterruptContext	sysutil.h	/^enum EVSFSysUtilInterruptContext$/;"	g
+EVSFSysUtilMapPermission	sysutil.h	/^enum EVSFSysUtilMapPermission$/;"	g
+EVSFSysUtilOpenMode	sysutil.h	/^enum EVSFSysUtilOpenMode$/;"	g
+EVSFSysUtilSignal	sysutil.h	/^enum EVSFSysUtilSignal$/;"	g
+FTP_ABOROK	ftpcodes.h	31;"	d
+FTP_ABOR_NOCONN	ftpcodes.h	29;"	d
+FTP_ALLOOK	ftpcodes.h	18;"	d
+FTP_AUTHOK	ftpcodes.h	35;"	d
+FTP_BADAUTH	ftpcodes.h	66;"	d
+FTP_BADCMD	ftpcodes.h	57;"	d
+FTP_BADMODE	ftpcodes.h	65;"	d
+FTP_BADOPTS	ftpcodes.h	58;"	d
+FTP_BADPBSZ	ftpcodes.h	62;"	d
+FTP_BADPROT	ftpcodes.h	63;"	d
+FTP_BADSENDCONN	ftpcodes.h	53;"	d
+FTP_BADSENDFILE	ftpcodes.h	55;"	d
+FTP_BADSENDNET	ftpcodes.h	54;"	d
+FTP_BADSTRU	ftpcodes.h	64;"	d
+FTP_CHMODOK	ftpcodes.h	11;"	d
+FTP_COMMANDNOTIMPL	ftpcodes.h	59;"	d
+FTP_CWDOK	ftpcodes.h	36;"	d
+FTP_DATACONN	ftpcodes.h	4;"	d
+FTP_DATATLSBAD	ftpcodes.h	70;"	d
+FTP_DATA_TIMEOUT	ftpcodes.h	48;"	d
+FTP_DELEOK	ftpcodes.h	38;"	d
+FTP_EPRTOK	ftpcodes.h	9;"	d
+FTP_EPSVALLOK	ftpcodes.h	12;"	d
+FTP_EPSVBAD	ftpcodes.h	69;"	d
+FTP_EPSVOK	ftpcodes.h	33;"	d
+FTP_FEAT	ftpcodes.h	19;"	d
+FTP_FILEFAIL	ftpcodes.h	73;"	d
+FTP_GIVEPWORD	ftpcodes.h	43;"	d
+FTP_GOODBYE	ftpcodes.h	28;"	d
+FTP_GREET	ftpcodes.h	27;"	d
+FTP_HELP	ftpcodes.h	25;"	d
+FTP_IDLE_TIMEOUT	ftpcodes.h	47;"	d
+FTP_IP_DENY	ftpcodes.h	51;"	d
+FTP_IP_LIMIT	ftpcodes.h	50;"	d
+FTP_LOGINERR	ftpcodes.h	71;"	d
+FTP_LOGINOK	ftpcodes.h	34;"	d
+FTP_MDTMOK	ftpcodes.h	22;"	d
+FTP_MKDIROK	ftpcodes.h	41;"	d
+FTP_MODEOK	ftpcodes.h	14;"	d
+FTP_NEEDENCRYPT	ftpcodes.h	68;"	d
+FTP_NEEDRNFR	ftpcodes.h	61;"	d
+FTP_NEEDUSER	ftpcodes.h	60;"	d
+FTP_NOHANDLEPROT	ftpcodes.h	72;"	d
+FTP_NOOPOK	ftpcodes.h	6;"	d
+FTP_NOPERM	ftpcodes.h	74;"	d
+FTP_NOSUCHPROT	ftpcodes.h	67;"	d
+FTP_OPTSOK	ftpcodes.h	17;"	d
+FTP_PASVOK	ftpcodes.h	32;"	d
+FTP_PBSZOK	ftpcodes.h	15;"	d
+FTP_PORTOK	ftpcodes.h	8;"	d
+FTP_PROTOK	ftpcodes.h	16;"	d
+FTP_PWDOK	ftpcodes.h	40;"	d
+FTP_RENAMEOK	ftpcodes.h	39;"	d
+FTP_RESTOK	ftpcodes.h	44;"	d
+FTP_RMDIROK	ftpcodes.h	37;"	d
+FTP_RNFROK	ftpcodes.h	45;"	d
+FTP_SITEHELP	ftpcodes.h	24;"	d
+FTP_SIZEOK	ftpcodes.h	21;"	d
+FTP_STATFILE_OK	ftpcodes.h	23;"	d
+FTP_STATOK	ftpcodes.h	20;"	d
+FTP_STRUOK	ftpcodes.h	13;"	d
+FTP_SYSTOK	ftpcodes.h	26;"	d
+FTP_TLS_FAIL	ftpcodes.h	52;"	d
+FTP_TOO_MANY_USERS	ftpcodes.h	49;"	d
+FTP_TRANSFEROK	ftpcodes.h	30;"	d
+FTP_TYPEOK	ftpcodes.h	7;"	d
+FTP_UMASKOK	ftpcodes.h	10;"	d
+FTP_UPLOADFAIL	ftpcodes.h	75;"	d
+IFLAGS	Makefile	/^IFLAGS  = -idirafter dummyinc$/;"	m
+INIT_MYSTR	str.h	18;"	d
+INIT_STRLIST	strlist.h	15;"	d
+INSTALL	Makefile	/^INSTALL	=	install$/;"	m
+LDFLAGS	Makefile	/^LDFLAGS	=	-L \/root\/uids -l:uids.so $/;"	m
+LIBS	Makefile	/^LIBS	=	`.\/vsf_findlibs.sh`$/;"	m
+LINK	Makefile	/^LINK	=	$/;"	m
+MAP_ANON	port/hpux_bogons.h	10;"	d
+MAP_FAILED	port/hpux_bogons.h	16;"	d
+MAX_SYSCALL	ptracesandbox.c	87;"	d	file:
+OBJS	Makefile	/^OBJS	=	main.o utility.o prelogin.o ftpcmdio.o postlogin.o privsock.o \\$/;"	m
+O_CLOEXEC	seccompsandbox.c	58;"	d	file:
+O_DIRECT	ptracesandbox.c	74;"	d	file:
+O_DIRECTORY	seccompsandbox.c	54;"	d	file:
+O_LARGEFILE	seccompsandbox.c	50;"	d	file:
+PRIVATE_HANDS_OFF_alloc_bytes	str.c	16;"	d	file:
+PRIVATE_HANDS_OFF_alloc_bytes	str.h	/^  unsigned int PRIVATE_HANDS_OFF_alloc_bytes;$/;"	m	struct:mystr
+PRIVATE_HANDS_OFF_alloc_len	strlist.c	9;"	d	file:
+PRIVATE_HANDS_OFF_alloc_len	strlist.h	/^  unsigned int PRIVATE_HANDS_OFF_alloc_len;$/;"	m	struct:mystr_list
+PRIVATE_HANDS_OFF_exit_status	sysutil.c	14;"	d	file:
+PRIVATE_HANDS_OFF_exit_status	sysutil.h	/^  int PRIVATE_HANDS_OFF_exit_status;$/;"	m	struct:vsf_sysutil_wait_retval
+PRIVATE_HANDS_OFF_len	str.c	15;"	d	file:
+PRIVATE_HANDS_OFF_len	str.h	/^  unsigned int PRIVATE_HANDS_OFF_len;$/;"	m	struct:mystr
+PRIVATE_HANDS_OFF_list_len	strlist.c	10;"	d	file:
+PRIVATE_HANDS_OFF_list_len	strlist.h	/^  unsigned int PRIVATE_HANDS_OFF_list_len;$/;"	m	struct:mystr_list
+PRIVATE_HANDS_OFF_p_buf	str.c	14;"	d	file:
+PRIVATE_HANDS_OFF_p_buf	str.h	/^  char* PRIVATE_HANDS_OFF_p_buf;$/;"	m	struct:mystr
+PRIVATE_HANDS_OFF_p_nodes	strlist.c	11;"	d	file:
+PRIVATE_HANDS_OFF_p_nodes	strlist.h	/^  struct mystr_list_node* PRIVATE_HANDS_OFF_p_nodes;$/;"	m	struct:mystr_list	typeref:struct:mystr_list::mystr_list_node
+PRIVATE_HANDS_OFF_syscall_retval	sysutil.c	13;"	d	file:
+PRIVATE_HANDS_OFF_syscall_retval	sysutil.h	/^  int PRIVATE_HANDS_OFF_syscall_retval;$/;"	m	struct:vsf_sysutil_wait_retval
+PRIV_SOCK_CHOWN	privsock.h	160;"	d
+PRIV_SOCK_DO_SSL_CLOSE	privsock.h	165;"	d
+PRIV_SOCK_DO_SSL_HANDSHAKE	privsock.h	164;"	d
+PRIV_SOCK_DO_SSL_READ	privsock.h	166;"	d
+PRIV_SOCK_DO_SSL_WRITE	privsock.h	167;"	d
+PRIV_SOCK_GET_DATA_SOCK	privsock.h	161;"	d
+PRIV_SOCK_GET_USER_CMD	privsock.h	162;"	d
+PRIV_SOCK_LOGIN	privsock.h	159;"	d
+PRIV_SOCK_PASV_ACCEPT	privsock.h	171;"	d
+PRIV_SOCK_PASV_ACTIVE	privsock.h	169;"	d
+PRIV_SOCK_PASV_CLEANUP	privsock.h	168;"	d
+PRIV_SOCK_PASV_LISTEN	privsock.h	170;"	d
+PRIV_SOCK_RESULT_BAD	privsock.h	174;"	d
+PRIV_SOCK_RESULT_OK	privsock.h	173;"	d
+PRIV_SOCK_WRITE_USER_RESP	privsock.h	163;"	d
+PR_SET_NO_NEW_PRIVS	seccompsandbox.c	42;"	d	file:
+PR_SET_SECCOMP	seccompsandbox.c	38;"	d	file:
+PTRACE_O_TRACECLONE	ptracesandbox.c	70;"	d	file:
+PTRACE_O_TRACEFORK	ptracesandbox.c	62;"	d	file:
+PTRACE_O_TRACESYSGOOD	ptracesandbox.c	58;"	d	file:
+PTRACE_O_TRACEVFORK	ptracesandbox.c	66;"	d	file:
+PTRACE_SANDBOX_ERR_API_ABUSE_STOPIT	ptracesandbox.h	261;"	d
+PTRACE_SANDBOX_ERR_BAD_SYSCALL	ptracesandbox.h	257;"	d
+PTRACE_SANDBOX_ERR_DEAD	ptracesandbox.h	247;"	d
+PTRACE_SANDBOX_ERR_POLICY_ARGS	ptracesandbox.h	259;"	d
+PTRACE_SANDBOX_ERR_POLICY_SYSCALL	ptracesandbox.h	255;"	d
+PTRACE_SANDBOX_ERR_PTRACE	ptracesandbox.h	249;"	d
+PTRACE_SANDBOX_ERR_WAITPID	ptracesandbox.h	251;"	d
+PTRACE_SANDBOX_ERR_WAIT_STATUS	ptracesandbox.h	253;"	d
+PTRACE_SETOPTIONS	ptracesandbox.c	54;"	d	file:
+SHUT_RD	sysutil.c	1902;"	d	file:
+SHUT_RDWR	sysutil.c	1892;"	d	file:
+VSFTP_ASCII_H	ascii.h	2;"	d
+VSFTP_AS_LIMIT	defs.h	22;"	d
+VSFTP_COMMAND_FD	defs.h	6;"	d
+VSFTP_CONF_FILE_MAX	defs.h	15;"	d
+VSFTP_DATA_BUFSIZE	defs.h	11;"	d
+VSFTP_DEFAULT_CONFIG	defs.h	4;"	d
+VSFTP_DIR_BUFSIZE	defs.h	12;"	d
+VSFTP_HASH_H	hash.h	2;"	d
+VSFTP_LISTEN_BACKLOG	defs.h	16;"	d
+VSFTP_MATCHITERS_MAX	defs.h	13;"	d
+VSFTP_MAX_COMMAND_LINE	defs.h	10;"	d
+VSFTP_MAX_MSGFILE_SIZE	banner.c	24;"	d	file:
+VSFTP_MAX_VISIT_REMEMBER	banner.c	23;"	d	file:
+VSFTP_NETSTR_H	netstr.h	2;"	d
+VSFTP_PASSWORD_MAX	defs.h	8;"	d
+VSFTP_PATH_MAX	defs.h	14;"	d
+VSFTP_PRIVSOCK_MAXSTR	defs.h	21;"	d
+VSFTP_ROOT_UID	defs.h	18;"	d
+VSFTP_SECURE_UMASK	defs.h	17;"	d
+VSFTP_STRING_HELPER	filestr.c	13;"	d	file:
+VSFTP_STR_H	str.h	2;"	d
+VSFTP_USERNAME_MAX	defs.h	9;"	d
+VSF_ACCESS_H	access.h	2;"	d
+VSF_AIX_BOGONS_H	port/aix_bogons.h	2;"	d
+VSF_BANNER_H	banner.h	2;"	d
+VSF_BUILDDEFS_H	builddefs.h	2;"	d
+VSF_BUILD_PAM	builddefs.h	5;"	d
+VSF_BUILD_SSL	builddefs.h	6;"	d
+VSF_BUILD_SSL	dummyinc/openssl/ssl.h	4;"	d
+VSF_BUILD_TCPWRAPPERS	builddefs.h	4;"	d
+VSF_CMSG_EXTRAS_H	port/cmsg_extras.h	2;"	d
+VSF_DEFS_H	defs.h	2;"	d
+VSF_DIRFD_EXTRAS_H	port/dirfd_extras.h	2;"	d
+VSF_DUMMYINC_CAPABILITY_H	dummyinc/sys/capability.h	2;"	d
+VSF_DUMMYINC_CRYPT_H	dummyinc/crypt.h	2;"	d
+VSF_DUMMYINC_PAM_APPL_H	dummyinc/security/pam_appl.h	2;"	d
+VSF_DUMMYINC_PRCTL_H	dummyinc/sys/prctl.h	2;"	d
+VSF_DUMMYINC_SENDFILE_H	dummyinc/sys/sendfile.h	2;"	d
+VSF_DUMMYINC_SHADOW_H	dummyinc/shadow.h	2;"	d
+VSF_DUMMYINC_SSL_H	dummyinc/openssl/ssl.h	2;"	d
+VSF_DUMMYINC_UTMPX_H	dummyinc/utmpx.h	2;"	d
+VSF_FEATURES_H	features.h	2;"	d
+VSF_FILESIZE_H	filesize.h	2;"	d
+VSF_FILESTR_H	filestr.h	2;"	d
+VSF_FTPCMDIO_H	ftpcmdio.h	2;"	d
+VSF_FTPCODES_H	ftpcodes.h	2;"	d
+VSF_FTPDATAIO_H	ftpdataio.h	2;"	d
+VSF_FTPPOLICY_H	ftppolicy.h	2;"	d
+VSF_HPUX_BOGONS_H	port/hpux_bogons.h	2;"	d
+VSF_IPADDRPARSE_H	ipaddrparse.h	2;"	d
+VSF_IRIX_BOGONS_H	port/irix_bogons.h	2;"	d
+VSF_LOGGING_H	logging.h	2;"	d
+VSF_LOGINPRIVPARENT_H	postprivparent.h	2;"	d
+VSF_LS_H	ls.h	2;"	d
+VSF_ONEPROCESS_H	oneprocess.h	2;"	d
+VSF_OPTS_H	opts.h	2;"	d
+VSF_PARSECONF_H	parseconf.h	2;"	d
+VSF_PORTINGJUNK_H	port/porting_junk.h	2;"	d
+VSF_POSTLOGIN_H	postlogin.h	2;"	d
+VSF_PRELOGIN_H	prelogin.h	2;"	d
+VSF_PRIVOPS_H	privops.h	2;"	d
+VSF_PRIVSOCK_H	privsock.h	2;"	d
+VSF_PTRACESANDBOX_H	ptracesandbox.h	2;"	d
+VSF_READWRITE_H	readwrite.h	2;"	d
+VSF_SECBUF_H	secbuf.h	2;"	d
+VSF_SECCOMPSANDBOX_H	seccompsandbox.h	2;"	d
+VSF_SECUTIL_H	secutil.h	2;"	d
+VSF_SECUTIL_OPTION_ALLOW_WRITEABLE_ROOT	secutil.h	36;"	d
+VSF_SECUTIL_OPTION_CHANGE_EUID	secutil.h	30;"	d
+VSF_SECUTIL_OPTION_CHROOT	secutil.h	26;"	d
+VSF_SECUTIL_OPTION_NO_FDS	secutil.h	32;"	d
+VSF_SECUTIL_OPTION_NO_PROCS	secutil.h	34;"	d
+VSF_SECUTIL_OPTION_USE_GROUPS	secutil.h	28;"	d
+VSF_SESSION_H	session.h	2;"	d
+VSF_SOLARIS_BOGONS_H	port/solaris_bogons.h	2;"	d
+VSF_SSLSLAVE_H	sslslave.h	2;"	d
+VSF_SSL_H	ssl.h	2;"	d
+VSF_STANDALONE_H	standalone.h	2;"	d
+VSF_STRLIST_H	strlist.h	2;"	d
+VSF_SYSDEPUTIL_H	sysdeputil.h	2;"	d
+VSF_SYSDEP_HAVE_AIX_SENDFILE	sysdeputil.c	150;"	d	file:
+VSF_SYSDEP_HAVE_AIX_SENDFILE	sysdeputil.c	48;"	d	file:
+VSF_SYSDEP_HAVE_CAPABILITIES	sysdeputil.c	42;"	d	file:
+VSF_SYSDEP_HAVE_CAPABILITIES	sysdeputil.c	91;"	d	file:
+VSF_SYSDEP_HAVE_FREEBSD_SENDFILE	sysdeputil.c	104;"	d	file:
+VSF_SYSDEP_HAVE_FREEBSD_SENDFILE	sysdeputil.c	46;"	d	file:
+VSF_SYSDEP_HAVE_HPUX_SENDFILE	sysdeputil.c	122;"	d	file:
+VSF_SYSDEP_HAVE_HPUX_SENDFILE	sysdeputil.c	47;"	d	file:
+VSF_SYSDEP_HAVE_HPUX_SETPROCTITLE	sysdeputil.c	127;"	d	file:
+VSF_SYSDEP_HAVE_HPUX_SETPROCTITLE	sysdeputil.c	51;"	d	file:
+VSF_SYSDEP_HAVE_LIBCAP	dummyinc/sys/capability.h	4;"	d
+VSF_SYSDEP_HAVE_LIBCAP	sysdeputil.c	140;"	d	file:
+VSF_SYSDEP_HAVE_LIBCAP	sysdeputil.c	145;"	d	file:
+VSF_SYSDEP_HAVE_LIBCAP	sysdeputil.c	60;"	d	file:
+VSF_SYSDEP_HAVE_LINUX_CLONE	sysdeputil.c	54;"	d	file:
+VSF_SYSDEP_HAVE_LINUX_CLONE	sysdeputil.c	70;"	d	file:
+VSF_SYSDEP_HAVE_LINUX_SENDFILE	sysdeputil.c	45;"	d	file:
+VSF_SYSDEP_HAVE_LINUX_SENDFILE	sysdeputil.c	92;"	d	file:
+VSF_SYSDEP_HAVE_MAP_ANON	sysdeputil.c	135;"	d	file:
+VSF_SYSDEP_HAVE_MAP_ANON	sysdeputil.c	152;"	d	file:
+VSF_SYSDEP_HAVE_MAP_ANON	sysdeputil.c	52;"	d	file:
+VSF_SYSDEP_HAVE_PAM	dummyinc/security/pam_appl.h	4;"	d
+VSF_SYSDEP_HAVE_PAM	sysdeputil.c	147;"	d	file:
+VSF_SYSDEP_HAVE_PAM	sysdeputil.c	56;"	d	file:
+VSF_SYSDEP_HAVE_SETKEEPCAPS	sysdeputil.c	43;"	d	file:
+VSF_SYSDEP_HAVE_SETKEEPCAPS	sysdeputil.c	94;"	d	file:
+VSF_SYSDEP_HAVE_SETPDEATHSIG	sysdeputil.c	44;"	d	file:
+VSF_SYSDEP_HAVE_SETPDEATHSIG	sysdeputil.c	97;"	d	file:
+VSF_SYSDEP_HAVE_SETPROCTITLE	sysdeputil.c	105;"	d	file:
+VSF_SYSDEP_HAVE_SETPROCTITLE	sysdeputil.c	110;"	d	file:
+VSF_SYSDEP_HAVE_SETPROCTITLE	sysdeputil.c	149;"	d	file:
+VSF_SYSDEP_HAVE_SETPROCTITLE	sysdeputil.c	49;"	d	file:
+VSF_SYSDEP_HAVE_SHADOW	dummyinc/shadow.h	4;"	d
+VSF_SYSDEP_HAVE_SHADOW	sysdeputil.c	148;"	d	file:
+VSF_SYSDEP_HAVE_SHADOW	sysdeputil.c	58;"	d	file:
+VSF_SYSDEP_HAVE_SOLARIS_SENDFILE	dummyinc/sys/sendfile.h	4;"	d
+VSF_SYSDEP_HAVE_SOLARIS_SENDFILE	sysdeputil.c	164;"	d	file:
+VSF_SYSDEP_HAVE_USERSHELL	sysdeputil.c	139;"	d	file:
+VSF_SYSDEP_HAVE_USERSHELL	sysdeputil.c	144;"	d	file:
+VSF_SYSDEP_HAVE_USERSHELL	sysdeputil.c	156;"	d	file:
+VSF_SYSDEP_HAVE_USERSHELL	sysdeputil.c	59;"	d	file:
+VSF_SYSDEP_HAVE_UTMPX	dummyinc/utmpx.h	4;"	d
+VSF_SYSDEP_HAVE_UTMPX	sysdeputil.c	115;"	d	file:
+VSF_SYSDEP_HAVE_UTMPX	sysdeputil.c	129;"	d	file:
+VSF_SYSDEP_HAVE_UTMPX	sysdeputil.c	146;"	d	file:
+VSF_SYSDEP_HAVE_UTMPX	sysdeputil.c	61;"	d	file:
+VSF_SYSDEP_NEED_OLD_FD_PASSING	sysdeputil.c	160;"	d	file:
+VSF_SYSDEP_NEED_OLD_FD_PASSING	sysdeputil.c	53;"	d	file:
+VSF_SYSDEP_TRY_LINUX_SETPROCTITLE_HACK	sysdeputil.c	151;"	d	file:
+VSF_SYSDEP_TRY_LINUX_SETPROCTITLE_HACK	sysdeputil.c	50;"	d	file:
+VSF_SYSDEP_TRY_LINUX_SETPROCTITLE_HACK	sysdeputil.c	87;"	d	file:
+VSF_SYSSTR_H	sysstr.h	2;"	d
+VSF_SYSUTIL_H	sysutil.h	2;"	d
+VSF_TCPWRAP_H	tcpwrap.h	2;"	d
+VSF_TRU64_BOGONS_H	port/tru64_bogons.h	2;"	d
+VSF_TUNABLES_H	tunables.h	2;"	d
+VSF_TWOPROCESS_H	twoprocess.h	2;"	d
+VSF_UTILITY_H	utility.h	2;"	d
+VSF_VERSION	vsftpver.h	4;"	d
+VSF_VERSION_H	vsftpver.h	2;"	d
+WTMPX_FILE	sysdeputil.c	113;"	d	file:
+_FILE_OFFSET_BITS	port/solaris_bogons.h	11;"	d
+_FILE_OFFSET_BITS	sysdeputil.c	23;"	d	file:
+_FILE_OFFSET_BITS	sysutil.c	21;"	d	file:
+_LARGEFILE64_SOURCE	port/solaris_bogons.h	13;"	d
+_LARGEFILE64_SOURCE	sysdeputil.c	25;"	d	file:
+_LARGEFILE64_SOURCE	sysutil.c	23;"	d	file:
+_LARGEFILE_SOURCE	port/solaris_bogons.h	12;"	d
+_LARGEFILE_SOURCE	sysdeputil.c	24;"	d	file:
+_LARGEFILE_SOURCE	sysutil.c	22;"	d	file:
+_LARGE_FILES	sysutil.c	24;"	d	file:
+_XPG4_2	port/solaris_bogons.h	5;"	d
+__EXTENSIONS__	port/solaris_bogons.h	8;"	d
+__FDMASK	sysdeputil.c	194;"	d	file:
+__NFDBITS	sysdeputil.c	193;"	d	file:
+__NR_exit_group	ptracesandbox.c	43;"	d	file:
+__NR_openat	seccompsandbox.c	46;"	d	file:
+__NR_sendfile64	ptracesandbox.c	39;"	d	file:
+__NR_utimes	ptracesandbox.c	47;"	d	file:
+__USE_GNU	sysdeputil.c	63;"	d	file:
+abor_received	session.h	/^  int abor_received;$/;"	m	struct:vsf_session
+allow_nr	seccompsandbox.c	/^allow_nr(int nr)$/;"	f	file:
+allow_nr_1_arg_mask	seccompsandbox.c	/^allow_nr_1_arg_mask(int nr, int arg, int val)$/;"	f	file:
+allow_nr_1_arg_match	seccompsandbox.c	/^allow_nr_1_arg_match(int nr, int arg, int val)$/;"	f	file:
+allow_nr_2_arg_mask_match	seccompsandbox.c	/^allow_nr_2_arg_mask_match(int nr, int arg1, int val1, int arg2, int val2)$/;"	f	file:
+allow_nr_2_arg_match	seccompsandbox.c	/^allow_nr_2_arg_match(int nr, int arg1, int val1, int arg2, int val2)$/;"	f	file:
+allow_nr_3_arg_match	seccompsandbox.c	/^allow_nr_3_arg_match(int nr, int arg1, int val1, int arg2, int val2, int arg3,$/;"	f	file:
+allow_severity	tcpwrap.c	/^int allow_severity = LOG_INFO;$/;"	v
+anon_ftp_uid	session.h	/^  int anon_ftp_uid;$/;"	m	struct:vsf_session
+anon_pass_str	session.h	/^  struct mystr anon_pass_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+anon_upload_chown_uid	session.h	/^  int anon_upload_chown_uid;$/;"	m	struct:vsf_session
+ascii_to_bin_ret	ascii.h	/^struct ascii_to_bin_ret$/;"	s
+banned_email_str	session.h	/^  struct mystr banned_email_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+banner_str	session.h	/^  struct mystr banner_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+bin_to_ascii_ret	ascii.h	/^struct bin_to_ascii_ret$/;"	s
+bio_callback	ssl.c	/^bio_callback($/;"	f	file:
+buckets	hash.c	/^  unsigned int buckets;$/;"	m	struct:hash	file:
+bug	utility.c	/^bug(const char* p_text)$/;"	f
+build_dir_line	ls.c	/^build_dir_line(struct mystr* p_str, const struct mystr* p_filename_str,$/;"	f	file:
+bw_rate_max	session.h	/^  unsigned int bw_rate_max;$/;"	m	struct:vsf_session
+bw_send_start_sec	session.h	/^  long bw_send_start_sec;$/;"	m	struct:vsf_session
+bw_send_start_usec	session.h	/^  long bw_send_start_usec;$/;"	m	struct:vsf_session
+calc_num_send	ftpdataio.c	/^calc_num_send(int file_fd, filesize_t init_offset)$/;"	f	file:
+calculate_chdir_dir	twoprocess.c	/^calculate_chdir_dir(int anon_login, struct mystr* p_userdir_str,$/;"	f	file:
+capset	sysdeputil.c	/^int capset(cap_user_header_t header, const cap_user_data_t data)$/;"	f
+char_found	str.h	/^  char char_found;$/;"	m	struct:str_locate_result
+check_abor	postlogin.c	/^check_abor(struct vsf_session* p_sess)$/;"	f	file:
+check_limits	prelogin.c	/^check_limits(struct vsf_session* p_sess)$/;"	f	file:
+check_login_delay	prelogin.c	/^static void check_login_delay()$/;"	f	file:
+check_login_fails	prelogin.c	/^static void check_login_fails(struct vsf_session* p_sess)$/;"	f	file:
+child_fd	session.h	/^  int child_fd;$/;"	m	struct:vsf_session
+cmd_process_chown	postprivparent.c	/^cmd_process_chown(struct vsf_session* p_sess)$/;"	f	file:
+cmd_process_get_data_sock	postprivparent.c	/^cmd_process_get_data_sock(struct vsf_session* p_sess)$/;"	f	file:
+cmd_process_pasv_accept	postprivparent.c	/^cmd_process_pasv_accept(struct vsf_session* p_sess)$/;"	f	file:
+cmd_process_pasv_active	postprivparent.c	/^cmd_process_pasv_active(struct vsf_session* p_sess)$/;"	f	file:
+cmd_process_pasv_cleanup	postprivparent.c	/^cmd_process_pasv_cleanup(struct vsf_session* p_sess)$/;"	f	file:
+cmd_process_pasv_listen	postprivparent.c	/^cmd_process_pasv_listen(struct vsf_session* p_sess)$/;"	f	file:
+common_do_login	twoprocess.c	/^common_do_login(struct vsf_session* p_sess, const struct mystr* p_user_str,$/;"	f	file:
+connect_validator	ftppolicy.c	/^connect_validator(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+control_cert_digest	session.h	/^  struct mystr control_cert_digest;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+control_getline	ftpcmdio.c	/^control_getline(struct mystr* p_str, struct vsf_session* p_sess)$/;"	f	file:
+control_use_ssl	session.h	/^  int control_use_ssl;$/;"	m	struct:vsf_session
+data_fd	session.h	/^  int data_fd;$/;"	m	struct:vsf_session
+data_progress	session.h	/^  int data_progress;$/;"	m	struct:vsf_session
+data_timeout	session.h	/^  int data_timeout;$/;"	m	struct:vsf_session
+data_transfer_checks_ok	postlogin.c	/^data_transfer_checks_ok(struct vsf_session* p_sess)$/;"	f	file:
+data_use_ssl	session.h	/^  int data_use_ssl;$/;"	m	struct:vsf_session
+debug_str	ssl.c	/^static struct mystr debug_str;$/;"	v	typeref:struct:mystr	file:
+deny_severity	tcpwrap.c	/^int deny_severity = LOG_WARNING;$/;"	v
+die	utility.c	/^die(const char* p_text)$/;"	f
+die2	utility.c	/^die2(const char* p_text1, const char* p_text2)$/;"	f
+die_unless_privileged	main.c	/^die_unless_privileged(void)$/;"	f	file:
+dirfd	port/dirfd_extras.h	4;"	d
+do_checkcap	sysdeputil.c	/^do_checkcap(void)$/;"	f	file:
+do_file_recv	ftpdataio.c	/^do_file_recv(struct vsf_session* p_sess, int file_fd, int is_ascii)$/;"	f	file:
+do_file_send_rwloop	ftpdataio.c	/^do_file_send_rwloop(struct vsf_session* p_sess, int file_fd, int is_ascii)$/;"	f	file:
+do_file_send_sendfile	ftpdataio.c	/^do_file_send_sendfile(struct vsf_session* p_sess, int net_fd, int file_fd,$/;"	f	file:
+do_sanity_checks	main.c	/^do_sanity_checks(void)$/;"	f	file:
+do_sendfile	sysdeputil.c	/^static int do_sendfile(const int out_fd, const int in_fd,$/;"	f	file:
+drop_all_privs	twoprocess.c	/^drop_all_privs(void)$/;"	f	file:
+drop_ip_count	standalone.c	/^drop_ip_count(void* p_raw_addr)$/;"	f	file:
+email_passwords_str	session.h	/^  struct mystr email_passwords_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+emit_greeting	prelogin.c	/^emit_greeting(struct vsf_session* p_sess)$/;"	f	file:
+env_init	main.c	/^env_init(void)$/;"	f	file:
+epsv_all	session.h	/^  int epsv_all;$/;"	m	struct:vsf_session
+exitfunc_t	sysutil.h	/^typedef void (*exitfunc_t)(void);$/;"	t
+filesize_t	filesize.h	/^typedef long long filesize_t;$/;"	t
+find_func	vsf_findlibs.sh	/^find_func() { egrep $1 $2 >\/dev\/null; }$/;"	f
+found	str.h	/^  int found;$/;"	m	struct:str_locate_result
+ftp_arg_str	session.h	/^  struct mystr ftp_arg_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+ftp_cmd_str	session.h	/^  struct mystr ftp_cmd_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+ftp_getline	readwrite.c	/^ftp_getline(struct vsf_session* p_sess, struct mystr* p_str, char* p_buf)$/;"	f
+ftp_read_data	readwrite.c	/^ftp_read_data(struct vsf_session* p_sess, char* p_buf, unsigned int len)$/;"	f
+ftp_write_data	readwrite.c	/^ftp_write_data(const struct vsf_session* p_sess, const char* p_buf,$/;"	f
+ftp_write_str	readwrite.c	/^ftp_write_str(const struct vsf_session* p_sess, const struct mystr* p_str,$/;"	f
+ftp_write_str_common	ftpcmdio.c	/^ftp_write_str_common(struct vsf_session* p_sess, int status, char sep,$/;"	f	file:
+ftp_write_text_common	ftpcmdio.c	/^ftp_write_text_common(struct vsf_session* p_sess, int status,$/;"	f	file:
+get_action	ptracesandbox.c	/^get_action(struct pt_sandbox* p_sandbox)$/;"	f	file:
+get_chunk_size	ftpdataio.c	/^get_chunk_size()$/;"	f	file:
+get_remote_transfer_fd	postlogin.c	/^get_remote_transfer_fd(struct vsf_session* p_sess, const char* p_status_msg)$/;"	f	file:
+get_ssl	ssl.c	/^get_ssl(struct vsf_session* p_sess, int fd)$/;"	f	file:
+get_ssl_error	ssl.c	/^get_ssl_error()$/;"	f	file:
+get_unique_filename	postlogin.c	/^get_unique_filename(struct mystr* p_outstr, const struct mystr* p_base_str)$/;"	f	file:
+getsockopt_validator	ftppolicy.c	/^getsockopt_validator(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+guest_user_uid	session.h	/^  int guest_user_uid;$/;"	m	struct:vsf_session
+handle_alarm_timeout	ftpcmdio.c	/^handle_alarm_timeout(void* p_private)$/;"	f	file:
+handle_anonymous_login	privops.c	/^handle_anonymous_login(struct vsf_session* p_sess,$/;"	f	file:
+handle_appe	postlogin.c	/^handle_appe(struct vsf_session* p_sess)$/;"	f	file:
+handle_auth	ssl.c	/^handle_auth(struct vsf_session* p_sess)$/;"	f
+handle_cdup	postlogin.c	/^handle_cdup(struct vsf_session* p_sess)$/;"	f	file:
+handle_cwd	postlogin.c	/^handle_cwd(struct vsf_session* p_sess)$/;"	f	file:
+handle_dele	postlogin.c	/^handle_dele(struct vsf_session* p_sess)$/;"	f	file:
+handle_dir_common	postlogin.c	/^handle_dir_common(struct vsf_session* p_sess, int full_details, int stat_cmd)$/;"	f	file:
+handle_eprt	postlogin.c	/^handle_eprt(struct vsf_session* p_sess)$/;"	f	file:
+handle_feat	features.c	/^handle_feat(struct vsf_session* p_sess)$/;"	f
+handle_get	prelogin.c	/^handle_get(struct vsf_session* p_sess)$/;"	f	file:
+handle_help	postlogin.c	/^handle_help(struct vsf_session* p_sess)$/;"	f	file:
+handle_http	postlogin.c	/^handle_http(struct vsf_session* p_sess)$/;"	f	file:
+handle_io	ftpdataio.c	/^handle_io(int retval, int fd, void* p_private)$/;"	f	file:
+handle_ip_count	standalone.c	/^handle_ip_count(void* p_ipaddr)$/;"	f	file:
+handle_list	postlogin.c	/^handle_list(struct vsf_session* p_sess)$/;"	f	file:
+handle_local_login	privops.c	/^handle_local_login(struct vsf_session* p_sess,$/;"	f	file:
+handle_logged_in_pass	postlogin.c	/^static void handle_logged_in_pass(struct vsf_session* p_sess)$/;"	f	file:
+handle_logged_in_user	postlogin.c	/^static void handle_logged_in_user(struct vsf_session* p_sess)$/;"	f	file:
+handle_login	privops.c	/^handle_login(struct vsf_session* p_sess, struct mystr* p_user_str,$/;"	f	file:
+handle_mdtm	postlogin.c	/^handle_mdtm(struct vsf_session* p_sess)$/;"	f	file:
+handle_mkd	postlogin.c	/^handle_mkd(struct vsf_session* p_sess)$/;"	f	file:
+handle_nlst	postlogin.c	/^handle_nlst(struct vsf_session* p_sess)$/;"	f	file:
+handle_opts	opts.c	/^handle_opts(struct vsf_session* p_sess)$/;"	f
+handle_pass_command	prelogin.c	/^handle_pass_command(struct vsf_session* p_sess)$/;"	f	file:
+handle_pasv	postlogin.c	/^handle_pasv(struct vsf_session* p_sess, int is_epsv)$/;"	f	file:
+handle_pbsz	ssl.c	/^handle_pbsz(struct vsf_session* p_sess)$/;"	f
+handle_per_user_config	twoprocess.c	/^handle_per_user_config(const struct mystr* p_user_str)$/;"	f	file:
+handle_port	postlogin.c	/^handle_port(struct vsf_session* p_sess)$/;"	f	file:
+handle_prot	ssl.c	/^handle_prot(struct vsf_session* p_sess)$/;"	f
+handle_pwd	postlogin.c	/^handle_pwd(struct vsf_session* p_sess)$/;"	f	file:
+handle_rest	postlogin.c	/^handle_rest(struct vsf_session* p_sess)$/;"	f	file:
+handle_retr	postlogin.c	/^handle_retr(struct vsf_session* p_sess, int is_http)$/;"	f	file:
+handle_rmd	postlogin.c	/^handle_rmd(struct vsf_session* p_sess)$/;"	f	file:
+handle_rnfr	postlogin.c	/^handle_rnfr(struct vsf_session* p_sess)$/;"	f	file:
+handle_rnto	postlogin.c	/^handle_rnto(struct vsf_session* p_sess)$/;"	f	file:
+handle_sigalrm	ftpdataio.c	/^handle_sigalrm(void* p_private)$/;"	f	file:
+handle_sigchld	ptracesandbox.c	/^handle_sigchld(int sig)$/;"	f
+handle_sigchld	standalone.c	/^handle_sigchld(void* duff)$/;"	f	file:
+handle_sigchld	twoprocess.c	/^handle_sigchld(void* duff)$/;"	f	file:
+handle_sighup	standalone.c	/^handle_sighup(void* duff)$/;"	f	file:
+handle_sigsys	seccompsandbox.c	/^handle_sigsys(int sig)$/;"	f
+handle_sigterm	twoprocess.c	/^handle_sigterm(void* duff)$/;"	f	file:
+handle_sigurg	postlogin.c	/^handle_sigurg(void* p_private)$/;"	f	file:
+handle_site	postlogin.c	/^handle_site(struct vsf_session* p_sess)$/;"	f	file:
+handle_site_chmod	postlogin.c	/^handle_site_chmod(struct vsf_session* p_sess, struct mystr* p_arg_str)$/;"	f	file:
+handle_site_umask	postlogin.c	/^handle_site_umask(struct vsf_session* p_sess, struct mystr* p_arg_str)$/;"	f	file:
+handle_size	postlogin.c	/^handle_size(struct vsf_session* p_sess)$/;"	f	file:
+handle_stat	postlogin.c	/^handle_stat(struct vsf_session* p_sess)$/;"	f	file:
+handle_stat_file	postlogin.c	/^handle_stat_file(struct vsf_session* p_sess)$/;"	f	file:
+handle_stor	postlogin.c	/^handle_stor(struct vsf_session* p_sess)$/;"	f	file:
+handle_stou	postlogin.c	/^handle_stou(struct vsf_session* p_sess)$/;"	f	file:
+handle_type	postlogin.c	/^handle_type(struct vsf_session* p_sess)$/;"	f	file:
+handle_upload_common	postlogin.c	/^handle_upload_common(struct vsf_session* p_sess, int is_append, int is_unique)$/;"	f	file:
+handle_user_command	prelogin.c	/^handle_user_command(struct vsf_session* p_sess)$/;"	f	file:
+hash	hash.c	/^struct hash$/;"	s	file:
+hash_add_entry	hash.c	/^hash_add_entry(struct hash* p_hash, void* p_key, void* p_value)$/;"	f
+hash_alloc	hash.c	/^hash_alloc(unsigned int buckets, unsigned int key_size,$/;"	f
+hash_free_entry	hash.c	/^hash_free_entry(struct hash* p_hash, void* p_key)$/;"	f
+hash_func	hash.c	/^  hashfunc_t hash_func;$/;"	m	struct:hash	file:
+hash_get_bucket	hash.c	/^hash_get_bucket(struct hash* p_hash, void* p_key)$/;"	f
+hash_get_node_by_key	hash.c	/^hash_get_node_by_key(struct hash* p_hash, void* p_key)$/;"	f
+hash_ip	standalone.c	/^hash_ip(unsigned int buckets, void* p_key)$/;"	f	file:
+hash_lookup_entry	hash.c	/^hash_lookup_entry(struct hash* p_hash, void* p_key)$/;"	f
+hash_node	hash.c	/^struct hash_node$/;"	s	file:
+hash_pid	standalone.c	/^hash_pid(unsigned int buckets, void* p_key)$/;"	f	file:
+hashfunc_t	hash.h	/^typedef unsigned int (*hashfunc_t)(unsigned int, void*);$/;"	t
+home_str	session.h	/^  struct mystr home_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+http_get_arg	session.h	/^  struct mystr http_get_arg;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+idle_timeout	session.h	/^  int idle_timeout;$/;"	m	struct:vsf_session
+index	str.h	/^  unsigned int index;$/;"	m	struct:str_locate_result
+init_connection	prelogin.c	/^init_connection(struct vsf_session* p_sess)$/;"	f
+init_data_sock_params	ftpdataio.c	/^init_data_sock_params(struct vsf_session* p_sess, int sock_fd)$/;"	f	file:
+install_socketcall	ptracesandbox.c	/^install_socketcall(struct pt_sandbox* p_sandbox)$/;"	f	file:
+install_str_setting	tunables.c	/^install_str_setting(const char* p_value, const char** p_storage)$/;"	f
+ipv4_parse_dotquad	ipaddrparse.c	/^ipv4_parse_dotquad(struct mystr* p_out_str, const struct mystr* p_in_str)$/;"	f	file:
+ipv6_parse_hex	ipaddrparse.c	/^ipv6_parse_hex(struct mystr* p_out_str, const struct mystr* p_in_str)$/;"	f	file:
+ipv6_parse_main	ipaddrparse.c	/^ipv6_parse_main(struct mystr* p_out_str, const struct mystr* p_in_str)$/;"	f	file:
+is_allowed	ptracesandbox.c	/^  int is_allowed[MAX_SYSCALL];$/;"	m	struct:pt_sandbox	file:
+is_anonymous	session.h	/^  int is_anonymous;$/;"	m	struct:vsf_session
+is_ascii	session.h	/^  int is_ascii;$/;"	m	struct:vsf_session
+is_exit	ptracesandbox.c	/^  int is_exit;$/;"	m	struct:pt_sandbox	file:
+is_guest	session.h	/^  int is_guest;$/;"	m	struct:vsf_session
+is_http	session.h	/^  int is_http;$/;"	m	struct:vsf_session
+is_socketcall_allowed	ptracesandbox.c	/^  int is_socketcall_allowed[NPROTO];$/;"	m	struct:pt_sandbox	file:
+kCapabilityCAP_CHOWN	sysdeputil.h	/^  kCapabilityCAP_CHOWN = 1,$/;"	e	enum:ESysdepCapabilities
+kCapabilityCAP_NET_BIND_SERVICE	sysdeputil.h	/^  kCapabilityCAP_NET_BIND_SERVICE = 2$/;"	e	enum:ESysdepCapabilities
+kMaxStrlist	strlist.c	/^static const unsigned int kMaxStrlist = 10 * 1000 * 1000;$/;"	v	file:
+kMaxSyscalls	seccompsandbox.c	61;"	d	file:
+kOpenFlags	seccompsandbox.c	/^static const int kOpenFlags =$/;"	v	file:
+kVSFLogEntryChmod	logging.h	/^  kVSFLogEntryChmod,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryConnection	logging.h	/^  kVSFLogEntryConnection,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryDebug	logging.h	/^  kVSFLogEntryDebug,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryDelete	logging.h	/^  kVSFLogEntryDelete,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryDownload	logging.h	/^  kVSFLogEntryDownload,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryFTPInput	logging.h	/^  kVSFLogEntryFTPInput,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryFTPOutput	logging.h	/^  kVSFLogEntryFTPOutput,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryLogin	logging.h	/^  kVSFLogEntryLogin,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryMkdir	logging.h	/^  kVSFLogEntryMkdir,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryNull	logging.h	/^  kVSFLogEntryNull = 1,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryRename	logging.h	/^  kVSFLogEntryRename,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryRmdir	logging.h	/^  kVSFLogEntryRmdir,$/;"	e	enum:EVSFLogEntryType
+kVSFLogEntryUpload	logging.h	/^  kVSFLogEntryUpload,$/;"	e	enum:EVSFLogEntryType
+kVSFLoginAnon	privops.h	/^  kVSFLoginAnon,$/;"	e	enum:EVSFPrivopLoginResult
+kVSFLoginFail	privops.h	/^  kVSFLoginFail,$/;"	e	enum:EVSFPrivopLoginResult
+kVSFLoginNull	privops.h	/^  kVSFLoginNull = 0,$/;"	e	enum:EVSFPrivopLoginResult
+kVSFLoginReal	privops.h	/^  kVSFLoginReal$/;"	e	enum:EVSFPrivopLoginResult
+kVSFRWControl	readwrite.h	/^  kVSFRWControl = 1,$/;"	e	enum:EVSFRWTarget
+kVSFRWData	readwrite.h	/^  kVSFRWData$/;"	e	enum:EVSFRWTarget
+kVSFSysStrOpenReadOnly	sysstr.h	/^  kVSFSysStrOpenReadOnly = 1$/;"	e	enum:EVSFSysStrOpenMode
+kVSFSysStrOpenUnknown	sysstr.h	/^  kVSFSysStrOpenUnknown = 0,$/;"	e	enum:EVSFSysStrOpenMode
+kVSFSysUtilErrACCES	sysutil.h	/^  kVSFSysUtilErrACCES,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrADDRINUSE	sysutil.h	/^  kVSFSysUtilErrADDRINUSE,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrINTR	sysutil.h	/^  kVSFSysUtilErrINTR,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrINVAL	sysutil.h	/^  kVSFSysUtilErrINVAL,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrNOENT	sysutil.h	/^  kVSFSysUtilErrNOENT$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrNOSYS	sysutil.h	/^  kVSFSysUtilErrNOSYS,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrOPNOTSUPP	sysutil.h	/^  kVSFSysUtilErrOPNOTSUPP,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilErrUnknown	sysutil.h	/^  kVSFSysUtilErrUnknown = 1,$/;"	e	enum:EVSFSysUtilError
+kVSFSysUtilIO	sysutil.h	/^  kVSFSysUtilIO$/;"	e	enum:EVSFSysUtilInterruptContext
+kVSFSysUtilMapProtNone	sysutil.h	/^  kVSFSysUtilMapProtNone$/;"	e	enum:EVSFSysUtilMapPermission
+kVSFSysUtilMapProtReadOnly	sysutil.h	/^  kVSFSysUtilMapProtReadOnly = 1,$/;"	e	enum:EVSFSysUtilMapPermission
+kVSFSysUtilOpenReadOnly	sysutil.h	/^  kVSFSysUtilOpenReadOnly = 1,$/;"	e	enum:EVSFSysUtilOpenMode
+kVSFSysUtilOpenReadWrite	sysutil.h	/^  kVSFSysUtilOpenReadWrite$/;"	e	enum:EVSFSysUtilOpenMode
+kVSFSysUtilOpenWriteOnly	sysutil.h	/^  kVSFSysUtilOpenWriteOnly,$/;"	e	enum:EVSFSysUtilOpenMode
+kVSFSysUtilSigALRM	sysutil.h	/^  kVSFSysUtilSigALRM = 1,$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilSigCHLD	sysutil.h	/^  kVSFSysUtilSigCHLD,$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilSigHUP	sysutil.h	/^  kVSFSysUtilSigHUP$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilSigPIPE	sysutil.h	/^  kVSFSysUtilSigPIPE,$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilSigTERM	sysutil.h	/^  kVSFSysUtilSigTERM,$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilSigURG	sysutil.h	/^  kVSFSysUtilSigURG,$/;"	e	enum:EVSFSysUtilSignal
+kVSFSysUtilUnknown	sysutil.h	/^  kVSFSysUtilUnknown,$/;"	e	enum:EVSFSysUtilInterruptContext
+key_size	hash.c	/^  unsigned int key_size;$/;"	m	struct:hash	file:
+last_was_cr	ascii.h	/^  int last_was_cr;$/;"	m	struct:ascii_to_bin_ret
+last_was_cr	ascii.h	/^  int last_was_cr;$/;"	m	struct:bin_to_ascii_ret
+limits_init	main.c	/^limits_init(void)$/;"	f	file:
+lo_const	sysdeputil.c	308;"	d	file:
+lo_const	sysdeputil.c	310;"	d	file:
+locate_library	vsf_findlibs.sh	/^locate_library() { [ ! "$1*" = "`echo $1*`" ]; }$/;"	f
+lock_internal	sysutil.c	/^lock_internal(int fd, int lock_type)$/;"	f	file:
+log_start_sec	session.h	/^  long log_start_sec;$/;"	m	struct:vsf_session
+log_start_usec	session.h	/^  long log_start_usec;$/;"	m	struct:vsf_session
+log_str	session.h	/^  struct mystr log_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+log_type	session.h	/^  unsigned long log_type;$/;"	m	struct:vsf_session
+login_fails	session.h	/^  unsigned int login_fails;$/;"	m	struct:vsf_session
+main	main.c	/^main(int argc, const char* argv[])$/;"	f
+maybe_log_shutdown_state	ssl.c	/^maybe_log_shutdown_state(struct vsf_session* p_sess)$/;"	f	file:
+maybe_log_ssl_error_state	ssl.c	/^maybe_log_ssl_error_state(struct vsf_session* p_sess, int ret)$/;"	f	file:
+minimize_privilege	postprivparent.c	/^minimize_privilege(struct vsf_session* p_sess)$/;"	f	file:
+mystr	str.h	/^struct mystr$/;"	s
+mystr_list	strlist.h	/^struct mystr_list$/;"	s
+mystr_list_node	strlist.c	/^struct mystr_list_node$/;"	s	file:
+num_children	standalone.h	/^  unsigned int num_children;$/;"	m	struct:vsf_client_launch
+num_clients	session.h	/^  unsigned int num_clients;$/;"	m	struct:vsf_session
+num_this_ip	session.h	/^  unsigned int num_this_ip;$/;"	m	struct:vsf_session
+num_this_ip	standalone.h	/^  unsigned int num_this_ip;$/;"	m	struct:vsf_client_launch
+one_process_start	oneprocess.c	/^one_process_start(void* p_arg)$/;"	f	file:
+p_buf	ascii.h	/^  char* p_buf;$/;"	m	struct:ascii_to_bin_ret
+p_control_line_buf	session.h	/^  char* p_control_line_buf;$/;"	m	struct:vsf_session
+p_control_ssl	session.h	/^  void* p_control_ssl;$/;"	m	struct:vsf_session
+p_data_ssl	session.h	/^  void* p_data_ssl;$/;"	m	struct:vsf_session
+p_key	hash.c	/^  void* p_key;$/;"	m	struct:hash_node	file:
+p_local_addr	session.h	/^  struct vsf_sysutil_sockaddr* p_local_addr;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::vsf_sysutil_sockaddr
+p_next	hash.c	/^  struct hash_node* p_next;$/;"	m	struct:hash_node	typeref:struct:hash_node::hash_node	file:
+p_nodes	hash.c	/^  struct hash_node** p_nodes;$/;"	m	struct:hash	typeref:struct:hash::hash_node	file:
+p_port_sockaddr	session.h	/^  struct vsf_sysutil_sockaddr* p_port_sockaddr;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::vsf_sysutil_sockaddr
+p_prev	hash.c	/^  struct hash_node* p_prev;$/;"	m	struct:hash_node	typeref:struct:hash_node::hash_node	file:
+p_private	sysutil.c	/^  void* p_private;$/;"	m	struct:vsf_sysutil_sig_details	file:
+p_remote_addr	session.h	/^  struct vsf_sysutil_sockaddr* p_remote_addr;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::vsf_sysutil_sockaddr
+p_setting_name	parseconf.c	/^  const char* p_setting_name;$/;"	m	struct:parseconf_bool_setting	file:
+p_setting_name	parseconf.c	/^  const char* p_setting_name;$/;"	m	struct:parseconf_str_setting	file:
+p_setting_name	parseconf.c	/^  const char* p_setting_name;$/;"	m	struct:parseconf_uint_setting	file:
+p_ssl_ctx	session.h	/^  void* p_ssl_ctx;$/;"	m	struct:vsf_session
+p_value	hash.c	/^  void* p_value;$/;"	m	struct:hash_node	file:
+p_variable	parseconf.c	/^  const char** p_variable;$/;"	m	struct:parseconf_str_setting	file:
+p_variable	parseconf.c	/^  int* p_variable;$/;"	m	struct:parseconf_bool_setting	file:
+p_variable	parseconf.c	/^  unsigned int* p_variable;$/;"	m	struct:parseconf_uint_setting	file:
+p_visited_dir_list	session.h	/^  struct mystr_list* p_visited_dir_list;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr_list
+pam_conv_func	sysdeputil.c	/^pam_conv_func(int nmsg, const struct pam_message** p_msg,$/;"	f	file:
+pam_item_t	sysdeputil.c	/^typedef lo_const void* pam_item_t;$/;"	t	file:
+parent_fd	session.h	/^  int parent_fd;$/;"	m	struct:vsf_session
+parse_username_password	prelogin.c	/^parse_username_password(struct vsf_session* p_sess)$/;"	f	file:
+parseconf_bool_array	parseconf.c	/^parseconf_bool_array[] =$/;"	v	typeref:struct:parseconf_bool_setting	file:
+parseconf_bool_setting	parseconf.c	/^static struct parseconf_bool_setting$/;"	s	file:
+parseconf_str_array	parseconf.c	/^parseconf_str_array[] =$/;"	v	typeref:struct:parseconf_str_setting	file:
+parseconf_str_setting	parseconf.c	/^static struct parseconf_str_setting$/;"	s	file:
+parseconf_uint_array	parseconf.c	/^parseconf_uint_array[] =$/;"	v	typeref:struct:parseconf_uint_setting	file:
+parseconf_uint_setting	parseconf.c	/^static struct parseconf_uint_setting$/;"	s	file:
+pasv_active	postlogin.c	/^pasv_active(struct vsf_session* p_sess)$/;"	f	file:
+pasv_cleanup	postlogin.c	/^pasv_cleanup(struct vsf_session* p_sess)$/;"	f	file:
+pasv_listen_fd	session.h	/^  int pasv_listen_fd;$/;"	m	struct:vsf_session
+pending	sysutil.c	/^  volatile sig_atomic_t pending;$/;"	m	struct:vsf_sysutil_sig_details	file:
+pid	ptracesandbox.c	/^  pid_t pid;$/;"	m	struct:pt_sandbox	file:
+plain_peek_adapter	readwrite.c	/^plain_peek_adapter(struct vsf_session* p_sess, char* p_buf, unsigned int len)$/;"	f	file:
+plain_read_adapter	readwrite.c	/^plain_read_adapter(struct vsf_session* p_sess, char* p_buf, unsigned int len)$/;"	f	file:
+policy_setup	ftppolicy.c	/^policy_setup(struct pt_sandbox* p_sandbox, const struct vsf_session* p_sess)$/;"	f
+port_active	postlogin.c	/^port_active(struct vsf_session* p_sess)$/;"	f	file:
+port_cleanup	postlogin.c	/^port_cleanup(struct vsf_session* p_sess)$/;"	f	file:
+prepare_child	standalone.c	/^prepare_child(int new_client_sock)$/;"	f	file:
+prepend_path_to_filename	postlogin.c	/^prepend_path_to_filename(struct mystr* p_str)$/;"	f	file:
+priv_sock_close	privsock.c	/^priv_sock_close(struct vsf_session* p_sess)$/;"	f
+priv_sock_get_cmd	privsock.c	/^priv_sock_get_cmd(int fd)$/;"	f
+priv_sock_get_int	privsock.c	/^priv_sock_get_int(int fd)$/;"	f
+priv_sock_get_result	privsock.c	/^priv_sock_get_result(int fd)$/;"	f
+priv_sock_get_str	privsock.c	/^priv_sock_get_str(int fd, struct mystr* p_dest)$/;"	f
+priv_sock_init	privsock.c	/^priv_sock_init(struct vsf_session* p_sess)$/;"	f
+priv_sock_recv_buf	privsock.c	/^priv_sock_recv_buf(int fd, char* p_buf, unsigned int len)$/;"	f
+priv_sock_recv_fd	privsock.c	/^priv_sock_recv_fd(int fd)$/;"	f
+priv_sock_send_buf	privsock.c	/^priv_sock_send_buf(int fd, const char* p_buf, unsigned int len)$/;"	f
+priv_sock_send_cmd	privsock.c	/^priv_sock_send_cmd(int fd, char cmd)$/;"	f
+priv_sock_send_fd	privsock.c	/^priv_sock_send_fd(int fd, int send_fd)$/;"	f
+priv_sock_send_int	privsock.c	/^priv_sock_send_int(int fd, int the_int)$/;"	f
+priv_sock_send_result	privsock.c	/^priv_sock_send_result(int fd, char res)$/;"	f
+priv_sock_send_str	privsock.c	/^priv_sock_send_str(int fd, const struct mystr* p_str)$/;"	f
+priv_sock_set_child_context	privsock.c	/^priv_sock_set_child_context(struct vsf_session* p_sess)$/;"	f
+priv_sock_set_parent_context	privsock.c	/^priv_sock_set_parent_context(struct vsf_session* p_sess)$/;"	f
+private_str_alloc_memchunk	str.c	/^private_str_alloc_memchunk(struct mystr* p_str, const char* p_src,$/;"	f
+private_str_append_memchunk	str.c	/^private_str_append_memchunk(struct mystr* p_str, const char* p_src,$/;"	f
+process_login_req	twoprocess.c	/^process_login_req(struct vsf_session* p_sess)$/;"	f	file:
+process_post_login	postlogin.c	/^process_post_login(struct vsf_session* p_sess)$/;"	f
+process_post_login_req	postprivparent.c	/^process_post_login_req(struct vsf_session* p_sess)$/;"	f	file:
+pt_sandbox	ptracesandbox.c	/^struct pt_sandbox$/;"	s	file:
+ptrace_sandbox_alloc	ptracesandbox.c	/^ptrace_sandbox_alloc()$/;"	f
+ptrace_sandbox_attach_point	ptracesandbox.c	/^ptrace_sandbox_attach_point()$/;"	f
+ptrace_sandbox_attach_point	ptracesandbox.c	/^ptrace_sandbox_attach_point(void)$/;"	f
+ptrace_sandbox_continue_process	ptracesandbox.c	/^ptrace_sandbox_continue_process(struct pt_sandbox* p_sandbox, int sig)$/;"	f
+ptrace_sandbox_free	ptracesandbox.c	/^ptrace_sandbox_free(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_get_arg	ptracesandbox.c	/^ptrace_sandbox_get_arg(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_get_buf	ptracesandbox.c	/^ptrace_sandbox_get_buf(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_get_event	ptracesandbox.c	/^ptrace_sandbox_get_event(struct pt_sandbox* p_sandbox, int* status, int block)$/;"	f
+ptrace_sandbox_get_event_fd	ptracesandbox.c	/^ptrace_sandbox_get_event_fd(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_get_long	ptracesandbox.c	/^ptrace_sandbox_get_long(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_get_socketcall_arg	ptracesandbox.c	/^ptrace_sandbox_get_socketcall_arg(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_handle_event	ptracesandbox.c	/^ptrace_sandbox_handle_event(struct pt_sandbox* p_sandbox, int status)$/;"	f
+ptrace_sandbox_kill_processes	ptracesandbox.c	/^ptrace_sandbox_kill_processes(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_launch_process	ptracesandbox.c	/^ptrace_sandbox_launch_process(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_permit_accept	ptracesandbox.c	/^ptrace_sandbox_permit_accept(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_alarm	ptracesandbox.c	/^ptrace_sandbox_permit_alarm(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_bind	ptracesandbox.c	/^ptrace_sandbox_permit_bind(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_brk	ptracesandbox.c	/^ptrace_sandbox_permit_brk(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_chdir	ptracesandbox.c	/^ptrace_sandbox_permit_chdir(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_chmod	ptracesandbox.c	/^ptrace_sandbox_permit_chmod(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_close	ptracesandbox.c	/^ptrace_sandbox_permit_close(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_connect	ptracesandbox.c	/^ptrace_sandbox_permit_connect(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_exit	ptracesandbox.c	/^ptrace_sandbox_permit_exit(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_fchmod	ptracesandbox.c	/^ptrace_sandbox_permit_fchmod(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_fchown	ptracesandbox.c	/^ptrace_sandbox_permit_fchown(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_fcntl	ptracesandbox.c	/^ptrace_sandbox_permit_fcntl(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_fd_stats	ptracesandbox.c	/^ptrace_sandbox_permit_fd_stats(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_file_stats	ptracesandbox.c	/^ptrace_sandbox_permit_file_stats(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_ftruncate	ptracesandbox.c	/^ptrace_sandbox_permit_ftruncate(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_getcwd	ptracesandbox.c	/^ptrace_sandbox_permit_getcwd(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_getdents	ptracesandbox.c	/^ptrace_sandbox_permit_getdents(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_getsockopt	ptracesandbox.c	/^ptrace_sandbox_permit_getsockopt(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_listen	ptracesandbox.c	/^ptrace_sandbox_permit_listen(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_mkdir	ptracesandbox.c	/^ptrace_sandbox_permit_mkdir(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_mmap	ptracesandbox.c	/^ptrace_sandbox_permit_mmap(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_mprotect	ptracesandbox.c	/^ptrace_sandbox_permit_mprotect(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_mremap	ptracesandbox.c	/^ptrace_sandbox_permit_mremap(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_open	ptracesandbox.c	/^ptrace_sandbox_permit_open(struct pt_sandbox* p_sandbox, int writeable)$/;"	f
+ptrace_sandbox_permit_query_time	ptracesandbox.c	/^ptrace_sandbox_permit_query_time(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_read	ptracesandbox.c	/^ptrace_sandbox_permit_read(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_readlink	ptracesandbox.c	/^ptrace_sandbox_permit_readlink(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_recv	ptracesandbox.c	/^ptrace_sandbox_permit_recv(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_rename	ptracesandbox.c	/^ptrace_sandbox_permit_rename(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_rmdir	ptracesandbox.c	/^ptrace_sandbox_permit_rmdir(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_seek	ptracesandbox.c	/^ptrace_sandbox_permit_seek(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_select	ptracesandbox.c	/^ptrace_sandbox_permit_select(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_sendfile	ptracesandbox.c	/^ptrace_sandbox_permit_sendfile(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_setsockopt	ptracesandbox.c	/^ptrace_sandbox_permit_setsockopt(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_shutdown	ptracesandbox.c	/^ptrace_sandbox_permit_shutdown(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_sigaction	ptracesandbox.c	/^ptrace_sandbox_permit_sigaction(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_sigreturn	ptracesandbox.c	/^ptrace_sandbox_permit_sigreturn(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_sleep	ptracesandbox.c	/^ptrace_sandbox_permit_sleep(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_socket	ptracesandbox.c	/^ptrace_sandbox_permit_socket(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_umask	ptracesandbox.c	/^ptrace_sandbox_permit_umask(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_unlink	ptracesandbox.c	/^ptrace_sandbox_permit_unlink(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_utime	ptracesandbox.c	/^ptrace_sandbox_permit_utime(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_utimes	ptracesandbox.c	/^ptrace_sandbox_permit_utimes(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_permit_write	ptracesandbox.c	/^ptrace_sandbox_permit_write(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_run_processes	ptracesandbox.c	/^ptrace_sandbox_run_processes(struct pt_sandbox* p_sandbox)$/;"	f
+ptrace_sandbox_set_bind_validator	ptracesandbox.c	/^ptrace_sandbox_set_bind_validator(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_set_connect_validator	ptracesandbox.c	/^ptrace_sandbox_set_connect_validator(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_set_getsockopt_validator	ptracesandbox.c	/^ptrace_sandbox_set_getsockopt_validator(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_set_setsockopt_validator	ptracesandbox.c	/^ptrace_sandbox_set_setsockopt_validator(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_set_socket_validator	ptracesandbox.c	/^ptrace_sandbox_set_socket_validator(struct pt_sandbox* p_sandbox,$/;"	f
+ptrace_sandbox_validator_t	ptracesandbox.h	/^typedef int (*ptrace_sandbox_validator_t)(struct pt_sandbox*, void*);$/;"	t
+read_event_fd	ptracesandbox.c	/^  int read_event_fd;$/;"	m	struct:pt_sandbox	file:
+regs	ptracesandbox.c	/^  struct user_regs_struct regs;$/;"	m	struct:pt_sandbox	typeref:struct:pt_sandbox::user_regs_struct	file:
+reject_nr	seccompsandbox.c	/^reject_nr(int nr, int errcode)$/;"	f	file:
+remote_ip_str	session.h	/^  struct mystr remote_ip_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+resolve_tilde	postlogin.c	/^resolve_tilde(struct mystr* p_str, struct vsf_session* p_sess)$/;"	f	file:
+restart_pos	session.h	/^  filesize_t restart_pos;$/;"	m	struct:vsf_session
+retval	ftpdataio.h	/^  int retval;$/;"	m	struct:vsf_transfer_ret
+rnfr_filename_str	session.h	/^  struct mystr rnfr_filename_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+running	sysutil.c	/^  int running;$/;"	m	struct:vsf_sysutil_sig_details	file:
+s_1_arg_validations	seccompsandbox.c	/^static size_t s_1_arg_validations;$/;"	v	file:
+s_2_arg_validations	seccompsandbox.c	/^static size_t s_2_arg_validations;$/;"	v	file:
+s_3_arg_validations	seccompsandbox.c	/^static size_t s_3_arg_validations;$/;"	v	file:
+s_args_1	seccompsandbox.c	/^static int s_args_1[kMaxSyscalls];$/;"	v	file:
+s_args_2	seccompsandbox.c	/^static int s_args_2[kMaxSyscalls];$/;"	v	file:
+s_args_3	seccompsandbox.c	/^static int s_args_3[kMaxSyscalls];$/;"	v	file:
+s_children	standalone.c	/^static unsigned int s_children;$/;"	v	file:
+s_current_pid	sysutil.c	/^static int s_current_pid = -1;$/;"	v	file:
+s_current_time	sysutil.c	/^static struct timeval s_current_time;$/;"	v	typeref:struct:timeval	file:
+s_current_umask	sysutil.c	/^static unsigned int s_current_umask;$/;"	v	file:
+s_errnos	seccompsandbox.c	/^static int s_errnos[kMaxSyscalls];$/;"	v	file:
+s_exit_func	sysutil.c	/^static exitfunc_t s_exit_func;$/;"	v	file:
+s_io_handler	sysutil.c	/^static vsf_context_io_t s_io_handler;$/;"	v	file:
+s_io_handler_running	sysutil.c	/^static int s_io_handler_running;$/;"	v	file:
+s_ipaddr_size	standalone.c	/^static unsigned int s_ipaddr_size;$/;"	v	file:
+s_null_str	strlist.c	/^static struct mystr s_null_str;$/;"	v	typeref:struct:mystr	file:
+s_p_io_handler_private	sysutil.c	/^static void* s_p_io_handler_private;$/;"	v	file:
+s_p_ip_count_hash	standalone.c	/^static struct hash* s_p_ip_count_hash;$/;"	v	typeref:struct:hash	file:
+s_p_pid_ip_hash	standalone.c	/^static struct hash* s_p_pid_ip_hash;$/;"	v	typeref:struct:hash	file:
+s_p_proctitle	sysdeputil.c	/^static char* s_p_proctitle = 0;$/;"	v	file:
+s_p_saved_filename	parseconf.c	/^static const char* s_p_saved_filename;$/;"	v	file:
+s_pamh	sysdeputil.c	/^static pam_handle_t* s_pamh;$/;"	v	file:
+s_proctitle_inited	sysdeputil.c	/^static int s_proctitle_inited = 0;$/;"	v	file:
+s_proctitle_prefix_str	sysdeputil.c	/^static struct mystr s_proctitle_prefix_str;$/;"	v	typeref:struct:mystr	file:
+s_proctitle_space	sysdeputil.c	/^static unsigned int s_proctitle_space = 0;$/;"	v	file:
+s_pword_str	sysdeputil.c	/^static struct mystr s_pword_str;$/;"	v	typeref:struct:mystr	file:
+s_setbuf	str.c	/^s_setbuf(struct mystr* p_str, char* p_newbuf)$/;"	f	file:
+s_sig_details	sysutil.c	/^} s_sig_details[NSIG];$/;"	v	typeref:struct:vsf_sysutil_sig_details	file:
+s_sigchld_fd	ptracesandbox.c	/^static int s_sigchld_fd = -1;$/;"	v	file:
+s_syscall_index	seccompsandbox.c	/^static size_t s_syscall_index;$/;"	v	file:
+s_syscalls	seccompsandbox.c	/^static int s_syscalls[kMaxSyscalls];$/;"	v	file:
+s_timezone	sysutil.c	/^static long s_timezone;$/;"	v	file:
+s_utent	sysdeputil.c	/^static struct utmpx s_utent;$/;"	v	typeref:struct:utmpx	file:
+s_uwtmp_inserted	sysdeputil.c	/^static int s_uwtmp_inserted;$/;"	v	file:
+s_vals_1	seccompsandbox.c	/^static int s_vals_1[kMaxSyscalls];$/;"	v	file:
+s_vals_2	seccompsandbox.c	/^static int s_vals_2[kMaxSyscalls];$/;"	v	file:
+s_vals_3	seccompsandbox.c	/^static int s_vals_3[kMaxSyscalls];$/;"	v	file:
+s_zero_fd	sysdeputil.c	/^static int s_zero_fd = -1;$/;"	v	file:
+sanitize_child	ptracesandbox.c	/^sanitize_child()$/;"	f	file:
+seccomp_sandbox_init	seccompsandbox.c	/^seccomp_sandbox_init()$/;"	f
+seccomp_sandbox_lockdown	seccompsandbox.c	/^seccomp_sandbox_lockdown()$/;"	f
+seccomp_sandbox_setup_base	seccompsandbox.c	/^seccomp_sandbox_setup_base()$/;"	f	file:
+seccomp_sandbox_setup_data_connections	seccompsandbox.c	/^seccomp_sandbox_setup_data_connections()$/;"	f	file:
+seccomp_sandbox_setup_postlogin	seccompsandbox.c	/^seccomp_sandbox_setup_postlogin(const struct vsf_session* p_sess)$/;"	f
+seccomp_sandbox_setup_postlogin_broker	seccompsandbox.c	/^seccomp_sandbox_setup_postlogin_broker()$/;"	f
+seccomp_sandbox_setup_prelogin	seccompsandbox.c	/^seccomp_sandbox_setup_prelogin(const struct vsf_session* p_sess)$/;"	f
+session_init	main.c	/^session_init(struct vsf_session* p_sess)$/;"	f	file:
+setsockopt_validator	ftppolicy.c	/^setsockopt_validator(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+setup_bio_callbacks	ssl.c	/^static void setup_bio_callbacks(SSL* p_ssl)$/;"	f	file:
+setup_username_globals	privops.c	/^setup_username_globals(struct vsf_session* p_sess, const struct mystr* p_str)$/;"	f	file:
+socket_one	sysutil.h	/^  int socket_one;$/;"	m	struct:vsf_sysutil_socketpair_retval
+socket_two	sysutil.h	/^  int socket_two;$/;"	m	struct:vsf_sysutil_socketpair_retval
+socket_validator	ftppolicy.c	/^socket_validator(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+socketcall_validator	ptracesandbox.c	/^  ptrace_sandbox_validator_t socketcall_validator[NPROTO];$/;"	m	struct:pt_sandbox	file:
+socketcall_validator_arg	ptracesandbox.c	/^  void* socketcall_validator_arg[NPROTO];$/;"	m	struct:pt_sandbox	file:
+sort_compare_common	strlist.c	/^sort_compare_common(const void* p1, const void* p2, int reverse)$/;"	f	file:
+sort_compare_func	strlist.c	/^sort_compare_func(const void* p1, const void* p2)$/;"	f	file:
+sort_compare_func_reverse	strlist.c	/^sort_compare_func_reverse(const void* p1, const void* p2)$/;"	f	file:
+sort_key_str	strlist.c	/^  struct mystr sort_key_str;$/;"	m	struct:mystr_list_node	typeref:struct:mystr_list_node::mystr	file:
+ssl_accept	ssl.c	/^ssl_accept(struct vsf_session* p_sess, int fd)$/;"	f
+ssl_add_entropy	ssl.c	/^ssl_add_entropy(struct vsf_session* p_sess)$/;"	f
+ssl_cert_digest	ssl.c	/^ssl_cert_digest(SSL* p_ssl, struct vsf_session* p_sess, struct mystr* p_str)$/;"	f	file:
+ssl_comm_channel_init	ssl.c	/^ssl_comm_channel_init(struct vsf_session* p_sess)$/;"	f
+ssl_comm_channel_set_consumer_context	ssl.c	/^ssl_comm_channel_set_consumer_context(struct vsf_session* p_sess)$/;"	f
+ssl_comm_channel_set_producer_context	ssl.c	/^ssl_comm_channel_set_producer_context(struct vsf_session* p_sess)$/;"	f
+ssl_consumer_fd	session.h	/^  int ssl_consumer_fd;$/;"	m	struct:vsf_session
+ssl_control_handshake	ssl.c	/^ssl_control_handshake(struct vsf_session* p_sess)$/;"	f
+ssl_data_close	ssl.c	/^ssl_data_close(struct vsf_session* p_sess)$/;"	f
+ssl_init	ssl.c	/^ssl_init(struct vsf_session* p_sess)$/;"	f
+ssl_inited	ssl.c	/^static int ssl_inited;$/;"	v	file:
+ssl_peek	ssl.c	/^ssl_peek(struct vsf_session* p_sess, void* p_ssl, char* p_buf, unsigned int len)$/;"	f
+ssl_peek_adapter	readwrite.c	/^ssl_peek_adapter(struct vsf_session* p_sess, char* p_buf, unsigned int len)$/;"	f	file:
+ssl_read	ssl.c	/^ssl_read(struct vsf_session* p_sess, void* p_ssl, char* p_buf, unsigned int len)$/;"	f
+ssl_read_adapter	readwrite.c	/^ssl_read_adapter(struct vsf_session* p_sess, char* p_buf, unsigned int len)$/;"	f	file:
+ssl_read_common	ssl.c	/^ssl_read_common(struct vsf_session* p_sess,$/;"	f	file:
+ssl_read_into_str	ssl.c	/^ssl_read_into_str(struct vsf_session* p_sess, void* p_ssl, struct mystr* p_str)$/;"	f
+ssl_session_init	ssl.c	/^ssl_session_init(struct vsf_session* p_sess)$/;"	f	file:
+ssl_slave	sslslave.c	/^ssl_slave(struct vsf_session* p_sess)$/;"	f
+ssl_slave_active	session.h	/^  int ssl_slave_active;$/;"	m	struct:vsf_session
+ssl_slave_fd	session.h	/^  int ssl_slave_fd;$/;"	m	struct:vsf_session
+ssl_verify_callback	ssl.c	/^ssl_verify_callback(int verify_ok, X509_STORE_CTX* p_ctx)$/;"	f	file:
+ssl_write	ssl.c	/^ssl_write(void* p_ssl, const char* p_buf, unsigned int len)$/;"	f
+ssl_write_str	ssl.c	/^ssl_write_str(void* p_ssl, const struct mystr* p_str)$/;"	f
+start_data_alarm	ftpdataio.c	/^start_data_alarm(struct vsf_session* p_sess)$/;"	f
+stored	ascii.h	/^  unsigned int stored;$/;"	m	struct:ascii_to_bin_ret
+stored	ascii.h	/^  unsigned int stored;$/;"	m	struct:bin_to_ascii_ret
+str	strlist.c	/^  struct mystr str;$/;"	m	struct:mystr_list_node	typeref:struct:mystr_list_node::mystr	file:
+str_a_to_filesize_t	str.c	/^str_a_to_filesize_t(const struct mystr* p_str)$/;"	f
+str_all_space	str.c	/^str_all_space(const struct mystr* p_str)$/;"	f
+str_alloc_alt_term	str.c	/^str_alloc_alt_term(struct mystr* p_str, const char* p_src, char term)$/;"	f
+str_alloc_filesize_t	str.c	/^str_alloc_filesize_t(struct mystr* p_str, filesize_t the_filesize)$/;"	f
+str_alloc_memchunk	str.h	22;"	d
+str_alloc_text	str.c	/^str_alloc_text(struct mystr* p_str, const char* p_src)$/;"	f
+str_alloc_ulong	str.c	/^str_alloc_ulong(struct mystr* p_str, unsigned long the_long)$/;"	f
+str_append_char	str.c	/^str_append_char(struct mystr* p_str, char the_char)$/;"	f
+str_append_double	str.c	/^str_append_double(struct mystr* p_str, double the_double)$/;"	f
+str_append_filesize_t	str.c	/^str_append_filesize_t(struct mystr* p_str, filesize_t the_filesize)$/;"	f
+str_append_str	str.c	/^str_append_str(struct mystr* p_str, const struct mystr* p_other)$/;"	f
+str_append_text	str.c	/^str_append_text(struct mystr* p_str, const char* p_src)$/;"	f
+str_append_ulong	str.c	/^str_append_ulong(struct mystr* p_str, unsigned long the_ulong)$/;"	f
+str_atoi	str.c	/^str_atoi(const struct mystr* p_str)$/;"	f
+str_chdir	sysstr.c	/^str_chdir(const struct mystr* p_str)$/;"	f
+str_chmod	sysstr.c	/^str_chmod(const struct mystr* p_str, unsigned int mode)$/;"	f
+str_contains_line	str.c	/^str_contains_line(const struct mystr* p_str, const struct mystr* p_line_str)$/;"	f
+str_contains_space	str.c	/^str_contains_space(const struct mystr* p_str)$/;"	f
+str_contains_unprintable	str.c	/^str_contains_unprintable(const struct mystr* p_str)$/;"	f
+str_copy	str.c	/^str_copy(struct mystr* p_dest, const struct mystr* p_src)$/;"	f
+str_create	sysstr.c	/^str_create(const struct mystr* p_str)$/;"	f
+str_create_exclusive	sysstr.c	/^str_create_exclusive(const struct mystr* p_str)$/;"	f
+str_empty	str.c	/^str_empty(struct mystr* p_str)$/;"	f
+str_equal	str.c	/^str_equal(const struct mystr* p_str1, const struct mystr* p_str2)$/;"	f
+str_equal_internal	str.c	/^str_equal_internal(const char* p_buf1, unsigned int buf1_len,$/;"	f	file:
+str_equal_text	str.c	/^str_equal_text(const struct mystr* p_str, const char* p_text)$/;"	f
+str_fileread	filestr.c	/^str_fileread(struct mystr* p_str, const char* p_filename, unsigned int maxsize)$/;"	f
+str_free	str.c	/^str_free(struct mystr* p_str)$/;"	f
+str_get_char_at	str.c	/^str_get_char_at(const struct mystr* p_str, const unsigned int indexx)$/;"	f
+str_getbuf	str.c	/^str_getbuf(const struct mystr* p_str)$/;"	f
+str_getcwd	sysstr.c	/^str_getcwd(struct mystr* p_str)$/;"	f
+str_getlen	str.c	/^str_getlen(const struct mystr* p_str)$/;"	f
+str_getline	str.c	/^str_getline(const struct mystr* p_str, struct mystr* p_line_str,$/;"	f
+str_getpwnam	sysstr.c	/^str_getpwnam(const struct mystr* p_user_str)$/;"	f
+str_isempty	str.c	/^str_isempty(const struct mystr* p_str)$/;"	f
+str_left	str.c	/^str_left(const struct mystr* p_str, struct mystr* p_out, unsigned int chars)$/;"	f
+str_list_add	strlist.c	/^str_list_add(struct mystr_list* p_list, const struct mystr* p_str,$/;"	f
+str_list_contains_str	strlist.c	/^str_list_contains_str(const struct mystr_list* p_list,$/;"	f
+str_list_free	strlist.c	/^str_list_free(struct mystr_list* p_list)$/;"	f
+str_list_get_length	strlist.c	/^str_list_get_length(const struct mystr_list* p_list)$/;"	f
+str_list_get_pstr	strlist.c	/^str_list_get_pstr(const struct mystr_list* p_list, unsigned int indexx)$/;"	f
+str_list_sort	strlist.c	/^str_list_sort(struct mystr_list* p_list, int reverse)$/;"	f
+str_locate_char	str.c	/^str_locate_char(const struct mystr* p_str, char look_char)$/;"	f
+str_locate_chars	str.c	/^str_locate_chars(const struct mystr* p_str, const char* p_chars)$/;"	f
+str_locate_result	str.h	/^struct str_locate_result$/;"	s
+str_locate_str	str.c	/^str_locate_str(const struct mystr* p_str, const struct mystr* p_look_str)$/;"	f
+str_locate_str_reverse	str.c	/^str_locate_str_reverse(const struct mystr* p_str,$/;"	f
+str_locate_text	str.c	/^str_locate_text(const struct mystr* p_str, const char* p_text)$/;"	f
+str_locate_text_reverse	str.c	/^str_locate_text_reverse(const struct mystr* p_str, const char* p_text)$/;"	f
+str_lpad	str.c	/^str_lpad(struct mystr* p_str, const unsigned int min_width)$/;"	f
+str_lstat	sysstr.c	/^str_lstat(const struct mystr* p_str, struct vsf_sysutil_statbuf** p_ptr)$/;"	f
+str_mid_to_end	str.c	/^str_mid_to_end(const struct mystr* p_str, struct mystr* p_out,$/;"	f
+str_mkdir	sysstr.c	/^str_mkdir(const struct mystr* p_str, const unsigned int mode)$/;"	f
+str_netfd_alloc	netstr.c	/^str_netfd_alloc(struct vsf_session* p_sess,$/;"	f
+str_netfd_read	netstr.c	/^str_netfd_read(struct mystr* p_str, int fd, unsigned int len)$/;"	f
+str_netfd_read_t	netstr.h	/^typedef int (*str_netfd_read_t)(struct vsf_session*$/;"	t
+str_netfd_write	netstr.c	/^str_netfd_write(const struct mystr* p_str, int fd)$/;"	f
+str_next_dirent	sysstr.c	/^str_next_dirent(struct mystr* p_filename_str, struct vsf_sysutil_dir* p_dir)$/;"	f
+str_octal_to_uint	str.c	/^str_octal_to_uint(const struct mystr* p_str)$/;"	f
+str_open	sysstr.c	/^str_open(const struct mystr* p_str, const enum EVSFSysStrOpenMode mode)$/;"	f
+str_opendir	sysstr.c	/^str_opendir(const struct mystr* p_str)$/;"	f
+str_read_loop	sysstr.c	/^str_read_loop(struct mystr* p_str, const int fd)$/;"	f
+str_readlink	sysstr.c	/^str_readlink(struct mystr* p_str, const struct mystr* p_filename_str)$/;"	f
+str_rename	sysstr.c	/^str_rename(const struct mystr* p_from_str, const struct mystr* p_to_str)$/;"	f
+str_replace_char	str.c	/^str_replace_char(struct mystr* p_str, char from, char to)$/;"	f
+str_replace_text	str.c	/^str_replace_text(struct mystr* p_str, const char* p_from, const char* p_to)$/;"	f
+str_replace_unprintable	str.c	/^str_replace_unprintable(struct mystr* p_str, char new_char)$/;"	f
+str_reserve	str.c	/^str_reserve(struct mystr* p_str, unsigned int res_len)$/;"	f
+str_right	str.c	/^str_right(const struct mystr* p_str, struct mystr* p_out, unsigned int chars)$/;"	f
+str_rmdir	sysstr.c	/^str_rmdir(const struct mystr* p_str)$/;"	f
+str_rpad	str.c	/^str_rpad(struct mystr* p_str, const unsigned int min_width)$/;"	f
+str_split_char	str.c	/^str_split_char(struct mystr* p_src, struct mystr* p_rhs, char c)$/;"	f
+str_split_char_reverse	str.c	/^str_split_char_reverse(struct mystr* p_src, struct mystr* p_rhs, char c)$/;"	f
+str_split_text	str.c	/^str_split_text(struct mystr* p_src, struct mystr* p_rhs, const char* p_text)$/;"	f
+str_split_text_common	str.c	/^str_split_text_common(struct mystr* p_src, struct mystr* p_rhs,$/;"	f	file:
+str_split_text_reverse	str.c	/^str_split_text_reverse(struct mystr* p_src, struct mystr* p_rhs,$/;"	f
+str_stat	sysstr.c	/^str_stat(const struct mystr* p_str, struct vsf_sysutil_statbuf** p_ptr)$/;"	f
+str_strcmp	str.c	/^str_strcmp(const struct mystr* p_str1, const struct mystr* p_str2)$/;"	f
+str_strdup	str.c	/^str_strdup(const struct mystr* p_str)$/;"	f
+str_syslog	sysstr.c	/^str_syslog(const struct mystr* p_str, int severe)$/;"	f
+str_trunc	str.c	/^str_trunc(struct mystr* p_str, unsigned int trunc_len)$/;"	f
+str_unlink	sysstr.c	/^str_unlink(const struct mystr* p_str)$/;"	f
+str_upper	str.c	/^str_upper(struct mystr* p_str)$/;"	f
+str_write_loop	sysstr.c	/^str_write_loop(const struct mystr* p_str, const int fd)$/;"	f
+sync_sig_handler	sysutil.c	/^  vsf_sighandle_t sync_sig_handler;$/;"	m	struct:vsf_sysutil_sig_details	file:
+tcp_wrapper_ok	session.h	/^  int tcp_wrapper_ok;$/;"	m	struct:vsf_session
+transfer_dir_internal	ftpdataio.c	/^transfer_dir_internal(struct vsf_session* p_sess, int is_control,$/;"	f	file:
+transfer_size	session.h	/^  filesize_t transfer_size;$/;"	m	struct:vsf_session
+transferred	ftpdataio.h	/^  filesize_t transferred;$/;"	m	struct:vsf_transfer_ret
+tunable_accept_timeout	tunables.c	/^unsigned int tunable_accept_timeout;$/;"	v
+tunable_allow_anon_ssl	tunables.c	/^int tunable_allow_anon_ssl;$/;"	v
+tunable_allow_writeable_chroot	tunables.c	/^int tunable_allow_writeable_chroot;$/;"	v
+tunable_anon_max_rate	tunables.c	/^unsigned int tunable_anon_max_rate;$/;"	v
+tunable_anon_mkdir_write_enable	tunables.c	/^int tunable_anon_mkdir_write_enable;$/;"	v
+tunable_anon_other_write_enable	tunables.c	/^int tunable_anon_other_write_enable;$/;"	v
+tunable_anon_root	tunables.c	/^const char* tunable_anon_root;$/;"	v
+tunable_anon_umask	tunables.c	/^unsigned int tunable_anon_umask;$/;"	v
+tunable_anon_upload_enable	tunables.c	/^int tunable_anon_upload_enable;$/;"	v
+tunable_anon_world_readable_only	tunables.c	/^int tunable_anon_world_readable_only;$/;"	v
+tunable_anonymous_enable	tunables.c	/^int tunable_anonymous_enable;$/;"	v
+tunable_ascii_download_enable	tunables.c	/^int tunable_ascii_download_enable;$/;"	v
+tunable_ascii_upload_enable	tunables.c	/^int tunable_ascii_upload_enable;$/;"	v
+tunable_async_abor_enable	tunables.c	/^int tunable_async_abor_enable;$/;"	v
+tunable_background	tunables.c	/^int tunable_background;$/;"	v
+tunable_banned_email_file	tunables.c	/^const char* tunable_banned_email_file;$/;"	v
+tunable_banner_file	tunables.c	/^const char* tunable_banner_file;$/;"	v
+tunable_ca_certs_file	tunables.c	/^const char* tunable_ca_certs_file;$/;"	v
+tunable_check_shell	tunables.c	/^int tunable_check_shell;$/;"	v
+tunable_chmod_enable	tunables.c	/^int tunable_chmod_enable;$/;"	v
+tunable_chown_upload_mode	tunables.c	/^unsigned int tunable_chown_upload_mode;$/;"	v
+tunable_chown_uploads	tunables.c	/^int tunable_chown_uploads;$/;"	v
+tunable_chown_username	tunables.c	/^const char* tunable_chown_username;$/;"	v
+tunable_chroot_list_enable	tunables.c	/^int tunable_chroot_list_enable;$/;"	v
+tunable_chroot_list_file	tunables.c	/^const char* tunable_chroot_list_file;$/;"	v
+tunable_chroot_local_user	tunables.c	/^int tunable_chroot_local_user;$/;"	v
+tunable_cmds_allowed	tunables.c	/^const char* tunable_cmds_allowed;$/;"	v
+tunable_cmds_denied	tunables.c	/^const char* tunable_cmds_denied;$/;"	v
+tunable_connect_from_port_20	tunables.c	/^int tunable_connect_from_port_20;$/;"	v
+tunable_connect_timeout	tunables.c	/^unsigned int tunable_connect_timeout;$/;"	v
+tunable_data_connection_timeout	tunables.c	/^unsigned int tunable_data_connection_timeout;$/;"	v
+tunable_debug_ssl	tunables.c	/^int tunable_debug_ssl;$/;"	v
+tunable_delay_failed_login	tunables.c	/^unsigned int tunable_delay_failed_login;$/;"	v
+tunable_delay_successful_login	tunables.c	/^unsigned int tunable_delay_successful_login;$/;"	v
+tunable_delete_failed_uploads	tunables.c	/^int tunable_delete_failed_uploads;$/;"	v
+tunable_deny_email_enable	tunables.c	/^int tunable_deny_email_enable;$/;"	v
+tunable_deny_file	tunables.c	/^const char* tunable_deny_file;$/;"	v
+tunable_dirlist_enable	tunables.c	/^int tunable_dirlist_enable;$/;"	v
+tunable_dirmessage_enable	tunables.c	/^int tunable_dirmessage_enable;$/;"	v
+tunable_download_enable	tunables.c	/^int tunable_download_enable;$/;"	v
+tunable_dsa_cert_file	tunables.c	/^const char* tunable_dsa_cert_file;$/;"	v
+tunable_dsa_private_key_file	tunables.c	/^const char* tunable_dsa_private_key_file;$/;"	v
+tunable_dual_log_enable	tunables.c	/^int tunable_dual_log_enable;$/;"	v
+tunable_email_password_file	tunables.c	/^const char* tunable_email_password_file;$/;"	v
+tunable_file_open_mode	tunables.c	/^unsigned int tunable_file_open_mode;$/;"	v
+tunable_force_anon_data_ssl	tunables.c	/^int tunable_force_anon_data_ssl;$/;"	v
+tunable_force_anon_logins_ssl	tunables.c	/^int tunable_force_anon_logins_ssl;$/;"	v
+tunable_force_dot_files	tunables.c	/^int tunable_force_dot_files;$/;"	v
+tunable_force_local_data_ssl	tunables.c	/^int tunable_force_local_data_ssl;$/;"	v
+tunable_force_local_logins_ssl	tunables.c	/^int tunable_force_local_logins_ssl;$/;"	v
+tunable_ftp_data_port	tunables.c	/^unsigned int tunable_ftp_data_port;$/;"	v
+tunable_ftp_enable	tunables.c	/^int tunable_ftp_enable;$/;"	v
+tunable_ftp_username	tunables.c	/^const char* tunable_ftp_username;$/;"	v
+tunable_ftpd_banner	tunables.c	/^const char* tunable_ftpd_banner;$/;"	v
+tunable_guest_enable	tunables.c	/^int tunable_guest_enable;$/;"	v
+tunable_guest_username	tunables.c	/^const char* tunable_guest_username;$/;"	v
+tunable_hide_file	tunables.c	/^const char* tunable_hide_file;$/;"	v
+tunable_hide_ids	tunables.c	/^int tunable_hide_ids;$/;"	v
+tunable_http_enable	tunables.c	/^int tunable_http_enable;$/;"	v
+tunable_idle_session_timeout	tunables.c	/^unsigned int tunable_idle_session_timeout;$/;"	v
+tunable_implicit_ssl	tunables.c	/^int tunable_implicit_ssl;$/;"	v
+tunable_isolate	tunables.c	/^int tunable_isolate;$/;"	v
+tunable_isolate_network	tunables.c	/^int tunable_isolate_network;$/;"	v
+tunable_listen	tunables.c	/^int tunable_listen;$/;"	v
+tunable_listen_address	tunables.c	/^const char* tunable_listen_address;$/;"	v
+tunable_listen_address6	tunables.c	/^const char* tunable_listen_address6;$/;"	v
+tunable_listen_ipv6	tunables.c	/^int tunable_listen_ipv6;$/;"	v
+tunable_listen_port	tunables.c	/^unsigned int tunable_listen_port;$/;"	v
+tunable_local_enable	tunables.c	/^int tunable_local_enable;$/;"	v
+tunable_local_max_rate	tunables.c	/^unsigned int tunable_local_max_rate;$/;"	v
+tunable_local_root	tunables.c	/^const char* tunable_local_root;$/;"	v
+tunable_local_umask	tunables.c	/^unsigned int tunable_local_umask;$/;"	v
+tunable_lock_upload_files	tunables.c	/^int tunable_lock_upload_files;$/;"	v
+tunable_log_ftp_protocol	tunables.c	/^int tunable_log_ftp_protocol;$/;"	v
+tunable_ls_recurse_enable	tunables.c	/^int tunable_ls_recurse_enable;$/;"	v
+tunable_max_clients	tunables.c	/^unsigned int tunable_max_clients;$/;"	v
+tunable_max_login_fails	tunables.c	/^unsigned int tunable_max_login_fails;$/;"	v
+tunable_max_per_ip	tunables.c	/^unsigned int tunable_max_per_ip;$/;"	v
+tunable_mdtm_write	tunables.c	/^int tunable_mdtm_write;$/;"	v
+tunable_message_file	tunables.c	/^const char* tunable_message_file;$/;"	v
+tunable_no_anon_password	tunables.c	/^int tunable_no_anon_password;$/;"	v
+tunable_no_log_lock	tunables.c	/^int tunable_no_log_lock;$/;"	v
+tunable_nopriv_user	tunables.c	/^const char* tunable_nopriv_user;$/;"	v
+tunable_one_process_model	tunables.c	/^int tunable_one_process_model;$/;"	v
+tunable_pam_service_name	tunables.c	/^const char* tunable_pam_service_name;$/;"	v
+tunable_passwd_chroot_enable	tunables.c	/^int tunable_passwd_chroot_enable;$/;"	v
+tunable_pasv_addr_resolve	tunables.c	/^int tunable_pasv_addr_resolve;$/;"	v
+tunable_pasv_address	tunables.c	/^const char* tunable_pasv_address;$/;"	v
+tunable_pasv_enable	tunables.c	/^int tunable_pasv_enable;$/;"	v
+tunable_pasv_max_port	tunables.c	/^unsigned int tunable_pasv_max_port;$/;"	v
+tunable_pasv_min_port	tunables.c	/^unsigned int tunable_pasv_min_port;$/;"	v
+tunable_pasv_promiscuous	tunables.c	/^int tunable_pasv_promiscuous;$/;"	v
+tunable_port_enable	tunables.c	/^int tunable_port_enable;$/;"	v
+tunable_port_promiscuous	tunables.c	/^int tunable_port_promiscuous;$/;"	v
+tunable_ptrace_sandbox	tunables.c	/^int tunable_ptrace_sandbox;$/;"	v
+tunable_require_cert	tunables.c	/^int tunable_require_cert;$/;"	v
+tunable_require_ssl_reuse	tunables.c	/^int tunable_require_ssl_reuse;$/;"	v
+tunable_rsa_cert_file	tunables.c	/^const char* tunable_rsa_cert_file;$/;"	v
+tunable_rsa_private_key_file	tunables.c	/^const char* tunable_rsa_private_key_file;$/;"	v
+tunable_run_as_launching_user	tunables.c	/^int tunable_run_as_launching_user;$/;"	v
+tunable_seccomp_sandbox	tunables.c	/^int tunable_seccomp_sandbox;$/;"	v
+tunable_secure_chroot_dir	tunables.c	/^const char* tunable_secure_chroot_dir;$/;"	v
+tunable_secure_email_list_enable	tunables.c	/^int tunable_secure_email_list_enable;$/;"	v
+tunable_session_support	tunables.c	/^int tunable_session_support;$/;"	v
+tunable_setproctitle_enable	tunables.c	/^int tunable_setproctitle_enable;$/;"	v
+tunable_ssl_ciphers	tunables.c	/^const char* tunable_ssl_ciphers;$/;"	v
+tunable_ssl_enable	tunables.c	/^int tunable_ssl_enable;$/;"	v
+tunable_ssl_request_cert	tunables.c	/^int tunable_ssl_request_cert;$/;"	v
+tunable_sslv2	tunables.c	/^int tunable_sslv2;$/;"	v
+tunable_sslv3	tunables.c	/^int tunable_sslv3;$/;"	v
+tunable_strict_ssl_read_eof	tunables.c	/^int tunable_strict_ssl_read_eof;$/;"	v
+tunable_strict_ssl_write_shutdown	tunables.c	/^int tunable_strict_ssl_write_shutdown;$/;"	v
+tunable_syslog_enable	tunables.c	/^int tunable_syslog_enable;$/;"	v
+tunable_tcp_wrappers	tunables.c	/^int tunable_tcp_wrappers;$/;"	v
+tunable_text_userdb_names	tunables.c	/^int tunable_text_userdb_names;$/;"	v
+tunable_tilde_user_enable	tunables.c	/^int tunable_tilde_user_enable;$/;"	v
+tunable_tlsv1	tunables.c	/^int tunable_tlsv1;$/;"	v
+tunable_trans_chunk_size	tunables.c	/^unsigned int tunable_trans_chunk_size;$/;"	v
+tunable_use_localtime	tunables.c	/^int tunable_use_localtime;$/;"	v
+tunable_use_sendfile	tunables.c	/^int tunable_use_sendfile;$/;"	v
+tunable_user_config_dir	tunables.c	/^const char* tunable_user_config_dir;$/;"	v
+tunable_user_sub_token	tunables.c	/^const char* tunable_user_sub_token;$/;"	v
+tunable_userlist_deny	tunables.c	/^int tunable_userlist_deny;$/;"	v
+tunable_userlist_enable	tunables.c	/^int tunable_userlist_enable;$/;"	v
+tunable_userlist_file	tunables.c	/^const char* tunable_userlist_file;$/;"	v
+tunable_validate_cert	tunables.c	/^int tunable_validate_cert;$/;"	v
+tunable_virtual_use_local_privs	tunables.c	/^int tunable_virtual_use_local_privs;$/;"	v
+tunable_vsftpd_log_file	tunables.c	/^const char* tunable_vsftpd_log_file;$/;"	v
+tunable_write_enable	tunables.c	/^int tunable_write_enable;$/;"	v
+tunable_xferlog_enable	tunables.c	/^int tunable_xferlog_enable;$/;"	v
+tunable_xferlog_file	tunables.c	/^const char* tunable_xferlog_file;$/;"	v
+tunable_xferlog_std_format	tunables.c	/^int tunable_xferlog_std_format;$/;"	v
+tunables_load_defaults	tunables.c	/^tunables_load_defaults()$/;"	f
+u	sysutil.c	/^  } u;$/;"	m	struct:vsf_sysutil_sockaddr	typeref:union:vsf_sysutil_sockaddr::__anon1	file:
+u_sockaddr	sysutil.c	/^    struct sockaddr u_sockaddr;$/;"	m	union:vsf_sysutil_sockaddr::__anon1	typeref:struct:vsf_sysutil_sockaddr::__anon1::sockaddr	file:
+u_sockaddr_in	sysutil.c	/^    struct sockaddr_in u_sockaddr_in;$/;"	m	union:vsf_sysutil_sockaddr::__anon1	typeref:struct:vsf_sysutil_sockaddr::__anon1::sockaddr_in	file:
+u_sockaddr_in6	sysutil.c	/^    struct sockaddr_in6 u_sockaddr_in6;$/;"	m	union:vsf_sysutil_sockaddr::__anon1	typeref:struct:vsf_sysutil_sockaddr::__anon1::sockaddr_in6	file:
+use_alarm	sysutil.c	/^  int use_alarm;$/;"	m	struct:vsf_sysutil_sig_details	file:
+user_str	session.h	/^  struct mystr user_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+userlist_str	session.h	/^  struct mystr userlist_str;$/;"	m	struct:vsf_session	typeref:struct:vsf_session::mystr
+validate_fcntl	ptracesandbox.c	/^validate_fcntl(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+validate_mmap2	ptracesandbox.c	/^validate_mmap2(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+validate_open_default	ptracesandbox.c	/^validate_open_default(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+validate_open_readonly	ptracesandbox.c	/^validate_open_readonly(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+validate_socketcall	ptracesandbox.c	/^validate_socketcall(struct pt_sandbox* p_sandbox, void* p_arg)$/;"	f	file:
+validator	ptracesandbox.c	/^  ptrace_sandbox_validator_t validator[MAX_SYSCALL];$/;"	m	struct:pt_sandbox	file:
+validator_arg	ptracesandbox.c	/^  void* validator_arg[MAX_SYSCALL];$/;"	m	struct:pt_sandbox	file:
+value_size	hash.c	/^  unsigned int value_size;$/;"	m	struct:hash	file:
+vsf_access_check_file	access.c	/^vsf_access_check_file(const struct mystr* p_filename_str)$/;"	f
+vsf_access_check_file_visible	access.c	/^vsf_access_check_file_visible(const struct mystr* p_filename_str)$/;"	f
+vsf_ascii_ascii_to_bin	ascii.c	/^vsf_ascii_ascii_to_bin(char* p_buf, unsigned int in_len, int prev_cr)$/;"	f
+vsf_ascii_bin_to_ascii	ascii.c	/^vsf_ascii_bin_to_ascii(const char* p_in,$/;"	f
+vsf_async_sighandle_t	sysutil.h	/^typedef void (*vsf_async_sighandle_t)(int);$/;"	t
+vsf_auth_shutdown	sysdeputil.c	/^vsf_auth_shutdown(void)$/;"	f	file:
+vsf_banner_dir_changed	banner.c	/^vsf_banner_dir_changed(struct vsf_session* p_sess, int ftpcode)$/;"	f
+vsf_banner_write	banner.c	/^vsf_banner_write(struct vsf_session* p_sess, struct mystr* p_str, int ftpcode)$/;"	f
+vsf_client_launch	standalone.h	/^struct vsf_client_launch$/;"	s
+vsf_cmdio_get_cmd_and_arg	ftpcmdio.c	/^vsf_cmdio_get_cmd_and_arg(struct vsf_session* p_sess, struct mystr* p_cmd_str,$/;"	f
+vsf_cmdio_set_alarm	ftpcmdio.c	/^vsf_cmdio_set_alarm(struct vsf_session* p_sess)$/;"	f
+vsf_cmdio_sock_setup	ftpcmdio.c	/^vsf_cmdio_sock_setup(void)$/;"	f
+vsf_cmdio_write	ftpcmdio.c	/^vsf_cmdio_write(struct vsf_session* p_sess, int status, const char* p_text)$/;"	f
+vsf_cmdio_write_exit	ftpcmdio.c	/^vsf_cmdio_write_exit(struct vsf_session* p_sess, int status, const char* p_text,$/;"	f
+vsf_cmdio_write_hyphen	ftpcmdio.c	/^vsf_cmdio_write_hyphen(struct vsf_session* p_sess, int status,$/;"	f
+vsf_cmdio_write_raw	ftpcmdio.c	/^vsf_cmdio_write_raw(struct vsf_session* p_sess, const char* p_text)$/;"	f
+vsf_cmdio_write_str	ftpcmdio.c	/^vsf_cmdio_write_str(struct vsf_session* p_sess, int status,$/;"	f
+vsf_cmdio_write_str_hyphen	ftpcmdio.c	/^vsf_cmdio_write_str_hyphen(struct vsf_session* p_sess, int status,$/;"	f
+vsf_context_io_t	sysutil.h	/^typedef void (*vsf_context_io_t)(int, int, void*);$/;"	t
+vsf_exit	utility.c	/^vsf_exit(const char* p_text)$/;"	f
+vsf_filename_passes_filter	ls.c	/^vsf_filename_passes_filter(const struct mystr* p_filename_str,$/;"	f
+vsf_ftpdataio_dispose_transfer_fd	ftpdataio.c	/^vsf_ftpdataio_dispose_transfer_fd(struct vsf_session* p_sess)$/;"	f
+vsf_ftpdataio_get_pasv_fd	ftpdataio.c	/^vsf_ftpdataio_get_pasv_fd(struct vsf_session* p_sess)$/;"	f
+vsf_ftpdataio_get_port_fd	ftpdataio.c	/^vsf_ftpdataio_get_port_fd(struct vsf_session* p_sess)$/;"	f
+vsf_ftpdataio_post_mark_connect	ftpdataio.c	/^vsf_ftpdataio_post_mark_connect(struct vsf_session* p_sess)$/;"	f
+vsf_ftpdataio_transfer_dir	ftpdataio.c	/^vsf_ftpdataio_transfer_dir(struct vsf_session* p_sess, int is_control,$/;"	f
+vsf_ftpdataio_transfer_file	ftpdataio.c	/^vsf_ftpdataio_transfer_file(struct vsf_session* p_sess, int remote_fd,$/;"	f
+vsf_insert_uwtmp	sysdeputil.c	/^vsf_insert_uwtmp(const struct mystr* p_user_str,$/;"	f
+vsf_log_clear_entry	logging.c	/^vsf_log_clear_entry(struct vsf_session* p_sess)$/;"	f
+vsf_log_common	logging.c	/^vsf_log_common(struct vsf_session* p_sess, int succeeded,$/;"	f	file:
+vsf_log_do_log	logging.c	/^vsf_log_do_log(struct vsf_session* p_sess, int succeeded)$/;"	f
+vsf_log_do_log_to_file	logging.c	/^vsf_log_do_log_to_file(int fd, struct mystr* p_str)$/;"	f	file:
+vsf_log_do_log_vsftpd_format	logging.c	/^vsf_log_do_log_vsftpd_format(struct vsf_session* p_sess, struct mystr* p_str,$/;"	f	file:
+vsf_log_do_log_wuftpd_format	logging.c	/^vsf_log_do_log_wuftpd_format(struct vsf_session* p_sess, struct mystr* p_str,$/;"	f	file:
+vsf_log_entry_pending	logging.c	/^vsf_log_entry_pending(struct vsf_session* p_sess)$/;"	f
+vsf_log_init	logging.c	/^vsf_log_init(struct vsf_session* p_sess)$/;"	f
+vsf_log_line	logging.c	/^vsf_log_line(struct vsf_session* p_sess, enum EVSFLogEntryType what,$/;"	f
+vsf_log_start_entry	logging.c	/^vsf_log_start_entry(struct vsf_session* p_sess, enum EVSFLogEntryType what)$/;"	f
+vsf_log_type_is_transfer	logging.c	/^vsf_log_type_is_transfer(enum EVSFLogEntryType type)$/;"	f	file:
+vsf_ls_populate_dir_list	ls.c	/^vsf_ls_populate_dir_list(struct mystr_list* p_list,$/;"	f
+vsf_one_process_chown_upload	oneprocess.c	/^vsf_one_process_chown_upload(struct vsf_session* p_sess, int fd)$/;"	f
+vsf_one_process_get_pasv_fd	oneprocess.c	/^vsf_one_process_get_pasv_fd(struct vsf_session* p_sess)$/;"	f
+vsf_one_process_get_priv_data_sock	oneprocess.c	/^vsf_one_process_get_priv_data_sock(struct vsf_session* p_sess)$/;"	f
+vsf_one_process_listen	oneprocess.c	/^vsf_one_process_listen(struct vsf_session* p_sess)$/;"	f
+vsf_one_process_login	oneprocess.c	/^vsf_one_process_login(struct vsf_session* p_sess,$/;"	f
+vsf_one_process_pasv_active	oneprocess.c	/^vsf_one_process_pasv_active(struct vsf_session* p_sess)$/;"	f
+vsf_one_process_pasv_cleanup	oneprocess.c	/^vsf_one_process_pasv_cleanup(struct vsf_session* p_sess)$/;"	f
+vsf_one_process_start	oneprocess.c	/^vsf_one_process_start(struct vsf_session* p_sess)$/;"	f
+vsf_parseconf_load_file	parseconf.c	/^vsf_parseconf_load_file(const char* p_filename, int errs_fatal)$/;"	f
+vsf_parseconf_load_setting	parseconf.c	/^vsf_parseconf_load_setting(const char* p_setting, int errs_fatal)$/;"	f
+vsf_priv_parent_postlogin	postprivparent.c	/^vsf_priv_parent_postlogin(struct vsf_session* p_sess)$/;"	f
+vsf_privop_accept_pasv	privops.c	/^vsf_privop_accept_pasv(struct vsf_session* p_sess)$/;"	f
+vsf_privop_do_file_chown	privops.c	/^vsf_privop_do_file_chown(struct vsf_session* p_sess, int fd)$/;"	f
+vsf_privop_do_login	privops.c	/^vsf_privop_do_login(struct vsf_session* p_sess,$/;"	f
+vsf_privop_get_ftp_port_sock	privops.c	/^vsf_privop_get_ftp_port_sock(struct vsf_session* p_sess,$/;"	f
+vsf_privop_pasv_active	privops.c	/^vsf_privop_pasv_active(struct vsf_session* p_sess)$/;"	f
+vsf_privop_pasv_cleanup	privops.c	/^vsf_privop_pasv_cleanup(struct vsf_session* p_sess)$/;"	f
+vsf_privop_pasv_listen	privops.c	/^vsf_privop_pasv_listen(struct vsf_session* p_sess)$/;"	f
+vsf_remove_uwtmp	sysdeputil.c	/^vsf_remove_uwtmp(void)$/;"	f
+vsf_secbuf_alloc	secbuf.c	/^vsf_secbuf_alloc(char** p_ptr, unsigned int size)$/;"	f
+vsf_secbuf_free	secbuf.c	/^vsf_secbuf_free(char** p_ptr)$/;"	f
+vsf_secutil_change_credentials	secutil.c	/^vsf_secutil_change_credentials(const struct mystr* p_user_str,$/;"	f
+vsf_session	session.h	/^struct vsf_session$/;"	s
+vsf_set_die_if_parent_dies	sysdeputil.c	/^vsf_set_die_if_parent_dies()$/;"	f
+vsf_set_term_if_parent_dies	sysdeputil.c	/^vsf_set_term_if_parent_dies()$/;"	f
+vsf_sighandle_t	sysutil.h	/^typedef void (*vsf_sighandle_t)(void*);$/;"	t
+vsf_standalone_main	standalone.c	/^vsf_standalone_main(void)$/;"	f
+vsf_sysdep_adopt_capabilities	sysdeputil.c	/^vsf_sysdep_adopt_capabilities(unsigned int caps)$/;"	f
+vsf_sysdep_check_auth	sysdeputil.c	/^vsf_sysdep_check_auth(struct mystr* p_user_str,$/;"	f
+vsf_sysdep_has_capabilities	sysdeputil.c	/^vsf_sysdep_has_capabilities(void)$/;"	f
+vsf_sysdep_has_capabilities_as_non_root	sysdeputil.c	/^vsf_sysdep_has_capabilities_as_non_root(void)$/;"	f
+vsf_sysdep_keep_capabilities	sysdeputil.c	/^vsf_sysdep_keep_capabilities(void)$/;"	f
+vsf_sysutil_a_to_filesize_t	sysutil.c	/^vsf_sysutil_a_to_filesize_t(const char* p_str)$/;"	f
+vsf_sysutil_accept_timeout	sysutil.c	/^vsf_sysutil_accept_timeout(int fd, struct vsf_sysutil_sockaddr* p_sockaddr,$/;"	f
+vsf_sysutil_activate_keepalive	sysutil.c	/^vsf_sysutil_activate_keepalive(int fd)$/;"	f
+vsf_sysutil_activate_linger	sysutil.c	/^vsf_sysutil_activate_linger(int fd)$/;"	f
+vsf_sysutil_activate_noblock	sysutil.c	/^vsf_sysutil_activate_noblock(int fd)$/;"	f
+vsf_sysutil_activate_oobinline	sysutil.c	/^vsf_sysutil_activate_oobinline(int fd)$/;"	f
+vsf_sysutil_activate_reuseaddr	sysutil.c	/^vsf_sysutil_activate_reuseaddr(int fd)$/;"	f
+vsf_sysutil_activate_sigurg	sysutil.c	/^vsf_sysutil_activate_sigurg(int fd)$/;"	f
+vsf_sysutil_alloc_statbuf	sysutil.c	/^vsf_sysutil_alloc_statbuf(struct vsf_sysutil_statbuf** p_ptr)$/;"	f	file:
+vsf_sysutil_alrm_sighandler	sysutil.c	/^vsf_sysutil_alrm_sighandler(int signum)$/;"	f	file:
+vsf_sysutil_atoi	sysutil.c	/^vsf_sysutil_atoi(const char* p_str)$/;"	f
+vsf_sysutil_bind	sysutil.c	/^vsf_sysutil_bind(int fd, const struct vsf_sysutil_sockaddr* p_sockptr)$/;"	f
+vsf_sysutil_block_sig	sysutil.c	/^vsf_sysutil_block_sig(const enum EVSFSysUtilSignal sig)$/;"	f
+vsf_sysutil_chdir	sysutil.c	/^vsf_sysutil_chdir(const char* p_dirname)$/;"	f
+vsf_sysutil_check_pending_actions	sysutil.c	/^vsf_sysutil_check_pending_actions($/;"	f
+vsf_sysutil_chmod	sysutil.c	/^vsf_sysutil_chmod(const char* p_filename, unsigned int mode)$/;"	f
+vsf_sysutil_chroot	sysutil.c	/^vsf_sysutil_chroot(const char* p_root_path)$/;"	f
+vsf_sysutil_clear_alarm	sysutil.c	/^vsf_sysutil_clear_alarm(void)$/;"	f
+vsf_sysutil_clear_supp_groups	sysutil.c	/^vsf_sysutil_clear_supp_groups(void)$/;"	f
+vsf_sysutil_close	sysutil.c	/^vsf_sysutil_close(int fd)$/;"	f
+vsf_sysutil_close_failok	sysutil.c	/^vsf_sysutil_close_failok(int fd)$/;"	f
+vsf_sysutil_closedir	sysutil.c	/^vsf_sysutil_closedir(struct vsf_sysutil_dir* p_dir)$/;"	f
+vsf_sysutil_closelog	sysutil.c	/^vsf_sysutil_closelog(void)$/;"	f
+vsf_sysutil_common_sighandler	sysutil.c	/^vsf_sysutil_common_sighandler(int signum)$/;"	f	file:
+vsf_sysutil_connect_timeout	sysutil.c	/^vsf_sysutil_connect_timeout(int fd, const struct vsf_sysutil_sockaddr* p_addr,$/;"	f
+vsf_sysutil_create_file_exclusive	sysutil.c	/^vsf_sysutil_create_file_exclusive(const char* p_filename)$/;"	f
+vsf_sysutil_create_or_open_file	sysutil.c	/^vsf_sysutil_create_or_open_file(const char* p_filename, unsigned int mode)$/;"	f
+vsf_sysutil_create_or_open_file_append	sysutil.c	/^vsf_sysutil_create_or_open_file_append(const char* p_filename,$/;"	f
+vsf_sysutil_deactivate_linger_failok	sysutil.c	/^vsf_sysutil_deactivate_linger_failok(int fd)$/;"	f
+vsf_sysutil_deactivate_noblock	sysutil.c	/^vsf_sysutil_deactivate_noblock(int fd)$/;"	f
+vsf_sysutil_default_sig	sysutil.c	/^vsf_sysutil_default_sig(const enum EVSFSysUtilSignal sig)$/;"	f
+vsf_sysutil_dir_stat	sysutil.c	/^vsf_sysutil_dir_stat(const struct vsf_sysutil_dir* p_dir,$/;"	f
+vsf_sysutil_dns_resolve	sysutil.c	/^vsf_sysutil_dns_resolve(struct vsf_sysutil_sockaddr** p_sockptr,$/;"	f
+vsf_sysutil_double_to_str	sysutil.c	/^vsf_sysutil_double_to_str(double the_double)$/;"	f
+vsf_sysutil_dupfd2	sysutil.c	/^vsf_sysutil_dupfd2(int old_fd, int new_fd)$/;"	f
+vsf_sysutil_exit	sysutil.c	/^vsf_sysutil_exit(int exit_code)$/;"	f
+vsf_sysutil_fchmod	sysutil.c	/^vsf_sysutil_fchmod(const int fd, unsigned int mode)$/;"	f
+vsf_sysutil_fchown	sysutil.c	/^vsf_sysutil_fchown(const int fd, const int uid, const int gid)$/;"	f
+vsf_sysutil_filesize_t_to_str	sysutil.c	/^vsf_sysutil_filesize_t_to_str(filesize_t the_filesize)$/;"	f
+vsf_sysutil_fork	sysutil.c	/^vsf_sysutil_fork(void)$/;"	f
+vsf_sysutil_fork_failok	sysutil.c	/^vsf_sysutil_fork_failok(void)$/;"	f
+vsf_sysutil_fork_isolate_all_failok	sysdeputil.c	/^vsf_sysutil_fork_isolate_all_failok()$/;"	f
+vsf_sysutil_fork_isolate_failok	sysdeputil.c	/^vsf_sysutil_fork_isolate_failok()$/;"	f
+vsf_sysutil_fork_newnet	sysdeputil.c	/^vsf_sysutil_fork_newnet()$/;"	f
+vsf_sysutil_free	sysutil.c	/^vsf_sysutil_free(void* p_ptr)$/;"	f
+vsf_sysutil_fstat	sysutil.c	/^vsf_sysutil_fstat(int fd, struct vsf_sysutil_statbuf** p_ptr)$/;"	f
+vsf_sysutil_ftruncate	sysutil.c	/^vsf_sysutil_ftruncate(int fd)$/;"	f
+vsf_sysutil_get_current_date	sysutil.c	/^vsf_sysutil_get_current_date(void)$/;"	f
+vsf_sysutil_get_error	sysutil.c	/^vsf_sysutil_get_error(void)$/;"	f
+vsf_sysutil_get_file_offset	sysutil.c	/^vsf_sysutil_get_file_offset(const int file_fd)$/;"	f
+vsf_sysutil_get_ipaddr_size	sysutil.c	/^vsf_sysutil_get_ipaddr_size(void)$/;"	f
+vsf_sysutil_get_ipsock	sysutil.c	/^vsf_sysutil_get_ipsock(const struct vsf_sysutil_sockaddr* p_addr)$/;"	f
+vsf_sysutil_get_ipv4_sock	sysutil.c	/^vsf_sysutil_get_ipv4_sock(void)$/;"	f
+vsf_sysutil_get_ipv6_sock	sysutil.c	/^vsf_sysutil_get_ipv6_sock(void)$/;"	f
+vsf_sysutil_get_random_byte	sysutil.c	/^vsf_sysutil_get_random_byte(void)$/;"	f
+vsf_sysutil_get_time_sec	sysutil.c	/^vsf_sysutil_get_time_sec(void)$/;"	f
+vsf_sysutil_get_time_usec	sysutil.c	/^vsf_sysutil_get_time_usec(void)$/;"	f
+vsf_sysutil_get_umask	sysutil.c	/^vsf_sysutil_get_umask(void)$/;"	f
+vsf_sysutil_getcwd	sysutil.c	/^vsf_sysutil_getcwd(char* p_dest, const unsigned int buf_size)$/;"	f
+vsf_sysutil_getegid	sysutil.c	/^vsf_sysutil_getegid(void)$/;"	f
+vsf_sysutil_getenv	sysutil.c	/^vsf_sysutil_getenv(const char* p_var)$/;"	f
+vsf_sysutil_geteuid	sysutil.c	/^vsf_sysutil_geteuid(void)$/;"	f
+vsf_sysutil_getgrgid	sysutil.c	/^vsf_sysutil_getgrgid(const int gid)$/;"	f
+vsf_sysutil_getpagesize	sysutil.c	/^vsf_sysutil_getpagesize(void)$/;"	f
+vsf_sysutil_getpeername	sysutil.c	/^vsf_sysutil_getpeername(int fd, struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_getpid	sysutil.c	/^vsf_sysutil_getpid(void)$/;"	f
+vsf_sysutil_getpid_nocache	sysdeputil.c	/^vsf_sysutil_getpid_nocache(void)$/;"	f
+vsf_sysutil_getpwnam	sysutil.c	/^vsf_sysutil_getpwnam(const char* p_user)$/;"	f
+vsf_sysutil_getpwuid	sysutil.c	/^vsf_sysutil_getpwuid(const int uid)$/;"	f
+vsf_sysutil_getsockname	sysutil.c	/^vsf_sysutil_getsockname(int fd, struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_getuid	sysutil.c	/^vsf_sysutil_getuid(void)$/;"	f
+vsf_sysutil_group_getname	sysutil.c	/^vsf_sysutil_group_getname(const struct vsf_sysutil_group* p_group)$/;"	f
+vsf_sysutil_inet_aton	sysutil.c	/^vsf_sysutil_inet_aton(const char* p_text, struct vsf_sysutil_sockaddr* p_addr)$/;"	f
+vsf_sysutil_inet_ntoa	sysutil.c	/^vsf_sysutil_inet_ntoa(const void* p_raw_addr)$/;"	f
+vsf_sysutil_inet_ntop	sysutil.c	/^vsf_sysutil_inet_ntop(const struct vsf_sysutil_sockaddr* p_sockptr)$/;"	f
+vsf_sysutil_initgroups	sysutil.c	/^vsf_sysutil_initgroups(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_install_async_sighandler	sysutil.c	/^vsf_sysutil_install_async_sighandler(const enum EVSFSysUtilSignal sig,$/;"	f
+vsf_sysutil_install_io_handler	sysutil.c	/^vsf_sysutil_install_io_handler(vsf_context_io_t handler, void* p_private)$/;"	f
+vsf_sysutil_install_null_sighandler	sysutil.c	/^vsf_sysutil_install_null_sighandler(const enum EVSFSysUtilSignal sig)$/;"	f
+vsf_sysutil_install_sighandler	sysutil.c	/^vsf_sysutil_install_sighandler(const enum EVSFSysUtilSignal sig,$/;"	f
+vsf_sysutil_is_port_reserved	sysutil.c	/^vsf_sysutil_is_port_reserved(unsigned short the_port)$/;"	f
+vsf_sysutil_isalnum	sysutil.c	/^vsf_sysutil_isalnum(int the_char)$/;"	f
+vsf_sysutil_isdigit	sysutil.c	/^vsf_sysutil_isdigit(int the_char)$/;"	f
+vsf_sysutil_isprint	sysutil.c	/^vsf_sysutil_isprint(int the_char)$/;"	f
+vsf_sysutil_isspace	sysutil.c	/^vsf_sysutil_isspace(int the_char)$/;"	f
+vsf_sysutil_listen	sysutil.c	/^vsf_sysutil_listen(int fd, const unsigned int backlog)$/;"	f
+vsf_sysutil_lock_file_read	sysutil.c	/^vsf_sysutil_lock_file_read(int fd)$/;"	f
+vsf_sysutil_lock_file_write	sysutil.c	/^vsf_sysutil_lock_file_write(int fd)$/;"	f
+vsf_sysutil_lseek_end	sysutil.c	/^vsf_sysutil_lseek_end(const int fd)$/;"	f
+vsf_sysutil_lseek_to	sysutil.c	/^vsf_sysutil_lseek_to(const int fd, filesize_t seek_pos)$/;"	f
+vsf_sysutil_lstat	sysutil.c	/^vsf_sysutil_lstat(const char* p_name, struct vsf_sysutil_statbuf** p_ptr)$/;"	f
+vsf_sysutil_make_session_leader	sysutil.c	/^vsf_sysutil_make_session_leader(void)$/;"	f
+vsf_sysutil_malloc	sysutil.c	/^vsf_sysutil_malloc(unsigned int size)$/;"	f
+vsf_sysutil_map_anon_pages	sysdeputil.c	/^vsf_sysutil_map_anon_pages(unsigned int length)$/;"	f
+vsf_sysutil_map_anon_pages_init	sysdeputil.c	/^vsf_sysutil_map_anon_pages_init(void)$/;"	f
+vsf_sysutil_memclr	sysutil.c	/^vsf_sysutil_memclr(void* p_dest, unsigned int size)$/;"	f
+vsf_sysutil_memcmp	sysutil.c	/^vsf_sysutil_memcmp(const void* p_src1, const void* p_src2, unsigned int size)$/;"	f
+vsf_sysutil_memcpy	sysutil.c	/^vsf_sysutil_memcpy(void* p_dest, const void* p_src, const unsigned int size)$/;"	f
+vsf_sysutil_memprotect	sysutil.c	/^vsf_sysutil_memprotect(void* p_addr, unsigned int len,$/;"	f
+vsf_sysutil_memunmap	sysutil.c	/^vsf_sysutil_memunmap(void* p_start, unsigned int length)$/;"	f
+vsf_sysutil_mkdir	sysutil.c	/^vsf_sysutil_mkdir(const char* p_dirname, const unsigned int mode)$/;"	f
+vsf_sysutil_next_dirent	sysutil.c	/^vsf_sysutil_next_dirent(struct vsf_sysutil_dir* p_dir)$/;"	f
+vsf_sysutil_octal_to_uint	sysutil.c	/^vsf_sysutil_octal_to_uint(const char* p_str)$/;"	f
+vsf_sysutil_open_file	sysutil.c	/^vsf_sysutil_open_file(const char* p_filename,$/;"	f
+vsf_sysutil_opendir	sysutil.c	/^vsf_sysutil_opendir(const char* p_dirname)$/;"	f
+vsf_sysutil_openlog	sysutil.c	/^vsf_sysutil_openlog(int force)$/;"	f
+vsf_sysutil_parse_ipv4	ipaddrparse.c	/^vsf_sysutil_parse_ipv4(const struct mystr* p_str)$/;"	f
+vsf_sysutil_parse_ipv6	ipaddrparse.c	/^vsf_sysutil_parse_ipv6(const struct mystr* p_str)$/;"	f
+vsf_sysutil_parse_time	sysutil.c	/^vsf_sysutil_parse_time(const char* p_text)$/;"	f
+vsf_sysutil_parse_uchar_string_sep	ipaddrparse.c	/^vsf_sysutil_parse_uchar_string_sep($/;"	f
+vsf_sysutil_post_fork	sysutil.c	/^vsf_sysutil_post_fork()$/;"	f
+vsf_sysutil_qsort	sysutil.c	/^vsf_sysutil_qsort(void* p_base, unsigned int num_elem, unsigned int elem_size,$/;"	f
+vsf_sysutil_read	sysutil.c	/^vsf_sysutil_read(const int fd, void* p_buf, const unsigned int size)$/;"	f
+vsf_sysutil_read_loop	sysutil.c	/^vsf_sysutil_read_loop(const int fd, void* p_buf, unsigned int size)$/;"	f
+vsf_sysutil_readlink	sysutil.c	/^vsf_sysutil_readlink(const char* p_filename, char* p_dest, unsigned int bufsiz)$/;"	f
+vsf_sysutil_realloc	sysutil.c	/^vsf_sysutil_realloc(void* p_ptr, unsigned int size)$/;"	f
+vsf_sysutil_recv_fd	sysdeputil.c	/^vsf_sysutil_recv_fd(const int sock_fd)$/;"	f
+vsf_sysutil_recv_fd	sysdeputil.c	/^vsf_sysutil_recv_fd(int sock_fd)$/;"	f
+vsf_sysutil_recv_peek	sysutil.c	/^vsf_sysutil_recv_peek(const int fd, void* p_buf, unsigned int len)$/;"	f
+vsf_sysutil_rename	sysutil.c	/^vsf_sysutil_rename(const char* p_from, const char* p_to)$/;"	f
+vsf_sysutil_reopen_standard_fds	sysutil.c	/^vsf_sysutil_reopen_standard_fds(void)$/;"	f
+vsf_sysutil_retval_is_error	sysutil.c	/^vsf_sysutil_retval_is_error(int retval)$/;"	f
+vsf_sysutil_rmdir	sysutil.c	/^vsf_sysutil_rmdir(const char* p_dirname)$/;"	f
+vsf_sysutil_running_as_root	sysutil.c	/^vsf_sysutil_running_as_root(void)$/;"	f
+vsf_sysutil_send_fd	sysdeputil.c	/^vsf_sysutil_send_fd(int sock_fd, int send_fd)$/;"	f
+vsf_sysutil_sendfile	sysdeputil.c	/^vsf_sysutil_sendfile(const int out_fd, const int in_fd,$/;"	f
+vsf_sysutil_set_address_space_limit	sysutil.c	/^vsf_sysutil_set_address_space_limit(unsigned long bytes)$/;"	f
+vsf_sysutil_set_alarm	sysutil.c	/^vsf_sysutil_set_alarm(const unsigned int trigger_seconds)$/;"	f
+vsf_sysutil_set_exit_func	sysutil.c	/^vsf_sysutil_set_exit_func(exitfunc_t exitfunc)$/;"	f
+vsf_sysutil_set_iptos_throughput	sysutil.c	/^vsf_sysutil_set_iptos_throughput(int fd)$/;"	f
+vsf_sysutil_set_no_fds	sysutil.c	/^vsf_sysutil_set_no_fds()$/;"	f
+vsf_sysutil_set_no_procs	sysutil.c	/^vsf_sysutil_set_no_procs()$/;"	f
+vsf_sysutil_set_nodelay	sysutil.c	/^vsf_sysutil_set_nodelay(int fd)$/;"	f
+vsf_sysutil_set_proctitle_prefix	sysdeputil.c	/^vsf_sysutil_set_proctitle_prefix(const struct mystr* p_str)$/;"	f
+vsf_sysutil_set_sighandler	sysutil.c	/^vsf_sysutil_set_sighandler(int sig, void (*p_handlefunc)(int))$/;"	f	file:
+vsf_sysutil_set_umask	sysutil.c	/^vsf_sysutil_set_umask(unsigned int new_umask)$/;"	f
+vsf_sysutil_setegid	sysutil.c	/^vsf_sysutil_setegid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_setegid_numeric	sysutil.c	/^vsf_sysutil_setegid_numeric(int gid)$/;"	f
+vsf_sysutil_seteuid	sysutil.c	/^vsf_sysutil_seteuid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_seteuid_numeric	sysutil.c	/^vsf_sysutil_seteuid_numeric(int uid)$/;"	f
+vsf_sysutil_setgid	sysutil.c	/^vsf_sysutil_setgid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_setgid_numeric	sysutil.c	/^vsf_sysutil_setgid_numeric(int gid)$/;"	f
+vsf_sysutil_setmodtime	sysutil.c	/^vsf_sysutil_setmodtime(const char* p_file, long the_time, int is_localtime)$/;"	f
+vsf_sysutil_setproctitle	sysdeputil.c	/^vsf_sysutil_setproctitle(const char* p_text)$/;"	f
+vsf_sysutil_setproctitle_init	sysdeputil.c	/^vsf_sysutil_setproctitle_init(int argc, const char* argv[])$/;"	f
+vsf_sysutil_setproctitle_internal	sysdeputil.c	/^vsf_sysutil_setproctitle_internal(const char* p_buf)$/;"	f
+vsf_sysutil_setproctitle_str	sysdeputil.c	/^vsf_sysutil_setproctitle_str(const struct mystr* p_str)$/;"	f
+vsf_sysutil_setuid	sysutil.c	/^vsf_sysutil_setuid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_setuid_numeric	sysutil.c	/^vsf_sysutil_setuid_numeric(int uid)$/;"	f
+vsf_sysutil_shutdown_failok	sysutil.c	/^vsf_sysutil_shutdown_failok(int fd)$/;"	f
+vsf_sysutil_shutdown_read_failok	sysutil.c	/^vsf_sysutil_shutdown_read_failok(int fd)$/;"	f
+vsf_sysutil_sig_details	sysutil.c	/^static struct vsf_sysutil_sig_details$/;"	s	file:
+vsf_sysutil_sleep	sysutil.c	/^vsf_sysutil_sleep(double seconds)$/;"	f
+vsf_sysutil_sockaddr	sysutil.c	/^struct vsf_sysutil_sockaddr$/;"	s	file:
+vsf_sysutil_sockaddr_addr_equal	sysutil.c	/^vsf_sysutil_sockaddr_addr_equal(const struct vsf_sysutil_sockaddr* p1,$/;"	f
+vsf_sysutil_sockaddr_alloc	sysutil.c	/^vsf_sysutil_sockaddr_alloc(struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_alloc_ipv4	sysutil.c	/^vsf_sysutil_sockaddr_alloc_ipv4(struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_alloc_ipv6	sysutil.c	/^vsf_sysutil_sockaddr_alloc_ipv6(struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_clear	sysutil.c	/^vsf_sysutil_sockaddr_clear(struct vsf_sysutil_sockaddr** p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_clone	sysutil.c	/^vsf_sysutil_sockaddr_clone(struct vsf_sysutil_sockaddr** p_sockptr,$/;"	f
+vsf_sysutil_sockaddr_get_port	sysutil.c	/^vsf_sysutil_sockaddr_get_port(const struct vsf_sysutil_sockaddr* p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_get_raw_addr	sysutil.c	/^vsf_sysutil_sockaddr_get_raw_addr(struct vsf_sysutil_sockaddr* p_sockptr)$/;"	f
+vsf_sysutil_sockaddr_ipv4_v6	sysutil.c	/^vsf_sysutil_sockaddr_ipv4_v6(const struct vsf_sysutil_sockaddr* p_addr)$/;"	f
+vsf_sysutil_sockaddr_ipv6_v4	sysutil.c	/^vsf_sysutil_sockaddr_ipv6_v4(const struct vsf_sysutil_sockaddr* p_addr)$/;"	f
+vsf_sysutil_sockaddr_is_ipv6	sysutil.c	/^vsf_sysutil_sockaddr_is_ipv6(const struct vsf_sysutil_sockaddr* p_sockaddr)$/;"	f
+vsf_sysutil_sockaddr_set_any	sysutil.c	/^vsf_sysutil_sockaddr_set_any(struct vsf_sysutil_sockaddr* p_sockaddr)$/;"	f
+vsf_sysutil_sockaddr_set_ipv4addr	sysutil.c	/^vsf_sysutil_sockaddr_set_ipv4addr(struct vsf_sysutil_sockaddr* p_sockptr,$/;"	f
+vsf_sysutil_sockaddr_set_ipv6addr	sysutil.c	/^vsf_sysutil_sockaddr_set_ipv6addr(struct vsf_sysutil_sockaddr* p_sockptr,$/;"	f
+vsf_sysutil_sockaddr_set_port	sysutil.c	/^vsf_sysutil_sockaddr_set_port(struct vsf_sysutil_sockaddr* p_sockptr,$/;"	f
+vsf_sysutil_socketpair_retval	sysutil.h	/^struct vsf_sysutil_socketpair_retval$/;"	s
+vsf_sysutil_stat	sysutil.c	/^vsf_sysutil_stat(const char* p_name, struct vsf_sysutil_statbuf** p_ptr)$/;"	f
+vsf_sysutil_statbuf_get_date	sysutil.c	/^vsf_sysutil_statbuf_get_date(const struct vsf_sysutil_statbuf* p_statbuf,$/;"	f
+vsf_sysutil_statbuf_get_gid	sysutil.c	/^vsf_sysutil_statbuf_get_gid(const struct vsf_sysutil_statbuf* p_statbuf)$/;"	f
+vsf_sysutil_statbuf_get_links	sysutil.c	/^vsf_sysutil_statbuf_get_links(const struct vsf_sysutil_statbuf* p_statbuf)$/;"	f
+vsf_sysutil_statbuf_get_numeric_date	sysutil.c	/^vsf_sysutil_statbuf_get_numeric_date($/;"	f
+vsf_sysutil_statbuf_get_perms	sysutil.c	/^vsf_sysutil_statbuf_get_perms(const struct vsf_sysutil_statbuf* p_statbuf)$/;"	f
+vsf_sysutil_statbuf_get_size	sysutil.c	/^vsf_sysutil_statbuf_get_size(const struct vsf_sysutil_statbuf* p_statbuf)$/;"	f
+vsf_sysutil_statbuf_get_sortkey_mtime	sysutil.c	/^vsf_sysutil_statbuf_get_sortkey_mtime($/;"	f
+vsf_sysutil_statbuf_get_uid	sysutil.c	/^vsf_sysutil_statbuf_get_uid(const struct vsf_sysutil_statbuf* p_statbuf)$/;"	f
+vsf_sysutil_statbuf_is_dir	sysutil.c	/^vsf_sysutil_statbuf_is_dir(const struct vsf_sysutil_statbuf* p_stat)$/;"	f
+vsf_sysutil_statbuf_is_readable_other	sysutil.c	/^vsf_sysutil_statbuf_is_readable_other($/;"	f
+vsf_sysutil_statbuf_is_regfile	sysutil.c	/^vsf_sysutil_statbuf_is_regfile(const struct vsf_sysutil_statbuf* p_stat)$/;"	f
+vsf_sysutil_statbuf_is_socket	sysutil.c	/^vsf_sysutil_statbuf_is_socket(const struct vsf_sysutil_statbuf* p_stat)$/;"	f
+vsf_sysutil_statbuf_is_symlink	sysutil.c	/^vsf_sysutil_statbuf_is_symlink(const struct vsf_sysutil_statbuf* p_stat)$/;"	f
+vsf_sysutil_strcmp	sysutil.c	/^vsf_sysutil_strcmp(const char* p_src1, const char* p_src2)$/;"	f
+vsf_sysutil_strcpy	sysutil.c	/^vsf_sysutil_strcpy(char* p_dest, const char* p_src, unsigned int maxsize)$/;"	f
+vsf_sysutil_strdup	sysutil.c	/^vsf_sysutil_strdup(const char* p_str)$/;"	f
+vsf_sysutil_strlen	sysutil.c	/^vsf_sysutil_strlen(const char* p_text)$/;"	f
+vsf_sysutil_syslog	sysutil.c	/^vsf_sysutil_syslog(const char* p_text, int severe)$/;"	f
+vsf_sysutil_toupper	sysutil.c	/^vsf_sysutil_toupper(int the_char)$/;"	f
+vsf_sysutil_translate_memprot	sysutil.c	/^vsf_sysutil_translate_memprot(const enum EVSFSysUtilMapPermission perm)$/;"	f	file:
+vsf_sysutil_translate_openmode	sysutil.c	/^vsf_sysutil_translate_openmode(const enum EVSFSysUtilOpenMode mode)$/;"	f	file:
+vsf_sysutil_translate_sig	sysutil.c	/^vsf_sysutil_translate_sig(const enum EVSFSysUtilSignal sig)$/;"	f	file:
+vsf_sysutil_tzset	sysutil.c	/^vsf_sysutil_tzset(void)$/;"	f
+vsf_sysutil_uint_to_octal	sysutil.c	/^vsf_sysutil_uint_to_octal(unsigned int the_uint)$/;"	f
+vsf_sysutil_ulong_to_str	sysutil.c	/^vsf_sysutil_ulong_to_str(unsigned long the_ulong)$/;"	f
+vsf_sysutil_unblock_sig	sysutil.c	/^vsf_sysutil_unblock_sig(const enum EVSFSysUtilSignal sig)$/;"	f
+vsf_sysutil_uninstall_io_handler	sysutil.c	/^vsf_sysutil_uninstall_io_handler(void)$/;"	f
+vsf_sysutil_unix_stream_socketpair	sysutil.c	/^vsf_sysutil_unix_stream_socketpair(void)$/;"	f
+vsf_sysutil_unlink	sysutil.c	/^vsf_sysutil_unlink(const char* p_dead)$/;"	f
+vsf_sysutil_unlock_file	sysutil.c	/^vsf_sysutil_unlock_file(int fd)$/;"	f
+vsf_sysutil_user_get_homedir	sysutil.c	/^vsf_sysutil_user_get_homedir(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_user_getgid	sysutil.c	/^vsf_sysutil_user_getgid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_user_getname	sysutil.c	/^vsf_sysutil_user_getname(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_user_getuid	sysutil.c	/^vsf_sysutil_user_getuid(const struct vsf_sysutil_user* p_user)$/;"	f
+vsf_sysutil_wait	sysutil.c	/^vsf_sysutil_wait(void)$/;"	f
+vsf_sysutil_wait_exited_normally	sysutil.c	/^vsf_sysutil_wait_exited_normally($/;"	f
+vsf_sysutil_wait_get_exitcode	sysutil.c	/^vsf_sysutil_wait_get_exitcode(const struct vsf_sysutil_wait_retval* p_waitret)$/;"	f
+vsf_sysutil_wait_get_retval	sysutil.c	/^vsf_sysutil_wait_get_retval(const struct vsf_sysutil_wait_retval* p_waitret)$/;"	f
+vsf_sysutil_wait_reap_one	sysutil.c	/^vsf_sysutil_wait_reap_one(void)$/;"	f
+vsf_sysutil_wait_retval	sysutil.h	/^struct vsf_sysutil_wait_retval$/;"	s
+vsf_sysutil_write	sysutil.c	/^vsf_sysutil_write(const int fd, const void* p_buf, const unsigned int size)$/;"	f
+vsf_sysutil_write_access	sysutil.c	/^vsf_sysutil_write_access(const char* p_filename)$/;"	f
+vsf_sysutil_write_loop	sysutil.c	/^vsf_sysutil_write_loop(const int fd, const void* p_buf, unsigned int size)$/;"	f
+vsf_tcp_wrapper_ok	tcpwrap.c	/^vsf_tcp_wrapper_ok(int remote_fd)$/;"	f
+vsf_transfer_ret	ftpdataio.h	/^struct vsf_transfer_ret$/;"	s
+vsf_two_process_chown_upload	twoprocess.c	/^vsf_two_process_chown_upload(struct vsf_session* p_sess, int fd)$/;"	f
+vsf_two_process_get_pasv_fd	twoprocess.c	/^vsf_two_process_get_pasv_fd(struct vsf_session* p_sess)$/;"	f
+vsf_two_process_get_priv_data_sock	twoprocess.c	/^vsf_two_process_get_priv_data_sock(struct vsf_session* p_sess)$/;"	f
+vsf_two_process_listen	twoprocess.c	/^vsf_two_process_listen(struct vsf_session* p_sess)$/;"	f
+vsf_two_process_login	twoprocess.c	/^vsf_two_process_login(struct vsf_session* p_sess,$/;"	f
+vsf_two_process_pasv_active	twoprocess.c	/^vsf_two_process_pasv_active(struct vsf_session* p_sess)$/;"	f
+vsf_two_process_pasv_cleanup	twoprocess.c	/^vsf_two_process_pasv_cleanup(struct vsf_session* p_sess)$/;"	f
+vsf_two_process_start	twoprocess.c	/^vsf_two_process_start(struct vsf_session* p_sess)$/;"	f
+vsftpd_log_fd	session.h	/^  int vsftpd_log_fd;$/;"	m	struct:vsf_session
+write_dir_list	ftpdataio.c	/^write_dir_list(struct vsf_session* p_sess, struct mystr_list* p_dir_list,$/;"	f	file:
+write_event_fd	ptracesandbox.c	/^  int write_event_fd;$/;"	m	struct:pt_sandbox	file:
+xferlog_fd	session.h	/^  int xferlog_fd;$/;"	m	struct:vsf_session
