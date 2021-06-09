@@ -599,9 +599,21 @@ vsf_sysutil_set_exit_func(exitfunc_t exitfunc)
   s_exit_func = exitfunc;
 }
 
+extern uint64_t __llvm_profile_get_size_for_buffer(void);
+extern int __llvm_profile_write_buffer(char *Buffer);
+
 void
 vsf_sysutil_exit(int exit_code)
 {
+  /**
+  FILE *fp = fopen("/tmp/child1.profdata", "w+");
+
+  uint64_t bufSize = __llvm_profile_get_size_for_buffer();
+  void *buf = malloc(bufSize);
+  fwrite(buf, 1, bufSize, fp);
+  fclose(fp);
+  */
+
   if (s_exit_func)
   {
     exitfunc_t curr_func = s_exit_func;
@@ -609,7 +621,9 @@ vsf_sysutil_exit(int exit_code)
     s_exit_func = 0;
     (*curr_func)();
   }
+
   __llvm_profile_write_file();
+ 
   _exit(exit_code);
 }
 

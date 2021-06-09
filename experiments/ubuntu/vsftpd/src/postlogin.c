@@ -129,6 +129,7 @@ process_post_login(struct vsf_session* p_sess)
     {
       struct mystr proctitle_str = INIT_MYSTR;
       str_copy(&proctitle_str, &p_sess->ftp_cmd_str);
+
       if (!str_isempty(&p_sess->ftp_arg_str))
       {
         str_append_char(&proctitle_str, ' ');
@@ -182,7 +183,7 @@ process_post_login(struct vsf_session* p_sess)
     }
     if (!cmd_ok)
     {
-      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied1.");
     }
     else if (str_equal_text(&p_sess->ftp_cmd_str, "QUIT"))
     {
@@ -434,7 +435,7 @@ process_post_login(struct vsf_session* p_sess)
              str_equal_text(&p_sess->ftp_cmd_str, "PBSZ") ||
              str_equal_text(&p_sess->ftp_cmd_str, "PROT"))
     {
-      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied2.");
     }
     else if (str_isempty(&p_sess->ftp_cmd_str) &&
              str_isempty(&p_sess->ftp_arg_str))
@@ -488,7 +489,7 @@ handle_cwd(struct vsf_session* p_sess)
   resolve_tilde(&p_sess->ftp_arg_str, p_sess);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied3.");
     return;
   }
   retval = str_chdir(&p_sess->ftp_arg_str);
@@ -675,7 +676,7 @@ handle_retr(struct vsf_session* p_sess, int is_http)
   prepend_path_to_filename(&p_sess->log_str);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied4.");
     return;
   }
   opened_file = str_open(&p_sess->ftp_arg_str, kVSFSysStrOpenReadOnly);
@@ -839,7 +840,7 @@ handle_dir_common(struct vsf_session* p_sess, int full_details, int stat_cmd)
     resolve_tilde(&s_filter_str, p_sess);
     if (!vsf_access_check_file(&s_filter_str))
     {
-      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+      vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied5.");
       return;
     }
     /* First check - is it an outright directory, as in "ls /pub" */
@@ -1044,7 +1045,7 @@ handle_upload_common(struct vsf_session* p_sess, int is_append, int is_unique)
   prepend_path_to_filename(&p_sess->log_str);
   if (!vsf_access_check_file(p_filename))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Upload Permission denied6.");
     return;
   }
   /* NOTE - actual file permissions will be governed by the tunable umask */
@@ -1184,7 +1185,7 @@ handle_mkd(struct vsf_session* p_sess)
   prepend_path_to_filename(&p_sess->log_str);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied7.");
     return;
   }
   /* NOTE! Actual permissions will be governed by the tunable umask */
@@ -1221,7 +1222,7 @@ handle_rmd(struct vsf_session* p_sess)
   prepend_path_to_filename(&p_sess->log_str);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied8.");
     return;
   }
   retval = str_rmdir(&p_sess->ftp_arg_str);
@@ -1248,7 +1249,7 @@ handle_dele(struct vsf_session* p_sess)
   prepend_path_to_filename(&p_sess->log_str);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied9.");
     return;
   }
   retval = str_unlink(&p_sess->ftp_arg_str);
@@ -1292,7 +1293,7 @@ handle_rnfr(struct vsf_session* p_sess)
     vsf_log_start_entry(p_sess, kVSFLogEntryRename);
     str_copy(&p_sess->log_str, &p_sess->ftp_arg_str);
     prepend_path_to_filename(&p_sess->log_str);
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied10.");
     return;
   }
   /* Does it exist? */
@@ -1334,7 +1335,7 @@ handle_rnto(struct vsf_session* p_sess)
   str_append_str(&p_sess->log_str, &s_tmp_str);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied11.");
     return;
   }
   /* NOTE - might overwrite destination file. Not a concern because the same
@@ -1480,7 +1481,7 @@ handle_size(struct vsf_session* p_sess)
   resolve_tilde(&p_sess->ftp_arg_str, p_sess);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied12.");
     return;
   }
   retval = str_stat(&p_sess->ftp_arg_str, &s_p_statbuf);
@@ -1497,7 +1498,7 @@ handle_size(struct vsf_session* p_sess)
   }
 }
 
-static void
+static void 
 handle_site(struct vsf_session* p_sess)
 {
   static struct mystr s_site_args_str;
@@ -1557,7 +1558,7 @@ handle_site_chmod(struct vsf_session* p_sess, struct mystr* p_arg_str)
   str_append_str(&p_sess->log_str, p_arg_str);
   if (!vsf_access_check_file(&s_chmod_file_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied13.");
     return;
   }
   /* Don't worry - our chmod() implementation only allows 0 - 0777 */
@@ -1630,7 +1631,7 @@ handle_mdtm(struct vsf_session* p_sess)
   resolve_tilde(&p_sess->ftp_arg_str, p_sess);
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
-    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied.");
+    vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied14.");
     return;
   }
   if (do_write && tunable_write_enable &&

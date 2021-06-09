@@ -20,6 +20,8 @@
 #include "session.h"
 #include "readwrite.h"
 
+#include <stdio.h>
+
 /* Internal functions */
 static int control_getline(struct mystr* p_str, struct vsf_session* p_sess);
 static void ftp_write_text_common(struct vsf_session* p_sess, int status,
@@ -171,6 +173,7 @@ vsf_cmdio_get_cmd_and_arg(struct vsf_session* p_sess, struct mystr* p_cmd_str,
   }
   /* Blocks */
   ret = control_getline(p_cmd_str, p_sess);
+
   if (p_sess->idle_timeout)
   {
     vsf_cmdio_write_exit(p_sess, FTP_IDLE_TIMEOUT, "Timeout.", 1);

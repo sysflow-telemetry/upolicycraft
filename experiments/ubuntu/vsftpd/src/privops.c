@@ -116,7 +116,7 @@ vsf_privop_pasv_active(struct vsf_session* p_sess)
   return 0;
 }
 
-unsigned short
+unsigned short 
 vsf_privop_pasv_listen(struct vsf_session* p_sess)
 {
   static struct vsf_sysutil_sockaddr* s_p_sockaddr;
