@@ -47,6 +47,25 @@ let find_test_cases test_case_dir =
         files in
       find_files []
 
+let walk_directory_tree dir =
+  let rec walk acc = function
+  | [] -> (acc)
+  | dir :: tail ->
+      let contents = Array.to_list (Sys.readdir dir) in
+      let contents = List'.map ~f:(fun file -> Filename.concat dir file) contents in
+      let dirs, files =
+        List'.fold_left ~f:(fun (dirs,files) f ->
+            match (Unix.stat f).st_kind with
+              | S_REG -> (dirs, f::files)  (* Regular file *)
+              | S_DIR -> (f::dirs, files)  (* Directory *)
+              | _ -> (dirs, files)
+          ) ~init:([],[]) contents
+      in
+      walk (files @ acc) (dirs @ tail)
+  in
+  walk [] [dir]
+;;
+
 let parse_test_cases opt =
   match opt with
     None -> None
@@ -106,10 +125,11 @@ let add_report_progress reportprogress bap_argv =
   else
     bap_argv
 
+
 let handle_command binary entrypoint argv
                    container_entrypoint container_argv
                    path_length mode exec_style redirections
-                   env testcases reportprogress verbose =
+                   filesystem env testcases reportprogress verbose =
   let mode' = parse_mode mode in
   let tests' = parse_test_cases testcases in
   let exec_style' = parse_exec_style exec_style in
@@ -123,12 +143,22 @@ let handle_command binary entrypoint argv
                         None -> redirections'
                       | Some tests ->
                         (String.concat ~sep:"," (redirect_tests tests)) ^ "," ^ redirections' in
+  let redirections''' = match filesystem with
+                          None -> redirections''
+                        | Some fs ->
+                          let mappings =
+                            fs |>
+		            walk_directory_tree |>
+		            List'.map ~f:(fun file ->
+		              (Printf.sprintf "%s:%s" (String.chop_prefix_exn ~prefix:fs file) file)) |>
+	                      String.concat ~sep:"," in
+                          redirections'' ^ "," ^ mappings in
   let no_tests = Printf.sprintf "--primus-uids-no-test-cases=%d" (count_tests tests') in
-  let redirections''' = Printf.sprintf "--primus-lisp-channel-redirect=%s" redirections'' in
-  let redirections'''' = Printf.sprintf "--primus-uids-filesystem=%s" redirections'' in
+  let lisp_redirects = Printf.sprintf "--primus-lisp-channel-redirect=%s" redirections''' in
+  let uids_filesystem = Printf.sprintf "--primus-uids-filesystem=%s" redirections''' in
   let bap_argv = ["config"; "exec"; "--"; "bap"; binary; "-prun";
                   entrypoints'; argv'; path_length'; mode'; "--primus-uids-model";
-                  redirections'''; redirections''''; no_tests; container_entrypoint'; container_argv'] in
+                  lisp_redirects; uids_filesystem; no_tests; container_entrypoint'; container_argv'] in
   let bap_argv' = bap_argv |>
                   add_environment env |>
                   add_exec_style exec_style' |>
@@ -152,17 +182,18 @@ let main =
         and path_length = anon ("path-length" %: int)
         and mode = flag "-m" (optional string) ~doc:"Mode The micro-execution mode (greedy|promiscuous)"
         and exec_style = flag "-s" (optional string) ~doc:"Exec An alternative execution style for the model (inetd)."
-        and redirections = flag "-fs" (optional string) ~doc:"FileSystem Reveal programs to the micro-executed program to the host path/to/file:path/to/host/file."
+        and redirections = flag "-redirects" (optional string) ~doc:"FileSystem Reveal programs to the micro-executed program to the host path/to/file:path/to/host/file."
+        and filesystem = flag "-fs" (optional string) ~doc:"FileSystem A directory containing the image's filesystem."
         and env = flag "-e" (optional string) ~doc:"Environment The program's environment variables."
         and testcases = flag "-t" (optional string) ~doc:"TestCases A folder containing test inputs."
         and reportprogress = flag "-r" no_arg ~doc:"ReportProgress Report micro-execution progress."
         and verbose = flag "-v" no_arg ~doc:"Verbose Show the BAP command executed." in
        fun () ->
-          try
-            eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections env testcases reportprogress verbose)
-          with e ->
-            let msg = Exn.to_string e in
-            Printf.eprintf "error: %s" msg
+         try
+           eval (handle_command binary entrypoint argv container_entrypoint container_argv path_length mode exec_style redirections filesystem env testcases reportprogress verbose)
+         with e ->
+           let msg = Exn.to_string e in
+           Printf.eprintf "error: %s" msg
       ]
   in
   Core.Command.run command

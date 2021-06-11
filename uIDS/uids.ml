@@ -34,7 +34,7 @@ module Param = struct
 
   let symbolic_arguments = flag "symbolic-arguments"
       ~doc:
-        "Ingore concrete values for printf style functions"
+        "Ignore concrete values for printf style functions"
 
   let entrypoint = param (string) "entrypoint"
       ~doc:
@@ -214,6 +214,7 @@ type state = {
   callstack : string list;
   no_test_cases : int;
   filesystem : (string, string) Hashtbl.t;
+  duped_file_descriptors : (int, int) Hashtbl.t;
 }
 
 exception InvalidArgv of string
@@ -260,6 +261,11 @@ let string_of_json json =
   Yojson.Basic.to_string |>
   String.map ~f:(fun c -> if c = '"' then '\'' else c)
 
+let check_copied_descriptor state fd =
+  match Hashtbl.find state.duped_file_descriptors fd with
+    None -> fd
+  | Some dupedfd -> dupedfd
+
 (** Some binaries erroneously build paths with extra slashes. *)
 let sanitise_path path =
     String.substr_replace_all path ~pattern:"//" ~with_:"/"
@@ -281,7 +287,8 @@ let restrict_to_user state constr =
 let constraint_of_fd state fd =
   let () = info "Fetching state of file descriptor %d:" fd in
   (** let () = info "  %s" (state.ports) *)
-  let opt = Hashtbl.find state.ports fd in
+  let fd' = check_copied_descriptor state fd in
+  let opt = Hashtbl.find state.ports fd' in
   match opt with
     Some port ->
        let port' = Printf.sprintf "%d" port in
@@ -426,6 +433,7 @@ let state = Primus.Machine.State.declare
          saved_uid = None;
          saved_gid = None;
          filesystem = Hashtbl.create (module String);
+         duped_file_descriptors = Hashtbl.create (module Int);
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -832,16 +840,29 @@ module FStat(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include StatPre(Machine)
 
+    (** TODO: Re-structure to make the search for the file descriptor's domain
+        (File or Socket) less hacky. *)
     let run [fd; buf] =
       Machine.Local.get state >>= fun state ->
         (** Consult the mapping for the true file and fstat that. *)
-        let {files} = state in
-        let fd' = int_of_value fd in
+        let {files;ports} = state in
+        let fd' = fd |>
+                  int_of_value |>
+                  check_copied_descriptor state in
+        let () = info "Running fstat on fd=%d" fd' in
         let opt = Hashtbl.find files fd' in
+        let buf'' = (Value.to_word buf) in
         match opt with
           None ->
-            let () = info "Could not find fd=%d" fd' in
-            zero
+            let opt = Hashtbl.find ports fd' in
+            (match opt with
+              None ->
+                let () = info "Could not find fd=%d in either files or ports" fd' in
+                zero
+            | Some port ->
+              let socket_file = 0o0140000 in
+                copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) socket_file >>= fun _ ->
+                  zero)
         | Some filename -> (stat_file state filename buf)
 
 end
@@ -864,14 +885,31 @@ module GetUid(Machine : Primus.Machine.S) = struct
         Value.of_word (Bitvector.of_int 64 uid)
 end
 
+module Dup2(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [oldfd; newfd] =
+      let oldfd' = int_of_value oldfd in
+      let newfd' = int_of_value newfd in
+      Machine.Local.get state >>= fun {duped_file_descriptors} ->
+        Hashtbl.set duped_file_descriptors ~key:newfd' ~data:oldfd';
+        zero
+end
 
 let out = std_formatter
 
 module Monitor(Machine : Primus.Machine.S) = struct
+  include Pre(Machine)
+
   module Eval = Primus.Interpreter.Make(Machine)
+
+(**
   module Env = Primus.Interpreter.Make(Machine)
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
+*)
+
   module Lisp = Primus.Lisp.Make(Machine)
   open Primus.Lisp.Type.Spec
   open Machine.Syntax
@@ -987,12 +1025,24 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let record_function tid func =
     match func with
-      "fork" ->
-      (** let () = info "model clone:" in *)
+      "syscall" ->
+      Machine.args >>= fun args ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      Machine.Local.update state ~f:(fun state' ->
+        let syscall_number = int_of_value v in
+        let () = info "syscall no. %d" syscall_number in
+        match syscall_number with
+          56 (* clone *) ->
+            let op = (Clone (Array.to_list args)) in
+            add_operation tid op state'
+        | _ -> state'
+      )
+    | "fork" ->
       Machine.args >>= fun args ->
       Machine.Local.update state ~f:(fun state' ->
-          let op = (Clone (Array.to_list args)) in
-          add_operation tid op state')
+        let op = (Clone (Array.to_list args)) in
+        add_operation tid op state')
     | "execv" ->
       (** let () = info "model execv:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1458,16 +1508,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
   let assoc_field_exn pairs field =
     List.hd_exn (assoc_field_help pairs field)
 
-  exception InvalidConstraint of string
-
-  let list_assoc_field_exn xs field =
-    xs |>
-    List.map ~f:(fun assoc ->
-      match assoc with
-        `Assoc constraints -> Printf.sprintf "{%s}" (assoc_field_exn constraints field)
-      | _ -> raise (InvalidConstraint "Constraint not represented as Assoc")) |>
-    String.concat ~sep:"|"
-
   (**
     Fetch a field from an Association List
   *)
@@ -1482,6 +1522,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
     match List.hd (assoc_field_help pairs field) with
       None -> ""
     | Some x -> x
+
+  exception InvalidConstraint of string
+
+  let list_assoc_field_exn xs field =
+    xs |>
+    List.map ~f:(fun assoc ->
+      match assoc with
+        `Assoc constraints -> Printf.sprintf "{%s}" (assoc_field_blank constraints field)
+      | _ -> raise (InvalidConstraint "Constraint not represented as Assoc")) |>
+    String.concat ~sep:"|"
 
   (**
     Infer the SysFlow type from the constraints.
@@ -1590,7 +1640,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
       record_model() >>= fun () ->
       Machine.kill pid >>= fun () ->
       Machine.switch cid
-
 
   let record_jmp j = Machine.current () >>= fun pid ->
     let tid = Term.tid j in
@@ -1754,6 +1803,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-add-socket) adds a file descriptor representing a socket to the micro-execution state.|};
       def "uids-ocaml-getuid" (tuple [] @-> a) (module GetUid)
       {|(uids-ocaml-getuid) fetches the current user id.|};
+      def "uids-ocaml-dup2" (tuple [a;b] @-> c) (module Dup2)
+      {|(uids-ocaml-dup2) makes a copy of oldfd into newfd.|};
     ]
 
   let json_string data =
@@ -1879,6 +1930,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_uid = None;
           saved_gid = None;
           filesystem = filesystem;
+          duped_file_descriptors = Hashtbl.create (module Int);
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -1906,6 +1958,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_uid = None;
           saved_gid = None;
           filesystem = filesystem;
+          duped_file_descriptors = Hashtbl.create (module Int);
         })
 end
 

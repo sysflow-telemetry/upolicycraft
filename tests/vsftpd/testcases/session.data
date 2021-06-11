@@ -1,0 +1,6 @@
+USER anonymous
+PASS somethingwicked
+SYST
+HELP
+SITE chmod
+
