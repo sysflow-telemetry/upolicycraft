@@ -1,22 +1,30 @@
 digraph G {
-  4 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}}}",
-     fontsize=9, ];
-  5 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_close}|{F|{/etc/vsftpd.conf}|{}}}",
-     fontsize=9, ];
-  7 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_bind}|{N|{21}}}",
-     fontsize=9, ];
-  8 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_accept_timeout}|{N|{21}}}",
-     fontsize=9, ];
-  6 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_write}|{N|{21}}}",
-     fontsize=9, ];
-  9 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_fork_isolate_failok}|{P|0}}",
-     fontsize=9, ];
   3 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_open_file}|{F|{/etc/vsftpd.conf}}}",
+     label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}|{/etc/vsftpd/banned_emails}|{/etc/vsftpd/banner}|{/etc/vsftpd/passwords}}}",
      fontsize=9, ];
+  11 [shape=Mrecord,
+      label="{{/bin/vsftpd:vsf_sysutil_create_or_open_file_append}|{F|{/var/log/ftp/vsftpd.log}|{/var/log/ftp/xfer.log}}}",
+      fontsize=9, ];
+  4 [shape=Mrecord,
+     label="{{/bin/vsftpd:vsf_sysutil_close}|{F|{/etc/vsftpd.conf}|{/etc/vsftpd/banned_emails}|{/etc/vsftpd/banner}|{/etc/vsftpd/passwords}|{}}}",
+     fontsize=9, ];
+  8 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_bind}|{N|{21}}}",
+     fontsize=9, ];
+  9 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_accept_timeout}|{N|{21}}}",
+     fontsize=9, ];
+  6 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_setuid_numeric}|{P|0}}",
+     fontsize=9, ];
+  5 [shape=Mrecord, label="{{/bin/vsftpd:vsf_sysutil_setgid_numeric}|{P|0}}",
+     fontsize=9, ];
+  7 [shape=Mrecord,
+     label="{{/bin/vsftpd:vsf_sysutil_write}|{F|{/var/log/ftp/vsftpd.log}|{}}}",
+     fontsize=9, ];
+  10 [shape=Mrecord,
+      label="{{/bin/vsftpd:vsf_sysutil_fork_isolate_failok}|{P|0}}",
+      fontsize=9, ];
+  12 [shape=Mrecord,
+      label="{{/bin/vsftpd:vsf_sysutil_open_file}|{F|{/etc/vsftpd.conf}|{/etc/vsftpd/banned_emails}|{/etc/vsftpd/banner}|{/etc/vsftpd/passwords}}}",
+      fontsize=9, ];
   0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./vsftpd.sh}}",
      fontsize=9, ];
   1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./vsftpd.sh}}",
@@ -24,17 +32,23 @@ digraph G {
   2 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/vsftpd|}}", fontsize=9, ];
   
   
-  4 -> 5 [label="CLOSE", fontsize=8, ];
-  5 -> 5 [label="CLOSE", fontsize=8, ];
-  5 -> 7 [label="BIND", fontsize=8, ];
-  5 -> 6 [label="WRITE", fontsize=8, ];
-  7 -> 8 [label="ACCEPT", fontsize=8, ];
-  8 -> 9 [label="CLONE", fontsize=8, ];
-  6 -> 6 [label="WRITE", fontsize=8, ];
-  9 -> 5 [label="CLOSE", fontsize=8, ];
-  3 -> 4 [label="READ", fontsize=8, ];
+  3 -> 4 [label="CLOSE", fontsize=8, ];
+  11 -> 11 [label="OPEN", fontsize=8, ];
+  11 -> 12 [label="OPEN", fontsize=8, ];
+  4 -> 11 [label="OPEN", fontsize=8, ];
+  4 -> 4 [label="CLOSE", fontsize=8, ];
+  4 -> 8 [label="BIND", fontsize=8, ];
+  4 -> 5 [label="SETGID", fontsize=8, ];
+  4 -> 12 [label="OPEN", fontsize=8, ];
+  8 -> 9 [label="ACCEPT", fontsize=8, ];
+  9 -> 10 [label="CLONE", fontsize=8, ];
+  6 -> 7 [label="WRITE", fontsize=8, ];
+  5 -> 6 [label="SETUID", fontsize=8, ];
+  7 -> 7 [label="WRITE", fontsize=8, ];
+  10 -> 4 [label="CLOSE", fontsize=8, ];
+  12 -> 3 [label="READ", fontsize=8, ];
   0 -> 1 [label="CLONE", fontsize=8, ];
   1 -> 2 [label="EXEC", fontsize=8, ];
-  2 -> 3 [label="OPEN", fontsize=8, ];
+  2 -> 12 [label="OPEN", fontsize=8, ];
   
   }

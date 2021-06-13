@@ -315,7 +315,10 @@
 
 (defun uids-accept (sock addr addrlen)
   (declare (external "accept"))
-  (let ((no-test-cases (uids-ocaml-network-test-cases)))
+  (let ((af-inet 2)
+        (no-test-cases (uids-ocaml-network-test-cases)))
+    ;; Write af-inet into the sock-addr
+    (write-word int addr af-inet)
     (if (= *network-test-case* no-test-cases)
       -1
       (let ((fname (malloc 16)))
@@ -335,11 +338,24 @@
       ;;  (decr *accept-used*)
       ;;  fd))))
 
+
+;; char    *pw_name   User's login name.
+;; uid_t    pw_uid    Numerical user ID.
+;; gid_t    pw_gid    Numerical group ID.
+;; char    *pw_dir    Initial working directory.
+;; char    *pw_shell  Program to use as shell.
+
 (defun uids-getuser-struct (name)
-  (let ((len (* (sizeof ptr_t) 3))
-        (offset (* (sizeof ptr_t) 2))
-        (m (malloc len)))
-    (write-word ptr_t (cast ptr_t (+ m offset)) 33)
+  (let ((len (* (sizeof ptr_t) 5))
+        (group-offset (* (sizeof ptr_t) 2))
+        (dir-offset 32)
+        (m (malloc len))
+        (homedir (malloc 10)))
+    (write-word char homedir 0x2F)
+    (write-word char (+ homedir 1) 0x68)
+    (write-word char (+ homedir 2) 0x00)
+    (write-word ptr_t (cast ptr_t (+ m group-offset)) 33)
+    (write-word ptr_t (cast ptr_t (+ m dir-offset)) homedir)
     m))
 
 (defun uids-getgrnam (name)
@@ -424,6 +440,12 @@
   (declare (external "localtime_r"))
   (memset tm 0 (* (sizeof int) 9)))
 
+(defun uids-localtime (time)
+  (declare (external "localtime"))
+  (let ((time-struct-size (* (sizeof int) 9))
+       (m (malloc time-struct-size)))
+  (memset m 0 time-struct-size)))
+
 (defun uids-fork ()
   (declare (external "fork"))
   0)
@@ -446,4 +468,37 @@
 
 (defun uids-dup2 (oldfd newfd)
   (declare (external "dup2"))
+  (uids-ocaml-dup2 oldfd newfd)
   newfd)
+
+(defun uids-getpeername (sockfd sockaddr socklen)
+  (declare (external "getpeername"))
+  (write-word short sockaddr 2)
+  (write-word ptr_t socklen 4)
+  0)
+
+(defun uids-getsockname (sockfd sockaddr socklen)
+  (declare (external "getsockname"))
+  (write-word short sockaddr 2)
+  (write-word ptr_t socklen 4)
+  0)
+
+(defun uids-setrlimit (resource rlim)
+  (declare (external "setrlimit64"))
+  0)
+
+(defun uids-initgroups (name gid)
+  (declare (external "initgroups"))
+  0)
+
+(defun uids-chdir (name)
+  (declare (external "chdir"))
+  0)
+
+(defun uids-chroot (name)
+  (declare (external "chroot"))
+  0)
+
+(defun uids-gettimeofday (tv tz)
+  (declare (external "gettimeofday"))
+  0)

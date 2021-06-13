@@ -128,7 +128,7 @@
   (channel-input stream))
 
 (defun fclose (stream)
-  (declare (external "fclose"))
+  (declare (external "fclose" "close"))
   0)
 
 (defun fgets-step (ptr len str i)

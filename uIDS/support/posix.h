@@ -38,6 +38,7 @@ int           sigaction(int signum, void *act, void *oldact);
 
 void *        getgrnam(const char *name);
 void *        getpwnam(const char *login);
+int           initgroups(const char *user, int group);
 
 // uids
 
@@ -88,7 +89,10 @@ int           put(char *buf);
 
 int           htons(int);
 
+int           gettimeofday(void *, void *);
+
 void          *localtime_r(int, void *tm);
+void          *localtime(void *tm);
 
 void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
 int           munmap(void *addr, size_t length);
@@ -398,6 +402,8 @@ int open64(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
 int open(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
 int creat(const char *pathname, mode_t mode) __attribute__((nonnull(1)));
 
+int setrlimit64(int resource, void *rlim);
+
 // socket
 struct sockaddr;
 typedef size_t socklen_t;
@@ -468,6 +474,8 @@ unsigned     alarm(unsigned seconds);
 
 int          chdir(const char *)
     __attribute__((warn_unused_result, nonnull(1)));
+
+int          chroot(const char *);
 
 int          chown(const char *parh, uid_t owner, gid_t group)
     __attribute__((warn_unused_result, nonnull(1)));
