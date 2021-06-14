@@ -897,6 +897,16 @@ module Dup2(Machine : Primus.Machine.S) = struct
         zero
 end
 
+module CheckDup2(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [fd] =
+      let fd' = int_of_value fd in
+      Machine.Local.get state >>= fun state ->
+        Value.of_word (Bitvector.of_int ~width:64 (check_copied_descriptor state fd'))
+end
+
 let out = std_formatter
 
 module Monitor(Machine : Primus.Machine.S) = struct
@@ -1805,6 +1815,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-getuid) fetches the current user id.|};
       def "uids-ocaml-dup2" (tuple [a;b] @-> c) (module Dup2)
       {|(uids-ocaml-dup2) makes a copy of oldfd into newfd.|};
+      def "uids-ocaml-check-dup2" (tuple [a] @-> b) (module CheckDup2)
+      {|(uids-ocaml-check-dup2) checks if a file descriptor has been copied.|};
     ]
 
   let json_string data =

@@ -59,9 +59,10 @@
 
 (defun fwrite (buf size n stream)
   (declare (external "fwrite"))
-  (let ((i 0))
+  (let ((i 0)
+       (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and (< i n)
-                (= size (output-item buf size i stream)))
+                (= size (output-item buf size i stream1)))
       (incr i))
     i))
 
@@ -90,19 +91,16 @@
 
 (defun fread (ptr size n stream)
   (declare (external "fread"))
-  (let ((i 0))
+  (let ((i 0)
+        (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and
             (< i n)
-            (= size (input-item ptr size i stream)))
+            (= size (input-item ptr size i stream1)))
       (incr i))
     i))
 
 (defun pread64 (fd buf size offset)
   (declare (external "pread64"))
-  (uids-ocaml-debug 0xfebc0de)
-  (uids-ocaml-debug fd)
-  (uids-ocaml-debug size)
-  (uids-ocaml-debug offset)
   ;;(let ((skip 0)
   ;;      (n 0))
   ;;  (while (< skip offset)
@@ -113,10 +111,6 @@
 
 (defun pwrite64 (fd buf size offset)
   (declare (external "pwrite64"))
-  (uids-ocaml-debug 0xfeebc0de)
-  (uids-ocaml-debug fd)
-  (uids-ocaml-debug size)
-  (uids-ocaml-debug offset)
   (fwrite buf 1 size fd))
 
 (defun read (fd buf n)
