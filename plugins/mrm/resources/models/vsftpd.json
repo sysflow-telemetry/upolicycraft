@@ -1,24 +1,24 @@
 {
-  "initial": "%000483da",
+  "initial": "%000486cd",
   "nodes": [
-    "%000017c0", "%00003916", "%00003a9d", "%0000a157", "%0000c73a",
-    "%00011745", "%00015c56", "%00043968", "%000483da", "%000483db",
-    "%000483dd"
+    "%000017c0", "%00003916", "%00003a9d", "%0000a187", "%0000c76a",
+    "%00011772", "%00015c83", "%00043c5d", "%000486cd", "%000486ce",
+    "%000486d0"
   ],
   "contexts": {
-    "%0000c85a": [ "/bin/vsftpd", "vsf_sysutil_setgid_numeric" ],
-    "%0000c73a": [ "/bin/vsftpd", "vsf_sysutil_setuid_numeric" ],
-    "%00009f24": [ "/bin/vsftpd", "vsf_sysutil_bind" ],
+    "%00011772": [ "/bin/vsftpd", "vsf_sysutil_write" ],
+    "%00009f54": [ "/bin/vsftpd", "vsf_sysutil_bind" ],
+    "%0000a187": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
     "%00003916": [ "/bin/vsftpd", "vsf_sysutil_create_or_open_file_append" ],
-    "%0000a157": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
     "%00003a9d": [ "/bin/vsftpd", "vsf_sysutil_close" ],
-    "%00043968": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
-    "%000483dd": [ "/bin/bash", "main" ],
-    "%00015c56": [ "/bin/vsftpd", "vsf_sysutil_fork_isolate_failok" ],
-    "%000483db": [ "/bin/bash", "main" ],
+    "%0000c88a": [ "/bin/vsftpd", "vsf_sysutil_setgid_numeric" ],
+    "%000486ce": [ "/bin/bash", "main" ],
+    "%00015c83": [ "/bin/vsftpd", "vsf_sysutil_fork_isolate_failok" ],
+    "%000486d0": [ "/bin/bash", "main" ],
     "%000017c0": [ "/bin/vsftpd", "vsf_sysutil_read" ],
-    "%00011745": [ "/bin/vsftpd", "vsf_sysutil_write" ],
-    "%000483da": [ "/bin/bash", "main" ]
+    "%000486cd": [ "/bin/bash", "main" ],
+    "%0000c76a": [ "/bin/vsftpd", "vsf_sysutil_setuid_numeric" ],
+    "%00043c5d": [ "/bin/vsftpd", "vsf_sysutil_open_file" ]
   },
   "constraints": [
     {
@@ -43,6 +43,11 @@
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "0" ],
           "sf.file.path": [ "/etc/vsftpd/passwords" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "21" ]
         }
       ]
     },
@@ -92,7 +97,7 @@
       ]
     },
     {
-      "node": "%0000a157",
+      "node": "%0000a187",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -102,11 +107,11 @@
       ]
     },
     {
-      "node": "%0000c73a",
+      "node": "%0000c76a",
       "constraints": [ { "sf.proc.gid": [ "0" ], "sf.proc.uid": [ "0" ] } ]
     },
     {
-      "node": "%00011745",
+      "node": "%00011772",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -121,7 +126,7 @@
       ]
     },
     {
-      "node": "%00015c56",
+      "node": "%00015c83",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -132,7 +137,7 @@
       ]
     },
     {
-      "node": "%00043968",
+      "node": "%00043c5d",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -157,13 +162,13 @@
       ]
     },
     {
-      "node": "%000483da",
+      "node": "%000486cd",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./vsftpd.sh" ] }
       ]
     },
     {
-      "node": "%000483db",
+      "node": "%000486ce",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -173,7 +178,7 @@
       ]
     },
     {
-      "node": "%000483dd",
+      "node": "%000486d0",
       "constraints": [
         { "sf.proc.exe": [ "/bin/vsftpd" ], "sf.proc.args": [ "" ] }
       ]
@@ -181,20 +186,22 @@
   ],
   "edges": [
     { "src": "%000017c0", "dst": "%00003a9d", "label": "CLOSE" },
+    { "src": "%000017c0", "dst": "%00011772", "label": "WRITE" },
     { "src": "%00003916", "dst": "%00003916", "label": "OPEN" },
-    { "src": "%00003916", "dst": "%00043968", "label": "OPEN" },
+    { "src": "%00003916", "dst": "%00043c5d", "label": "OPEN" },
     { "src": "%00003a9d", "dst": "%00003916", "label": "OPEN" },
     { "src": "%00003a9d", "dst": "%00003a9d", "label": "CLOSE" },
-    { "src": "%00003a9d", "dst": "%0000a157", "label": "ACCEPT" },
-    { "src": "%00003a9d", "dst": "%0000c73a", "label": "SETUID" },
-    { "src": "%00003a9d", "dst": "%00043968", "label": "OPEN" },
-    { "src": "%0000a157", "dst": "%00015c56", "label": "CLONE" },
-    { "src": "%0000c73a", "dst": "%00011745", "label": "WRITE" },
-    { "src": "%00011745", "dst": "%00011745", "label": "WRITE" },
-    { "src": "%00015c56", "dst": "%00003a9d", "label": "CLOSE" },
-    { "src": "%00043968", "dst": "%000017c0", "label": "READ" },
-    { "src": "%000483da", "dst": "%000483db", "label": "CLONE" },
-    { "src": "%000483db", "dst": "%000483dd", "label": "EXEC" },
-    { "src": "%000483dd", "dst": "%00043968", "label": "OPEN" }
+    { "src": "%00003a9d", "dst": "%0000a187", "label": "ACCEPT" },
+    { "src": "%00003a9d", "dst": "%0000c76a", "label": "SETUID" },
+    { "src": "%00003a9d", "dst": "%00043c5d", "label": "OPEN" },
+    { "src": "%0000a187", "dst": "%00015c83", "label": "CLONE" },
+    { "src": "%0000c76a", "dst": "%00011772", "label": "WRITE" },
+    { "src": "%00011772", "dst": "%000017c0", "label": "READ" },
+    { "src": "%00011772", "dst": "%00011772", "label": "WRITE" },
+    { "src": "%00015c83", "dst": "%00003a9d", "label": "CLOSE" },
+    { "src": "%00043c5d", "dst": "%000017c0", "label": "READ" },
+    { "src": "%000486cd", "dst": "%000486ce", "label": "CLONE" },
+    { "src": "%000486ce", "dst": "%000486d0", "label": "EXEC" },
+    { "src": "%000486d0", "dst": "%00043c5d", "label": "OPEN" }
   ]
 }

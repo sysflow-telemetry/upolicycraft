@@ -1,6 +1,6 @@
 digraph G {
   3 [shape=Mrecord,
-     label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}|{/etc/vsftpd/banned_emails}|{/etc/vsftpd/banner}|{/etc/vsftpd/passwords}}}",
+     label="{{/bin/vsftpd:vsf_sysutil_read}|{F|{/etc/vsftpd.conf}|{/etc/vsftpd/banned_emails}|{/etc/vsftpd/banner}|{/etc/vsftpd/passwords}|{}}}",
      fontsize=9, ];
   11 [shape=Mrecord,
       label="{{/bin/vsftpd:vsf_sysutil_create_or_open_file_append}|{F|{/var/log/ftp/vsftpd.log}|{/var/log/ftp/xfer.log}}}",
@@ -33,6 +33,7 @@ digraph G {
   
   
   3 -> 4 [label="CLOSE", fontsize=8, ];
+  3 -> 7 [label="WRITE", fontsize=8, ];
   11 -> 11 [label="OPEN", fontsize=8, ];
   11 -> 12 [label="OPEN", fontsize=8, ];
   4 -> 11 [label="OPEN", fontsize=8, ];
@@ -44,6 +45,7 @@ digraph G {
   9 -> 10 [label="CLONE", fontsize=8, ];
   6 -> 7 [label="WRITE", fontsize=8, ];
   5 -> 6 [label="SETUID", fontsize=8, ];
+  7 -> 3 [label="READ", fontsize=8, ];
   7 -> 7 [label="WRITE", fontsize=8, ];
   10 -> 4 [label="CLOSE", fontsize=8, ];
   12 -> 3 [label="READ", fontsize=8, ];

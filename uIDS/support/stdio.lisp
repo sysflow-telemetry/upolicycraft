@@ -76,16 +76,41 @@
    (declare (external "write0"))
    (write (cast int32_t *standard-output*) buf cnt))
 
-(defun input-item-nth-char (ptr size item desc i)
-  (let ((c (channel-input desc)))
+;; When cache is true, always pull from the descriptor
+(defun uids-channel-input (desc cache)
+  (if cache
+    (channel-input desc)
+    (let ((cc (uids-ocaml-cache-input)))
+      (if (= cc -1)
+        (channel-input desc)
+        cc))))
+
+(defun input-item-nth-char (ptr size item desc i cache)
+  (let ((c (uids-channel-input desc cache)))
+    (uids-ocaml-debug 0xfaaabc0de)
+    (uids-ocaml-debug cache)
+    (uids-ocaml-debug c)
     (if (= c -1) 0
+      (when cache
+        (uids-ocaml-cache-push c))
       (memory-write (+ ptr (* size item) i) (cast char c))
       1)))
 
-(defun input-item (buf size item fd)
+(defun input-item (buf size item fd cache)
   (let ((i 0))
     (while (and (< i size)
-                (input-item-nth-char buf size item fd i))
+                (input-item-nth-char buf size item fd i cache))
+      (incr i))
+    i))
+
+;; Assume flags has MSG_PEEK set.
+(defun recv (stream ptr n flags)
+  (declare (external "recv"))
+  (let ((i 0)
+        (stream1 (uids-ocaml-check-dup2 stream)))
+    (while (and
+            (< i n)
+            (= 1 (input-item ptr 1 i stream1 true)))
       (incr i))
     i))
 
@@ -95,7 +120,7 @@
         (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and
             (< i n)
-            (= size (input-item ptr size i stream1)))
+            (= size (input-item ptr size i stream1 false)))
       (incr i))
     i))
 

@@ -215,6 +215,7 @@ type state = {
   no_test_cases : int;
   filesystem : (string, string) Hashtbl.t;
   duped_file_descriptors : (int, int) Hashtbl.t;
+  read_cache : int list;
 }
 
 exception InvalidArgv of string
@@ -434,6 +435,7 @@ let state = Primus.Machine.State.declare
          saved_gid = None;
          filesystem = Hashtbl.create (module String);
          duped_file_descriptors = Hashtbl.create (module Int);
+         read_cache = [];
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -905,6 +907,34 @@ module CheckDup2(Machine : Primus.Machine.S) = struct
       let fd' = int_of_value fd in
       Machine.Local.get state >>= fun state ->
         Value.of_word (Bitvector.of_int ~width:64 (check_copied_descriptor state fd'))
+end
+
+module CachePush(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [ch] =
+      let ch' = int_of_value ch in
+      Machine.Local.update state ~f:(fun state' ->
+        let read_cache = state'.read_cache in
+        {state' with read_cache = read_cache @ [ch']}
+      ) >>= fun _ ->
+      zero
+end
+
+module CacheInput(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [] =
+      Machine.Local.get state >>= fun state' ->
+        let {read_cache} = state' in
+        match read_cache with
+          [] -> Value.of_word (Bitvector.of_int ~width:32 (-1))
+        | r :: rc -> Machine.Local.update state ~f:(fun state' ->
+          {state' with read_cache=rc}
+        ) >>= fun _ ->
+          Value.of_word (Bitvector.of_int ~width:32 r)
 end
 
 let out = std_formatter
@@ -1817,6 +1847,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-dup2) makes a copy of oldfd into newfd.|};
       def "uids-ocaml-check-dup2" (tuple [a] @-> b) (module CheckDup2)
       {|(uids-ocaml-check-dup2) checks if a file descriptor has been copied.|};
+      def "uids-ocaml-cache-push" (tuple [a] @-> b) (module CachePush)
+      {|(uids-ocaml-cache-push) pushes a character onto an internal cache.|};
+      def "uids-ocaml-cache-input" (tuple [] @-> b) (module CacheInput)
+      {|(uids-ocaml-cache-input) fetches a character from the cache.|};
     ]
 
   let json_string data =
@@ -1943,6 +1977,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_gid = None;
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
+          read_cache = [];
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -1971,6 +2006,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_gid = None;
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
+          read_cache = [];
         })
 end
 
