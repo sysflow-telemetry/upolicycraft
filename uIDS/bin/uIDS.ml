@@ -156,7 +156,7 @@ let handle_command binary entrypoint argv
   let no_tests = Printf.sprintf "--primus-uids-no-test-cases=%d" (count_tests tests') in
   let lisp_redirects = Printf.sprintf "--primus-lisp-channel-redirect=%s" redirections''' in
   let uids_filesystem = Printf.sprintf "--primus-uids-filesystem=%s" redirections''' in
-  let uids_redirects = Printf.sprintf "--primus-uids-redirects=%s" redirections''' in
+  let uids_redirects = Printf.sprintf "--primus-uids-redirect=%s" redirections''' in
   let bap_argv = ["config"; "exec"; "--"; "bap"; binary; "-prun";
                   entrypoints'; argv'; path_length'; mode'; "--primus-uids-model";
                   lisp_redirects; uids_filesystem; uids_redirects; no_tests; container_entrypoint'; container_argv'] in

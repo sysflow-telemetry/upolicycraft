@@ -92,7 +92,7 @@ module Param = struct
       ~default:""
       ~doc:"The mapping of the analysis filesystem to the host filesystem."
 
-  let redirects = param (list Redirection.convert) "redirects"
+  let redirects = param (list Redirection.convert) "redirect"
       ~doc:"The mapping from the emulated filesystem to the host."
 
 end
