@@ -4,7 +4,7 @@ Version:     0.1
 Synopsis:    BAP uIDS modeler
 Authors:     Will Blair
 License:     MIT
-Copyrights:  (C) 2020 IBM
+Copyrights:  (C) 2021 IBM
 Plugins:     META (0.4), DevFiles (0.4)
 BuildTools: ocamlbuild, camlp4o
 
@@ -16,6 +16,6 @@ Library primus_uids_plugin
   CompiledObject: best
   BuildDepends: bap-primus, bare, yojson
   XMETADescription: Model the behavior of binaries.
-  Modules: Uids
+  Modules: Uids, Uids_lisp_io
   XMETAExtraLines: tags="primus, uids"
 

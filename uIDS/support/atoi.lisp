@@ -160,7 +160,7 @@
 
 (defun apr-file-open (newf fname flag perm pool)
   (declare (external "apr_file_open"))
-  (let ((fd (channel-open fname)))
+  (let ((fd (uids-channel-open fname)))
     (write-word ptr_t newf fd))
   0)
 
@@ -230,7 +230,7 @@
       (write-word char (+ fname 2) 0x76)
       (write-word char (+ fname 3) 0x0)
       ;; (puts fname)
-      (let ((fd (channel-open fname)))
+      (let ((fd (uids-channel-open fname)))
         (uids-ocaml-add-socket fd)
         fd)))
 
@@ -330,7 +330,7 @@
         ;;(write-word char (+ fname 3) 0x0)
         ;; (puts fname)
         (incr *network-test-case*)
-        (let ((fd (channel-open fname)))
+        (let ((fd (uids-channel-open fname)))
           (uids-ocaml-network-fd sock fd)
           fd)))))
 
@@ -397,11 +397,11 @@
 
 (defun uids-xstat (vers path buf)
   (declare (external "__xstat"))
-  (let ((fd (channel-open path)))
+  (let ((fd (uids-channel-open path)))
     (if (= fd -1)
       -1
       (let ()
-        (channel-close fd)
+        (uids-channel-close fd)
         0))))
 
 (defparameter *uids-errno* 0

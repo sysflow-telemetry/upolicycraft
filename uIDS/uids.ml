@@ -13,6 +13,34 @@ module Id = Monad.State.Multi.Id
 
 include Self()
 
+module Channels = Uids_lisp_io
+
+module Redirection = struct
+  type t = string * string
+
+  let known_channels = Uids_lisp_io.standard_channels
+
+  let make oldname newname =
+    if String.length oldname < 1 ||
+       String.length newname < 1
+    then `Error ("bad redirection: expected two non-empty names")
+    else if Char.equal (String.get oldname 0) '<'
+    then if List.mem known_channels ~equal:String.equal oldname
+      then `Ok (oldname,newname)
+      else `Error (sprintf "unknown channel %s, expected one of %s"
+                     oldname (String.concat ~sep:", " known_channels))
+    else `Ok (oldname,newname)
+
+  let parse str = match String.split str ~on:':' with
+    | [oldname; newname] -> make oldname newname
+    | _ -> `Error (sprintf "bad redirection, expected <old>:<new> got %s" str)
+
+  let print ppf (oldname,newname) =
+    Format.fprintf ppf "%s:%s" oldname newname
+
+  let convert = Config.converter parse print ("none","none")
+end
+
 module Param = struct
   open Config;;
   manpage [
@@ -63,6 +91,9 @@ module Param = struct
   let filesystem = param (string) "filesystem"
       ~default:""
       ~doc:"The mapping of the analysis filesystem to the host filesystem."
+
+  let redirects = param (list Redirection.convert) "redirects"
+      ~doc:"The mapping from the emulated filesystem to the host."
 
 end
 
@@ -429,7 +460,7 @@ let state = Primus.Machine.State.declare
          current_module = "main";
          callstack = [];
          no_test_cases = 0;
-	       uid = 0;
+	 uid = 0;
          gid = 0;
          saved_uid = None;
          saved_gid = None;
@@ -2017,6 +2048,7 @@ let desc =
 let main {Config.get=(!)} =
   let open Param in
   if !model then
+    Channels.init !redirects;
     Primus.Machine.add_component (module Monitor) [@warning "-D"];
     Primus.Components.register_generic "uids" (module Monitor)
       ~package:"bap"

@@ -5,11 +5,11 @@
 
 (defun fputc (char stream)
   (declare (external "fputc" "putc"))
-  (if (= 0 (channel-output stream char)) char -1))
+  (if (= 0 (uids-channel-output stream char)) char -1))
 
 (defun putchar (char)
   (declare (external "putchar"))
-  (fputc char *standard-output*))
+  (fputc char *uids-standard-output*))
 
 (defun fputs (p stream)
   (declare (external "fputs"))
@@ -20,20 +20,20 @@
 
 (defun puts (p)
   (declare (external "puts"))
-  (fputs p *standard-output*)
-  (channel-flush *standard-output*))
+  (fputs p *uids-standard-output*)
+  (uids-channel-flush *uids-standard-output*))
 
 (defun put (p)
   (declare (external "put"))
-  (fputs p *standard-output*)
-  (channel-flush *standard-output*))
+  (fputs p *uids-standard-output*)
+  (uids-channel-flush *uids-standard-output*))
 
 ;; the channel module have rough equality between streams and
 ;; file descriptors, as they both are represented as integers. We are currently
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
   (declare (external "fopen" "open" "open64"))
-  (channel-open path))
+  (uids-channel-open path))
 
 ;; Primus treats file descriptors and file handles interchangeably.
 (defun fileno (fd)
@@ -45,7 +45,7 @@
 ;;  (fopen path mode))
 
 (defun output-item-nth-char (ptr size item fd i)
-  (= 0 (channel-output
+  (= 0 (uids-channel-output
         fd
         (memory-read (+ ptr (* size item) i)))))
 
@@ -69,37 +69,32 @@
 (defun write (fd buf cnt)
   (declare (external "write"))
   (let ((written (fwrite buf 1 cnt fd))
-        (failure (channel-flush fd)))
+        (failure (uids-channel-flush fd)))
     (or failure written)))
 
 (defun write-stdout (buf cnt)
    (declare (external "write0"))
-   (write (cast int32_t *standard-output*) buf cnt))
+   (write (cast int32_t *uids-standard-output*) buf cnt))
 
 ;; When cache is true, always pull from the descriptor
-(defun uids-channel-input (desc cache)
-  (if cache
-    (channel-input desc)
-    (let ((cc (uids-ocaml-cache-input)))
-      (if (= cc -1)
-        (channel-input desc)
-        cc))))
+;;(defun uids-channel-input (desc cache)
+;;  (if cache
+;;    (uids-channel-input desc)
+;;    (let ((cc (uids-ocaml-cache-input)))
+;;      (if (= cc -1)
+;;        (uids-channel-input desc)
+;;        cc))))
 
-(defun input-item-nth-char (ptr size item desc i cache)
-  (let ((c (uids-channel-input desc cache)))
-    (uids-ocaml-debug 0xfaaabc0de)
-    (uids-ocaml-debug cache)
-    (uids-ocaml-debug c)
+(defun input-item-nth-char (ptr size item desc i)
+  (let ((c (uids-channel-input desc)))
     (if (= c -1) 0
-      (when cache
-        (uids-ocaml-cache-push c))
       (memory-write (+ ptr (* size item) i) (cast char c))
       1)))
 
-(defun input-item (buf size item fd cache)
+(defun input-item (buf size item fd)
   (let ((i 0))
     (while (and (< i size)
-                (input-item-nth-char buf size item fd i cache))
+                (input-item-nth-char buf size item fd i))
       (incr i))
     i))
 
@@ -110,7 +105,7 @@
         (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and
             (< i n)
-            (= 1 (input-item ptr 1 i stream1 true)))
+            (= 1 (input-item ptr 1 i stream1)))
       (incr i))
     i))
 
@@ -120,7 +115,7 @@
         (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and
             (< i n)
-            (= size (input-item ptr size i stream1 false)))
+            (= size (input-item ptr size i stream1)))
       (incr i))
     i))
 
@@ -144,14 +139,14 @@
 
 (defun fgetc (stream)
   (declare (external "fgetc" "getc"))
-  (channel-input stream))
+  (uids-channel-input stream))
 
 (defun fclose (stream)
   (declare (external "fclose" "close"))
   0)
 
 (defun fgets-step (ptr len str i)
-  (let ((c (channel-input str)))
+  (let ((c (uids-channel-input str)))
     (if (= c -1) 0
       (memory-write (+ ptr i) (cast char c))
       (not (= c 0xA:8)))))
@@ -167,17 +162,17 @@
 
 (defun getchar ()
   (declare (external "getchar"))
-  (fgetc *standard-input*))
+  (fgetc *uids-standard-input*))
 
 (defun uids-printf (fmt)
   (declare (external "printf"))
   (puts fmt)
-  (channel-flush *standard-output*)
+  (uids-channel-flush *uids-standard-output*)
   0)
 
 (defmethod machine-kill ()
-  (channel-flush *standard-output*)
-  (channel-flush *standard-error*))
+  (uids-channel-flush *uids-standard-output*)
+  (uids-channel-flush *uids-standard-error*))
 
 (defun transmit (fd buf count tx-bytes)
   (declare (external "transmit"))
@@ -188,7 +183,7 @@
 ;; (n (fread buf count 1 fd))
 
 (defun receive-step (ptr len str i)
-  (let ((c (channel-input str)))
+  (let ((c (uids-channel-input str)))
     (if (= c -1) 0
       (memory-write (+ ptr i) (cast char c)))))
 
@@ -206,8 +201,8 @@
 (defun receive-bytes (buf count)
    (declare (external "receive_bytes"))
    (let ((z 0))
-    (while (and (< z count)
-                (receive-step buf count *standard-input* z))
+     (while (and (< z count)
+                 (receive-step buf count *uids-standard-input* z))
       (incr z))
     0))
 
@@ -221,7 +216,7 @@
     (let ((i 0)
           (eof false))
       (while (and (< i size) (not eof))
-      (let ((c (channel-input fd)))
+      (let ((c (uids-channel-input fd)))
         (if (or (= c -1)
                 (= (cast char c) (cast char delim)))
             (set eof true)
@@ -237,7 +232,7 @@
         (eof false))
       (while (and (< z n)
                   (not eof))
-        (let ((c (channel-input fd)))
+        (let ((c (uids-channel-input fd)))
              (memory-write (+ buf z) c)
              (if (or (= (cast char c) (cast char delim))
                      (= (cast char c) (cast char 0xA)))
@@ -256,7 +251,7 @@
         (eof false))
       (while (and (< z n)
                   (not eof))
-        (let ((c (channel-input *standard-input*)))
+        (let ((c (uids-channel-input *uids-standard-input*)))
              (memory-write (+ dest z) c)
              (if (or (= (cast char c) (cast char end))
                      (= (cast char c) (cast char 0xA)))
@@ -275,7 +270,7 @@
         (eof false))
       (while (and (< z n)
                   (not eof))
-        (let ((c (channel-input *standard-input*)))
+        (let ((c (uids-channel-input *uids-standard-input*)))
              (memory-write (+ dest z) c)
              (if (or (= (cast char c) (cast char 0xA))
                      (= c (cast char -1)))
@@ -290,7 +285,7 @@
         (eof false))
       (while (and (< z n)
                   (not eof))
-        (let ((c (channel-input *standard-input*)))
+        (let ((c (uids-channel-input *uids-standard-input*)))
              (memory-write (+ dest z) c)
              (if (or (= (cast char c) (cast char end))
                      (= (cast char c) (cast char 0xA)))
@@ -307,5 +302,5 @@
 (defun cgc-print (buf)
   (declare (external "print"))
   (puts buf)
-  (channel-flush *standard-output*))
+  (uids-channel-flush *uids-standard-output*))
 
