@@ -53,6 +53,9 @@
 (defun uids-ascii-is-alpha (c)
   (or (and (>= c 0x41) (<= c 0x5a)) (and (>= c 0x61) (<= c 0x7a))))
 
+;; space $0x2000
+;; print $0x4000
+
 (defun ctype-b-loc ()
   (declare (external "__ctype_b_loc"))
   (when (not *cbloc*)
@@ -64,9 +67,19 @@
       (bzero table (* (sizeof short) n))
       (write-word ptr_t p start)
       (while (< i n)
-        (let ((q (ptr+ short table i)))
-          (when (and (>= i 129) (uids-ascii-is-alpha (- i 129)))
-            (write-word short q 0x400))
+        (let ((q (ptr+ short table i))
+              (mask 0))
+          (when (>= i 129)
+            (let ((j (- i 129)))
+              (when (uids-ascii-is-alpha j)
+                (set mask (logor mask 0x400)))
+              (when (ascii-is-alphanum (cast char j))
+                (set mask (logor mask 0x8)))
+              (when (ascii-whitespace (cast char j))
+                (set mask (logor mask 0x2000)))
+              (when (ascii-is-print j)
+                (set mask (logor mask 0x4000)))
+              (write-word short q mask)))
           (incr i)))
       (set *cbloc* p)))
     *cbloc*)

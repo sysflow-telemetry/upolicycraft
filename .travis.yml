@@ -13,7 +13,7 @@ script:
  # Commenting out until network ABI stabilizes
  # -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/echo _start "/echo/echo,/echo/echo.conf" /usr/bin/bash /echo/echo.sh promiscuous "%00000000" 10000 --primus-uids-redirect="/echo/echo.conf:/uIDS/tests/conf/echo.conf"
  -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/apr _start "/apr" /bin/bash /apr.sh greedy "%00000000" 10000
- -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/isalpha _start "/apr" /bin/bash /isalpha.sh greedy "%00000000" 10000
+ -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/ctype _start "/ctype" /bin/bash /ctype.sh greedy "%00000000" 10000
  -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/time _start "/time" /bin/bash /time.sh greedy "%00000000" 10000
  -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/env _start "/env" /bin/bash /env.sh greedy "%00000000" 10000
  -  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/fds _start "/fds" /bin/bash /fds.sh greedy "%00000000" 10000

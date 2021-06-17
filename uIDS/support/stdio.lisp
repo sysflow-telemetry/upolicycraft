@@ -102,11 +102,16 @@
 (defun recv (stream ptr n flags)
   (declare (external "recv"))
   (let ((i 0)
-        (stream1 (uids-ocaml-check-dup2 stream)))
+        (stream1 (uids-ocaml-check-dup2 stream))
+        (pos (uids-channel-offset stream1)))
+    (uids-ocaml-debug 0xfeabc0de)
+    (uids-ocaml-debug pos)
     (while (and
             (< i n)
             (= 1 (input-item ptr 1 i stream1)))
       (incr i))
+    (uids-channel-seek stream1 pos)
+    (uids-ocaml-debug (uids-channel-offset stream1))
     i))
 
 (defun fread (ptr size n stream)
