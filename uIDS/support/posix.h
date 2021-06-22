@@ -461,6 +461,8 @@ int     socket(int domain, int type, int protocol) __attribute__((warn_unused_re
 int     socketpair(int domain, int type, int protocol, int fds[2])
     __attribute__((warn_unused_result));
 
+int inet_aton(const char *cp, unsigned long *inp);
+
 // unistd.h
 typedef int uid_t;
 typedef int gid_t;

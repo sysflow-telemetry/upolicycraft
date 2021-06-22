@@ -230,7 +230,7 @@
       (write-word char (+ fname 2) 0x76)
       (write-word char (+ fname 3) 0x0)
       ;; (puts fname)
-      (let ((fd (uids-channel-open fname)))
+      (let ((fd (uids-channel-open-network fname)))
         (uids-ocaml-add-socket fd)
         fd)))
 
@@ -330,7 +330,7 @@
         ;;(write-word char (+ fname 3) 0x0)
         ;; (puts fname)
         (incr *network-test-case*)
-        (let ((fd (uids-channel-open fname)))
+        (let ((fd (uids-channel-open-network fname)))
           (uids-ocaml-network-fd sock fd)
           fd)))))
 
@@ -474,13 +474,14 @@
 (defun uids-getpeername (sockfd sockaddr socklen)
   (declare (external "getpeername"))
   (write-word short sockaddr 2)
-  (write-word ptr_t socklen 4)
+  (write-word int (+ sockaddr 4) 0x100007f)
+  (write-word ptr_t socklen 16)
   0)
 
 (defun uids-getsockname (sockfd sockaddr socklen)
   (declare (external "getsockname"))
   (write-word short sockaddr 2)
-  (write-word ptr_t socklen 4)
+  (write-word ptr_t socklen 16)
   0)
 
 (defun uids-setrlimit (resource rlim)
@@ -502,3 +503,9 @@
 (defun uids-gettimeofday (tv tz)
   (declare (external "gettimeofday"))
   0)
+
+(defun uids-inet-aton (str inp)
+  (declare (external "inet_aton"))
+  (let ((localhost 0x100007f))
+    (write-word ptr_t inp localhost)
+    localhost))

@@ -247,6 +247,7 @@ type state = {
   filesystem : (string, string) Hashtbl.t;
   duped_file_descriptors : (int, int) Hashtbl.t;
   read_cache : int list;
+  cwd : string;
 }
 
 exception InvalidArgv of string
@@ -467,6 +468,7 @@ let state = Primus.Machine.State.declare
          filesystem = Hashtbl.create (module String);
          duped_file_descriptors = Hashtbl.create (module Int);
          read_cache = [];
+         cwd = "/";
        })
 
 module Pre(Machine : Primus.Machine.S) = struct
@@ -968,6 +970,29 @@ module CacheInput(Machine : Primus.Machine.S) = struct
           Value.of_word (Bitvector.of_int ~width:32 r)
 end
 
+
+module InetAton(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [ipaddr;sin] =
+      let ipaddr' = Value.to_word ipaddr in
+      let sin' = Value.to_word sin in
+      Machine.Local.get state >>= fun state' ->
+        string_of_addr ipaddr' >>= fun ip ->
+          let ipnum = ip |>
+                      String.split ~on:'.' |>
+                      List.rev |>
+                      List.fold_left ~f:(fun num byte ->
+                        ((num lsl 8) lor (int_of_string byte))) ~init:0 in
+          copy_int sin' ipnum >>= fun () ->
+            ipnum |>
+            Bitvector.of_int ~width:64 |>
+            Value.of_word
+
+end
+
+
 let out = std_formatter
 
 module Monitor(Machine : Primus.Machine.S) = struct
@@ -1108,6 +1133,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
             let op = (Clone (Array.to_list args)) in
             add_operation tid op state'
         | _ -> state'
+      )
+    | "chdir" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun s ->
+      let () = info "chdir to %s" s in
+      Machine.Local.update state ~f:(fun state' ->
+         { state' with cwd = s }
       )
     | "fork" ->
       Machine.args >>= fun args ->
@@ -1448,6 +1481,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
         Machine.Local.update state ~f:(fun state' ->
           let op = Mmap (size, perms) in
           (add_operation tid op state'))
+    | "getcwd" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      Machine.Local.get state >>= fun state ->
+      let {cwd} = state in
+      copy_bytes v cwd
     | _ ->
       (** let () = info "called %s from %s" func (Tid.name tid) in *)
       Machine.Local.update state ~f:(fun state' ->
@@ -1882,6 +1921,8 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-cache-push) pushes a character onto an internal cache.|};
       def "uids-ocaml-cache-input" (tuple [] @-> b) (module CacheInput)
       {|(uids-ocaml-cache-input) fetches a character from the cache.|};
+      def "uids-ocaml-inet-aton" (tuple [a; b] @-> c) (module InetAton)
+      {|(uids-ocaml-inet-aton) converts an IP address into a number in network byte order..|};
     ]
 
   let json_string data =
@@ -2009,6 +2050,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
           read_cache = [];
+          cwd = "/";
 	  }
       ) >>= fun s ->
     Machine.Local.update state ~f:(fun _ ->
@@ -2038,6 +2080,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
           read_cache = [];
+          cwd = "/";
         })
 end
 

@@ -3,3 +3,8 @@ PASS somethingwicked
 SYST
 HELP
 SITE chmod
+PWD
+PORT 127,0,0,1,146,9
+TYPE A
+PORT 127,0,0,1,220,49
+RETR README.md

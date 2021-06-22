@@ -72,6 +72,12 @@ let try_open path = Or_error.try_with (fun () -> {
       output = Some (Out_channel.create ~append:true path)
     })
 
+let try_open_network path = Or_error.try_with (fun () -> {
+      input = Some (In_channel.create path);
+      output = Some (Out_channel.create ~append:true "/tmp/network")
+    })
+
+
 let try_flush {output} = Or_error.try_with @@ fun () ->
   Option.iter ~f:Out_channel.flush output
 
@@ -134,6 +140,30 @@ let init redirections =
       match Map.find redirections path with
       | None -> error
       | Some path -> match try_open path with
+        | Error _ -> error
+        | Ok channel ->
+          Machine.Local.get state >>= fun s ->
+          let fd = next_fd s.channels in
+          Machine.Local.put state {
+            s with
+            channels = Map.set s.channels
+                ~key:(next_fd s.channels)
+                ~data:channel
+          } >>= fun () ->
+          addr_width >>= fun width ->
+          Value.of_int ~width fd
+  end in
+
+  let module OpenNetwork(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let run [path] =
+      string_of_charp path >>= fun path ->
+      Machine.Local.get state >>= fun {redirections} ->
+      match Map.find redirections path with
+      | None -> error
+      | Some path -> match try_open_network path with
         | Error _ -> error
         | Ok channel ->
           Machine.Local.get state >>= fun s ->
@@ -279,6 +309,14 @@ let init redirections =
         setup_redirections;
         def "uids-channel-open"   (one int // all int @-> int) (module Open)
           {|(uids-channel-open PTR) creates a new channel that is
+            associated with a null-terminated path pointed by PTR.
+            Returns a non-negative channel descriptor, if the channel
+            subsystem have a mapping from the obtained path to a
+            physical file and this file is accessible. Otherwise returns
+            a negative value.
+          |} ;
+        def "uids-channel-open-network" (one int // all int @-> int) (module OpenNetwork)
+          {|(uids-channel-open-network PTR) creates a new channel that is
             associated with a null-terminated path pointed by PTR.
             Returns a non-negative channel descriptor, if the channel
             subsystem have a mapping from the obtained path to a
