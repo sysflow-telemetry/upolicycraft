@@ -1,28 +1,78 @@
 {
-  "initial": "%000486cd",
+  "initial": "%0004850d",
   "nodes": [
-    "%000017c0", "%00003916", "%00003a9d", "%0000a187", "%0000c76a",
-    "%00011772", "%00015c83", "%00043c5d", "%000486cd", "%000486ce",
-    "%000486d0"
+    "%00000e29", "%000018ab", "%000019c4", "%00001c5a", "%0000a795",
+    "%00014331", "%000160d3", "%000171da", "%0004850d", "%0004850e",
+    "%00048510"
   ],
   "contexts": {
-    "%00011772": [ "/bin/vsftpd", "vsf_sysutil_write" ],
-    "%00009f54": [ "/bin/vsftpd", "vsf_sysutil_bind" ],
-    "%0000a187": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
-    "%00003916": [ "/bin/vsftpd", "vsf_sysutil_create_or_open_file_append" ],
-    "%00003a9d": [ "/bin/vsftpd", "vsf_sysutil_close" ],
-    "%0000c88a": [ "/bin/vsftpd", "vsf_sysutil_setgid_numeric" ],
-    "%000486ce": [ "/bin/bash", "main" ],
-    "%00015c83": [ "/bin/vsftpd", "vsf_sysutil_fork_isolate_failok" ],
-    "%000486d0": [ "/bin/bash", "main" ],
-    "%000017c0": [ "/bin/vsftpd", "vsf_sysutil_read" ],
-    "%000486cd": [ "/bin/bash", "main" ],
-    "%0000c76a": [ "/bin/vsftpd", "vsf_sysutil_setuid_numeric" ],
-    "%00043c5d": [ "/bin/vsftpd", "vsf_sysutil_open_file" ]
+    "%0004850d": [ "/bin/bash", "main" ],
+    "%000171da": [ "/bin/vsftpd", "vsf_sysutil_fork_isolate_failok" ],
+    "%0004850e": [ "/bin/bash", "main" ],
+    "%000019c4": [ "/bin/vsftpd", "vsf_sysutil_read" ],
+    "%00014331": [ "/bin/vsftpd", "vsf_sysutil_setuid_numeric" ],
+    "%00000e29": [ "/bin/vsftpd", "vsf_sysutil_write" ],
+    "%00001c5a": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
+    "%000160d3": [ "/bin/vsftpd", "vsf_sysutil_create_or_open_file_append" ],
+    "%000018ab": [ "/bin/vsftpd", "vsf_sysutil_close" ],
+    "%000084e3": [ "/bin/vsftpd", "vsf_sysutil_bind" ],
+    "%0000a795": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
+    "%00048510": [ "/bin/bash", "main" ],
+    "%0001439b": [ "/bin/vsftpd", "vsf_sysutil_setgid_numeric" ]
   },
   "constraints": [
     {
-      "node": "%000017c0",
+      "node": "%00000e29",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/var/log/ftp/vsftpd.log" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "21" ]
+        }
+      ]
+    },
+    {
+      "node": "%000018ab",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd.conf" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/banned_emails" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/banner" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/passwords" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.net.dport": [ "21" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ ".message" ]
+        }
+      ]
+    },
+    {
+      "node": "%000019c4",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -47,12 +97,66 @@
         {
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ ".message" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
           "sf.net.dport": [ "21" ]
         }
       ]
     },
     {
-      "node": "%00003916",
+      "node": "%00001c5a",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd.conf" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/banned_emails" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/banner" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/vsftpd/passwords" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ ".message" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "README.md" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000a795",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.net.dport": [ "21" ]
+        }
+      ]
+    },
+    {
+      "node": "%00014331",
+      "constraints": [ { "sf.proc.gid": [ "0" ], "sf.proc.uid": [ "0" ] } ]
+    },
+    {
+      "node": "%000160d3",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -67,66 +171,7 @@
       ]
     },
     {
-      "node": "%00003a9d",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd.conf" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/banned_emails" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/banner" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/passwords" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.net.dport": [ "21" ]
-        }
-      ]
-    },
-    {
-      "node": "%0000a187",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.net.dport": [ "21" ]
-        }
-      ]
-    },
-    {
-      "node": "%0000c76a",
-      "constraints": [ { "sf.proc.gid": [ "0" ], "sf.proc.uid": [ "0" ] } ]
-    },
-    {
-      "node": "%00011772",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "33" ],
-          "sf.file.path": [ "/var/log/ftp/vsftpd.log" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "33" ],
-          "sf.net.dport": [ "21" ]
-        }
-      ]
-    },
-    {
-      "node": "%00015c83",
+      "node": "%000171da",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -137,38 +182,13 @@
       ]
     },
     {
-      "node": "%00043c5d",
-      "constraints": [
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd.conf" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/banned_emails" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/banner" ]
-        },
-        {
-          "sf.proc.gid": [ "0" ],
-          "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/etc/vsftpd/passwords" ]
-        }
-      ]
-    },
-    {
-      "node": "%000486cd",
+      "node": "%0004850d",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./vsftpd.sh" ] }
       ]
     },
     {
-      "node": "%000486ce",
+      "node": "%0004850e",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -178,30 +198,34 @@
       ]
     },
     {
-      "node": "%000486d0",
+      "node": "%00048510",
       "constraints": [
         { "sf.proc.exe": [ "/bin/vsftpd" ], "sf.proc.args": [ "" ] }
       ]
     }
   ],
   "edges": [
-    { "src": "%000017c0", "dst": "%00003a9d", "label": "CLOSE" },
-    { "src": "%000017c0", "dst": "%00011772", "label": "WRITE" },
-    { "src": "%00003916", "dst": "%00003916", "label": "OPEN" },
-    { "src": "%00003916", "dst": "%00043c5d", "label": "OPEN" },
-    { "src": "%00003a9d", "dst": "%00003916", "label": "OPEN" },
-    { "src": "%00003a9d", "dst": "%00003a9d", "label": "CLOSE" },
-    { "src": "%00003a9d", "dst": "%0000a187", "label": "ACCEPT" },
-    { "src": "%00003a9d", "dst": "%0000c76a", "label": "SETUID" },
-    { "src": "%00003a9d", "dst": "%00043c5d", "label": "OPEN" },
-    { "src": "%0000a187", "dst": "%00015c83", "label": "CLONE" },
-    { "src": "%0000c76a", "dst": "%00011772", "label": "WRITE" },
-    { "src": "%00011772", "dst": "%000017c0", "label": "READ" },
-    { "src": "%00011772", "dst": "%00011772", "label": "WRITE" },
-    { "src": "%00015c83", "dst": "%00003a9d", "label": "CLOSE" },
-    { "src": "%00043c5d", "dst": "%000017c0", "label": "READ" },
-    { "src": "%000486cd", "dst": "%000486ce", "label": "CLONE" },
-    { "src": "%000486ce", "dst": "%000486d0", "label": "EXEC" },
-    { "src": "%000486d0", "dst": "%00043c5d", "label": "OPEN" }
+    { "src": "%00000e29", "dst": "%00000e29", "label": "WRITE" },
+    { "src": "%00000e29", "dst": "%000019c4", "label": "READ" },
+    { "src": "%00000e29", "dst": "%00001c5a", "label": "OPEN" },
+    { "src": "%000018ab", "dst": "%00000e29", "label": "WRITE" },
+    { "src": "%000018ab", "dst": "%000018ab", "label": "CLOSE" },
+    { "src": "%000018ab", "dst": "%00001c5a", "label": "OPEN" },
+    { "src": "%000018ab", "dst": "%0000a795", "label": "ACCEPT" },
+    { "src": "%000018ab", "dst": "%00014331", "label": "SETUID" },
+    { "src": "%000018ab", "dst": "%000160d3", "label": "OPEN" },
+    { "src": "%000019c4", "dst": "%00000e29", "label": "WRITE" },
+    { "src": "%000019c4", "dst": "%000018ab", "label": "CLOSE" },
+    { "src": "%00001c5a", "dst": "%00000e29", "label": "WRITE" },
+    { "src": "%00001c5a", "dst": "%000019c4", "label": "READ" },
+    { "src": "%00001c5a", "dst": "%0000a795", "label": "ACCEPT" },
+    { "src": "%0000a795", "dst": "%000171da", "label": "CLONE" },
+    { "src": "%00014331", "dst": "%00000e29", "label": "WRITE" },
+    { "src": "%000160d3", "dst": "%00001c5a", "label": "OPEN" },
+    { "src": "%000160d3", "dst": "%000160d3", "label": "OPEN" },
+    { "src": "%000171da", "dst": "%000018ab", "label": "CLOSE" },
+    { "src": "%0004850d", "dst": "%0004850e", "label": "CLONE" },
+    { "src": "%0004850e", "dst": "%00048510", "label": "EXEC" },
+    { "src": "%00048510", "dst": "%00001c5a", "label": "OPEN" }
   ]
 }

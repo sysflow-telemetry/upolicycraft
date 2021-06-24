@@ -15,10 +15,12 @@ include Self()
 
 module Channels = Uids_lisp_io
 
+let lisp_io_state = Uids_lisp_io.state
+
 module Redirection = struct
   type t = string * string
 
-  let known_channels = Uids_lisp_io.standard_channels
+  let known_channels = Channels.standard_channels
 
   let make oldname newname =
     if String.length oldname < 1 ||
@@ -878,27 +880,29 @@ module FStat(Machine : Primus.Machine.S) = struct
     (** TODO: Re-structure to make the search for the file descriptor's domain
         (File or Socket) less hacky. *)
     let run [fd; buf] =
-      Machine.Local.get state >>= fun state ->
-        (** Consult the mapping for the true file and fstat that. *)
-        let {files;ports} = state in
-        let fd' = fd |>
-                  int_of_value |>
-                  check_copied_descriptor state in
-        let () = info "Running fstat on fd=%d" fd' in
-        let opt = Hashtbl.find files fd' in
-        let buf'' = (Value.to_word buf) in
-        match opt with
-          None ->
-            let opt = Hashtbl.find ports fd' in
-            (match opt with
-              None ->
-                let () = info "Could not find fd=%d in either files or ports" fd' in
-                zero
-            | Some port ->
-              let socket_file = 0o0140000 in
-                copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) socket_file >>= fun _ ->
-                  zero)
-        | Some filename -> (stat_file state filename buf)
+      Machine.Local.get lisp_io_state >>= fun io_state ->
+        let files = io_state.files in
+        Machine.Local.get state >>= fun state ->
+          (** Consult the mapping for the true file and fstat that. *)
+          let {ports} = state in
+          let fd' = fd |>
+                    int_of_value |>
+                    check_copied_descriptor state in
+          let () = info "Running fstat on fd=%d" fd' in
+          let opt = Map.find files fd' in
+          let buf'' = (Value.to_word buf) in
+          match opt with
+            None ->
+              let opt = Hashtbl.find ports fd' in
+              (match opt with
+                None ->
+                  let () = info "Could not find fd=%d in either files or ports" fd' in
+                  zero
+              | Some port ->
+                let socket_file = 0o0140000 in
+                  copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) socket_file >>= fun _ ->
+                    zero)
+          | Some filename -> (stat_file state filename buf)
 
 end
 
@@ -1141,6 +1145,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info "chdir to %s" s in
       Machine.Local.update state ~f:(fun state' ->
          { state' with cwd = s }
+      ) >>= fun _ ->
+      Machine.Local.update lisp_io_state ~f:(fun state' ->
+        { state' with cwd = s }
       )
     | "fork" ->
       Machine.args >>= fun args ->
@@ -1499,8 +1506,10 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let () = info "record statement: %s" s in *)
     Machine.return()
 
-  (** This is just for debugging:
-      Primus maintains the value of all the variables in the Env.module. *)
+  (** This is helpful for obtaining function return values by observing what
+      gets stored in RAX. It's also helpful for debugging how registers change during
+      program execution.
+  *)
   let record_written (x, v) =
     let name = Var.to_string x in
     (** let () = info "Variable %s <- %s" name (Value.to_string v) in *)

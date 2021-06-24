@@ -12,6 +12,8 @@ type channel = {
 type state = {
   redirections : string String.Map.t;
   channels : channel Int.Map.t;
+  files : string Int.Map.t;
+  cwd : string;
 }
 
 let default_channels = Int.Map.of_alist_exn [
@@ -55,6 +57,9 @@ let init_channels =
           } in
         Map.set chans ~key:fd ~data:chan)
 
+let init_files =
+  Int.Map.empty
+
 let init_redirections =
   List.fold ~init:String.Map.empty ~f:(fun redirs (oldname,newname) ->
       match fd_of_name oldname with
@@ -65,6 +70,8 @@ let init_redirections =
 let init redirs = {
   redirections = init_redirections redirs;
   channels = init_channels redirs;
+  files = init_files;
+  cwd = "/";
 }
 
 let try_open path = Or_error.try_with (fun () -> {
@@ -93,7 +100,9 @@ let state = Primus.Machine.State.declare
     ~uuid:"21c9485f-c088-4f46-8f85-d5ec0b95c13f"
     (fun _ -> {
          redirections = String.Map.empty;
-         channels = Int.Map.empty;
+	 channels = Int.Map.empty;
+         files = Int.Map.empty;
+	 cwd = "/";
        })
 
 let init redirections =
@@ -108,12 +117,12 @@ let init redirections =
     let error = addr_width >>= fun w -> Value.of_word (Word.ones w)
     let ok = addr_width >>= Value.zero
 
-    let value_to_fd fd =
-      Value.to_word fd |> Word.to_int |> function
+    let value_to_int x =
+      Value.to_word x |> Word.to_int |> function
       | Error _ -> None
       | Ok n -> Some n
 
-    let value_to_int = value_to_fd
+    let value_to_fd = value_to_int
 
     let value_of_int x = Value.of_word (Bitvector.of_int ~width:64 x)
 
@@ -134,11 +143,22 @@ let init redirections =
     include Lib(Machine)
     [@@@warning "-P"]
 
+    let find_path state path =
+      let {redirections;cwd} = state in
+      let opt = Map.find redirections path in
+      match opt with
+        None ->
+        let path' = cwd ^ path in
+        let opt = Map.find redirections path' in
+        (path', opt)
+      | _ -> (path, opt)
+
     let run [path] =
       string_of_charp path >>= fun path ->
-      Machine.Local.get state >>= fun {redirections} ->
-      match Map.find redirections path with
-      | None -> error
+      Machine.Local.get state >>= fun state' ->
+      let (absolute_path, host_path) = find_path state' path in
+      match host_path with
+        None -> error
       | Some path -> match try_open path with
         | Error _ -> error
         | Ok channel ->
@@ -147,11 +167,14 @@ let init redirections =
           Machine.Local.put state {
             s with
             channels = Map.set s.channels
-                ~key:(next_fd s.channels)
-                ~data:channel
+                ~key:fd
+                ~data:channel;
+            files = Map.set s.files
+                ~key:fd
+                ~data:absolute_path
           } >>= fun () ->
           addr_width >>= fun width ->
-          Value.of_int ~width fd
+          Value.of_int ~width:width fd
   end in
 
   let module OpenNetwork(Machine : Primus.Machine.S) = struct
