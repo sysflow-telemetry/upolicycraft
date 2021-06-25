@@ -509,3 +509,7 @@
   (let ((localhost 0x100007f))
     (write-word ptr_t inp localhost)
     localhost))
+
+(defun uids-bind (fd addr len)
+  (declare (external "bind"))
+  0)
