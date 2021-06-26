@@ -513,3 +513,11 @@
 (defun uids-bind (fd addr len)
   (declare (external "bind"))
   0)
+
+(defun uids-fchmod (fd mode)
+  (declare (external "fchmod"))
+  0)
+
+(defun uids-fchown (fd owner group)
+  (declare (external "fchown"))
+  0)

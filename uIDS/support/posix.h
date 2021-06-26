@@ -404,6 +404,10 @@ int creat(const char *pathname, mode_t mode) __attribute__((nonnull(1)));
 
 int setrlimit64(int resource, void *rlim);
 
+int chmod(const char *pathname, mode_t mode);
+int fchmod(int fd, mode_t mode);
+int fchown(int fd, int owner, int group);
+
 // socket
 struct sockaddr;
 typedef size_t socklen_t;

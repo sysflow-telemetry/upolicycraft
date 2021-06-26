@@ -1,23 +1,25 @@
 {
-  "initial": "%00048597",
+  "initial": "%00048e1e",
   "nodes": [
-    "%000017c0", "%00003980", "%00003b07", "%00003bc7", "%0000a1f1",
-    "%0000c831", "%0001186e", "%00015d7f", "%000443a2", "%00048597",
-    "%00048598", "%0004859a"
+    "%000017c0", "%000038ae", "%00003980", "%00003b07", "%00003bc7",
+    "%00004ec7", "%0000a1f1", "%0000c831", "%0001186e", "%00015d7f",
+    "%000443a2", "%00048e1e", "%00048e1f", "%00048e21"
   ],
   "contexts": {
     "%00003980": [ "/bin/vsftpd", "vsf_sysutil_create_or_open_file_append" ],
-    "%0004859a": [ "/bin/bash", "main" ],
+    "%00004ec7": [ "/bin/vsftpd", "vsf_sysutil_fchmod" ],
+    "%00048e1e": [ "/bin/bash", "main" ],
     "%00015d7f": [ "/bin/vsftpd", "vsf_sysutil_fork_isolate_failok" ],
+    "%00048e1f": [ "/bin/bash", "main" ],
     "%00003bc7": [ "/bin/vsftpd", "vsf_sysutil_close_failok" ],
-    "%00048598": [ "/bin/bash", "main" ],
     "%0000a1f1": [ "/bin/vsftpd", "vsf_sysutil_accept_timeout" ],
     "%0000c831": [ "/bin/vsftpd", "vsf_sysutil_setuid_numeric" ],
     "%00003b07": [ "/bin/vsftpd", "vsf_sysutil_close" ],
+    "%00048e21": [ "/bin/bash", "main" ],
     "%000017c0": [ "/bin/vsftpd", "vsf_sysutil_read" ],
     "%0000c951": [ "/bin/vsftpd", "vsf_sysutil_setgid_numeric" ],
-    "%00048597": [ "/bin/bash", "main" ],
     "%000443a2": [ "/bin/vsftpd", "vsf_sysutil_open_file" ],
+    "%000038ae": [ "/bin/vsftpd", "vsf_sysutil_create_or_open_file" ],
     "%0001186e": [ "/bin/vsftpd", "vsf_sysutil_write" ],
     "%00009fbe": [ "/bin/vsftpd", "vsf_sysutil_bind" ]
   },
@@ -58,7 +60,22 @@
         {
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "33" ],
+          "sf.net.dport": [ "0" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
           "sf.net.dport": [ "21" ]
+        }
+      ]
+    },
+    {
+      "node": "%000038ae",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "README.md" ]
         }
       ]
     },
@@ -124,6 +141,17 @@
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "33" ],
           "sf.net.dport": [ "0" ]
+        }
+      ]
+    },
+    {
+      "node": "%00004ec7",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.perms": [ "180\n" ],
+          "sf.file.path": [ "README.md" ]
         }
       ]
     },
@@ -213,13 +241,13 @@
       ]
     },
     {
-      "node": "%00048597",
+      "node": "%00048e1e",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./vsftpd.sh" ] }
       ]
     },
     {
-      "node": "%00048598",
+      "node": "%00048e1f",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -229,7 +257,7 @@
       ]
     },
     {
-      "node": "%0004859a",
+      "node": "%00048e21",
       "constraints": [
         { "sf.proc.exe": [ "/bin/vsftpd" ], "sf.proc.args": [ "" ] }
       ]
@@ -239,8 +267,10 @@
     { "src": "%000017c0", "dst": "%00003b07", "label": "CLOSE" },
     { "src": "%000017c0", "dst": "%00003bc7", "label": "CLOSE" },
     { "src": "%000017c0", "dst": "%0001186e", "label": "WRITE" },
+    { "src": "%000038ae", "dst": "%00004ec7", "label": "CHMOD" },
     { "src": "%00003980", "dst": "%00003980", "label": "OPEN" },
     { "src": "%00003980", "dst": "%000443a2", "label": "OPEN" },
+    { "src": "%00003b07", "dst": "%000017c0", "label": "READ" },
     { "src": "%00003b07", "dst": "%00003980", "label": "OPEN" },
     { "src": "%00003b07", "dst": "%00003b07", "label": "CLOSE" },
     { "src": "%00003b07", "dst": "%0000a1f1", "label": "ACCEPT" },
@@ -248,18 +278,23 @@
     { "src": "%00003b07", "dst": "%0001186e", "label": "WRITE" },
     { "src": "%00003b07", "dst": "%000443a2", "label": "OPEN" },
     { "src": "%00003bc7", "dst": "%0001186e", "label": "WRITE" },
+    { "src": "%00004ec7", "dst": "%0000a1f1", "label": "ACCEPT" },
+    { "src": "%00004ec7", "dst": "%0001186e", "label": "WRITE" },
     { "src": "%0000a1f1", "dst": "%00015d7f", "label": "CLONE" },
     { "src": "%0000c831", "dst": "%0001186e", "label": "WRITE" },
     { "src": "%0001186e", "dst": "%000017c0", "label": "READ" },
+    { "src": "%0001186e", "dst": "%000038ae", "label": "OPEN" },
     { "src": "%0001186e", "dst": "%00003b07", "label": "CLOSE" },
+    { "src": "%0001186e", "dst": "%00003bc7", "label": "CLOSE" },
+    { "src": "%0001186e", "dst": "%0000a1f1", "label": "ACCEPT" },
     { "src": "%0001186e", "dst": "%0001186e", "label": "WRITE" },
     { "src": "%0001186e", "dst": "%000443a2", "label": "OPEN" },
     { "src": "%00015d7f", "dst": "%00003b07", "label": "CLOSE" },
     { "src": "%000443a2", "dst": "%000017c0", "label": "READ" },
     { "src": "%000443a2", "dst": "%0000a1f1", "label": "ACCEPT" },
     { "src": "%000443a2", "dst": "%0001186e", "label": "WRITE" },
-    { "src": "%00048597", "dst": "%00048598", "label": "CLONE" },
-    { "src": "%00048598", "dst": "%0004859a", "label": "EXEC" },
-    { "src": "%0004859a", "dst": "%000443a2", "label": "OPEN" }
+    { "src": "%00048e1e", "dst": "%00048e1f", "label": "CLONE" },
+    { "src": "%00048e1f", "dst": "%00048e21", "label": "EXEC" },
+    { "src": "%00048e21", "dst": "%000443a2", "label": "OPEN" }
   ]
 }

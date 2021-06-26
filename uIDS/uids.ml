@@ -205,20 +205,23 @@ type permissions =
   | X
 
 type operation =
-  | Clone of string list
-  | Exec of string list
-  | Open of string
-  | Bind of fd * int
   | Accept of fd
-  | Read of fd
-  | Write of fd
+  | Bind of fd * int
+  | Chown of fd * int * int
+  | Chmod of fd * int
+  | Clone of string list
   | Close of fd
+  | Exec of string list
+  | Exit of status
+  | Mmap of int * (permissions list)
+  | Open of string
+  | Read of fd
   | Recv of fd
   | Send of fd
-  | Mmap of int * (permissions list)
-  | Setuid of int
   | Setgid of int
-  | Exit of status
+  | Setuid of int
+  | Write of fd
+  | Sendfile of fd * fd
 
 module EffectGraph = Graphlib.Make(Tid)(String)
 
@@ -264,6 +267,8 @@ let string_of_permission p =
 let edge_of_operation op =
   match op with
     Clone argv -> "CLONE"
+  | Chown (fd, uid, gid) -> "CHOWN"
+  | Chmod (fd, mode) -> "CHMOD"
   | Exec argv -> "EXEC"
   | Open path -> "OPEN"
   | Bind (fd, port) -> "BIND"
@@ -273,6 +278,7 @@ let edge_of_operation op =
   | Close fd -> "CLOSE"
   | Recv fd -> "RECV"
   | Send fd -> "SEND"
+  | Sendfile (outfd, infd) -> "SENDFILE"
   | Setuid id -> "SETUID"
   | Setgid id -> "SETGID"
   | Mmap (size, perms) -> "MMAP"
@@ -366,6 +372,13 @@ let node_of_operation state op =
       constraint_of_fd state fd
     | Close fd ->
       constraint_of_fd state fd
+    | Chown (fd, uid, gid) ->
+      let constraints = constraint_of_fd state fd in
+      constraints
+    | Chmod (fd, mode) ->
+      let constraints = constraint_of_fd state fd in
+      let mode' = Printf.sprintf "%x\n" mode in
+      List.append [(Sf.file_perms, [mode'])] constraints
     | Recv fd ->
       let port = Hashtbl.find_exn state.ports fd in
       let () = info "Saving port for recv: %d" port in
@@ -375,6 +388,8 @@ let node_of_operation state op =
       let port = Hashtbl.find_exn state.ports fd in
       let port' = Printf.sprintf "%d" port in
       [(Sf.net_dport, [port'])]
+    | Sendfile (outfd, infd) ->
+      List.append (constraint_of_fd state outfd) (constraint_of_fd state infd)
     | Setuid id ->
       let id' = Printf.sprintf "%d" id in
       [(Sf.proc_uid, [id'])]
@@ -996,6 +1011,21 @@ module InetAton(Machine : Primus.Machine.S) = struct
 
 end
 
+(**
+
+  Towards an ABI module that lets you fetch arguments without
+  having to think about which register you need on the host ISA.
+
+module ABI = struct
+  type t = Value Machine.t
+
+  let args x =
+    let register = register_of_position x in
+    Env.get
+
+end
+
+*)
 
 let out = std_formatter
 
@@ -1149,6 +1179,29 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update lisp_io_state ~f:(fun state' ->
         { state' with cwd = s }
       )
+    | "fchown" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      let rdx = (Var.create "RDX" reg64_t) in
+      (Env.get rdi) >>= fun t ->
+      let fd = (t |> Value.to_word |> Bitvector.to_int_exn) in
+      (Env.get rsi) >>= fun u ->
+      let user_id = (u |> Value.to_word |> Bitvector.to_int_exn) in
+      (Env.get rdx) >>= fun v ->
+      let group_id = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+        let op = Chown (fd, user_id, group_id) in
+        (add_operation tid op state'))
+    | "fchmod" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (Env.get rsi) >>= fun v ->
+      let mode = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+        let op = Chmod (fd, mode) in
+        (add_operation tid op state'))
     | "fork" ->
       Machine.args >>= fun args ->
       Machine.Local.update state ~f:(fun state' ->
@@ -1494,6 +1547,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.get state >>= fun state ->
       let {cwd} = state in
       copy_bytes v cwd
+    | "sendfile" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (Env.get rsi) >>= fun u ->
+        let out_fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+        let in_fd = (u |> Value.to_word |> Bitvector.to_int_exn) in
+        Machine.Local.update state ~f:(fun state' ->
+          let op = Sendfile (out_fd, in_fd) in
+          (add_operation tid op state'))
     | _ ->
       (** let () = info "called %s from %s" func (Tid.name tid) in *)
       Machine.Local.update state ~f:(fun state' ->
@@ -1671,6 +1734,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     else
       Sf.Process
 
+  (**
+    TODO: Render a node's label in a less ad-hoc way.
+  *)
   let label_of_node node (called_module, called_function) =
     let context = Printf.sprintf "{%s:%s}" called_module called_function in
     let nodes = ArgSet.to_list node in
@@ -1683,6 +1749,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
        let flowtype = flowtype_of_constraints constraints in
        (match flowtype with
          File ->
+           (** Attempt to pick up on mmap. *)
            let opt = (assoc_field constraints Sf.file_size) in
            (match opt with
              None -> Printf.sprintf "{%s|{%s|%s}}" context Sf.file_label (list_assoc_field_exn nodes' Sf.file_path)
