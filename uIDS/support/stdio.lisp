@@ -33,7 +33,7 @@
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
   (declare (external "fopen" "open" "open64"))
-  (uids-channel-open path))
+  (uids-channel-open path mode))
 
 ;; Primus treats file descriptors and file handles interchangeably.
 (defun fileno (fd)

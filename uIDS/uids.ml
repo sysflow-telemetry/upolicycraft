@@ -207,12 +207,14 @@ type permissions =
 type operation =
   | Accept of fd
   | Bind of fd * int
+  | Connect of fd * int
   | Chown of fd * int * int
   | Chmod of fd * int
   | Clone of string list
   | Close of fd
   | Exec of string list
   | Exit of status
+  | Mkdir of string * int
   | Mmap of int * (permissions list)
   | Open of string
   | Read of fd
@@ -267,6 +269,7 @@ let string_of_permission p =
 let edge_of_operation op =
   match op with
     Clone argv -> "CLONE"
+  | Connect (fd, ipaddr) -> "CONNECT"
   | Chown (fd, uid, gid) -> "CHOWN"
   | Chmod (fd, mode) -> "CHMOD"
   | Exec argv -> "EXEC"
@@ -281,6 +284,7 @@ let edge_of_operation op =
   | Sendfile (outfd, infd) -> "SENDFILE"
   | Setuid id -> "SETUID"
   | Setgid id -> "SETGID"
+  | Mkdir (path, mode) -> "MKDIR"
   | Mmap (size, perms) -> "MMAP"
   | Exit status -> "EXIT"
 
@@ -353,6 +357,10 @@ let node_of_operation state op =
       Clone argv ->
       let (exe, args) = split_argv argv in
       [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
+    | Connect (fd, ipaddr) ->
+      let file_constraints = constraint_of_fd state fd in
+      let ipaddr = Printf.sprintf "%x" ipaddr in
+      List.append file_constraints [(Sf.net_ip, [ipaddr])]
     | Exec argv ->
       let (exe, args) = split_argv argv in
       [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
@@ -396,6 +404,9 @@ let node_of_operation state op =
     | Setgid id ->
       let id' = Printf.sprintf "%d" id in
       [(Sf.proc_gid, [id'])]
+    | Mkdir (path, mode) ->
+      let mode' = Printf.sprintf "%d" mode in
+      [(Sf.file_path, [path]); (Sf.file_perms, [mode'])]
     | Mmap (length, perms) ->
       let perms' = List.map ~f:string_of_permission perms in
       let length' = Printf.sprintf "%d" length in
@@ -494,10 +505,15 @@ module Pre(Machine : Primus.Machine.S) = struct
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
 
+  let addr_width =
+    Machine.arch >>| Arch.addr_size >>| Size.in_bits
   let int_of_value v = (v |> Value.to_word |> Bitvector.to_int_exn)
   let string_of_value v = (v |> Value.to_word |> Word.to_string)
   let zero = Value.of_word (Bitvector.of_int ~width:64 0)
   let nil = Value.b0
+  let error = addr_width >>= fun w -> Value.of_word (Word.ones w)
+  let ok = addr_width >>= Value.zero
+
   let bool = function
     | false -> nil
     | true -> Value.b1
@@ -561,6 +577,7 @@ module Pre(Machine : Primus.Machine.S) = struct
             loop (Bitvector.succ addr) (x lsr 8) (pred i) in
       loop addr x 8
 end
+
 
 module ArrayMake(Machine : Primus.Machine.S) = struct
   [@@@warning "-P"]
@@ -865,13 +882,13 @@ module StatPre(Machine : Primus.Machine.S) = struct
    let mode_offset = 24
    let uid_offset = 28
 
-   let stat_file state filename buf =
+   let stat_file state redirections filename buf =
      let {filesystem;uid} = state in
-     let opt = Hashtbl.find filesystem filename in
+     let opt = String.Map.find redirections filename in
      match opt with
         None ->
           let () = info "Could not find file=%s" filename in
-          zero
+          error
       | Some hostfile ->
         let () = info "Calling stat on %s" hostfile in
         let buf' = Unix.stat hostfile in
@@ -885,7 +902,7 @@ module StatPre(Machine : Primus.Machine.S) = struct
                     | _ -> 0 in
           copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) mode >>= fun _ ->
             copy_int (Bitvector.add buf'' (Bitvector.of_int 8 uid_offset)) uid >>= fun _ ->
-              zero
+              ok
 end
 
 module FStat(Machine : Primus.Machine.S) = struct
@@ -917,7 +934,7 @@ module FStat(Machine : Primus.Machine.S) = struct
                 let socket_file = 0o0140000 in
                   copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) socket_file >>= fun _ ->
                     zero)
-          | Some filename -> (stat_file state filename buf)
+          | Some filename -> (stat_file state io_state.redirections filename buf)
 
 end
 
@@ -926,8 +943,9 @@ module Stat(Machine : Primus.Machine.S) = struct
     include StatPre(Machine)
 
     let run [filename; buf] =
-      filename |> Value.to_word |> string_of_addr >>= fun filename' ->
-      Machine.Local.get state >>= fun state -> (stat_file state filename' buf)
+      Machine.Local.get lisp_io_state >>= fun io_state ->
+        filename |> Value.to_word |> string_of_addr >>= fun filename' ->
+        Machine.Local.get state >>= fun state -> (stat_file state io_state.redirections filename' buf)
 end
 
 module GetUid(Machine : Primus.Machine.S) = struct
@@ -1168,17 +1186,49 @@ module Monitor(Machine : Primus.Machine.S) = struct
             add_operation tid op state'
         | _ -> state'
       )
+    | "mkdir" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun u ->
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rsi) >>= fun v ->
+      let pathaddr = Value.to_word u in
+      let mode = int_of_value v in
+      string_of_addr pathaddr >>= fun path ->
+        Machine.Local.update state ~f:(fun state' ->
+          let op = Mkdir (path, mode) in
+          (add_operation tid op state'))
+    | "connect" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun u ->
+      let fd = int_of_value u in
+      let rsi = (Var.create "RSI" reg64_t) in
+      (Env.get rsi) >>= fun v ->
+      let addr_offset = 4 in
+      let sockaddr = (v |> Value.to_word) in
+      let remoteaddr = Bitvector.nsucc sockaddr addr_offset in
+      read_number remoteaddr 4 >>= fun ipaddr ->
+        let ipaddr' = Bitvector.to_int_exn ipaddr in
+        Machine.Local.update state ~f:(fun state' ->
+          let op = Connect (fd, ipaddr') in
+          (add_operation tid op state'))
     | "chdir" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun s ->
       let () = info "chdir to %s" s in
       Machine.Local.update state ~f:(fun state' ->
-         { state' with cwd = s }
+        let {cwd} = state' in
+        let s' = if (String.is_prefix ~prefix:"/" s) then
+                   s
+                 else
+                  cwd ^ s ^ "/" in
+        { state' with cwd = s' }
       ) >>= fun _ ->
-      Machine.Local.update lisp_io_state ~f:(fun state' ->
-        { state' with cwd = s }
-      )
+      Machine.Local.get state >>= fun s ->
+        let {cwd} = s in
+        Machine.Local.update lisp_io_state ~f:(fun state' ->
+          { state' with cwd = cwd }
+        )
     | "fchown" ->
       let rdi = (Var.create "RDI" reg64_t) in
       let rsi = (Var.create "RSI" reg64_t) in

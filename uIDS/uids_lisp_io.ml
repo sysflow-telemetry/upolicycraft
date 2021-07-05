@@ -25,7 +25,6 @@ let default_channels = Int.Map.of_alist_exn [
       input = None;
       output = Some Out_channel.stdout;
     };
-
     2, {
       input = None;
       output = Some Out_channel.stderr;
@@ -63,7 +62,7 @@ let init_files =
 let init_redirections =
   List.fold ~init:String.Map.empty ~f:(fun redirs (oldname,newname) ->
       match fd_of_name oldname with
-      | Some _ -> redirs
+        Some _ -> redirs
       | None -> Map.set redirs ~key:oldname ~data:newname)
 
 
@@ -111,6 +110,7 @@ let init redirections =
     include Machine.Syntax
     module Eval = Primus.Interpreter.Make(Machine)
     module Value = Primus.Value.Make(Machine)
+
     let addr_width =
       Machine.arch >>| Arch.addr_size >>| Size.in_bits
     let nil = Value.b0
@@ -137,11 +137,6 @@ let init redirections =
         then Machine.return (String.of_char_list (List.rev chars))
         else Value.succ ptr >>= loop (c::chars)  in
       loop [] ptr
-  end in
-
-  let module Open(Machine : Primus.Machine.S) = struct
-    include Lib(Machine)
-    [@@@warning "-P"]
 
     let find_path state path =
       let {redirections;cwd} = state in
@@ -153,28 +148,61 @@ let init redirections =
         (path', opt)
       | _ -> (path, opt)
 
-    let run [path] =
+  end in
+
+  let module Open(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let create_mode = 0x40
+
+    let open_file path =
+      Machine.Local.get state >>= fun state' ->
+        let (absolute_path, host_path) = find_path state' path in
+        match host_path with
+          None -> error
+        | Some path -> match try_open path with
+          | Error _ -> error
+          | Ok channel ->
+            Machine.Local.get state >>= fun s ->
+            let fd = next_fd s.channels in
+            Machine.Local.put state {
+              s with
+              channels = Map.set s.channels
+                  ~key:fd
+                  ~data:channel;
+              files = Map.set s.files
+                  ~key:fd
+                  ~data:absolute_path
+            } >>= fun () ->
+            addr_width >>= fun width ->
+            Value.of_int ~width:width fd
+
+    let run [path; mode] =
       string_of_charp path >>= fun path ->
       Machine.Local.get state >>= fun state' ->
-      let (absolute_path, host_path) = find_path state' path in
-      match host_path with
-        None -> error
-      | Some path -> match try_open path with
-        | Error _ -> error
-        | Ok channel ->
-          Machine.Local.get state >>= fun s ->
-          let fd = next_fd s.channels in
-          Machine.Local.put state {
-            s with
-            channels = Map.set s.channels
-                ~key:fd
-                ~data:channel;
-            files = Map.set s.files
-                ~key:fd
-                ~data:absolute_path
-          } >>= fun () ->
-          addr_width >>= fun width ->
-          Value.of_int ~width:width fd
+      let (_, opt) = find_path state' path in
+      match opt with
+        None ->
+          let mode' = match value_to_int mode with
+                        None -> 0
+                      | Some m -> m in
+          (** Check if we need to create the file. *)
+          if phys_equal (mode' land create_mode) 0 then
+            Machine.Local.update state ~f:(fun state ->
+              let {redirections;cwd} = state in
+              let path' = if String.is_prefix ~prefix:"/" path then
+                            path
+                          else
+                            cwd ^ path in
+              let hostfile = "/tmp/writes" in
+              let () = info "Creating redirection %s:%s" path' hostfile in
+              { state with redirections=(Map.set redirections ~key:path' ~data:hostfile) }
+            ) >>= fun _ ->
+              open_file path
+          else
+              open_file path
+      | Some _ -> open_file path
   end in
 
   let module OpenNetwork(Machine : Primus.Machine.S) = struct
@@ -330,8 +358,8 @@ let init redirections =
       Machine.sequence [
         setup_standard_channels;
         setup_redirections;
-        def "uids-channel-open"   (one int // all int @-> int) (module Open)
-          {|(uids-channel-open PTR) creates a new channel that is
+        def "uids-channel-open" (tuple [int; int] @-> int) (module Open)
+          {|(uids-channel-open PTR MODE) creates a new channel that is
             associated with a null-terminated path pointed by PTR.
             Returns a non-negative channel descriptor, if the channel
             subsystem have a mapping from the obtained path to a

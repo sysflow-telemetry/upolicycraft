@@ -55,6 +55,7 @@ int           socketpair(int domain,
                          int socket_vector[2]);
 
 int           epoll_wait(int epfd, struct epoll_event *events, int nevents, int timeout);
+int           mkdir(const char *pathname, int mode);
 
 size_t        getline(char *buffer, size_t len);
 ssize_t       write0(const void *, size_t) __attribute__((warn_unused_result));

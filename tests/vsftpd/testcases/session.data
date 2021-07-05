@@ -16,3 +16,8 @@ TYPE A
 PORT 127,0,0,1,179,197
 LIST
 MKD extra
+CWD extra
+TYPE I
+PORT 127,0,0,1,193,16
+STOU giphy.gif
+PASV

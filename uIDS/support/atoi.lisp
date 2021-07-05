@@ -160,7 +160,7 @@
 
 (defun apr-file-open (newf fname flag perm pool)
   (declare (external "apr_file_open"))
-  (let ((fd (uids-channel-open fname)))
+  (let ((fd (uids-channel-open fname 0)))
     (write-word ptr_t newf fd))
   0)
 
@@ -397,7 +397,7 @@
 
 (defun uids-xstat (vers path buf)
   (declare (external "__xstat"))
-  (let ((fd (uids-channel-open path)))
+  (let ((fd (uids-channel-open path 0)))
     (if (= fd -1)
       -1
       (let ()
@@ -520,4 +520,8 @@
 
 (defun uids-fchown (fd owner group)
   (declare (external "fchown"))
+  0)
+
+(defun uids-mkdir (path mode)
+  (declare (external "mkdir"))
   0)
