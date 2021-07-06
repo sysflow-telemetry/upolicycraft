@@ -184,6 +184,8 @@ let init redirections =
       let (_, opt) = find_path state' path in
       match opt with
         None ->
+          open_file path
+          (**
           let mode' = match value_to_int mode with
                         None -> 0
                       | Some m -> m in
@@ -201,7 +203,7 @@ let init redirections =
             ) >>= fun _ ->
               open_file path
           else
-              open_file path
+              open_file path *)
       | Some _ -> open_file path
   end in
 

@@ -36,7 +36,7 @@ let find_test_cases test_case_dir =
     try
       let opt = Unix.readdir_opt f in
         match opt with
-          None -> files
+          None -> List'.sort ~compare:String.compare files
         | Some next ->
           if String.is_prefix ~prefix:"." next then
             find_files files

@@ -1220,8 +1220,19 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let {cwd} = state' in
         let s' = if (String.is_prefix ~prefix:"/" s) then
                    s
+                 else if s = ".." then
+                   let parts = String.split ~on:'/' cwd in
+                   let n = List.length parts in
+                   let () = Printf.printf "parts: %d\n" n in
+                   if n <= 2 then
+                     "/"
+                   else
+                     let cwd' = (n - 2) |>
+                       List.take parts |>
+                       String.concat ~sep:"/" in
+                       cwd' ^ "/"
                  else
-                  cwd ^ s ^ "/" in
+                   cwd ^ s ^ "/" in
         { state' with cwd = s' }
       ) >>= fun _ ->
       Machine.Local.get state >>= fun s ->

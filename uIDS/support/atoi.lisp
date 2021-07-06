@@ -319,6 +319,8 @@
         (no-test-cases (uids-ocaml-network-test-cases)))
     ;; Write af-inet into the sock-addr
     (write-word int addr af-inet)
+    (write-word int (+ addr 4) 0x100007f)
+    (write-word ptr_t addrlen 16)
     (if (= *network-test-case* no-test-cases)
       -1
       (let ((fname (malloc 16)))
