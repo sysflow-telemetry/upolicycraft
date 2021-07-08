@@ -1,0 +1,76 @@
+{
+  "initial": "%0001195c",
+  "nodes": [
+    "%00001350", "%0000fedc", "%0001081b", "%0001195c", "%0001195d",
+    "%0001195f"
+  ],
+  "contexts": {
+    "%0001195c": [ "/bin/bash", "main" ],
+    "%00001350": [ "/bin/cron", "acquire_daemonlock" ],
+    "%0001195d": [ "/bin/bash", "main" ],
+    "%0001081b": [ "/bin/cron", "set_cron_cwd" ],
+    "%0000fedc": [ "/bin/cron", "acquire_daemonlock" ],
+    "%0001195f": [ "/bin/bash", "main" ]
+  },
+  "constraints": [
+    {
+      "node": "%00001350",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/var/run/crond.pid" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000fedc",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/var/run/crond.pid" ]
+        }
+      ]
+    },
+    {
+      "node": "%0001081b",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/pts/0" ]
+        }
+      ]
+    },
+    {
+      "node": "%0001195c",
+      "constraints": [
+        { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./cron.sh" ] }
+      ]
+    },
+    {
+      "node": "%0001195d",
+      "constraints": [
+        {
+          "sf.proc.exe": [ "/bin/bash" ],
+          "sf.proc.args": [ "./cron.sh" ],
+          "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
+        }
+      ]
+    },
+    {
+      "node": "%0001195f",
+      "constraints": [
+        { "sf.proc.exe": [ "/bin/cron" ], "sf.proc.args": [ "" ] }
+      ]
+    }
+  ],
+  "edges": [
+    { "src": "%00001350", "dst": "%0001081b", "label": "WRITE" },
+    { "src": "%0000fedc", "dst": "%00001350", "label": "WRITE" },
+    { "src": "%0001195c", "dst": "%0001195d", "label": "CLONE" },
+    { "src": "%0001195d", "dst": "%0001195f", "label": "EXEC" },
+    { "src": "%0001195f", "dst": "%0000fedc", "label": "OPEN" }
+  ]
+}

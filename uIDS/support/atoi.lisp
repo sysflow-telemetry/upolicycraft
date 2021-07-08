@@ -527,3 +527,18 @@
 (defun uids-mkdir (path mode)
   (declare (external "mkdir"))
   0)
+
+(defparameter optind 0)
+
+(defun uids-getopt (argc argv optstring)
+  (declare (external "getopt"))
+  (let ((res -1))
+    (while (and (< optind argc) (= res -1))
+      (let ((target (ptr+ ptr_t argv optind))
+            (s (read-word ptr_t target)))
+        (if (and (= (memory-read s) ?-)
+                 (strstr optstring (ptr+1 char s)))
+          (set res (memory-read (ptr+1 char s)))
+          0)
+      (incr optind)))
+    res))

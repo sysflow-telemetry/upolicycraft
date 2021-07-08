@@ -1,0 +1,23 @@
+digraph G {
+  4 [shape=Mrecord,
+     label="{{/bin/cron:acquire_daemonlock}|{F|{/var/run/crond.pid}}}",
+     fontsize=9, ];
+  3 [shape=Mrecord,
+     label="{{/bin/cron:acquire_daemonlock}|{F|{/var/run/crond.pid}}}",
+     fontsize=9, ];
+  5 [shape=Mrecord, label="{{/bin/cron:set_cron_cwd}|{F|{/dev/pts/0}}}",
+     fontsize=9, ];
+  0 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./cron.sh}}",
+     fontsize=9, ];
+  1 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/bash|./cron.sh}}",
+     fontsize=9, ];
+  2 [shape=Mrecord, label="{{/bin/bash:main}|{P|/bin/cron|}}", fontsize=9, ];
+  
+  
+  4 -> 5 [label="WRITE", fontsize=8, ];
+  3 -> 4 [label="WRITE", fontsize=8, ];
+  0 -> 1 [label="CLONE", fontsize=8, ];
+  1 -> 2 [label="EXEC", fontsize=8, ];
+  2 -> 3 [label="OPEN", fontsize=8, ];
+  
+  }
