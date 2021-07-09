@@ -312,7 +312,7 @@ let check_copied_descriptor state fd =
   | Some dupedfd -> dupedfd
 
 (** Some binaries erroneously build paths with extra slashes. *)
-let sanitise_path path =
+let sanitize_path path =
     String.substr_replace_all path ~pattern:"//" ~with_:"/"
 
 (** Restrict activity to a given user when applicable. *)
@@ -341,7 +341,7 @@ let constraint_of_fd state fd =
        [(Sf.net_dport, [port'])]
   | None ->
     let file = Hashtbl.find_exn state.files fd in
-    let file' = sanitise_path file in
+    let file' = sanitize_path file in
     let () = info "  %s" file' in
     let const =
       if String.contains file ':' then
@@ -366,7 +366,7 @@ let node_of_operation state op =
       let (exe, args) = split_argv argv in
       [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Open path ->
-      let path' = sanitise_path path in
+      let path' = sanitize_path path in
       [(Sf.file_path, [path'])]
     | Bind (fd, port) ->
       let port' = Printf.sprintf "%d" port in
@@ -878,14 +878,17 @@ let address_of_pos out addr =
 module StatPre(Machine : Primus.Machine.S) = struct
    [@@@warning "-P"]
    include Pre(Machine)
+   include Channels.Lib(Machine)
 
    let size_offset = 48
    let mode_offset = 24
    let uid_offset = 28
 
    let stat_file state redirections filename buf =
+     Machine.Local.get lisp_io_state >>= fun io_state ->
      let {filesystem;uid} = state in
-     let opt = String.Map.find redirections filename in
+     (** let opt = String.Map.find redirections filename in *)
+     let (absolute_path, opt) = find_path io_state filename in
      match opt with
         None ->
           let () = info "Could not find file=%s" filename in
@@ -1132,6 +1135,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
         loop (succ n) (Bitvector.succ addr) cont in
     loop 0 addr (Machine.return(Bitvector.of_int 64 0))
 
+  (** Always ensure a path ends with / *)
+  let sanitize_absolute_path path =
+    let n = String.length path in
+    if path.[n-1] != '/' then
+      path ^ "/"
+    else
+      path
+
   let string_of_addr addr =
     let rec loop addr cs =
       (** let () = info "Fetching %s" (Bitvector.to_string addr) in *)
@@ -1220,7 +1231,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
         let {cwd} = state' in
         let s' = if (String.is_prefix ~prefix:"/" s) then
-                   s
+                   sanitize_absolute_path s
                  else if s = ".." then
                    let parts = String.split ~on:'/' cwd in
                    let n = List.length parts in
@@ -1333,6 +1344,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let state'' = {state' with file_opened=Some path} in
           (add_operation tid op state''))
     | "open64" ->
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      (** let () = info " RDI: %s" path in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Open path) in
+          let state'' = {state' with file_opened=Some path} in
+          (add_operation tid op state''))
+    | "opendir" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       (v |> Value.to_word |> string_of_addr) >>= fun path ->
@@ -1469,6 +1489,14 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Accept fd in
+          (add_operation tid op state'))
+    | "readdir" ->
+      let () = info "model readdir:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      Machine.Local.update state ~f:(fun state' ->
+          let op = Read fd in
           (add_operation tid op state'))
     | "read" ->
       let () = info "model read:" in

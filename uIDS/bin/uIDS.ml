@@ -23,10 +23,9 @@ exception InvalidArgument of string
 
 module Modes = struct
 
-	let greedy = "--primus-greedy-scheduler"
-	let promiscuous = "--primus-promiscuous-mode"
-
-        let inetd = "--primus-uids-inetd-startup"
+  let greedy = "--primus-greedy-scheduler"
+  let promiscuous = "--primus-promiscuous-mode"
+  let inetd = "--primus-uids-inetd-startup"
 
 end
 
@@ -56,8 +55,8 @@ let walk_directory_tree dir =
       let dirs, files =
         List'.fold_left ~f:(fun (dirs,files) f ->
             match (Unix.stat f).st_kind with
-              | S_REG -> (dirs, f::files)  (* Regular file *)
-              | S_DIR -> (f::dirs, files)  (* Directory *)
+              | S_REG -> (dirs, f::files)    (* Regular file *)
+              | S_DIR -> (f::dirs, f::files) (* Directory *)
               | _ -> (dirs, files)
           ) ~init:([],[]) contents
       in

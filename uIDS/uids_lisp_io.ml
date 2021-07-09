@@ -12,6 +12,7 @@ type channel = {
 type state = {
   redirections : string String.Map.t;
   channels : channel Int.Map.t;
+  directories: Unix.dir_handle Int.Map.t;
   files : string Int.Map.t;
   cwd : string;
 }
@@ -59,17 +60,20 @@ let init_channels =
 let init_files =
   Int.Map.empty
 
+let init_directories =
+  Int.Map.empty
+
 let init_redirections =
   List.fold ~init:String.Map.empty ~f:(fun redirs (oldname,newname) ->
       match fd_of_name oldname with
         Some _ -> redirs
       | None -> Map.set redirs ~key:oldname ~data:newname)
 
-
 let init redirs = {
   redirections = init_redirections redirs;
   channels = init_channels redirs;
   files = init_files;
+  directories = init_directories;
   cwd = "/";
 }
 
@@ -91,7 +95,7 @@ let input_byte chan = Or_error.try_with @@ fun () ->
   In_channel.input_byte chan
 
 let next_fd channels = match Map.max_elt channels with
-  | None -> 0
+  | None -> 1
   | Some (fd,_) -> fd + 1
 
 let state = Primus.Machine.State.declare
@@ -101,14 +105,14 @@ let state = Primus.Machine.State.declare
          redirections = String.Map.empty;
 	 channels = Int.Map.empty;
          files = Int.Map.empty;
+         directories = Int.Map.empty;
 	 cwd = "/";
        })
 
-let init redirections =
-
-  let module Lib(Machine : Primus.Machine.S) = struct
+module Lib(Machine : Primus.Machine.S) = struct
     include Machine.Syntax
     module Eval = Primus.Interpreter.Make(Machine)
+    module Memory = Primus.Memory.Make(Machine)
     module Value = Primus.Value.Make(Machine)
 
     let addr_width =
@@ -116,6 +120,7 @@ let init redirections =
     let nil = Value.b0
     let error = addr_width >>= fun w -> Value.of_word (Word.ones w)
     let ok = addr_width >>= Value.zero
+    let zero = ok
 
     let value_to_int x =
       Value.to_word x |> Word.to_int |> function
@@ -124,7 +129,7 @@ let init redirections =
 
     let value_to_fd = value_to_int
 
-    let value_of_int x = Value.of_word (Bitvector.of_int ~width:64 x)
+    let value_of_int x = addr_width >>= fun w -> Value.of_word (Bitvector.of_int ~width:w x)
 
     let string_of_charp ptr =
       let rec loop chars ptr =
@@ -135,11 +140,12 @@ let init redirections =
           Value.to_word c in
         if Char.(c = '\000')
         then Machine.return (String.of_char_list (List.rev chars))
-        else Value.succ ptr >>= loop (c::chars)  in
+        else Value.succ ptr >>= loop (c::chars) in
       loop [] ptr
 
     let find_path state path =
       let {redirections;cwd} = state in
+      let () = info "Finding path %s in %s" path cwd in
       let opt = Map.find redirections path in
       match opt with
         None ->
@@ -148,7 +154,34 @@ let init redirections =
         (path', opt)
       | _ -> (path, opt)
 
-  end in
+    let trap_memory_write access =
+      Machine.catch access (function exn ->
+          (** let () = info "Error reading memory!" in
+          let msg = Primus.Exn.to_string exn in
+          let () = info "    %s" msg in *)
+          Machine.return())
+
+    (** Copy a string into memory (merge into a common module) *)
+    let copy_bytes addr s =
+      let addr' = (Value.to_word addr) in
+      let () = info "copying %s into %x" s (Bitvector.to_int_exn addr') in
+      let cont' = String.foldi ~f:(fun i cont c ->
+        let c' = int_of_char c in
+        Value.of_word (Bitvector.of_int 64 c') >>= fun v ->
+        cont >>= fun () ->
+          let dst = (Bitvector.add addr' (Bitvector.of_int 64 i)) in
+          (trap_memory_write (Memory.set dst v))) ~init:(Machine.return()) s in
+      cont' >>= fun () ->
+         let n = String.length s in
+         Value.of_word (Bitvector.of_int 64 0) >>= fun z ->
+         let dst = (Bitvector.add addr' (Bitvector.of_int 64 n)) in
+         let () = info "writing 0 into %x" (Bitvector.to_int_exn dst) in
+         (trap_memory_write (Memory.set dst z))
+
+
+end
+
+let init redirections =
 
   let module Open(Machine : Primus.Machine.S) = struct
     include Lib(Machine)
@@ -207,6 +240,59 @@ let init redirections =
       | Some _ -> open_file path
   end in
 
+  let module OpenDir(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let enoent = 2
+
+    let run [path] =
+      string_of_charp path >>= fun path ->
+      Machine.Local.get state >>= fun s ->
+      let (absolute_path, opt) = find_path s path in
+      match opt with
+        None -> zero
+      | Some hostfile ->
+        let () = info "Calling opendir %s" hostfile in
+        let dir = Unix.opendir hostfile in
+        let fd = next_fd s.directories in
+        Machine.Local.put state {
+           s with
+           directories = Map.set s.directories
+               ~key:fd
+               ~data:dir
+         } >>= fun () ->
+         addr_width >>= fun width ->
+         Value.of_int ~width:width fd
+
+  end in
+
+  let module ReadDir(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let run [dir; dirent] =
+       match value_to_fd dir with
+        None -> zero
+      | Some fd ->
+        Machine.Local.get state >>= fun s ->
+          let opt = Map.find s.directories fd in
+          match opt with
+            None -> zero
+          | Some dir ->
+            try
+              let file = Unix.readdir dir in
+              let dirent' = (Value.to_word dirent) in
+              let dname_offset = 0x13 in
+              (Value.of_word (Bitvector.add dirent' (Bitvector.of_int 8 dname_offset))) >>= fun dname ->
+              copy_bytes dname file >>= fun () ->
+                Machine.return (dirent)
+            with End_of_file ->
+              zero
+
+  end in
+
+
   let module OpenNetwork(Machine : Primus.Machine.S) = struct
     include Lib(Machine)
     [@@@warning "-P"]
@@ -233,8 +319,8 @@ let init redirections =
 
   let module Close(Machine : Primus.Machine.S) = struct
     include Lib(Machine)
-
     [@@@warning "-P"]
+
     let run [fd] =
       value_to_fd fd |> function
       | None -> error
@@ -405,9 +491,15 @@ let init redirections =
         def "uids-channel-seek" (tuple [int; int] @-> int) (module Seek)
           {|(uids-channel-seek DESCR CHAR ...) changes a file descriptor's position
             to a given offset. |};
-        def "uids-channel-offset" (one int // all byte  @-> int) (module Pos)
+        def "uids-channel-offset" (one int // all byte @-> int) (module Pos)
           {|(uids-channel-offset DESCR CHAR ...) fetches the current offset of a
             file descriptor. |};
+        def "uids-ocaml-opendir" (tuple [a] @-> b) (module OpenDir)
+          {|(uids-ocaml-opendir) opens a directory for reading..|};
+        def "uids-ocaml-readdir" (tuple [a; b] @-> c) (module ReadDir)
+          {|(uids-ocaml-readdir) reads the next entry for a directory..|};
+        (** def "uids-ocaml-readdir" (tuple [a] @-> b) (module Readdir)
+          {|(uids-ocaml-readdir) reads a dirent ..|}; *)
       ]
   end in
   Primus.Machine.add_component (module Primitives) [@warning "-D"];

@@ -1,16 +1,20 @@
 {
-  "initial": "%0001195c",
+  "initial": "%00011a59",
   "nodes": [
-    "%00001350", "%0000fedc", "%0001081b", "%0001195c", "%0001195d",
-    "%0001195f"
+    "%00001350", "%0000f00f", "%0000f0ea", "%0000f2e7", "%0000f49d",
+    "%0000ffa4", "%000110eb", "%00011a59", "%00011a5a", "%00011a5c"
   ],
   "contexts": {
-    "%0001195c": [ "/bin/bash", "main" ],
+    "%000110eb": [ "/bin/cron", "main" ],
     "%00001350": [ "/bin/cron", "acquire_daemonlock" ],
-    "%0001195d": [ "/bin/bash", "main" ],
-    "%0001081b": [ "/bin/cron", "set_cron_cwd" ],
-    "%0000fedc": [ "/bin/cron", "acquire_daemonlock" ],
-    "%0001195f": [ "/bin/bash", "main" ]
+    "%00011a5c": [ "/bin/bash", "main" ],
+    "%0000ffa4": [ "/bin/cron", "acquire_daemonlock" ],
+    "%0000f0ea": [ "/bin/cron", "load_database" ],
+    "%0000f00f": [ "/bin/cron", "load_database" ],
+    "%0000f49d": [ "/bin/cron", "load_database" ],
+    "%00011a59": [ "/bin/bash", "main" ],
+    "%0000f2e7": [ "/bin/cron", "load_database" ],
+    "%00011a5a": [ "/bin/bash", "main" ]
   },
   "constraints": [
     {
@@ -24,7 +28,47 @@
       ]
     },
     {
-      "node": "%0000fedc",
+      "node": "%0000f00f",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/cron.d" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000f0ea",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "crontabs" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000f2e7",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "crontabs" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000f49d",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/cron.d" ]
+        }
+      ]
+    },
+    {
+      "node": "%0000ffa4",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -34,23 +78,24 @@
       ]
     },
     {
-      "node": "%0001081b",
+      "node": "%000110eb",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
           "sf.proc.uid": [ "0" ],
-          "sf.file.path": [ "/dev/pts/0" ]
+          "sf.proc.exe": [ "/bin/cron" ],
+          "sf.proc.args": [ "" ]
         }
       ]
     },
     {
-      "node": "%0001195c",
+      "node": "%00011a59",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./cron.sh" ] }
       ]
     },
     {
-      "node": "%0001195d",
+      "node": "%00011a5a",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -60,17 +105,24 @@
       ]
     },
     {
-      "node": "%0001195f",
+      "node": "%00011a5c",
       "constraints": [
         { "sf.proc.exe": [ "/bin/cron" ], "sf.proc.args": [ "" ] }
       ]
     }
   ],
   "edges": [
-    { "src": "%00001350", "dst": "%0001081b", "label": "WRITE" },
-    { "src": "%0000fedc", "dst": "%00001350", "label": "WRITE" },
-    { "src": "%0001195c", "dst": "%0001195d", "label": "CLONE" },
-    { "src": "%0001195d", "dst": "%0001195f", "label": "EXEC" },
-    { "src": "%0001195f", "dst": "%0000fedc", "label": "OPEN" }
+    { "src": "%00001350", "dst": "%0000f00f", "label": "OPEN" },
+    { "src": "%00001350", "dst": "%000110eb", "label": "CLONE" },
+    { "src": "%0000f00f", "dst": "%0000f49d", "label": "READ" },
+    { "src": "%0000f0ea", "dst": "%0000f2e7", "label": "READ" },
+    { "src": "%0000f2e7", "dst": "%0000f2e7", "label": "READ" },
+    { "src": "%0000f49d", "dst": "%0000f0ea", "label": "OPEN" },
+    { "src": "%0000f49d", "dst": "%0000f49d", "label": "READ" },
+    { "src": "%0000ffa4", "dst": "%00001350", "label": "WRITE" },
+    { "src": "%000110eb", "dst": "%00001350", "label": "WRITE" },
+    { "src": "%00011a59", "dst": "%00011a5a", "label": "CLONE" },
+    { "src": "%00011a5a", "dst": "%00011a5c", "label": "EXEC" },
+    { "src": "%00011a5c", "dst": "%0000ffa4", "label": "OPEN" }
   ]
 }

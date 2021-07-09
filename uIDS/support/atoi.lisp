@@ -392,10 +392,18 @@
     (uids-ocaml-fstat fd buf)))
 
 (defun uids-stat (filename buf)
-  (declare (external "stat64"))
+  (declare (external "stat64" "__stat"))
+  (uids-ocaml-debug 0xf0bc0de)
   (let ((offset 48))
     ;; (write-word ptr_t (+ buf offset) size)
     (uids-ocaml-stat filename buf)))
+
+;; (defun uids-stat (filename buf)
+;;   (declare (external "__stat"))
+;;   (uids-debug-ocaml 0xf00bc0de)
+;;   (let ((offset 48))
+;;     ;; (write-word ptr_t (+ buf offset) size)
+;;     (uids-ocaml-stat filename buf)))
 
 (defun uids-xstat (vers path buf)
   (declare (external "__xstat"))
@@ -528,6 +536,8 @@
   (declare (external "mkdir"))
   0)
 
+;; getopt
+
 (defparameter optind 0)
 
 (defun uids-getopt (argc argv optstring)
@@ -540,5 +550,22 @@
                  (strstr optstring (ptr+1 char s)))
           (set res (memory-read (ptr+1 char s)))
           0)
-      (incr optind)))
+    (incr optind)))
     res))
+
+(defun uids-nl-langinfo (item)
+  (declare (external "nl_langinfo"))
+  (let ((buf (malloc 64)))
+    (memory-write buf 0x41)
+    (memory-write (ptr+1 char buf) 0x00)
+    buf))
+
+(defun uids-opendir (path)
+  (declare (external "opendir"))
+  (uids-ocaml-opendir path))
+
+(defparameter dirent (malloc 512))
+
+(defun uids-readdir (dir)
+  (declare (external "readdir"))
+  (uids-ocaml-readdir dir dirent))

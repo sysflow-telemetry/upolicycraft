@@ -42,6 +42,11 @@ int           initgroups(const char *user, int group);
 
 // uids
 
+void          *opendir(char *name);
+void          *readdir(void *dirp);
+
+char *        nl_langinfo(void *item);
+
 int           mprotect(void *addr, size_t len, int prot);
 
 
@@ -83,6 +88,7 @@ int           fileno(void *file);
 int           fstat64(int fd, void *buf);
 int           stat64(const char *path, void *buf);
 int           stat(const char *pathname, void *buf);
+int           __stat(const char *path, void *buf);
 int           __xstat(int vers, const char *name, void *buf);
 
 int           print(char *buf);
