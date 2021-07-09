@@ -2,6 +2,12 @@ digraph G {
   4 [shape=Mrecord,
      label="{{/bin/cron:acquire_daemonlock}|{F|{/var/run/crond.pid}}}",
      fontsize=9, ];
+  10 [shape=Mrecord,
+      label="{{/bin/cron:process_crontab}|{F|{/etc/cron.d/backups}}}",
+      fontsize=9, ];
+  11 [shape=Mrecord,
+      label="{{/bin/cron:process_crontab}|{F|{/etc/cron.d/backups}}}",
+      fontsize=9, ];
   6 [shape=Mrecord, label="{{/bin/cron:load_database}|{F|{/etc/cron.d}}}",
      fontsize=9, ];
   8 [shape=Mrecord, label="{{/bin/cron:load_database}|{F|{crontabs}}}",
@@ -23,9 +29,12 @@ digraph G {
   
   4 -> 6 [label="OPEN", fontsize=8, ];
   4 -> 5 [label="CLONE", fontsize=8, ];
+  10 -> 11 [label="CLOSE", fontsize=8, ];
+  11 -> 7 [label="READ", fontsize=8, ];
   6 -> 7 [label="READ", fontsize=8, ];
   8 -> 9 [label="READ", fontsize=8, ];
   9 -> 9 [label="READ", fontsize=8, ];
+  7 -> 10 [label="OPEN", fontsize=8, ];
   7 -> 8 [label="OPEN", fontsize=8, ];
   7 -> 7 [label="READ", fontsize=8, ];
   3 -> 4 [label="WRITE", fontsize=8, ];

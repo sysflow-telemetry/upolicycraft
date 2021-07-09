@@ -490,7 +490,7 @@ let state = Primus.Machine.State.declare
          current_module = "main";
          callstack = [];
          no_test_cases = 0;
-	 uid = 0;
+         uid = 0;
          gid = 0;
          saved_uid = None;
          saved_gid = None;
@@ -505,6 +505,8 @@ module Pre(Machine : Primus.Machine.S) = struct
   module Env = Primus.Interpreter.Make(Machine)
   module Memory = Primus.Memory.Make(Machine)
   module Value = Primus.Value.Make(Machine)
+
+  let arg_regs = ["RDI"; "RSI"; "RDX"; "RCX"; "R8"; "R9"]
 
   let addr_width =
     Machine.arch >>| Arch.addr_size >>| Size.in_bits
@@ -776,26 +778,48 @@ module Sprintf(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
 
-    let run [s; fmt; v] =
+    let find_subs str =
+      let cs = String.to_list str in
+      let rec loop cs control acc =
+        match cs with
+          [] -> List.rev acc
+        | c :: css ->
+          if c = '%' then
+            loop css true acc
+          else if control then
+            loop css false (("%" ^ (String.make 1 c)) :: acc)
+          else
+            loop css false acc in
+       loop cs false []
+
+    let fetch_decimal v =
+      let v' = v |> Value.to_word
+                 |> Bitvector.to_int_exn
+                 |> string_of_int in
+      Machine.return (v')
+
+    let fetch_string v =
+      let v' = Value.to_word v in
+        string_of_addr v'
+
+    let run [s; fmt] =
       let open Param in
-      (**
-      The value for %d may be non-deterministic so just replace it with a regex
-      that the MRM can enforce.
-      *)
       let vfmt = Value.to_word fmt in
       string_of_addr vfmt >>= fun fmt' ->
         let () = info "sprintf: %s" fmt' in
-        let v' =
-	   v |> Value.to_word
-             |> Bitvector.to_int_exn in
-        let v'' =
-         if (get symbolic_arguments) then
-           "[0-9]+"
-         else
-	     string_of_int v' in
-        let v''' = Printf.sprintf "%x" v' in
-        let output = String.substr_replace_all ~pattern:"%d" ~with_:v'' fmt' in
-        let output' = String.substr_replace_all ~pattern:"$x" ~with_:v''' output in
+        let subs = find_subs fmt' in
+        let args' = List.take (List.drop arg_regs 2) (List.length subs) in
+        let subs = List.zip_exn subs args' in
+        List.fold_left ~f:(fun output (pattern, reg) ->
+          let var = (Var.create reg reg64_t) in
+          Env.get var >>= fun v ->
+            (pattern |> function
+              "%d" -> fetch_decimal v
+            | "%s" -> fetch_string v
+            |  _ -> Machine.return "nil") >>= fun vs ->
+            output >>= fun s ->
+            Machine.return (String.substr_replace_first s ~pattern:pattern ~with_:vs)
+        ) ~init:(Machine.return fmt') subs >>= fun output' ->
         copy_bytes s output' >>= fun () ->
           Value.of_word (Bitvector.of_int 64 0)
 end
@@ -1044,6 +1068,17 @@ module ABI = struct
   let args x =
     let register = register_of_position x in
     Env.get
+
+  let regs = ["RDI"; "RSI"]
+
+  (**
+  400567:       41 b9 06 00 00 00       mov    $0x6,%r9d
+  40056d:       41 b8 05 00 00 00       mov    $0x5,%r8d
+  400573:       b9 04 00 00 00          mov    $0x4,%ecx
+  400578:       ba 03 00 00 00          mov    $0x3,%edx
+  40057d:       be 02 00 00 00          mov    $0x2,%esi
+  400582:       bf 01 00 00 00          mov    $0x1,%edi
+  *)
 
 end
 
@@ -2061,7 +2096,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-sscanf) tries to implement sscanf. |};
       def "uids-ocaml-scanf" (tuple [a] @-> b) (module Scanf)
       {|(uids-ocaml-scanf FMT ADDRESS) tries to implement scanf. |};
-      def "uids-ocaml-sprintf" (tuple [a; b; c] @-> bool) (module Sprintf)
+      def "uids-ocaml-sprintf" (tuple [a; b] @-> bool) (module Sprintf)
       {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |};
       def "uids-ocaml-snprintf" (tuple [a; b; c; d] @-> bool) (module Snprintf)
       {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |};
