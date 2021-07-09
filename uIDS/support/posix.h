@@ -42,6 +42,10 @@ int           initgroups(const char *user, int group);
 
 // uids
 
+int           regcomp(void  *preg, const char *regex, int cflags);
+int           regexec(void  *preg, const char *string, size_t nmatch, void * pmatch, int eflags);
+
+
 void          *opendir(char *name);
 void          *readdir(void *dirp);
 

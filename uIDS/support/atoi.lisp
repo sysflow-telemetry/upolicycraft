@@ -214,7 +214,7 @@
 
 (defun uids-sprintf (s fmt addr)
    (declare (external "sprintf"))
-   (uids-ocaml-sprintf s fmt addr)
+   (uids-ocaml-sprintf s fmt)
    (strlen s))
 
 (defun epoll-wait (epfd events nevents timeout)
@@ -569,3 +569,11 @@
 (defun uids-readdir (dir)
   (declare (external "readdir"))
   (uids-ocaml-readdir dir dirent))
+
+(defun uids-regcomp (preg regex cflags)
+  (declare (external "regcomp"))
+  0)
+
+(defun uids-regexec (preg str nm pm eflags)
+  (declare (external "regexec"))
+  0)
