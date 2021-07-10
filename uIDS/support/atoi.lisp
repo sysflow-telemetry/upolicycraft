@@ -458,6 +458,10 @@
        (m (malloc time-struct-size)))
   (memset m 0 time-struct-size)))
 
+(defun uids-gmtime (tm)
+  (declare (external "gmtime"))
+  tm)
+
 (defun uids-fork ()
   (declare (external "fork"))
   0)

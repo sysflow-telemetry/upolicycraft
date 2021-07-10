@@ -38,6 +38,11 @@ let standard_channels = [
   "<uids-stderr>";
 ]
 
+let empty_channel = {
+  input = None;
+  output = None;
+}
+
 let fd_of_name name =
   List.find_mapi standard_channels ~f:(fun i chan ->
       if String.equal name chan then Some i else None)
@@ -255,12 +260,18 @@ let init redirections =
       | Some hostfile ->
         let () = info "Calling opendir %s" hostfile in
         let dir = Unix.opendir hostfile in
-        let fd = next_fd s.directories in
+        let fd = next_fd s.files in
         Machine.Local.put state {
            s with
            directories = Map.set s.directories
                ~key:fd
-               ~data:dir
+               ~data:dir;
+           files = Map.set s.files
+               ~key:fd
+               ~data:hostfile;
+           channels = Map.set s.channels
+               ~key:fd
+               ~data:empty_channel;
          } >>= fun () ->
          addr_width >>= fun width ->
          Value.of_int ~width:width fd

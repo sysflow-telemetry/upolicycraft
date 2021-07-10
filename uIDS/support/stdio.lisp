@@ -28,11 +28,12 @@
   (fputs p *uids-standard-output*)
   (uids-channel-flush *uids-standard-output*))
 
+
 ;; the channel module have rough equality between streams and
 ;; file descriptors, as they both are represented as integers. We are currently
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
-  (declare (external "fopen" "open" "open64"))
+  (declare (external "fopen" "open" "open64" "creat"))
   (uids-channel-open path mode))
 
 (defun uids-fdopen (fd mode)

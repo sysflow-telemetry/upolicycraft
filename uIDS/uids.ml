@@ -253,7 +253,6 @@ type state = {
   no_test_cases : int;
   filesystem : (string, string) Hashtbl.t;
   duped_file_descriptors : (int, int) Hashtbl.t;
-  read_cache : int list;
   cwd : string;
 }
 
@@ -329,7 +328,7 @@ let restrict_to_user state constr =
   restrict Sf.proc_uid uid' |>
   restrict Sf.proc_gid gid'
 
-let constraint_of_fd state fd =
+let constraint_of_fd state (io_state : Uids_lisp_io.state) fd =
   let () = info "Fetching state of file descriptor %d:" fd in
   (** let () = info "  %s" (state.ports) *)
   let fd' = check_copied_descriptor state fd in
@@ -340,7 +339,8 @@ let constraint_of_fd state fd =
        let () = info "  %s" port' in
        [(Sf.net_dport, [port'])]
   | None ->
-    let file = Hashtbl.find_exn state.files fd in
+    (** Pull from the IO state. *)
+    let file = Map.find_exn io_state.files fd' in
     let file' = sanitize_path file in
     let () = info "  %s" file' in
     let const =
@@ -352,14 +352,14 @@ let constraint_of_fd state fd =
     [const]
 
 
-let node_of_operation state op =
+let node_of_operation state io_state op =
   let constr =
     match op with
       Clone argv ->
       let (exe, args) = split_argv argv in
       [(Sf.proc_exe, [exe]); (Sf.proc_args, [args])]
     | Connect (fd, ipaddr) ->
-      let file_constraints = constraint_of_fd state fd in
+      let file_constraints = constraint_of_fd state io_state fd in
       let ipaddr = Printf.sprintf "%x" ipaddr in
       List.append file_constraints [(Sf.net_ip, [ipaddr])]
     | Exec argv ->
@@ -376,16 +376,16 @@ let node_of_operation state op =
       let port' = Printf.sprintf "%d" port in
       [(Sf.net_dport, [port'])]
     | Read fd ->
-      constraint_of_fd state fd
+      constraint_of_fd state io_state fd
     | Write fd ->
-      constraint_of_fd state fd
+      constraint_of_fd state io_state fd
     | Close fd ->
-      constraint_of_fd state fd
+      constraint_of_fd state io_state fd
     | Chown (fd, uid, gid) ->
-      let constraints = constraint_of_fd state fd in
+      let constraints = constraint_of_fd state io_state fd in
       constraints
     | Chmod (fd, mode) ->
-      let constraints = constraint_of_fd state fd in
+      let constraints = constraint_of_fd state io_state fd in
       let mode' = Printf.sprintf "%x\n" mode in
       List.append [(Sf.file_perms, [mode'])] constraints
     | Recv fd ->
@@ -398,7 +398,7 @@ let node_of_operation state op =
       let port' = Printf.sprintf "%d" port in
       [(Sf.net_dport, [port'])]
     | Sendfile (outfd, infd) ->
-      List.append (constraint_of_fd state outfd) (constraint_of_fd state infd)
+      List.append (constraint_of_fd state io_state outfd) (constraint_of_fd state io_state infd)
     | Setuid id ->
       let id' = Printf.sprintf "%d" id in
       [(Sf.proc_uid, [id'])]
@@ -440,15 +440,16 @@ let escalate_privileges state =
                 | None -> state' in
   state''
 
-let add_operation tid op state =
+let add_operation tid op state (io_state: Uids_lisp_io.state) =
   (** let () = info "Adding operation:" in *)
+  let x = io_state.channels in
   let {nodes;graph;last_tid;functions;callstack;current_module} = state in
   let state' =
     if not (operation_affects_privilege op) then
       escalate_privileges state
     else
       state in
-  let node_label = node_of_operation state' op in
+  let node_label = node_of_operation state' io_state op in
   let edge_label = edge_of_operation op in
   let graph' = EffectGraph.Node.insert tid graph in
   (** let () = info "   %s" edge_label in *)
@@ -496,7 +497,6 @@ let state = Primus.Machine.State.declare
          saved_gid = None;
          filesystem = Hashtbl.create (module String);
          duped_file_descriptors = Hashtbl.create (module Int);
-         read_cache = [];
          cwd = "/";
        })
 
@@ -1010,35 +1010,6 @@ module CheckDup2(Machine : Primus.Machine.S) = struct
         Value.of_word (Bitvector.of_int ~width:64 (check_copied_descriptor state fd'))
 end
 
-module CachePush(Machine : Primus.Machine.S) = struct
-    [@@@warning "-P"]
-    include Pre(Machine)
-
-    let run [ch] =
-      let ch' = int_of_value ch in
-      Machine.Local.update state ~f:(fun state' ->
-        let read_cache = state'.read_cache in
-        {state' with read_cache = read_cache @ [ch']}
-      ) >>= fun _ ->
-      zero
-end
-
-module CacheInput(Machine : Primus.Machine.S) = struct
-    [@@@warning "-P"]
-    include Pre(Machine)
-
-    let run [] =
-      Machine.Local.get state >>= fun state' ->
-        let {read_cache} = state' in
-        match read_cache with
-          [] -> Value.of_word (Bitvector.of_int ~width:32 (-1))
-        | r :: rc -> Machine.Local.update state ~f:(fun state' ->
-          {state' with read_cache=rc}
-        ) >>= fun _ ->
-          Value.of_word (Bitvector.of_int ~width:32 r)
-end
-
-
 module InetAton(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
@@ -1211,17 +1182,21 @@ module Monitor(Machine : Primus.Machine.S) = struct
     loop addr (Machine.return([]))
 
   let read_from_stdin tid =
+      Machine.Local.get lisp_io_state >>= fun io_state ->
       Machine.Local.update state ~f:(fun state' ->
           let op = Read Sf.stdin_fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
 
   let write_to_stdout tid =
+    Machine.Local.get lisp_io_state >>= fun io_state ->
     Machine.Local.update state ~f:(fun state' ->
       let op = (Write Sf.stdout_fd) in
-      (add_operation tid op state')
+      (add_operation tid op state' io_state)
     )
 
   let record_function tid func =
+    Machine.Local.get lisp_io_state >>= fun io_state ->
+    let x = io_state.channels in
     match func with
       "syscall" ->
       Machine.args >>= fun args ->
@@ -1233,7 +1208,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         match syscall_number with
           56 (* clone *) ->
             let op = (Clone (Array.to_list args)) in
-            add_operation tid op state'
+            add_operation tid op state' io_state
         | _ -> state'
       )
     | "mkdir" ->
@@ -1246,7 +1221,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       string_of_addr pathaddr >>= fun path ->
         Machine.Local.update state ~f:(fun state' ->
           let op = Mkdir (path, mode) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "connect" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun u ->
@@ -1260,7 +1235,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let ipaddr' = Bitvector.to_int_exn ipaddr in
         Machine.Local.update state ~f:(fun state' ->
           let op = Connect (fd, ipaddr') in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "chdir" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1302,7 +1277,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let group_id = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
         let op = Chown (fd, user_id, group_id) in
-        (add_operation tid op state'))
+        (add_operation tid op state' io_state))
     | "fchmod" ->
       let rdi = (Var.create "RDI" reg64_t) in
       let rsi = (Var.create "RSI" reg64_t) in
@@ -1312,12 +1287,12 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let mode = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
         let op = Chmod (fd, mode) in
-        (add_operation tid op state'))
+        (add_operation tid op state' io_state))
     | "fork" ->
       Machine.args >>= fun args ->
       Machine.Local.update state ~f:(fun state' ->
         let op = (Clone (Array.to_list args)) in
-        add_operation tid op state')
+        add_operation tid op state' io_state)
     | "execv" ->
       (** let () = info "model execv:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1332,7 +1307,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RSI: %s" argv in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Exec [path; argv]) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "apr_file_open" ->
       (** let () = info "model open:" in *)
       let rsi = (Var.create "RSI" reg64_t) in
@@ -1341,7 +1316,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         (** let () = info " RSI: %s" path in *)
         Machine.Local.update state ~f:(fun state' ->
             let op = (Open path) in
-            (add_operation tid op state'))
+            (add_operation tid op state' io_state))
     | "apr_file_gets" ->
       (** let () = info "model read:" in *)
       let rsi = (Var.create "RSI" reg64_t) in
@@ -1353,7 +1328,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         (** let () = info " RDX: %d" fd in *)
         Machine.Local.update state ~f:(fun state' ->
             let op = (Read fd) in
-            (add_operation tid op state'))
+            (add_operation tid op state' io_state))
     | "atoi" ->
       (** let () = info "model atoi:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1371,7 +1346,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "open" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1380,7 +1355,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "open64" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1389,7 +1364,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "opendir" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1398,7 +1373,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "fgetc" ->
       (** let () = info "model fgetc:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1407,7 +1382,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "_IO_getc" ->
       (** let () = info "model _IO_getc:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1416,7 +1391,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "pread64" ->
       (** let () = info "model fwrite:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1425,7 +1400,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "fread" ->
       (** let () = info "model fwrite:" in *)
       let rcx = (Var.create "RCX" reg64_t) in
@@ -1434,7 +1409,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "fprintf" ->
       let () = info "model fprintf:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1443,7 +1418,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " RDI: %d" fd in
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "fwrite" ->
       (** let () = info "model fwrite:" in *)
       let rcx = (Var.create "RCX" reg64_t) in
@@ -1452,7 +1427,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "pwrite64" ->
       (** let () = info "model fwrite:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1461,7 +1436,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RCX: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Write fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "fclose" ->
       (** let () = info "model fclose:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1470,7 +1445,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
      | "close" ->
       let () = info "model close:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1479,7 +1454,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "closedir" ->
       let () = info "model closedir:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1488,7 +1463,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       (** let () = info " RDI: %d" fd in *)
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
    (** Simplified for CGC challenges *)
     | "write0" ->
       (write_to_stdout tid)
@@ -1521,7 +1496,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let () = info " RDI: %s" path in
       Machine.Local.update state ~f:(fun state' ->
           let op = (Open path) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "bind" ->
       let () = info "model bind:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1537,7 +1512,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = Bind (fd, port) in
           let () = Hashtbl.set state'.ports ~key:fd ~data:port in
-         (add_operation tid op state'))
+         (add_operation tid op state' io_state))
     | "accept" ->
       let () = info "model accept:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1545,7 +1520,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Accept fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "readdir" ->
       let () = info "model readdir:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1553,7 +1528,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "read" ->
       let () = info "model read:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1561,7 +1536,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "write" ->
       let () = info "model write:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1569,7 +1544,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Write fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "recvmsg" ->
       let () = info "model recv:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1577,7 +1552,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Recv fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "sendmsg" ->
       let () = info "model send:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1585,7 +1560,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Send fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "setuid" ->
       let () = info "model setuid:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1596,7 +1571,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let {uid} = state' in
           let op = Setuid uid in
           let state'' = {state' with saved_uid = Some id} in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "setgid" ->
       let () = info "model setgid:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1606,7 +1581,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let {gid} = state' in
           let op = Setgid gid in
           let state'' = { state' with saved_gid = Some id } in
-          (add_operation tid op state''))
+          (add_operation tid op state'' io_state))
     | "terminate" ->
       (** let () = info "model terminate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1614,7 +1589,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let status = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Exit status in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "recvUntil" ->
       (** let () = info "model receive:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1622,7 +1597,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "receive_delim" ->
       let () = info "model receive_delim:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1630,7 +1605,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "receive_delim" ->
       let () = info "model receive_delim:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1638,7 +1613,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "receive" ->
       let () = info "model receive:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1646,7 +1621,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Read fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "getline" ->
       let () = info "model getline" in
       (read_from_stdin tid)
@@ -1666,7 +1641,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Write fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "transmit" ->
       (** let () = info "model transmit:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1674,7 +1649,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
       Machine.Local.update state ~f:(fun state' ->
           let op = Write fd in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "allocate" ->
       (** let () = info "model allocate:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1686,7 +1661,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let perms = if isX > 0 then [R; W; X] else [R; W] in
         Machine.Local.update state ~f:(fun state' ->
           let op = Mmap (size, perms) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | "getcwd" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1702,7 +1677,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
         let in_fd = (u |> Value.to_word |> Bitvector.to_int_exn) in
         Machine.Local.update state ~f:(fun state' ->
           let op = Sendfile (out_fd, in_fd) in
-          (add_operation tid op state'))
+          (add_operation tid op state' io_state))
     | _ ->
       (** let () = info "called %s from %s" func (Tid.name tid) in *)
       Machine.Local.update state ~f:(fun state' ->
@@ -2139,10 +2114,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-dup2) makes a copy of oldfd into newfd.|};
       def "uids-ocaml-check-dup2" (tuple [a] @-> b) (module CheckDup2)
       {|(uids-ocaml-check-dup2) checks if a file descriptor has been copied.|};
-      def "uids-ocaml-cache-push" (tuple [a] @-> b) (module CachePush)
-      {|(uids-ocaml-cache-push) pushes a character onto an internal cache.|};
-      def "uids-ocaml-cache-input" (tuple [] @-> b) (module CacheInput)
-      {|(uids-ocaml-cache-input) fetches a character from the cache.|};
       def "uids-ocaml-inet-aton" (tuple [a; b] @-> c) (module InetAton)
       {|(uids-ocaml-inet-aton) converts an IP address into a number in network byte order..|};
     ]
@@ -2271,7 +2242,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_gid = None;
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
-          read_cache = [];
           cwd = "/";
 	  }
       ) >>= fun s ->
@@ -2301,7 +2271,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
           saved_gid = None;
           filesystem = filesystem;
           duped_file_descriptors = Hashtbl.create (module Int);
-          read_cache = [];
           cwd = "/";
         })
 end

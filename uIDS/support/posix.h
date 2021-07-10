@@ -103,6 +103,7 @@ int           htons(int);
 
 int           gettimeofday(void *, void *);
 
+void          *gmtime(void *timep);
 void          *localtime_r(int, void *tm);
 void          *localtime(void *tm);
 
@@ -261,7 +262,7 @@ int sscanf(const char * restrict str, const char * restrict format, ...) __attri
 char *fgets(char * restrict s, int size, FILE * restrict stream)
     __attribute__((warn_unused_result));
 char *gets(char * restrict s) __attribute__((warn_unused_result, deprecated));
-FILE *fdopen(int fd, const char *mode); // __attribute__((warn_unused_result))
+FILE *fdopen(int fd, const char *mode) __attribute__((warn_unused_result));
 FILE *fopen(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
 FILE *freopen(const char * restrict path, const char * restrict mode, FILE * restrict stream) __attribute__((warn_unused_result));
 int fclose(FILE *fp);
