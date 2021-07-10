@@ -35,6 +35,10 @@
   (declare (external "fopen" "open" "open64"))
   (uids-channel-open path mode))
 
+(defun uids-fdopen (fd mode)
+   (declare (external "fdopen"))
+   fd)
+
 ;; Primus treats file descriptors and file handles interchangeably.
 (defun fileno (fd)
   (declare (external "fileno"))
@@ -143,8 +147,13 @@
   (fread buf 1 n fd))
 
 (defun fgetc (stream)
-  (declare (external "fgetc" "getc"))
+  (declare (external "fgetc" "getc" "_IO_getc"))
   (uids-channel-input stream))
+
+(defun ungetc (char stream)
+  (declare (external "ungetc"))
+  (let ((pos (uids-channel-offset stream)))
+    (uids-channel-seek stream (- pos 1))))
 
 (defun fclose (stream)
   (declare (external "fclose" "close"))

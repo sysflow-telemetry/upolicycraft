@@ -904,6 +904,7 @@ module StatPre(Machine : Primus.Machine.S) = struct
    include Pre(Machine)
    include Channels.Lib(Machine)
 
+   let nlink_offset = 16
    let size_offset = 48
    let mode_offset = 24
    let uid_offset = 28
@@ -924,13 +925,15 @@ module StatPre(Machine : Primus.Machine.S) = struct
         copy_int (Bitvector.add buf'' (Bitvector.of_int 8 size_offset)) buf'.st_size >>= fun _ ->
           let reg_file = 0o100000 in
           let dir_file = 0o40000 in
+          let nlink = 1 in
           let mode = match buf'.st_kind with
                       S_REG -> reg_file
                     | S_DIR -> dir_file
                     | _ -> 0 in
           copy_int (Bitvector.add buf'' (Bitvector.of_int 8 mode_offset)) mode >>= fun _ ->
             copy_int (Bitvector.add buf'' (Bitvector.of_int 8 uid_offset)) uid >>= fun _ ->
-              ok
+              copy_int (Bitvector.add buf'' (Bitvector.of_int 8 nlink_offset)) nlink >>= fun _ ->
+                ok
 end
 
 module FStat(Machine : Primus.Machine.S) = struct
@@ -1405,6 +1408,15 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Read fd) in
           (add_operation tid op state'))
+    | "_IO_getc" ->
+      (** let () = info "model _IO_getc:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info " RDI: %d" fd in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Read fd) in
+          (add_operation tid op state'))
     | "pread64" ->
       (** let () = info "model fwrite:" in *)
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1459,7 +1471,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
-    | "close" ->
+     | "close" ->
       let () = info "model close:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
@@ -1468,7 +1480,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
           let op = (Close fd) in
           (add_operation tid op state'))
-    (** Simplified for CGC challenges *)
+    | "closedir" ->
+      let () = info "model closedir:" in
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
+      (** let () = info " RDI: %d" fd in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Close fd) in
+          (add_operation tid op state'))
+   (** Simplified for CGC challenges *)
     | "write0" ->
       (write_to_stdout tid)
     | "print" ->

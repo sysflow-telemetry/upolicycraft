@@ -90,6 +90,7 @@ int           receive_bytes ( char *buffer, size_t count);
 
 int           fileno(void *file);
 int           fstat64(int fd, void *buf);
+int           __fstat(int fd, void *buf);
 int           stat64(const char *path, void *buf);
 int           stat(const char *pathname, void *buf);
 int           __stat(const char *path, void *buf);
@@ -260,7 +261,7 @@ int sscanf(const char * restrict str, const char * restrict format, ...) __attri
 char *fgets(char * restrict s, int size, FILE * restrict stream)
     __attribute__((warn_unused_result));
 char *gets(char * restrict s) __attribute__((warn_unused_result, deprecated));
-FILE *fdopen(int fd, const char *mode) __attribute__((warn_unused_result));
+FILE *fdopen(int fd, const char *mode); // __attribute__((warn_unused_result))
 FILE *fopen(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
 FILE *freopen(const char * restrict path, const char * restrict mode, FILE * restrict stream) __attribute__((warn_unused_result));
 int fclose(FILE *fp);
@@ -272,6 +273,7 @@ int fileno(FILE *stream) __attribute__((warn_unused_result));
 int fputc(int c, FILE *stream);
 int fputs(const char *s, FILE *stream);
 int getc(FILE *stream);
+int _IO_getc(FILE *stream);
 int getchar(void);
 int putchar(int c);
 int putc(int c, FILE *stream);

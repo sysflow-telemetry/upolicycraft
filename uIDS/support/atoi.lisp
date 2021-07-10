@@ -349,6 +349,7 @@
 
 (defun uids-getuser-struct (name)
   (let ((len (* (sizeof ptr_t) 5))
+        (user-offset (sizeof ptr_t))
         (group-offset (* (sizeof ptr_t) 2))
         (dir-offset 32)
         (m (malloc len))
@@ -356,6 +357,7 @@
     (write-word char homedir 0x2F)
     (write-word char (+ homedir 1) 0x68)
     (write-word char (+ homedir 2) 0x00)
+    (write-word ptr_t (cast ptr_t (+ m user-offset)) 33)
     (write-word ptr_t (cast ptr_t (+ m group-offset)) 33)
     (write-word ptr_t (cast ptr_t (+ m dir-offset)) homedir)
     m))
@@ -386,7 +388,7 @@
   1024)
 
 (defun uids-fstat (fd buf)
-  (declare (external "fstat64"))
+  (declare (external "fstat64" "__fstat"))
   (let ((offset 48))
     ;; (write-word ptr_t (+ buf offset) size)
     (uids-ocaml-fstat fd buf)))
