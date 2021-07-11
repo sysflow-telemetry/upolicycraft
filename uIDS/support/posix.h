@@ -53,7 +53,6 @@ char *        nl_langinfo(void *item);
 
 int           mprotect(void *addr, size_t len, int prot);
 
-
 int *         __errno_location();
 
 int           getpagesize();
@@ -265,6 +264,8 @@ char *gets(char * restrict s) __attribute__((warn_unused_result, deprecated));
 FILE *fdopen(int fd, const char *mode) __attribute__((warn_unused_result));
 FILE *fopen(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
 FILE *freopen(const char * restrict path, const char * restrict mode, FILE * restrict stream) __attribute__((warn_unused_result));
+long  ftell(FILE *stream);
+int   fseek(FILE *stream, long offset, int whence);
 int fclose(FILE *fp);
 int feof(FILE *stream) __attribute__((warn_unused_result));
 int ferror(FILE *stream) __attribute__((warn_unused_result));

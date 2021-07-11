@@ -62,8 +62,11 @@ let init_channels =
           } in
         Map.set chans ~key:fd ~data:chan)
 
-let init_files =
-  Int.Map.empty
+let init_files = Int.Map.of_alist_exn [
+   0, "/dev/pts/0";
+   1, "/dev/pts/0";
+   2, "/dev/stderr";
+]
 
 let init_directories =
   Int.Map.empty

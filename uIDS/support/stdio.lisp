@@ -160,6 +160,14 @@
   (declare (external "fclose" "close"))
   0)
 
+(defun ftell (stream)
+  (declare (external "ftell"))
+  (uids-channel-offset stream))
+
+(defun fseek (stream offset whence)
+  (declare (external "fseek"))
+  (uids-channel-seek stream offset))
+
 (defun fgets-step (ptr len str i)
   (let ((c (uids-channel-input str)))
     (if (= c -1) 0
