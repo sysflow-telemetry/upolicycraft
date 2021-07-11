@@ -1,36 +1,47 @@
 {
-  "initial": "%000158b0",
+  "initial": "%00015ab1",
   "nodes": [
-    "%000022ad", "%00003fc3", "%0000432a", "%00004506", "%00004fcd",
-    "%00009593", "%00011238", "%00011569", "%00011be1", "%00011d1c",
-    "%00011fb8", "%000120e7", "%00012178", "%0001239c", "%00013ea5",
-    "%00014d82", "%00014f38", "%000158b0", "%000158b1", "%000158b3"
+    "%000022c7", "%00003fdd", "%00004344", "%00004520", "%00004fe7",
+    "%000052aa", "%00005bc9", "%00005c46", "%00005d2b", "%00005f16",
+    "%00007ce1", "%00007dd4", "%00007dea", "%00009792", "%00011437",
+    "%00011768", "%00011de0", "%00011f1b", "%000121b7", "%000122e6",
+    "%00012377", "%0001259b", "%000140a4", "%00014f81", "%00015137",
+    "%00015ab1", "%00015ab2", "%00015ab4"
   ],
   "contexts": {
-    "%00014d82": [ "/bin/cron", "main" ],
-    "%000120e7": [ "/bin/cron", "load_database" ],
-    "%0000432a": [ "/bin/cron", "acquire_daemonlock" ],
-    "%000022ad": [ "/bin/cron", "get_char" ],
-    "%00011d1c": [ "/bin/cron", "load_database" ],
-    "%00011569": [ "/bin/cron", "process_crontab" ],
-    "%00014f38": [ "/bin/cron", "main" ],
-    "%000158b0": [ "/bin/bash", "main" ],
-    "%000158b3": [ "/bin/bash", "main" ],
-    "%00012178": [ "/bin/cron", "load_database" ],
-    "%00004506": [ "/bin/cron", "acquire_daemonlock" ],
-    "%00009593": [ "/bin/cron", "load_user" ],
-    "%00003fc3": [ "/bin/cron", "acquire_daemonlock" ],
-    "%00011be1": [ "/bin/cron", "load_database" ],
-    "%00011fb8": [ "/bin/cron", "load_database" ],
-    "%00013ea5": [ "/bin/cron", "run_reboot_jobs" ],
-    "%0001239c": [ "/bin/cron", "load_database" ],
-    "%000158b1": [ "/bin/bash", "main" ],
-    "%00011238": [ "/bin/cron", "process_crontab" ],
-    "%00004fcd": [ "/bin/cron", "do_command" ]
+    "%00011de0": [ "/bin/cron", "load_database" ],
+    "%00011437": [ "/bin/cron", "process_crontab" ],
+    "%00004520": [ "/bin/cron", "acquire_daemonlock" ],
+    "%000022c7": [ "/bin/cron", "get_char" ],
+    "%00005c46": [ "/bin/cron", "child_process" ],
+    "%0001259b": [ "/bin/cron", "load_database" ],
+    "%00015137": [ "/bin/cron", "main" ],
+    "%00004fe7": [ "/bin/cron", "do_command" ],
+    "%00007dd4": [ "/bin/cron", "child_process" ],
+    "%00005bc9": [ "/bin/cron", "child_process" ],
+    "%00015ab2": [ "/bin/bash", "main" ],
+    "%00007e33": [ "/bin/cron", "child_process" ],
+    "%00005f16": [ "/bin/cron", "child_process" ],
+    "%00009792": [ "/bin/cron", "load_user" ],
+    "%000122e6": [ "/bin/cron", "load_database" ],
+    "%000121b7": [ "/bin/cron", "load_database" ],
+    "%00014f81": [ "/bin/cron", "main" ],
+    "%000140a4": [ "/bin/cron", "run_reboot_jobs" ],
+    "%00007dea": [ "/bin/cron", "child_process" ],
+    "%00015ab4": [ "/bin/bash", "main" ],
+    "%00007ce1": [ "/bin/cron", "child_process" ],
+    "%00004344": [ "/bin/cron", "acquire_daemonlock" ],
+    "%00003fdd": [ "/bin/cron", "acquire_daemonlock" ],
+    "%00015ab1": [ "/bin/bash", "main" ],
+    "%00011f1b": [ "/bin/cron", "load_database" ],
+    "%00012377": [ "/bin/cron", "load_database" ],
+    "%00011768": [ "/bin/cron", "process_crontab" ],
+    "%000052aa": [ "/bin/cron", "child_process" ],
+    "%00005d2b": [ "/bin/cron", "child_process" ]
   },
   "constraints": [
     {
-      "node": "%000022ad",
+      "node": "%000022c7",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -40,7 +51,7 @@
       ]
     },
     {
-      "node": "%00003fc3",
+      "node": "%00003fdd",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -50,7 +61,7 @@
       ]
     },
     {
-      "node": "%0000432a",
+      "node": "%00004344",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -60,7 +71,7 @@
       ]
     },
     {
-      "node": "%00004506",
+      "node": "%00004520",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -70,7 +81,7 @@
       ]
     },
     {
-      "node": "%00004fcd",
+      "node": "%00004fe7",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -81,7 +92,85 @@
       ]
     },
     {
-      "node": "%00009593",
+      "node": "%000052aa",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/tmp/tmpfile" ]
+        }
+      ]
+    },
+    {
+      "node": "%00005bc9",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.proc.exe": [ "/bin/sh" ],
+          "sf.proc.args": [
+            "/bin/sh,/bin/sh,-c,tar -zcf /var/backups/home.tgz /home/"
+          ]
+        }
+      ]
+    },
+    {
+      "node": "%00005c46",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "33" ],
+          "sf.file.path": [ "/tmp/pipe" ]
+        }
+      ]
+    },
+    {
+      "node": "%00005d2b",
+      "constraints": [ { "sf.proc.gid": [ "0" ], "sf.proc.uid": [ "0" ] } ]
+    },
+    {
+      "node": "%00005f16",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.proc.exe": [ "/bin/cron" ],
+          "sf.proc.args": [ "" ]
+        }
+      ]
+    },
+    {
+      "node": "%00007ce1",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/dev/pts/0" ]
+        }
+      ]
+    },
+    {
+      "node": "%00007dd4",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/tmp/pipe" ]
+        }
+      ]
+    },
+    {
+      "node": "%00007dea",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/tmp/tmpfile" ]
+        }
+      ]
+    },
+    {
+      "node": "%00009792",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -91,7 +180,7 @@
       ]
     },
     {
-      "node": "%00011238",
+      "node": "%00011437",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -101,7 +190,7 @@
       ]
     },
     {
-      "node": "%00011569",
+      "node": "%00011768",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -111,7 +200,7 @@
       ]
     },
     {
-      "node": "%00011be1",
+      "node": "%00011de0",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -121,7 +210,7 @@
       ]
     },
     {
-      "node": "%00011d1c",
+      "node": "%00011f1b",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -131,7 +220,7 @@
       ]
     },
     {
-      "node": "%00011fb8",
+      "node": "%000121b7",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -141,7 +230,7 @@
       ]
     },
     {
-      "node": "%000120e7",
+      "node": "%000122e6",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -151,7 +240,7 @@
       ]
     },
     {
-      "node": "%00012178",
+      "node": "%00012377",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -161,7 +250,7 @@
       ]
     },
     {
-      "node": "%0001239c",
+      "node": "%0001259b",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -171,7 +260,7 @@
       ]
     },
     {
-      "node": "%00013ea5",
+      "node": "%000140a4",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -181,7 +270,7 @@
       ]
     },
     {
-      "node": "%00014d82",
+      "node": "%00014f81",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -192,7 +281,7 @@
       ]
     },
     {
-      "node": "%00014f38",
+      "node": "%00015137",
       "constraints": [
         {
           "sf.proc.gid": [ "0" ],
@@ -202,13 +291,13 @@
       ]
     },
     {
-      "node": "%000158b0",
+      "node": "%00015ab1",
       "constraints": [
         { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./cron.sh" ] }
       ]
     },
     {
-      "node": "%000158b1",
+      "node": "%00015ab2",
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
@@ -218,36 +307,44 @@
       ]
     },
     {
-      "node": "%000158b3",
+      "node": "%00015ab4",
       "constraints": [
         { "sf.proc.exe": [ "/bin/cron" ], "sf.proc.args": [ "" ] }
       ]
     }
   ],
   "edges": [
-    { "src": "%000022ad", "dst": "%000022ad", "label": "READ" },
-    { "src": "%000022ad", "dst": "%00009593", "label": "CLOSE" },
-    { "src": "%00003fc3", "dst": "%00011be1", "label": "OPEN" },
-    { "src": "%00003fc3", "dst": "%00014d82", "label": "CLONE" },
-    { "src": "%0000432a", "dst": "%00003fc3", "label": "WRITE" },
-    { "src": "%00004fcd", "dst": "%00004506", "label": "CLOSE" },
-    { "src": "%00009593", "dst": "%00011238", "label": "CLOSE" },
-    { "src": "%00011238", "dst": "%0001239c", "label": "READ" },
-    { "src": "%00011569", "dst": "%000022ad", "label": "READ" },
-    { "src": "%00011be1", "dst": "%0001239c", "label": "READ" },
-    { "src": "%00011d1c", "dst": "%000120e7", "label": "READ" },
-    { "src": "%00011fb8", "dst": "%00013ea5", "label": "CLOSE" },
-    { "src": "%000120e7", "dst": "%00011fb8", "label": "CLOSE" },
-    { "src": "%000120e7", "dst": "%000120e7", "label": "READ" },
-    { "src": "%00012178", "dst": "%00011d1c", "label": "OPEN" },
-    { "src": "%0001239c", "dst": "%00011569", "label": "OPEN" },
-    { "src": "%0001239c", "dst": "%00012178", "label": "CLOSE" },
-    { "src": "%0001239c", "dst": "%0001239c", "label": "READ" },
-    { "src": "%00013ea5", "dst": "%00004fcd", "label": "CLONE" },
-    { "src": "%00014d82", "dst": "%00003fc3", "label": "WRITE" },
-    { "src": "%00014f38", "dst": "%0000432a", "label": "OPEN" },
-    { "src": "%000158b0", "dst": "%000158b1", "label": "CLONE" },
-    { "src": "%000158b1", "dst": "%000158b3", "label": "EXEC" },
-    { "src": "%000158b3", "dst": "%00014f38", "label": "OPEN" }
+    { "src": "%000022c7", "dst": "%000022c7", "label": "READ" },
+    { "src": "%000022c7", "dst": "%00009792", "label": "CLOSE" },
+    { "src": "%00003fdd", "dst": "%00011de0", "label": "OPEN" },
+    { "src": "%00003fdd", "dst": "%00014f81", "label": "CLONE" },
+    { "src": "%00004344", "dst": "%00003fdd", "label": "WRITE" },
+    { "src": "%00004520", "dst": "%000052aa", "label": "OPEN" },
+    { "src": "%00004fe7", "dst": "%00004520", "label": "CLOSE" },
+    { "src": "%000052aa", "dst": "%00005f16", "label": "CLONE" },
+    { "src": "%00005bc9", "dst": "%00005c46", "label": "WRITE" },
+    { "src": "%00005d2b", "dst": "%00005bc9", "label": "EXEC" },
+    { "src": "%00005f16", "dst": "%00007ce1", "label": "CLOSE" },
+    { "src": "%00007ce1", "dst": "%00007dd4", "label": "CLOSE" },
+    { "src": "%00007dd4", "dst": "%00007dea", "label": "CLOSE" },
+    { "src": "%00007dea", "dst": "%00005d2b", "label": "SETUID" },
+    { "src": "%00009792", "dst": "%00011437", "label": "CLOSE" },
+    { "src": "%00011437", "dst": "%0001259b", "label": "READ" },
+    { "src": "%00011768", "dst": "%000022c7", "label": "READ" },
+    { "src": "%00011de0", "dst": "%0001259b", "label": "READ" },
+    { "src": "%00011f1b", "dst": "%000122e6", "label": "READ" },
+    { "src": "%000121b7", "dst": "%000140a4", "label": "CLOSE" },
+    { "src": "%000122e6", "dst": "%000121b7", "label": "CLOSE" },
+    { "src": "%000122e6", "dst": "%000122e6", "label": "READ" },
+    { "src": "%00012377", "dst": "%00011f1b", "label": "OPEN" },
+    { "src": "%0001259b", "dst": "%00011768", "label": "OPEN" },
+    { "src": "%0001259b", "dst": "%00012377", "label": "CLOSE" },
+    { "src": "%0001259b", "dst": "%0001259b", "label": "READ" },
+    { "src": "%000140a4", "dst": "%00004fe7", "label": "CLONE" },
+    { "src": "%00014f81", "dst": "%00003fdd", "label": "WRITE" },
+    { "src": "%00015137", "dst": "%00004344", "label": "OPEN" },
+    { "src": "%00015ab1", "dst": "%00015ab2", "label": "CLONE" },
+    { "src": "%00015ab2", "dst": "%00015ab4", "label": "EXEC" },
+    { "src": "%00015ab4", "dst": "%00015137", "label": "OPEN" }
   ]
 }

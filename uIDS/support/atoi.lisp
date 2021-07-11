@@ -583,3 +583,11 @@
 (defun uids-regexec (preg str nm pm eflags)
   (declare (external "regexec"))
   0)
+
+(defun uids-setuid (uid)
+  (declare (external "setuid"))
+  0)
+
+(defun uids-setgid (gid)
+  (declare (external "setgid"))
+  0)

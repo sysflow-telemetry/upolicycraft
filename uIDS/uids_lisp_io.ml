@@ -186,15 +186,6 @@ module Lib(Machine : Primus.Machine.S) = struct
          let () = info "writing 0 into %x" (Bitvector.to_int_exn dst) in
          (trap_memory_write (Memory.set dst z))
 
-
-end
-
-let init redirections =
-
-  let module Open(Machine : Primus.Machine.S) = struct
-    include Lib(Machine)
-    [@@@warning "-P"]
-
     let create_mode = 0x40
 
     let open_file path =
@@ -218,6 +209,14 @@ let init redirections =
             } >>= fun () ->
             addr_width >>= fun width ->
             Value.of_int ~width:width fd
+
+end
+
+let init redirections =
+
+  let module Open(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
 
     let run [path; mode] =
       string_of_charp path >>= fun path ->
@@ -246,6 +245,25 @@ let init redirections =
           else
               open_file path *)
       | Some _ -> open_file path
+  end in
+
+  let module OpenTmp(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let run [] =
+      let () = info "Opening tmpfile!" in
+      open_file "/tmp/tmpfile"
+  end in
+
+  let module OpenPipe(Machine : Primus.Machine.S) = struct
+    include Lib(Machine)
+    [@@@warning "-P"]
+
+    let run [] =
+       (** TODO: May want to make a new pipe for each file. *)
+       let () = info "Opening pipe!" in
+         open_file "/tmp/pipe"
   end in
 
   let module OpenDir(Machine : Primus.Machine.S) = struct
@@ -471,6 +489,22 @@ let init redirections =
         def "uids-channel-open-network" (one int // all int @-> int) (module OpenNetwork)
           {|(uids-channel-open-network PTR) creates a new channel that is
             associated with a null-terminated path pointed by PTR.
+            Returns a non-negative channel descriptor, if the channel
+            subsystem have a mapping from the obtained path to a
+            physical file and this file is accessible. Otherwise returns
+            a negative value.
+          |} ;
+        def "uids-channel-open-tmpfile" (tuple []  @-> int) (module OpenTmp)
+          {|(uids-channel-open-tmpfile) creates a new channel that is
+            associated with a new temporary directory.
+            Returns a non-negative channel descriptor, if the channel
+            subsystem have a mapping from the obtained path to a
+            physical file and this file is accessible. Otherwise returns
+            a negative value.
+          |} ;
+        def "uids-channel-open-pipe" (tuple []  @-> int) (module OpenPipe)
+          {|(uids-channel-open-pipe) creates a new channel that is
+            associated with a pipe.
             Returns a non-negative channel descriptor, if the channel
             subsystem have a mapping from the obtained path to a
             physical file and this file is accessible. Otherwise returns

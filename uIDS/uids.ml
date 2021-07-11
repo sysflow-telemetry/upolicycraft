@@ -442,7 +442,6 @@ let escalate_privileges state =
 
 let add_operation tid op state (io_state: Uids_lisp_io.state) =
   (** let () = info "Adding operation:" in *)
-  let x = io_state.channels in
   let {nodes;graph;last_tid;functions;callstack;current_module} = state in
   let state' =
     if not (operation_affects_privilege op) then
@@ -1147,7 +1146,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
   (** Always ensure a path ends with / *)
   let sanitize_absolute_path path =
     let n = String.length path in
-    if path.[n-1] != '/' then
+    if not (phys_equal path.[n-1] '/') then
       path ^ "/"
     else
       path
@@ -1196,7 +1195,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
 
   let record_function tid func =
     Machine.Local.get lisp_io_state >>= fun io_state ->
-    let x = io_state.channels in
     match func with
       "syscall" ->
       Machine.args >>= fun args ->
@@ -1293,6 +1291,31 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.Local.update state ~f:(fun state' ->
         let op = (Clone (Array.to_list args)) in
         add_operation tid op state' io_state)
+    | "tmpfile" ->
+      Machine.Local.update state ~f:(fun state' ->
+        let path = "/tmp/tmpfile" in
+        let op = (Open path) in
+            (add_operation tid op state' io_state))
+    | "execle" ->
+      let rec collect_args regs args =
+        match regs with
+          [] -> Machine.return (List.rev args)
+        | r :: rs ->
+          let reg = (Var.create r reg64_t) in
+          (Env.get reg) >>= fun v ->
+            let v' = int_of_value v in
+            if v' = 0 then
+              Machine.return (List.rev args)
+            else
+              let word = Value.to_word v in
+              string_of_addr word >>= fun s ->
+                collect_args rs (s :: args) in
+       collect_args arg_regs [] >>= fun argv ->
+         let path = List.nth_exn argv 0 in
+         let args = String.concat ~sep:"," argv in
+         Machine.Local.update state ~f:(fun state' ->
+           let op = (Exec [path; args]) in
+           (add_operation tid op state' io_state))
     | "execv" ->
       (** let () = info "model execv:" in *)
       let rdi = (Var.create "RDI" reg64_t) in

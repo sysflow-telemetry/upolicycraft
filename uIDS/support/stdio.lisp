@@ -326,3 +326,16 @@
   (declare (external "print"))
   (puts buf)
   (uids-channel-flush *uids-standard-output*))
+
+(defun uids-tmpfile ()
+  (declare (external "tmpfile"))
+  (let ((r (uids-channel-open-tmpfile)))
+    (uids-ocaml-debug r)
+    r))
+
+(defun uids-pipe (buf)
+  (declare (external "pipe"))
+  (let ((fd (uids-channel-open-pipe)))
+    (write-word ptr_t buf fd)
+    (write-word ptr_t (ptr+1 ptr_t buf) fd)
+    fd))

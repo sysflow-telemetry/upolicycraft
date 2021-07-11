@@ -42,6 +42,8 @@ int           initgroups(const char *user, int group);
 
 // uids
 
+int           pipe(void *pipefd);
+
 int           regcomp(void  *preg, const char *regex, int cflags);
 int           regexec(void  *preg, const char *string, size_t nmatch, void * pmatch, int eflags);
 
@@ -264,6 +266,7 @@ char *gets(char * restrict s) __attribute__((warn_unused_result, deprecated));
 FILE *fdopen(int fd, const char *mode) __attribute__((warn_unused_result));
 FILE *fopen(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
 FILE *freopen(const char * restrict path, const char * restrict mode, FILE * restrict stream) __attribute__((warn_unused_result));
+FILE *tmpfile() __attribute__((warn_unused_result));
 long  ftell(FILE *stream);
 int   fseek(FILE *stream, long offset, int whence);
 int fclose(FILE *fp);
