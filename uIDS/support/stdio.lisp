@@ -326,4 +326,3 @@
   (declare (external "print"))
   (puts buf)
   (uids-channel-flush *uids-standard-output*))
-

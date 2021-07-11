@@ -138,7 +138,7 @@
     len))
 
 (defun strcspn (str set)
-  (declare (external "strcspn"))
+  ;; (declare (external "strcspn"))
   (let ((len 0))
     (until (or (points-to-null str)
                (strpbrk str set))
