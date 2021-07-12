@@ -1,0 +1,1 @@
+* * * * * cron tar -zcf /var/backups/home.tgz /home/
