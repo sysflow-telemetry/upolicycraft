@@ -1,0 +1,461 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AIX	compat.h	43;"	d
+ALLOW_FILE	pathnames.h	51;"	d
+ALLOW_FILE	pathnames.h	54;"	d
+ATT	compat.h	33;"	d
+AUDIT_DEFS	debian/rules	/^    AUDIT_DEFS = -DWITH_AUDIT$/;"	m
+AUDIT_LIBS	debian/rules	/^    AUDIT_LIBS = -laudit$/;"	m
+BSD	compat.h	73;"	d
+CC	debian/rules	/^export CC=$(DEB_HOST_GNU_TYPE)-gcc$/;"	m
+CMD	cron.h	105;"	d
+COMPAT	Makefile	/^COMPAT		=	-DPOSIX$/;"	m
+CONVEX	compat.h	47;"	d
+CRONDIR	pathnames.h	31;"	d
+CRONDIR_MODE	pathnames.h	103;"	d
+CRONTAB_OBJ	Makefile	/^CRONTAB_OBJ	=	crontab.o misc.o entry.o env.o compat.o$/;"	m
+CRONUSER	cron.h	102;"	d
+CRON_LOG_JOBEND	cron.h	147;"	d
+CRON_LOG_JOBFAILED	cron.h	148;"	d
+CRON_LOG_JOBPID	cron.h	149;"	d
+CRON_LOG_JOBSTART	cron.h	146;"	d
+CRON_OBJ	Makefile	/^CRON_OBJ        =       cron.o misc.o database.o user.o entry.o env.o job.o do_command.o popen.o compat.o $/;"	m
+CRON_TAB	cron.h	109;"	d
+CheckErrorCount	crontab.c	/^static	int		CheckErrorCount;$/;"	v	file:
+DBIT	cron.h	99;"	d
+DEBUGGING	config.h	33;"	d
+DEBUGGING	cron.h	71;"	d
+DEBUG_DEFS	Makefile	/^DEBUG_DEFS  ?= -DDEBUGGING=0   $/;"	m
+DEBUG_DEFS	debian/rules	/^  DEBUG_DEFS = -DDEBUGGING=0$/;"	m
+DEBUG_DEFS	debian/rules	/^  DEBUG_DEFS = -DDEBUGGING=1$/;"	m
+DEB_BUILD_GNU_TYPE	debian/rules	/^DEB_BUILD_GNU_TYPE = $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)$/;"	m
+DEB_HOST_ARCH_OS	debian/rules	/^DEB_HOST_ARCH_OS = $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)$/;"	m
+DEB_HOST_GNU_TYPE	debian/rules	/^DEB_HOST_GNU_TYPE  = $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)$/;"	m
+DEFS	Makefile	/^DEFS = -DDEBIAN -DUSE_SIGCHLD $(DEBUG_DEFS) $(PAM_DEFS) $(SELINUX_DEFS) $(AUDIT_DEFS)$/;"	m
+DENY_FILE	pathnames.h	52;"	d
+DENY_FILE	pathnames.h	55;"	d
+DESTBIN	Makefile	/^DESTBIN		=	$(DESTROOT)\/bin$/;"	m
+DESTMAN	Makefile	/^DESTMAN		=	$(DESTROOT)\/share\/man$/;"	m
+DESTROOT	Makefile	/^DESTROOT	=	$(DESTDIR)\/usr$/;"	m
+DESTSBIN	Makefile	/^DESTSBIN	=	$(DESTROOT)\/sbin$/;"	m
+DEXT	cron.h	92;"	d
+DIR_T	externs.h	24;"	d
+DIR_T	externs.h	69;"	d
+DLOAD	cron.h	96;"	d
+DMISC	cron.h	97;"	d
+DOM_COUNT	cron.h	163;"	d
+DOM_STAR	cron.h	192;"	d
+DOW_COUNT	cron.h	172;"	d
+DOW_STAR	cron.h	193;"	d
+DPARS	cron.h	95;"	d
+DPROC	cron.h	94;"	d
+DSCH	cron.h	93;"	d
+DTEST	cron.h	98;"	d
+Debug	cron.h	129;"	d
+Debug	cron.h	133;"	d
+DebugFlagNames	cron.h	/^char	*DebugFlagNames[] = {	\/* sync with #defines *\/$/;"	v
+DebugFlags	cron.h	/^int	DebugFlags;$/;"	v
+Directory	crontab.c	/^static	char		Directory[MAX_FNAME];$/;"	v	file:
+Disassembly	crom.asm	/^Disassembly of section .fini:$/;"	l
+Disassembly	crom.asm	/^Disassembly of section .init:$/;"	l
+Disassembly	crom.asm	/^Disassembly of section .plt.got:$/;"	l
+Disassembly	crom.asm	/^Disassembly of section .plt:$/;"	l
+Disassembly	crom.asm	/^Disassembly of section .text:$/;"	l
+DowNames	cron.h	/^char	*DowNames[] = {$/;"	v
+EDITOR	pathnames.h	78;"	d
+EDITOR	pathnames.h	80;"	d
+EDITOR	pathnames.h	82;"	d
+EQ1	env.c	/^	EQ1,		\/* After end of name, looking for '=' sign *\/$/;"	e	enum:env_state	file:
+EQ2	env.c	/^	EQ2,		\/* After '=', skipping whitespace *\/$/;"	e	enum:env_state	file:
+ERR	cron.h	67;"	d
+ERROR	env.c	/^	ERROR,		\/* Error *\/$/;"	e	enum:env_state	file:
+ERROR_EXIT	cron.h	79;"	d
+FALSE	cron.h	63;"	d
+FINI	env.c	/^	FINI,		\/* All done, skipping trailing whitespace *\/$/;"	e	enum:env_state	file:
+FIRST_DOM	cron.h	161;"	d
+FIRST_DOW	cron.h	170;"	d
+FIRST_HOUR	cron.h	157;"	d
+FIRST_MINUTE	cron.h	153;"	d
+FIRST_MONTH	cron.h	165;"	d
+FORKSTATUS	cron.h	107;"	d
+FQDN	cron.h	104;"	d
+Filename	crontab.c	/^static	char		Filename[MAX_FNAME];$/;"	v	file:
+GMToff	cron.h	/^static long GMToff;$/;"	v
+HAS_FCHMOD	compat.h	136;"	d
+HAS_FCHOWN	compat.h	132;"	d
+HAVE_SAVED_UIDS	compat.h	110;"	d
+HEADERS	Makefile	/^HEADERS		=	bitstring.h cron.h config.h pathnames.h \\$/;"	m
+HOSTNAME	cron.h	103;"	d
+HOUR_COUNT	cron.h	159;"	d
+HPUX	compat.h	37;"	d
+HR_STAR	cron.h	196;"	d
+INCLUDE	Makefile	/^INCLUDE		=	-I.$/;"	m
+INFOS	Makefile	/^INFOS		=	README CHANGES FEATURES INSTALL CONVERSION THANKS MAIL$/;"	m
+INSTALL	Makefile	/^INSTALL = install -s$/;"	m
+IRIX	compat.h	51;"	d
+LAST_DOM	cron.h	162;"	d
+LAST_DOW	cron.h	171;"	d
+LAST_HOUR	cron.h	158;"	d
+LAST_MINUTE	cron.h	154;"	d
+LAST_MONTH	cron.h	166;"	d
+LIBS	Makefile	/^LIBS		= $(PAM_LIBS) $(SELINUX_LIBS) $(AUDIT_LIBS)$/;"	m
+LINTFLAGS	Makefile	/^LINTFLAGS	=	-hbxa $(INCLUDE) $(COMPAT) $(DEBUGGING)$/;"	m
+LINT_CRON	Makefile	/^LINT_CRON	=	cron.c database.c user.c entry.c compat.c \\$/;"	m
+LINT_CRONTAB	Makefile	/^LINT_CRONTAB	=	crontab.c misc.c entry.c env.c compat.c$/;"	m
+LOCK_EX	externs.h	133;"	d
+LOCK_NB	externs.h	134;"	d
+LOCK_SH	externs.h	132;"	d
+LOCK_UN	externs.h	135;"	d
+LOG_CRON	misc.c	48;"	d	file:
+LineNumber	cron.h	/^int	LineNumber;$/;"	v
+LogFD	misc.c	/^static int		LogFD = ERR;$/;"	v	file:
+MAILARGS	config.h	47;"	d
+MAILCMD	config.h	45;"	d
+MAIN_PROGRAM	cron.c	23;"	d	file:
+MAIN_PROGRAM	crontab.c	28;"	d	file:
+MANPAGES	Makefile	/^MANPAGES	=	bitstring.3 crontab.5 crontab.1 cron.8 putman.sh$/;"	m
+MAXHOSTNAMELEN	cron.h	114;"	d
+MAXREPLACEBUF	compat.h	139;"	d
+MAX_ARGS	popen.c	39;"	d	file:
+MAX_COMMAND	cron.h	82;"	d
+MAX_ENVSTR	cron.h	84;"	d
+MAX_FNAME	cron.h	81;"	d
+MAX_TEMPSTR	cron.h	83;"	d
+MAX_UNAME	cron.h	85;"	d
+MINUTE_COUNT	cron.h	155;"	d
+MIN_STAR	cron.h	195;"	d
+MONTH_COUNT	cron.h	167;"	d
+MkLower	cron.h	137;"	d
+MkUpper	cron.h	138;"	d
+MonthNames	cron.h	/^char	*MonthNames[] = {$/;"	v
+NAME	env.c	/^	NAME,		\/* Subsequent chars of NAME *\/$/;"	e	enum:env_state	file:
+NAMEI	env.c	/^	NAMEI,		\/* First char of NAME, may be quote *\/$/;"	e	enum:env_state	file:
+NEED_FLOCK	compat.h	98;"	d
+NEED_GETDTABLESIZE	compat.h	106;"	d
+NEED_SETENV	compat.h	128;"	d
+NEED_SETSID	compat.h	102;"	d
+NEED_STRCASECMP	compat.h	85;"	d
+NEED_STRDUP	compat.h	90;"	d
+NEED_STRERROR	compat.h	94;"	d
+NEED_VFORK	compat.h	80;"	d
+NHEADER_LINES	crontab.c	48;"	d	file:
+NewCrontab	crontab.c	/^static	FILE		*NewCrontab = NULL;$/;"	v	file:
+OK	cron.h	65;"	d
+OK_EXIT	cron.h	80;"	d
+OPTIM	Makefile	/^OPTIM		=	-O2$/;"	m
+Option	crontab.c	/^static	enum opt_t	Option;$/;"	v	typeref:enum:opt_t	file:
+Options	crontab.c	/^static char	*Options[] = { "???", "list", "delete", "edit", "replace" };$/;"	v	file:
+PAM_DEFS	debian/rules	/^    PAM_DEFS = -DUSE_PAM$/;"	m
+PAM_FAIL_CHECK	do_command.c	40;"	d	file:
+PAM_LIBS	debian/rules	/^    PAM_LIBS = -lpam$/;"	m
+PATH_MAX	database.c	42;"	d	file:
+PATH_MAX	database.c	44;"	d	file:
+PIDDIR	pathnames.h	62;"	d
+PIDDIR	pathnames.h	64;"	d
+PIDFILE	pathnames.h	66;"	d
+PID_T	externs.h	45;"	d
+PID_T	externs.h	51;"	d
+PID_T	externs.h	67;"	d
+POSIX	compat.h	67;"	d
+PPC_NULL	cron.h	111;"	d
+Pid	crontab.c	/^static	PID_T		Pid;$/;"	v	file:
+ProgramName	cron.h	/^char	*ProgramName;$/;"	v
+PromptOnDelete	crontab.c	/^static  int             PromptOnDelete;$/;"	v	file:
+READ_PIPE	cron.h	74;"	d
+REBOOT_FILE	cron.c	301;"	d	file:
+REG	cron.h	110;"	d
+ROOT_UID	cron.h	86;"	d
+ROOT_USER	cron.h	87;"	d
+RealUser	crontab.c	/^static	char		*User, *RealUser;$/;"	v	file:
+SECONDS_PER_MINUTE	cron.h	151;"	d
+SELINUX_DEFS	debian/rules	/^    SELINUX_DEFS = -DWITH_SELINUX$/;"	m
+SELINUX_LIBS	debian/rules	/^    SELINUX_LIBS = -lselinux$/;"	m
+SHAR_SOURCE	Makefile	/^SHAR_SOURCE	=	$(INFOS) $(MANPAGES) Makefile $(HEADERS) $(SOURCES)$/;"	m
+SHELL	Makefile	/^SHELL		=	\/bin\/sh$/;"	m
+SIG_T	externs.h	43;"	d
+SIG_T	externs.h	49;"	d
+SIG_T	externs.h	65;"	d
+SOURCES	Makefile	/^SOURCES		=	cron.c crontab.c database.c do_command.c entry.c \\$/;"	m
+SPOOL_DIR	pathnames.h	42;"	d
+SPOOL_DIR_GROUP	pathnames.h	115;"	d
+SPOOL_DIR_MODE	pathnames.h	109;"	d
+STATUS	cron.h	106;"	d
+STDERR	cron.h	78;"	d
+STDIN	cron.h	76;"	d
+STDOUT	cron.h	77;"	d
+SYSCRONDIR	pathnames.h	72;"	d
+SYSCRONTAB	pathnames.h	69;"	d
+SYSLOG	config.h	92;"	d
+SYSUSERNAME	cron.h	54;"	d
+SYS_TIME_H	compat.h	118;"	d
+SYS_TIME_H	compat.h	120;"	d
+Set_LineNum	cron.h	139;"	d
+Skip_Blanks	cron.h	117;"	d
+Skip_Line	cron.h	125;"	d
+Skip_Nonblanks	cron.h	121;"	d
+StartTime	cron.h	/^time_t	StartTime;$/;"	v
+TIME_T	externs.h	44;"	d
+TIME_T	externs.h	50;"	d
+TIME_T	externs.h	66;"	d
+TMAX	database.c	34;"	d	file:
+TRUE	cron.h	62;"	d
+TZONE	externs.h	28;"	d
+TZONE	externs.h	71;"	d
+UNICOS	compat.h	61;"	d
+UNIXPC	compat.h	32;"	d
+USE_SIGCHLD	compat.h	114;"	d
+USE_UTIMES	compat.h	124;"	d
+User	crontab.c	/^static	char		*User, *RealUser;$/;"	v	file:
+VALUE	env.c	/^	VALUE,		\/* Subsequent chars of VALUE *\/$/;"	e	enum:env_state	file:
+VALUEI	env.c	/^	VALUEI,		\/* First char of VALUE, may be quote *\/$/;"	e	enum:env_state	file:
+WAIT_IS_INT	externs.h	26;"	d
+WAIT_IS_INT	externs.h	38;"	d
+WAIT_T	externs.h	25;"	d
+WAIT_T	externs.h	37;"	d
+WAIT_T	externs.h	39;"	d
+WAIT_T	externs.h	68;"	d
+WANT_GLOBBING	popen.c	40;"	d	file:
+WCOREDUMP	externs.h	107;"	d
+WCOREDUMP	externs.h	97;"	d
+WEXITSTATUS	externs.h	101;"	d
+WEXITSTATUS	externs.h	91;"	d
+WHEN_REBOOT	cron.h	194;"	d
+WIFEXITED	externs.h	115;"	d
+WIFSIGNALED	externs.h	112;"	d
+WRITE_PIPE	cron.h	75;"	d
+WTERMSIG	externs.h	104;"	d
+WTERMSIG	externs.h	94;"	d
+_PATH_BSHELL	pathnames.h	86;"	d
+_PATH_DEFPATH	pathnames.h	90;"	d
+_PATH_DEFPATH_ROOT	pathnames.h	94;"	d
+_PATH_SENDMAIL	config.h	24;"	d
+__P	compat.h	24;"	d
+__P	compat.h	26;"	d
+__USE_GNU	database.c	27;"	d	file:
+__USE_GNU	database.c	29;"	d	file:
+_bit_byte	bitstring.h	27;"	d
+_bit_mask	bitstring.h	31;"	d
+_cron_db	cron.h	/^typedef	struct _cron_db {$/;"	s
+_entry	cron.h	/^typedef	struct _entry {$/;"	s
+_job	job.c	/^typedef	struct _job {$/;"	s	file:
+_orphan	cron.h	/^typedef struct _orphan {$/;"	s
+_user	cron.h	/^typedef	struct _user {$/;"	s
+acquire_daemonlock	misc.c	/^acquire_daemonlock(closeflag)$/;"	f
+add_cron_entry	debian/examples/cron-stats.pl	/^sub add_cron_entry {$/;"	s
+add_entry	debian/examples/cron-stats.pl	/^sub add_entry {$/;"	s
+add_orphan	database.c	/^add_orphan(const char *uname, const char *fname, const char *tabname) {$/;"	f	file:
+allowed	misc.c	/^allowed(username)$/;"	f
+arpadate	misc.c	/^arpadate(clock)$/;"	f
+bit_alloc	bitstring.h	40;"	d
+bit_clear	bitstring.h	57;"	d
+bit_decl	bitstring.h	45;"	d
+bit_ffc	bitstring.h	95;"	d
+bit_ffs	bitstring.h	110;"	d
+bit_nclear	bitstring.h	61;"	d
+bit_nset	bitstring.h	78;"	d
+bit_set	bitstring.h	53;"	d
+bit_test	bitstring.h	49;"	d
+bits_to_english	debian/examples/crontab2english.pl	/^sub bits_to_english {$/;"	s
+bitstr_size	bitstring.h	36;"	d
+bitstr_t	bitstring.h	/^typedef	unsigned char bitstr_t;$/;"	t
+build_env	do_command.c	/^static char ** build_env(char **cronenv)$/;"	f	file:
+check_error	crontab.c	/^check_error(msg)$/;"	f	file:
+check_orphans	database.c	/^check_orphans(cron_db *db) {$/;"	f
+check_results	debian/examples/cron-tasks-review.sh	/^check_results () {$/;"	f
+child_process	do_command.c	/^child_process(e, u)$/;"	f	file:
+cleanup_tmp_crontab	crontab.c	/^cleanup_tmp_crontab(void) $/;"	f	file:
+clear_entry	debian/examples/cron-stats.pl	/^sub clear_entry {$/;"	s
+clockTime	cron.h	/^time_min clockTime;$/;"	v
+cmd	cron.h	/^	char		*cmd;$/;"	m	struct:_entry
+conj_and	debian/examples/crontab2english.pl	/^sub conj_and {$/;"	s
+conj_or	debian/examples/crontab2english.pl	/^sub conj_or {$/;"	s
+const	compat.h	27;"	d
+const	compat.h	57;"	d
+conv	do_command.c	/^static const struct pam_conv conv = {$/;"	v	typeref:struct:pam_conv	file:
+copyright	cron.h	/^char	*copyright[] = {$/;"	v
+count_unmatched	debian/examples/cron-stats.pl	/^sub count_unmatched {$/;"	s
+create_tmp_crontab	crontab.c	/^create_tmp_crontab()$/;"	f	file:
+cron	crom.asm	/^cron:     file format elf64-x86-64$/;"	l
+cron_db	cron.h	/^} cron_db;$/;"	t	typeref:struct:_cron_db
+cron_default_mail_charset	cron.h	/^char    cron_default_mail_charset[MAX_ENVSTR] = "";$/;"	v
+cron_pclose	popen.c	/^cron_pclose(iop)$/;"	f
+cron_popen	popen.c	/^cron_popen(program, type, e)$/;"	f
+cron_sleep	cron.c	/^cron_sleep(target)$/;"	f	file:
+crontab	cron.h	/^	entry		*crontab;	\/* this person's crontab *\/$/;"	m	struct:_user
+crontab_error	user.c	/^crontab_error(msg)$/;"	f
+delete_cmd	crontab.c	/^delete_cmd() {$/;"	f	file:
+do_command	do_command.c	/^do_command(e, u)$/;"	f
+do_univ	do_command.c	/^do_univ(u)$/;"	f	file:
+e	job.c	/^	entry		*e;$/;"	m	struct:_job	file:
+e_cmd	entry.c	/^	e_cmd, e_timespec, e_username$/;"	e	enum:ecode	file:
+e_dom	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_dow	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_hour	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_minute	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_month	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_none	entry.c	/^	e_none, e_minute, e_hour, e_dom, e_month, e_dow,$/;"	e	enum:ecode	file:
+e_timespec	entry.c	/^	e_cmd, e_timespec, e_username$/;"	e	enum:ecode	file:
+e_username	entry.c	/^	e_cmd, e_timespec, e_username$/;"	e	enum:ecode	file:
+ecode	entry.c	/^typedef	enum ecode {$/;"	g	file:
+ecode_e	entry.c	/^} ecode_e;$/;"	t	typeref:enum:ecode	file:
+ecodes	entry.c	/^static char *ecodes[] =$/;"	v	file:
+edit_cmd	crontab.c	/^edit_cmd() {$/;"	f	file:
+entry	cron.h	/^} entry;$/;"	t	typeref:struct:_entry
+env_copy	env.c	/^env_copy(envp)$/;"	f
+env_free	env.c	/^env_free(envp)$/;"	f
+env_get	env.c	/^env_get(name, envp)$/;"	f
+env_init	env.c	/^env_init()$/;"	f
+env_set	env.c	/^env_set(envp, envstr)$/;"	f
+env_state	env.c	/^enum env_state {$/;"	g	file:
+envp	cron.h	/^	char		**envp;$/;"	m	struct:_entry
+err_user	user.c	/^static char *err_user=NULL;$/;"	v	file:
+esc	debian/examples/crontab2english.pl	/^sub esc {$/;"	s
+expand_time_bits	debian/examples/crontab2english.pl	/^sub expand_time_bits {$/;"	s
+fds	popen.c	/^static int fds;$/;"	v	file:
+find_average	debian/examples/cron-stats.pl	/^sub find_average {$/;"	s
+find_jobs	cron.c	/^find_jobs(vtime, db, doWild, doNonWild)$/;"	f	file:
+find_maximum	debian/examples/cron-stats.pl	/^sub find_maximum {$/;"	s
+find_minimum	debian/examples/cron-stats.pl	/^sub find_minimum {$/;"	s
+find_prg	debian/examples/cron-stats.pl	/^sub find_prg {$/;"	s
+find_user	database.c	/^find_user(db, name)$/;"	f
+find_user	debian/examples/cron-stats.pl	/^sub find_user {$/;"	s
+first_word	misc.c	/^first_word(s, t)$/;"	f
+flags	cron.h	/^	int		flags;$/;"	m	struct:_entry
+flock	compat.c	/^flock(fd, operation)$/;"	f
+fname	cron.h	/^	char            *fname;$/;"	m	struct:_orphan
+force_rescan_user	database.c	/^force_rescan_user(cron_db *old_db, cron_db *new_db, const char *fname, time_t old_mtime)$/;"	f
+free_entry	entry.c	/^free_entry(e)$/;"	f
+free_orphan	database.c	/^free_orphan(orphan *o) {$/;"	f	file:
+free_user	user.c	/^free_user(u)$/;"	f
+freq	debian/examples/crontab2english.pl	/^sub freq {$/;"	s
+generate_analysis	debian/examples/cron-stats.pl	/^sub generate_analysis {$/;"	s
+get_char	misc.c	/^get_char(file)$/;"	f
+get_gmtoff	misc.c	/^long get_gmtoff(time_t *clock, struct tm *local)$/;"	f
+get_list	entry.c	/^get_list(bits, low, high, names, ch, file)$/;"	f	file:
+get_next_system_crontab	database.c	/^get_next_system_crontab (curtab)$/;"	f	file:
+get_number	entry.c	/^get_number(numptr, low, names, ch, file)$/;"	f	file:
+get_range	entry.c	/^get_range(bits, low, high, names, ch, file)$/;"	f	file:
+get_security_context	user.c	/^static int get_security_context(char *name, int crontab_fd, security_context_t$/;"	f	file:
+get_string	misc.c	/^get_string(string, size, file, terms)$/;"	f
+getdtablesize	compat.c	/^getdtablesize() {$/;"	f
+getoptarg	crontab.c	/^char *getoptarg = "u:leri";$/;"	v
+getoptarg	crontab.c	/^char *getoptarg = "u:lerix:";$/;"	v
+gid	cron.h	/^	gid_t		gid;$/;"	m	struct:_entry
+head	cron.h	/^	user		*head, *tail;	\/* links *\/$/;"	m	struct:_cron_db
+in_file	misc.c	/^in_file(string, file)$/;"	f	file:
+jhead	job.c	/^static job	*jhead = NULL, *jtail = NULL;$/;"	v	file:
+job	job.c	/^} job;$/;"	t	typeref:struct:_job	file:
+job_add	job.c	/^job_add(e, u)$/;"	f
+job_runqueue	job.c	/^job_runqueue()$/;"	f
+jtail	job.c	/^static job	*jhead = NULL, *jtail = NULL;$/;"	v	file:
+link_user	database.c	/^link_user(db, u)$/;"	f
+list_cmd	crontab.c	/^list_cmd() {$/;"	f	file:
+load_database	database.c	/^load_database(old_db)$/;"	f
+load_entry	entry.c	/^load_entry(file, error_func, pw, envp)$/;"	f
+load_env	env.c	/^load_env(envstr, f)$/;"	f
+load_user	user.c	/^load_user(crontab_fd, pw, uname, fname, tabname)$/;"	f
+log_close	misc.c	/^log_close() {$/;"	f
+log_it	misc.c	/^log_it(username, xpid, event, detail)$/;"	f
+log_level	cron.h	/^int     log_level = 1;$/;"	v
+lsbsysinit_mode	cron.h	/^int     lsbsysinit_mode;$/;"	v
+main	cron.c	/^main(argc, argv)$/;"	f
+main	crontab.c	/^main(argc, argv)$/;"	f
+mkprint	misc.c	/^mkprint(dst, src, len)$/;"	f
+mkprints	misc.c	/^mkprints(src, len)$/;"	f
+mtime	cron.h	/^	time_t		mtime;		\/* last modtime of crontab *\/$/;"	m	struct:_user
+name	cron.h	/^	char		*name;$/;"	m	struct:_user
+next	cron.h	/^	struct _entry	*next;$/;"	m	struct:_entry	typeref:struct:_entry::_entry
+next	cron.h	/^	struct _orphan  *next;          \/* link *\/$/;"	m	struct:_orphan	typeref:struct:_orphan::_orphan
+next	cron.h	/^	struct _user	*next, *prev;	\/* links *\/$/;"	m	struct:_user	typeref:struct:_user::_user
+next	job.c	/^	struct _job	*next;$/;"	m	struct:_job	typeref:struct:_job::_job	file:
+open_tmp_crontab	crontab.c	/^open_tmp_crontab(fsbuf)$/;"	f	file:
+opt_delete	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	e	enum:opt_t	file:
+opt_edit	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	e	enum:opt_t	file:
+opt_list	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	e	enum:opt_t	file:
+opt_replace	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	e	enum:opt_t	file:
+opt_t	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	g	file:
+opt_unknown	crontab.c	/^enum opt_t	{ opt_unknown, opt_list, opt_delete, opt_edit, opt_replace };$/;"	e	enum:opt_t	file:
+ordinate	debian/examples/crontab2english.pl	/^sub ordinate  {$/;"	s
+ordinate_soft	debian/examples/crontab2english.pl	/^sub ordinate_soft  {$/;"	s
+ordsuf	debian/examples/crontab2english.pl	/^sub ordsuf  {$/;"	s
+orphan	cron.h	/^} orphan;$/;"	t	typeref:struct:_orphan
+orphans	database.c	/^static orphan *orphans;$/;"	v	file:
+pamh	do_command.c	/^static pam_handle_t *pamh = NULL;$/;"	v	file:
+parse_args	cron.c	/^parse_args(argc, argv)$/;"	f	file:
+parse_args	crontab.c	/^parse_args(argc, argv)$/;"	f	file:
+parse_environment	debian/cron.init	/^parse_environment () $/;"	f
+percent_proc	debian/examples/crontab2english.pl	/^sub percent_proc {$/;"	s
+pids	popen.c	/^static PID_T *pids;$/;"	v	file:
+poke_daemon	crontab.c	/^poke_daemon() {$/;"	f	file:
+prev	cron.h	/^	struct _user	*next, *prev;	\/* links *\/$/;"	m	struct:_user	typeref:struct:_user::
+print_stats	debian/examples/cron-stats.pl	/^sub print_stats {$/;"	s
+process_command	debian/examples/crontab2english.pl	/^sub process_command {$/;"	s
+process_crontab	database.c	/^process_crontab(uname, fname, tabname, statbuf, new_db, old_db)$/;"	f	file:
+pw	crontab.c	/^static	struct passwd	*pw;$/;"	v	typeref:struct:passwd	file:
+rcsid	compat.c	/^static char rcsid[] = "$Id: compat.c,v 1.6 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	cron.c	/^static char rcsid[] = "$Id: cron.c,v 2.11 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	crontab.c	/^static char rcsid[] = "$Id: crontab.c,v 2.13 1994\/01\/17 03:20:37 vixie Exp $";$/;"	v	file:
+rcsid	database.c	/^static char rcsid[] = "$Id: database.c,v 2.8 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	do_command.c	/^static char rcsid[] = "$Id: do_command.c,v 2.12 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	entry.c	/^static char rcsid[] = "$Id: entry.c,v 2.12 1994\/01\/17 03:20:37 vixie Exp $";$/;"	v	file:
+rcsid	env.c	/^static char rcsid[] = "$Id: env.c,v 2.7 1994\/01\/26 02:25:50 vixie Exp vixie $";$/;"	v	file:
+rcsid	job.c	/^static char rcsid[] = "$Id: job.c,v 1.6 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	misc.c	/^static char rcsid[] = "$Id: misc.c,v 2.9 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	popen.c	/^static char rcsid[] = "$Id: popen.c,v 1.5 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+rcsid	user.c	/^static char rcsid[] = "$Id: user.c,v 2.8 1994\/01\/15 20:43:43 vixie Exp $";$/;"	v	file:
+replace_cmd	crontab.c	/^replace_cmd() {$/;"	f	file:
+replace_str	compat.c	/^replace_str(char *str, int len, char *origin, char *replace) {$/;"	f
+run_reboot_jobs	cron.c	/^run_reboot_jobs(db)$/;"	f	file:
+save_egid	misc.c	/^static uid_t save_euid, save_egid;$/;"	v	file:
+save_euid	misc.c	/^static uid_t save_euid, save_egid;$/;"	v	file:
+sccsid	popen.c	/^static char sccsid[] = "@(#)popen.c	5.7 (Berkeley) 2\/14\/89";$/;"	v	file:
+scontext	cron.h	/^        security_context_t scontext;    \/* SELinux security context *\/$/;"	m	struct:_user
+send_message	debian/examples/cron-tasks-review.sh	/^send_message () {$/;"	f
+set_cron_cwd	misc.c	/^set_cron_cwd()$/;"	f
+set_cron_uid	misc.c	/^set_cron_uid()$/;"	f
+set_debug_flags	misc.c	/^set_debug_flags(flags)$/;"	f
+set_element	entry.c	/^set_element(bits, low, high, number)$/;"	f	file:
+set_time	cron.c	/^set_time(int initialize)$/;"	f	file:
+setenv	compat.c	/^setenv(name, value, overwrite)$/;"	f
+seteuid	compat.h	38;"	d
+setreuid	compat.h	39;"	d
+setsid	compat.c	/^setsid()$/;"	f
+sig_handler	crontab.c	/^static void sig_handler(int x)$/;"	f	file:
+sigchld_handler	cron.c	/^sigchld_handler(x) {$/;"	f	file:
+sighup_handler	cron.c	/^sighup_handler(x) {$/;"	f	file:
+skip_comments	misc.c	/^skip_comments(file)$/;"	f
+stay_foreground	cron.h	/^int	stay_foreground;$/;"	v
+strcasecmp	compat.c	/^strcasecmp(left, right)$/;"	f
+strcmp_until	misc.c	/^strcmp_until(left, right, until)$/;"	f
+strdtb	misc.c	/^strdtb(s)$/;"	f
+strdup	compat.c	/^strdup(str)$/;"	f
+strerror	compat.c	/^strerror(error)$/;"	f
+swap_uids	misc.c	/^int swap_uids()$/;"	f
+swap_uids_back	misc.c	/^int swap_uids_back() { return swap_uids(); }$/;"	f
+swap_uids_back	misc.c	/^int swap_uids_back()$/;"	f
+sys_mtime	cron.h	/^	time_t		sys_mtime;      \/* last modtime on system crontab *\/$/;"	m	struct:_cron_db
+sysd_mtime	cron.h	/^	time_t		sysd_mtime;     \/* last modtime on system crondir *\/$/;"	m	struct:_cron_db
+tabname	cron.h	/^	char            *tabname;$/;"	m	struct:_orphan
+tail	cron.h	/^	user		*head, *tail;	\/* links *\/$/;"	m	struct:_cron_db
+timeRunning	cron.h	/^time_min timeRunning;$/;"	v
+time_min	cron.h	/^typedef int time_min;$/;"	t
+tn	crontab.c	/^static char tn[MAX_FNAME];$/;"	v	file:
+u	job.c	/^	user		*u;$/;"	m	struct:_job	file:
+uid	cron.h	/^	uid_t		uid;	$/;"	m	struct:_entry
+uname	cron.h	/^	char            *uname;$/;"	m	struct:_orphan
+unget_char	misc.c	/^unget_char(ch, file)$/;"	f
+unlink_user	database.c	/^unlink_user(db, u)$/;"	f
+usage	cron.c	/^usage() {$/;"	f	file:
+usage	crontab.c	/^usage(msg)$/;"	f	file:
+usage	debian/examples/cron-tasks-review.sh	/^usage () {$/;"	f
+user	cron.h	/^} user;$/;"	t	typeref:struct:_user
+user_mtime	cron.h	/^	time_t		user_mtime;     \/* last modtime on spooldir *\/$/;"	m	struct:_cron_db
+valid_name	database.c	/^valid_name(char *filename)$/;"	f	file:
+version	debian/examples/cron-tasks-review.sh	/^version () {$/;"	f
+vfork	compat.c	/^vfork() {$/;"	f
+virtualTime	cron.h	/^time_min virtualTime;$/;"	v
+warn	debian/examples/cron-tasks-review.sh	/^warn () {$/;"	f
