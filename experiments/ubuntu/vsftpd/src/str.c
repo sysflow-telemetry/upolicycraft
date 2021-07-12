@@ -591,6 +591,9 @@ str_contains_space(const struct mystr* p_str)
   {
     if (vsf_sysutil_isspace(p_str->p_buf[i]))
     {
+      uids_log("Found space!");
+      uids_log(p_str->p_buf);
+      uids_debug(i);
       return 1;
     }
   }
@@ -619,6 +622,8 @@ str_contains_unprintable(const struct mystr* p_str)
   {
     if (!vsf_sysutil_isprint(p_str->p_buf[i]))
     {
+      uids_log("Not printable!");
+      uids_debug(p_str->p_buf[i]);
       return 1;
     }
   }

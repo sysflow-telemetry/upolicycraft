@@ -2,7 +2,7 @@
  * Part of Very Secure FTPd
  * Licence: GPL v2
  * Author: Chris Evans
- * 
+ *
  * sysutil.c
  *
  * Routines to make the libc/syscall API more pleasant to use. Long term,
@@ -241,7 +241,11 @@ vsf_sysutil_default_sig(const enum EVSFSysUtilSignal sig)
 extern int __llvm_profile_write_file(void);
 
 void dump_measurements(int signal) {
+
+#ifdef MEASURE_COVERAGE
     __llvm_profile_write_file();
+#endif
+
 }
 
 void
@@ -428,7 +432,7 @@ vsf_sysutil_read_loop(const int fd, void* p_buf, unsigned int size)
     {
       /* Read all we're going to read.. */
       return num_read;
-    } 
+    }
     if ((unsigned int) retval > size)
     {
       uids_log("retval too big!");
@@ -525,7 +529,7 @@ vsf_sysutil_malloc(unsigned int size)
   if (size == 0 || size > INT_MAX)
   {
     bug("zero or big size in vsf_sysutil_malloc");
-  }  
+  }
   p_ret = malloc(size);
   if (p_ret == NULL)
   {
@@ -622,8 +626,10 @@ vsf_sysutil_exit(int exit_code)
     (*curr_func)();
   }
 
+  #ifdef MEASURE_COVERAGE
   __llvm_profile_write_file();
- 
+  #endif
+
   _exit(exit_code);
 }
 
@@ -1208,6 +1214,9 @@ int
 vsf_sysutil_open_file(const char* p_filename,
                       const enum EVSFSysUtilOpenMode mode)
 {
+  uids_log("Opening file:");
+  uids_log(p_filename);
+
   return open(p_filename, vsf_sysutil_translate_openmode(mode) | O_NONBLOCK);
 }
 
@@ -1343,10 +1352,21 @@ vsf_sysutil_statbuf_is_symlink(const struct vsf_sysutil_statbuf* p_stat)
   return S_ISLNK(p_realstat->st_mode);
 }
 
+/**
+
+#ifdef MEASURE_COVERAGE
+  FILE *fp = fopen("/tmp/sockets");
+  fprintf(fp, "st_modeL %x");
+  __llvm_profile_write_file();
+#endif
+
+*/
+
 int
 vsf_sysutil_statbuf_is_socket(const struct vsf_sysutil_statbuf* p_stat)
 {
   const struct stat* p_realstat = (const struct stat*) p_stat;
+
   return S_ISSOCK(p_realstat->st_mode);
 }
 
@@ -1504,7 +1524,7 @@ vsf_sysutil_statbuf_get_sortkey_mtime(
   const struct stat* p_stat = (const struct stat*) p_statbuf;
   /* This slight hack function must return a character date format such that
    * more recent dates appear later in the alphabet! Most notably, we must
-   * make sure we pad to the same length with 0's 
+   * make sure we pad to the same length with 0's
    */
   snprintf(intbuf, sizeof(intbuf), "%030ld", (long) p_stat->st_mtime);
   return intbuf;
@@ -1769,8 +1789,10 @@ vsf_sysutil_accept_timeout(int fd, struct vsf_sysutil_sockaddr* p_sockaddr,
   if (remote_addr.u.u_sockaddr.sa_family != AF_INET &&
       remote_addr.u.u_sockaddr.sa_family != AF_INET6)
   {
+    uids_log("sa_family incorrect!");
     die("can only support ipv4 and ipv6 currently");
   }
+  uids_log("sa_family ok!");
   if (p_sockaddr)
   {
     if (remote_addr.u.u_sockaddr.sa_family == AF_INET)
@@ -1869,11 +1891,13 @@ vsf_sysutil_getsockname(int fd, struct vsf_sysutil_sockaddr** p_sockptr)
   retval = getsockname(fd, &the_addr.u.u_sockaddr, &socklen);
   if (retval != 0)
   {
+    uids_log("getsockname didn't return 0");
     die("getsockname");
   }
   if (the_addr.u.u_sockaddr.sa_family != AF_INET &&
       the_addr.u.u_sockaddr.sa_family != AF_INET6)
   {
+    uids_log("sa_family not set properly.");
     die("can only support ipv4 and ipv6 currently");
   }
   vsf_sysutil_sockaddr_alloc(p_sockptr);
@@ -2027,6 +2051,13 @@ vsf_sysutil_sockaddr_addr_equal(const struct vsf_sysutil_sockaddr* p1,
                            sizeof(p1->u.u_sockaddr_in.sin_addr)) == 0)
     {
       return 1;
+    } else {
+      uids_log("Invalid PORT 3");
+      uids_log("Addresses do not match!");
+
+      uids_debug(p1->u.u_sockaddr_in.sin_addr);
+      uids_debug(p2->u.u_sockaddr_in.sin_addr);
+      uids_debug(sizeof(p1->u.u_sockaddr_in.sin_addr));
     }
   }
   else if (family1 == AF_INET6)
@@ -2231,6 +2262,9 @@ vsf_sysutil_is_port_reserved(unsigned short the_port)
 {
   if (the_port < IPPORT_RESERVED)
   {
+    uids_log("Tried to use reserved port!");
+    uids_debug(the_port);
+    uids_debug(IPPORT_RESERVED);
     return 1;
   }
   return 0;
@@ -2355,6 +2389,10 @@ const char*
 vsf_sysutil_user_get_homedir(const struct vsf_sysutil_user* p_user)
 {
   const struct passwd* p_passwd = (const struct passwd*) p_user;
+  uids_log("Fetching pw_dir:");
+  uids_debug(p_passwd);
+  uids_debug(p_passwd->pw_dir);
+  uids_log("Fetched pw_dir.");
   return p_passwd->pw_dir;
 }
 
@@ -2367,7 +2405,7 @@ vsf_sysutil_user_getuid(const struct vsf_sysutil_user* p_user)
 
 int
 vsf_sysutil_user_getgid(const struct vsf_sysutil_user* p_user)
-{ 
+{
   const struct passwd* p_passwd = (const struct passwd*) p_user;
   return p_passwd->pw_gid;
 }
@@ -2411,7 +2449,7 @@ vsf_sysutil_get_random_byte(void)
   c2 = (uint_res >> 8) & 0x000000ff;
   c3 = (uint_res >> 16) & 0x000000ff;
   c4 = (uint_res >> 24) & 0x000000ff;
-  return c1 ^ c2 ^ c3 ^ c4;    
+  return c1 ^ c2 ^ c3 ^ c4;
 }
 
 int
@@ -2723,6 +2761,7 @@ vsf_sysutil_sleep(double seconds)
     saved_errno = errno;
     vsf_sysutil_check_pending_actions(kVSFSysUtilUnknown, 0, 0);
   } while (retval == -1 && saved_errno == EINTR);
+  uids_log("After sleep!");
 }
 
 char*
@@ -2883,7 +2922,7 @@ vsf_sysutil_post_fork()
   int i;
   /* Don't inherit any exit function. */
   s_exit_func = NULL;
-  /* Uncached the current PID. */ 
+  /* Uncached the current PID. */
   s_current_pid = -1;
   /* Don't inherit anything relating to the synchronous signal system */
   s_io_handler = NULL;

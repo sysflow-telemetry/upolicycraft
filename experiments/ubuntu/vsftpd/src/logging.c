@@ -32,9 +32,10 @@ static void vsf_log_do_log_to_file(int fd, struct mystr* p_str);
 void
 vsf_log_init(struct vsf_session* p_sess)
 {
+  /**
   FILE *fp = fopen("/tmp/retval", "w+");
   fprintf(fp, "xferlog_enable: %d\ndual_log_enable: %d\nxferlog_std_format: %d\n", tunable_xferlog_enable, tunable_dual_log_enable, tunable_xferlog_std_format);
-
+  */
 
   if (tunable_syslog_enable || tunable_tcp_wrappers)
   {
@@ -51,7 +52,6 @@ vsf_log_init(struct vsf_session* p_sess)
     {
       retval = vsf_sysutil_create_or_open_file_append(tunable_xferlog_file,
                                                       0600);
-      fprintf(fp, "retval: %d\n", retval);
     }
     if (vsf_sysutil_retval_is_error(retval))
     {
@@ -66,10 +66,11 @@ vsf_log_init(struct vsf_session* p_sess)
       int retval = -1;
       if (tunable_vsftpd_log_file)
       {
+        uids_log("Opening log file");
+        uids_log(tunable_vsftpd_log_file);
         retval = vsf_sysutil_create_or_open_file_append(tunable_vsftpd_log_file,
                                                         0600);
-        fprintf(fp, "retval2: %d\n", retval);
-        fclose(fp);
+        uids_debug(retval);
       }
       if (vsf_sysutil_retval_is_error(retval))
       {

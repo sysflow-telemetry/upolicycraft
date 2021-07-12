@@ -146,7 +146,7 @@ vsf_standalone_main(void)
         listen_sock, p_accept_addr, 0);
     if (vsf_sysutil_retval_is_error(new_client_sock))
     {
-      continue;
+      break;
     }
     ++s_children;
     child_info.num_children = s_children;
@@ -184,7 +184,7 @@ vsf_standalone_main(void)
       }
       /* Fall through to while() loop and accept() again */
     }
-    else 
+    else
     {
       /* Child context */
       vsf_set_die_if_parent_dies();
@@ -250,7 +250,7 @@ handle_sigchld(void* duff)
       /* Account per-IP limit */
       p_ip = (struct vsf_sysutil_ipaddr*)
         hash_lookup_entry(s_p_pid_ip_hash, (void*)&reap_one);
-      drop_ip_count(p_ip);      
+      drop_ip_count(p_ip);
       hash_free_entry(s_p_pid_ip_hash, (void*)&reap_one);
     }
   }

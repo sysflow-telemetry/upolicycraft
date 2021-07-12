@@ -161,7 +161,7 @@ main(int argc, const char* argv[])
 
   if (tunable_listen || tunable_listen_ipv6)
   {
-    puts("Entering standalone mode!\n");
+    uids_log("Entering standalone mode!\n");
     /* Standalone mode */
     struct vsf_client_launch ret = vsf_standalone_main();
     the_session.num_clients = ret.num_children;
@@ -263,7 +263,7 @@ main(int argc, const char* argv[])
   {
     vsf_one_process_start(&the_session);
   }
-  else 
+  else
   {
     vsf_two_process_start(&the_session);
   }
@@ -291,6 +291,7 @@ do_sanity_checks(void)
     vsf_sysutil_fstat(VSFTP_COMMAND_FD, &p_statbuf);
     if (!vsf_sysutil_statbuf_is_socket(p_statbuf))
     {
+      uids_log("statbuf could not detect socket.");
       die("vsftpd: not configured for standalone, must be started from inetd");
     }
     vsf_sysutil_free(p_statbuf);
@@ -299,23 +300,28 @@ do_sanity_checks(void)
   {
     if (tunable_local_enable)
     {
+      uids_log("statbuf could not detect socket.");
       die("vsftpd: security: 'one_process_model' is anonymous only");
     }
     if (!vsf_sysdep_has_capabilities_as_non_root())
     {
+      uids_log("sysdep does not have capabilities.");
       die("vsftpd: security: 'one_process_model' needs a better OS");
     }
   }
   if (!tunable_local_enable && !tunable_anonymous_enable)
   {
+    uids_log("local_enable and anonymous_enable");
     die("vsftpd: both local and anonymous access disabled!");
   }
   if (!tunable_ftp_enable && !tunable_http_enable)
   {
+    uids_log("Both FTP and HTTP disabled!");
     die("vsftpd: both FTP and HTTP disabled!");
   }
   if (tunable_http_enable && !tunable_one_process_model)
   {
+    uids_log("HTTP enable needs one_process_model");
     die("vsftpd: HTTP needs 'one_process_model' for now");
   }
 }
@@ -352,6 +358,9 @@ session_init(struct vsf_session* p_sess)
   /* Get the addresses of the control connection */
   vsf_sysutil_getpeername(VSFTP_COMMAND_FD, &p_sess->p_remote_addr);
   vsf_sysutil_getsockname(VSFTP_COMMAND_FD, &p_sess->p_local_addr);
+
+  // ->u.u_sockaddr_in.sin_addr.s_addr
+
   /* If anonymous mode is active, fetch the uid of the anonymous user */
   if (tunable_anonymous_enable)
   {

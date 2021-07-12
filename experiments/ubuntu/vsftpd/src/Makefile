@@ -1,21 +1,20 @@
 # Makefile for systems with GNU tools
-CC 	=       gcc 
+CC 	=       gcc
 INSTALL	=	install
 IFLAGS  = -idirafter dummyinc
 #CFLAGS = -g
 #CFLAGS = -O2 -fPIE -Werror -Wformat-securityi -D_FORTIFY_SOURCE=2
-CFLAGS	= -emit-llvm -fno-stack-protector  \
-	-Wall 
+CFLAGS	= -emit-llvm -fno-stack-protector -Wall
 	#-pedantic -Wconversion
         # -W -Wshadow-
         # param=ssp-buffer-size=4
 
 # -fPIE -pie -Wl,-s
 LIBS	=	`./vsf_findlibs.sh`
-LINK	=	
-LDFLAGS	=	-L /root/uids -l:uids.so 
+LINK	=
+LDFLAGS	=	-L /root/uids -l:uids.so
 
-# -Wl,-z,relro -Wl,-z,now -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so
+# -Wl,-z,relro -Wl,-z,now -L /root/uids -l:uids.so
 
 OBJS	=	main.o utility.o prelogin.o ftpcmdio.o postlogin.o privsock.o \
 		tunables.o ftpdataio.o secbuf.o ls.o \
@@ -31,7 +30,7 @@ OBJS	=	main.o utility.o prelogin.o ftpcmdio.o postlogin.o privsock.o \
 	$(CC) -c $*.c -o $*.o $(CFLAGS) $(IFLAGS)
 
 
-vsftpd: $(OBJS) 
+vsftpd: $(OBJS)
 	$(CC) -o vsftpd $(OBJS) $(LINK) $(LDFLAGS) $(LIBS)
 
 install:

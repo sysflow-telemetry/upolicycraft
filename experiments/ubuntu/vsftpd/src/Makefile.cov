@@ -5,7 +5,7 @@ IFLAGS  = -idirafter dummyinc
 #CFLAGS = -g
 #CFLAGS = -O2 -fPIE -Werror -Wformat-securityi -D_FORTIFY_SOURCE=2
 CFLAGS	= -fprofile-instr-generate -fcoverage-mapping \
-	-Wall 
+	-Wall -DMEASURE_COVERAGE=1
 	#-pedantic -Wconversion
         # -W -Wshadow-
         # param=ssp-buffer-size=4

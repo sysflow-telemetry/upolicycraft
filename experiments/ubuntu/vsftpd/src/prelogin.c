@@ -209,7 +209,9 @@ handle_user_command(struct vsf_session* p_sess)
   if (!str_equal_text(&p_sess->ftp_arg_str, "FTP") &&
       !str_equal_text(&p_sess->ftp_arg_str, "ANONYMOUS"))
   {
-    printf("Not anonymous!\n");
+    uids_log("Not an anonymous user!\n");
+    uids_log(str_getbuf(&p_sess->ftp_arg_str));
+
     is_anon = 0;
   }
   if (!tunable_local_enable && !is_anon)
