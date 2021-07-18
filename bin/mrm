@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-if [ "$#" -ne 2 ]; then 
-  echo "usage: $0 pipeline-config sf-trace"
-  exit 1
-fi
-
-docker run -w /root/sf-processor/driver --rm -it sysflowtelemetry/mrm:latest ./sfprocessor -log trace -config=$1 $2
