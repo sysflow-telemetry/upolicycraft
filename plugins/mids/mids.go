@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	pluginName  string = "mrm"
+	pluginName  string = "mids"
 	channelName string = "eventchan"
 	historySize int    = 2
 )
@@ -33,10 +33,10 @@ type Incident struct {
 }
 
 // Plugin exports a symbol for this plugin.
-var Plugin ReferenceMonitor
+var Plugin IntrusionDetectionSystem
 
-// ReferenceMonitor defines a Microservice-Aware Reference Monitor (MRM)
-type ReferenceMonitor struct {
+// IntrusionDetectionSystem defines a Microservice-Aware Intrusion Detection System (MIDS)
+type IntrusionDetectionSystem struct {
 	stopped bool
 	outCh   chan *engine.Record
 	new     func(int64) *SecurityAutomaton
@@ -45,42 +45,42 @@ type ReferenceMonitor struct {
 	last    int64
 }
 
-// NewReferenceMonitor creates a new plugin instance.
-func NewReferenceMonitor() plugins.SFProcessor {
-	return new(ReferenceMonitor)
+// NewIntrusionDetectionSystem creates a new plugin instance.
+func NewIntrusionDetectionSystem() plugins.SFProcessor {
+	return new(IntrusionDetectionSystem)
 }
 
 // GetName returns the plugin name.
-func (rm *ReferenceMonitor) GetName() string {
+func (ids *IntrusionDetectionSystem) GetName() string {
 	return pluginName
 }
 
 // Init initializes the plugin with a configuration map.
-func (rm *ReferenceMonitor) Init(conf map[string]string) error {
+func (ids *IntrusionDetectionSystem) Init(conf map[string]string) error {
 	c := CreateConfig(conf)
 	logger.Trace.Printf("Monitoring Model: %s", c.Model)
 
-	rm.Compile(c.Model)
+	ids.Compile(c.Model)
 
 	return nil
 }
 
-// Register registers plugin to plugin cache.
-func (rm *ReferenceMonitor) Register(pc plugins.SFPluginCache) {
-	logger.Trace.Println("\nLoaded Reference Monitor!")
-	pc.AddProcessor(pluginName, NewReferenceMonitor)
+// Register registers the MIDS to the plugin cache.
+func (ids *IntrusionDetectionSystem) Register(pc plugins.SFPluginCache) {
+	logger.Trace.Println("\nLoaded Intrusion Detection System!")
+	pc.AddProcessor(pluginName, NewIntrusionDetectionSystem)
 }
 
 // Process implements the main interface of the plugin.
-func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
+func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup) {
 	in := ch.(*flattener.FlatChannel).In
 
 	defer wg.Done()
 
-	logger.Trace.Println("\nStarting Reference Monitor")
+	logger.Trace.Println("\nStarting Intrusion Detection System")
 	logger.Trace.Println("\nExample channel capacity:", cap(in))
 
-	out := func(r *engine.Record) { rm.outCh <- r }
+	out := func(r *engine.Record) { ids.outCh <- r }
 
 	for {
 		fc, ok := <-in
@@ -93,63 +93,65 @@ func (rm *ReferenceMonitor) Process(ch interface{}, wg *sync.WaitGroup) {
 		start := time.Now()
 
 		record := engine.NewRecord(*fc, cache.GetInstance())
-		rm.Event(record, out)
+		ids.Event(record, out)
 
-                elapsed := time.Since(start)
-                logger.Trace.Printf("MIDS:%d", elapsed.Nanoseconds())
+		elapsed := time.Since(start)
+		logger.Trace.Printf("MIDS:%d", elapsed.Nanoseconds())
 	}
-	logger.Trace.Println("\nExiting Reference Monitor")
-	rm.Cleanup()
+	logger.Trace.Println("\nExiting Intrusion Detection System")
+	ids.Cleanup()
 }
 
 // SetOutChan sets the output channel of the plugin.
-func (rm *ReferenceMonitor) SetOutChan(ch interface{}) {
-	rm.outCh = (ch.(*engine.RecordChannel)).In
+func (ids *IntrusionDetectionSystem) SetOutChan(ch interface{}) {
+	ids.outCh = (ch.(*engine.RecordChannel)).In
 }
 
 // Cleanup tears down plugin resources.
-func (rm *ReferenceMonitor) Cleanup() {
-	if rm.outCh != nil && !rm.stopped {
-		logger.Trace.Println("\nCleaning up MRM")
-		close(rm.outCh)
-		rm.stopped = true
+func (ids *IntrusionDetectionSystem) Cleanup() {
+	if ids.outCh != nil && !ids.stopped {
+		logger.Trace.Println("\nCleaning up MIDS")
+		close(ids.outCh)
+		ids.stopped = true
 	}
 }
 
 // Compile parses and interprets an input policy defined in path.
-func (rm *ReferenceMonitor) Compile(path string) {
-	rm.new = func(tID int64) *SecurityAutomaton {
+func (ids *IntrusionDetectionSystem) Compile(path string) {
+	ids.new = func(tID int64) *SecurityAutomaton {
 		logger.Trace.Printf("\nGenerating a new automaton for thread %d", tID)
-		return NewSecurityAutomatonFromJSON(tID, path)
+		sa := NewSecurityAutomatonFromJSON(tID, path)
+		sa.parent = ids
+		return sa
 	}
-	rm.sas = make(map[int64]*SecurityAutomaton)
+	ids.sas = make(map[int64]*SecurityAutomaton)
 }
 
-// Event handles an event given to the Reference Monitor
-func (rm *ReferenceMonitor) Event(r *engine.Record, out func(r *engine.Record)) {
+// Event handles an event given to the Intrusion Detection System
+func (ids *IntrusionDetectionSystem) Event(r *engine.Record, out func(r *engine.Record)) {
 	tid := engine.Mapper.MapInt(engine.SF_PROC_TID)(r)
 	ppid := engine.Mapper.MapInt(engine.SF_PPROC_PID)(r)
 
 	logger.Trace.Printf("\nExamining record for tid: %d ppid: %d", tid, ppid)
-	rm.AddToHistory(r)
+	ids.AddToHistory(r)
 
 	// Does there exist a security automaton for this thread?
-	if sa, ok := rm.sas[tid]; ok {
+	if sa, ok := ids.sas[tid]; ok {
 		logger.Trace.Printf("\nDispatching event to tid: %d", tid)
 		sa.Event(r, out)
 	} else {
 		logger.Trace.Printf("\nCreating new SA for tid: %d ppid: %d", tid, ppid)
-		sa := rm.new(tid)
+		sa := ids.new(tid)
 		sa.Event(r, out)
-		rm.sas[tid] = sa
+		ids.sas[tid] = sa
 	}
 }
 
 // AddToHistory appends a record to a sliding window of records
-func (rm *ReferenceMonitor) AddToHistory(r *engine.Record) {
-	rm.history = append([]*engine.Record{r}, rm.history...)
-	if len(rm.history) > historySize {
-		rm.history = rm.history[:historySize]
+func (ids *IntrusionDetectionSystem) AddToHistory(r *engine.Record) {
+	ids.history = append([]*engine.Record{r}, ids.history...)
+	if len(ids.history) > historySize {
+		ids.history = ids.history[:historySize]
 	}
 }
 

@@ -212,11 +212,9 @@
       "node": "%0000d73f",
       "constraints": [
         {
-          "sf.proc.gid": [ "33" ],
-          "sf.proc.uid": [ "33" ],
           "sf.proc.exe": [ "/bin/nullhttpd" ],
           "sf.proc.args": [
-            "-h 127.0.0.1 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
+            "-h 172.18.0.3 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
           ]
         }
       ]
@@ -250,7 +248,7 @@
         {
           "sf.proc.exe": [ "/bin/nullhttpd" ],
           "sf.proc.args": [
-            "-h 127.0.0.1 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
+            "-h 172.18.0.3 -p 80 -b /var/www/html -i /var/www/html/index.html -r /var/www/html/404.html -d /var/www/nullhttpd.pid -u www-data -g www-data"
           ]
         }
       ]

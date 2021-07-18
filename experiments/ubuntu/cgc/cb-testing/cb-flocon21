@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cb-replay-model --host localhost --port 8003 

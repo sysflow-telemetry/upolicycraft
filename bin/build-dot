@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then 
+  echo "usage: $0 dot-file"
+  exit 1
+fi
+
+sed -i 's/shape=box/shape=Mrecord/g' $1 
+dot -Tpdf $1 -o /tmp/output.pdf

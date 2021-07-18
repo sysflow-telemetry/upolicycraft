@@ -9,7 +9,7 @@
      },
      {
       "processor": "mrm",
-      "model": "../plugins/mrm/resources/models/cromu_00046.json",
+      "model": "../plugins/mrm/resources/models/cromu_00007.json",
       "in": "flat flattenerchan",
       "out": "evt eventchan"
      },

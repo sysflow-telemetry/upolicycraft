@@ -17,14 +17,14 @@ RUN make
 
 WORKDIR /root/
 
-COPY plugins/mrm /root/sf-processor/plugins/mrm 
-COPY plugins/mrmexporter /root/sf-processor/plugins/mrmexporter
+COPY plugins/mids /root/sf-processor/plugins/mids
+COPY plugins/midsexporter /root/sf-processor/plugins/midsexporter
 
-WORKDIR /root/sf-processor/plugins/mrm
+WORKDIR /root/sf-processor/plugins/mids
 
 RUN make OUTPUT=/root/sf-processor/resources/plugins
 
-WORKDIR /root/sf-processor/plugins/mrmexporter
+WORKDIR /root/sf-processor/plugins/midsexporter
 
 RUN make OUTPUT=/root/sf-processor/resources/plugins
 

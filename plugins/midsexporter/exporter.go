@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	pluginName string = "mrmexporter"
+	pluginName string = "midsexporter"
 )
 
 // Plugin exports a symbol for this plugin.

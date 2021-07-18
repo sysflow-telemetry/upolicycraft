@@ -25,12 +25,12 @@ script:
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/snprintf _start "/snprintf" /bin/bash /tests/snprintf.sh greedy "%000000" 1000000 --primus-uids-redirect="<uids-stdin>:/uIDS/tests/input/snprintf"
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/numbers _start "/numbers" /bin/bash /tests/numbers.sh greedy "%000000" 1000000
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/ctype _start "/ctype" /bin/bash /tests/ctype.sh greedy "%000000" 1000000
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/benign/
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/malicious/
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/benign/
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/malicious/
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cromu46.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00046/benign/
- - ./bin/mrm ../plugins/mrm/resources/pipelines/cromu46.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00046/malicious/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/benign/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/malicious/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/benign/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/malicious/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cromu46.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00046/benign/
+ #- ./bin/mrm ../plugins/mrm/resources/pipelines/cromu46.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00046/malicious/
 
 # Very slow test case that spends a lot of time initializing state.
 #  - docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CROMU_00007 _start "/cgc/CROMU_00007" /bin/bash /cgc/cromu.sh greedy "%00000000" 10000000 --primus-lisp-channel-redirect="<stdin>:/uIDS/tests/input/CROMU_00007"

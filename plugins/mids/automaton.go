@@ -39,8 +39,8 @@ const (
 )
 
 type Constraint struct {
-	Node        string                 `json:"node"`
-	Constraints map[string]interface{} `json:"constraints"`
+	Node        string                   `json:"node"`
+	Constraints []map[string]interface{} `json:"constraints"`
 }
 
 type Edge struct {
@@ -64,8 +64,9 @@ type Observation struct {
 	Record *engine.Record
 }
 
-// SecurityAutomaton defines a Security Automaton for a monitored application thread.
+// SecurityAutomaton for a monitored application thread.
 type SecurityAutomaton struct {
+	parent        *IntrusionDetectionSystem
 	TID           int64
 	FileWhiteList []string
 	Initial       string
@@ -237,15 +238,21 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 	for i, c := range model.Constraints {
 		m[c.Node] = c.Node
 		logger.Trace.Printf("\nparse: %d %s", i, c.Node)
+		logger.Trace.Println("constraints: ", c.Constraints[0])
 	}
 
 	var events []fsm.EventDesc
+
 	exitConstraints := make(map[string]interface{})
 
 	exitConstraints[engine.SF_RET] = AllowedExitCodes()
 
+	var constraints []map[string]interface{}
+
 	model.Nodes = append(model.Nodes, SA_EXIT_NODE)
-	constraint := Constraint{SA_EXIT_NODE, exitConstraints}
+	constraints = append(constraints, exitConstraints)
+	constraint := Constraint{SA_EXIT_NODE, constraints}
+
 	model.Constraints = append(model.Constraints, &constraint)
 
 	for _, e := range model.Edges {
@@ -270,9 +277,9 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 
 	for _, c := range model.Constraints {
 		if c.Node == sa.Initial {
-			logger.Trace.Printf("\nConstraints: %v", c.Constraints[engine.SF_PROC_ARGS])
+			logger.Trace.Printf("\nConstraints: %v", c.Constraints)
 			// TODO: Clean this up.
-			for k := range ParseSlice(c.Constraints[engine.SF_PROC_ARGS]) {
+			for k := range ParseSlice(c.Constraints[0][engine.SF_PROC_ARGS]) {
 				files := strings.Split(k, " ")
 				sa.FileWhiteList = append(sa.FileWhiteList, files...)
 			}
@@ -307,7 +314,8 @@ func NewSecurityAutomatonFromJSON(tID int64, path string) *SecurityAutomaton {
 	jsonFile, err := os.Open(path)
 
 	if err != nil {
-		fmt.Println(err)
+		logger.Error.Printf("Could not open %s\n", path)
+		os.Exit(1)
 	}
 
 	defer jsonFile.Close()
@@ -364,9 +372,8 @@ func (s *SecurityAutomaton) Can(r *engine.Record) bool {
 func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 	exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
 	pexe := engine.Mapper.MapStr(engine.SF_PPROC_EXE)(r)
-	logger.Trace.Printf("\nChecking if FSM can transition with %s\n", e)
-	logger.Trace.Printf("\n\tCurrent state: %s\n\tAvailable transitions: %v\n\tEvent: %v\n\texe: %s, pexe:%s",
-		s.FSM.Current(), s.FSM.AvailableTransitions(), e, exe, pexe)
+	logger.Trace.Printf("\nChecking if FSM can transition with %s\n\n\tCurrent state: %s\n"+
+		"\tAvailable transitions: %v\n\tEvent: %v\n\texe: %s, pexe:%s", e, s.FSM.Current(), s.FSM.AvailableTransitions(), e, exe, pexe)
 
 	edge, _ := s.FindEdge(e)
 
@@ -386,41 +393,45 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 		return true
 	}
 
-	logger.Trace.Printf("\n\tconstraints:")
-	for field, optionsJSON := range node.Constraints {
-		v := engine.Mapper.MapStr(field)(r)
-		options := ParseSlice(optionsJSON)
-		found := false
+	logger.Trace.Printf("\n\tConstraints:")
+	for i := range node.Constraints {
+		for field, optionsJSON := range node.Constraints[i] {
+			v := engine.Mapper.MapStr(field)(r)
+			options := ParseSlice(optionsJSON)
+			found := false
 
-		for opt := range options {
-			logger.Trace.Println("\n\t\topt:", opt)
-			// Check for special identifiers
-			if strings.HasPrefix(opt, "%") {
-				components := strings.Split(opt[1:], ".")
-				id := components[0]
-				pfield := strings.Join(components[1:], ".")
-				if id == "pred" && len(s.History) > 0 {
-					// Obtain the predecessor's record
-					pred := s.History[len(s.History)-1].Record
-					pv := engine.Mapper.MapStr(pfield)(pred)
-					if pv == v {
+			for opt := range options {
+				logger.Trace.Println("\n\t\topt:", opt, "\n\t\tv:", v)
+				// Check for special identifiers
+				if strings.HasPrefix(opt, "%") {
+					logger.Trace.Println("Parsing special constraint!")
+					components := strings.Split(opt[1:], ".")
+					id := components[0]
+					pfield := strings.Join(components[1:], ".")
+					history := s.parent.history
+					if id == "pred" && len(history) > 0 {
+						// Obtain the predecessor's record
+						pred := history[len(history)-1]
+						pv := engine.Mapper.MapStr(pfield)(pred)
+						logger.Trace.Println("\n\t\tpv:", pv)
+						if pv == v {
+							found = true
+							break
+						}
+					}
+				} else {
+					if opt == v {
 						found = true
 						break
 					}
 				}
-			} else {
-				logger.Trace.Println("\n\tv:", v)
-				if opt == v {
-					found = true
-					break
-				}
 			}
-		}
 
-		// All constraints need to be satisfied
-		if found == false {
-			logger.Trace.Println("\n\tCould not satisfy constraint.")
-			return false
+			// All constraints need to be satisfied
+			if found == false {
+				logger.Trace.Println("\n\tCould not satisfy constraint.")
+				return false
+			}
 		}
 	}
 
@@ -449,6 +460,7 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 
 // AddObservation records an observation to the SecurityAutomaton's History
 func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
+	logger.Trace.Println("Adding observation!")
 	s.History = append(s.History, Observation{false, r})
 }
 
@@ -577,6 +589,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 
 // ClearHistory erases the type context
 func (s *SecurityAutomaton) ClearHistory() {
+	logger.Trace.Println("Clearing History!")
 	s.History = nil
 }
 
