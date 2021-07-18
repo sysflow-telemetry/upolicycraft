@@ -25,7 +25,7 @@ script:
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/snprintf _start "/snprintf" /bin/bash /tests/snprintf.sh greedy "%000000" 1000000 --primus-uids-redirect="<uids-stdin>:/uIDS/tests/input/snprintf"
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/numbers _start "/numbers" /bin/bash /tests/numbers.sh greedy "%000000" 1000000
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/ctype _start "/ctype" /bin/bash /tests/ctype.sh greedy "%000000" 1000000
- - ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mrm/resources/traces/nullhttpd/benign/
+ - ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/benign/
  #- ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/benign/
  #- ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/malicious/
  #- ./bin/mrm ../plugins/mrm/resources/pipelines/cromu7.json ../plugins/mrm/resources/traces/cgc/challenges/CROMU_00007/benign/
