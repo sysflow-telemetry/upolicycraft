@@ -417,6 +417,7 @@ let init redirections =
 
   let module Seek(Machine : Primus.Machine.S) = struct
     include Lib(Machine)
+    [@@@warning "-P"]
     let run [fd; offs] =
       value_to_fd fd |> function
       | None -> error
@@ -435,6 +436,7 @@ let init redirections =
 
   let module Pos(Machine : Primus.Machine.S) = struct
     include Lib(Machine)
+    [@@@warning "-P"]
     let run [fd] =
       value_to_fd fd |> function
       | None -> error
