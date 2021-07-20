@@ -345,7 +345,8 @@ let constraint_of_fd state (io_state : Uids_lisp_io.state) fd =
     let () = info "  %s" file' in
     let const =
       if String.contains file ':' then
-        let cidr :: port :: _ = String.split ~on:':' file in
+        let parts  = String.split ~on:':' file in
+        let port = List.nth_exn parts 1 in
           (Sf.net_dport, [port])
       else
         (Sf.file_path, [file']) in
@@ -460,7 +461,7 @@ let add_operation tid op state (io_state: Uids_lisp_io.state) =
                | Some set -> set in
   let argSet' = ArgSet.add argSet node_label in
   let () = Hashtbl.set nodes ~key:tid ~data:argSet' in
-  let current_function :: _ = callstack in
+  let current_function = List.hd_exn callstack in
   let () = Hashtbl.set functions ~key:tid
                                  ~data:(current_module, current_function) in
   { state' with last_tid = tid; graph=graph'' }
@@ -1511,15 +1512,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let v' = Value.to_string v in
       let () = info " LOG-VALUE: %s" v' in
       Machine.return()
-    | "open64" ->
-      let () = info "model open:" in
-      let rdi = (Var.create "RDI" reg64_t) in
-      (Env.get rdi) >>= fun v ->
-      (v |> Value.to_word |> string_of_addr) >>= fun path ->
-      let () = info " RDI: %s" path in
-      Machine.Local.update state ~f:(fun state' ->
-          let op = (Open path) in
-          (add_operation tid op state' io_state))
     | "bind" ->
       let () = info "model bind:" in
       let rdi = (Var.create "RDI" reg64_t) in
@@ -1615,14 +1607,6 @@ module Monitor(Machine : Primus.Machine.S) = struct
           (add_operation tid op state' io_state))
     | "recvUntil" ->
       (** let () = info "model receive:" in *)
-      let rdi = (Var.create "RDI" reg64_t) in
-      (Env.get rdi) >>= fun v ->
-      let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
-      Machine.Local.update state ~f:(fun state' ->
-          let op = Read fd in
-          (add_operation tid op state' io_state))
-    | "receive_delim" ->
-      let () = info "model receive_delim:" in
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->
       let fd = (v |> Value.to_word |> Bitvector.to_int_exn) in
@@ -1887,7 +1871,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let nodes' = List.map ~f:(fun node ->
        node |> String.map ~f:(fun c -> if c = '\'' then '"' else c) |> Yojson.Basic.from_string
     ) nodes in
-    let hd :: _ = nodes' in
+    let hd = List.hd_exn nodes' in
     match hd with
      `Assoc constraints ->
        let flowtype = flowtype_of_constraints constraints in
@@ -1928,7 +1912,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let _ = Graphlib.to_dot (module EffectGraph)
         ~node_attrs:(fun tid ->
           let context = try Hashtbl.find_exn functions tid
-            with Not_found ->
+            with Not_found_s s ->
                let () = info "missing context for node %s" name in
                  ("N/A", "N/A") in
           let node = try Hashtbl.find_exn nodes tid
@@ -2163,7 +2147,9 @@ module Monitor(Machine : Primus.Machine.S) = struct
     String.split_on_chars ~on:[','] |>
     List.filter ~f:(fun s -> s <> "") |>
     List.fold_left ~f:(fun tbl s ->
-      let file :: dst :: _ = String.split_on_chars ~on:[':'] s in
+      let parts = String.split ~on:':' s in
+      let file = List.nth_exn parts 0 in
+      let dst = List.nth_exn parts 1 in
       let () = Hashtbl.set tbl ~key:file ~data:dst in
       tbl) ~init:(Hashtbl.create (module String))
 
