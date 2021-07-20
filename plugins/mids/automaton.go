@@ -102,6 +102,7 @@ func ParseSlice(slice interface{}) map[string]bool {
 //FilterOperations removes operations not found in the behavior model
 func FilterOperations(ops map[string]bool) {
 	ops["TRUNCATE"] = false
+	ops["SHUTDOWN"] = false
 }
 
 //TranslateOperation adapts a SysFlow OperationName to a MRM Operation
@@ -111,7 +112,11 @@ func TranslateOperation(op string) string {
 		"RECV": "READ",
 	}
 
-	return translation[op]
+	if top, ok := translation[op]; ok {
+		return top
+	}
+
+	return op
 }
 
 // SetOfOps transforms a sequence of operations into a set.
@@ -569,6 +574,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			for _, ob := range obs {
 				logger.Trace.Printf("\nAttempting to use op %s\n", op)
 				modelOp := TranslateOperation(op)
+				logger.Trace.Printf("\n\tOperation: %s\n", modelOp)
 				if s.CanEvent(modelOp, ob.Record) {
 					s.HandleEvent(modelOp, ob.Record, out)
 					if visitedStates[s.FSM.Current()] {

@@ -108,8 +108,15 @@ func (ids *IntrusionDetectionSystem) SetOutChan(ch interface{}) {
 
 // Cleanup tears down plugin resources.
 func (ids *IntrusionDetectionSystem) Cleanup() {
+	out := func(r *engine.Record) { ids.outCh <- r }
+
 	if ids.outCh != nil && !ids.stopped {
 		logger.Trace.Println("\nCleaning up MIDS")
+		for tid := range ids.sas {
+			logger.Trace.Printf("Cleaning up %d\n", tid)
+			sa := ids.sas[tid]
+			sa.TypeCheckTrace(out)
+		}
 		close(ids.outCh)
 		ids.stopped = true
 	}
