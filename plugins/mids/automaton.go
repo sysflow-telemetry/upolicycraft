@@ -649,7 +649,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 }
 
 /**
-This was  ad-hoc
+This was an ad-hoc way to check records.
 // Event advances the FSM with an event given in the policy engine record
 func (s *SecurityAutomaton) Event1(rs []*engine.Record, out func(r *engine.Record)) {
 	r := rs[0]

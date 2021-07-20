@@ -10,7 +10,6 @@ package main
 
 import (
 	"sync"
-
 	"time"
 
 	"github.com/sysflow-telemetry/sf-apis/go/logger"
@@ -130,6 +129,7 @@ func (ids *IntrusionDetectionSystem) Compile(path string) {
 // Event handles an event given to the Intrusion Detection System
 func (ids *IntrusionDetectionSystem) Event(r *engine.Record, out func(r *engine.Record)) {
 	tid := engine.Mapper.MapInt(engine.SF_PROC_TID)(r)
+	op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
 	ppid := engine.Mapper.MapInt(engine.SF_PPROC_PID)(r)
 
 	logger.Trace.Printf("\nExamining record for tid: %d ppid: %d", tid, ppid)
@@ -142,8 +142,20 @@ func (ids *IntrusionDetectionSystem) Event(r *engine.Record, out func(r *engine.
 	} else {
 		logger.Trace.Printf("\nCreating new SA for tid: %d ppid: %d", tid, ppid)
 		sa := ids.new(tid)
-		sa.Event(r, out)
 		ids.sas[tid] = sa
+
+		logger.Trace.Printf("Looking for ppid: %d", ppid)
+
+		// Does there exist a SA for the parent thread and is this a CLONE?
+		if psa, ok := ids.sas[ppid]; ok {
+			if op == "CLONE" && psa.FSM.Current() != psa.Initial {
+				logger.Trace.Printf("Advancing to parents state!\nState: %s\n", psa.FSM.Current())
+				sa.FSM.SetState(psa.FSM.Current())
+				return
+			}
+		}
+
+		sa.Event(r, out)
 	}
 }
 
