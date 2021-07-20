@@ -3,7 +3,7 @@
   (< s 32))
 
 (defun ascii-whitespace (s:8)
-  "(ascii-whitespace S)is true if S is a whitespace"
+  "(ascii-whitespace S) is true if S is a whitespace"
   (or (= s 10:8)
       (= s 13:8)
       (= s 32:8)))
@@ -43,10 +43,6 @@
 
 (defun ascii-is-alphanum (c)
   (declare (external "isalnum"))
-  (uids-ocaml-debug 0xabcd)
-  (uids-ocaml-debug c)
-  (uids-ocaml-debug (ascii-is-alpha c))
-  (uids-ocaml-debug (ascii-is-digit c))
   (or (ascii-is-alpha c)
       (ascii-is-digit c)))
 
@@ -54,7 +50,6 @@
 
 (defun ascii-is-alpha (c)
   (declare (external "isalpha"))
-  (uids-ocaml-debug 0xaaaa)
   (or (and (>= c 0x41:8) (<= c 0x5A:8))
       (and (>= c 0x61:8) (<= c 0x7A:8))))
 
@@ -62,11 +57,11 @@
 
 (defun ascii-is-upper (c)
   (declare (external "isupper"))
-  (< (- c ?A) 26))
+  (< (- (cast char c) ?A) 26))
 
 (defun ascii-is-lower (c)
   (declare (external "islower"))
-  (< (- c ?a) 26))
+  (< (- (cast char c) ?a) 26))
 
 (defun ascii-is-print (c)
   (declare (external "isprint"))
@@ -75,7 +70,7 @@
 
 (defun ascii-to-lower (c)
   (declare (external "tolower"))
-  (if (ascii-is-upper c) (logor c 32) c))
+  (if (ascii-is-upper c) (logor (cast char c) 32:8) c))
 
 (defun ascii-to-upper (c)
   (declare (external "toupper"))

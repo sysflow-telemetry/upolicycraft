@@ -223,8 +223,8 @@
 
 (defmacro open-socket-fd ()
     (let ((fname (malloc 16)))
-      (uids-ocaml-debug 0xdeadc00de)
-      ;;(write-word ptr_t fname 0x3e74656e3c) ;; <net>
+      ;; (uids-ocaml-debug 0xdeadc00de)
+      ;; (write-word ptr_t fname 0x3e74656e3c) ;; <net>
       (write-word char fname 0x73)
       (write-word char (+ fname 1) 0x72)
       (write-word char (+ fname 2) 0x76)
@@ -300,7 +300,7 @@
     (while (or (> n 0) (not started))
       (set started true)
       (let ((digit (mod n 10)))
-        (uids-ocaml-debug digit)
+        ;; (uids-ocaml-debug digit)
         (write-word char buf (+ (cast char digit) ?0))
         (set n (/ n 10))
         (incr buf)))
@@ -384,7 +384,7 @@
 
 (defun epoll-create (x)
   (declare (external "epoll_create"))
-  (uids-ocaml-debug 0xccccd)
+  ;; (uids-ocaml-debug 0xccccd)
   1024)
 
 (defun uids-fstat (fd buf)
@@ -395,7 +395,7 @@
 
 (defun uids-stat (filename buf)
   (declare (external "stat64" "__stat"))
-  (uids-ocaml-debug 0xf0bc0de)
+  ;;(uids-ocaml-debug 0xf0bc0de)
   (let ((offset 48))
     ;; (write-word ptr_t (+ buf offset) size)
     (uids-ocaml-stat filename buf)))
@@ -424,8 +424,8 @@
   (when (not *uids-errno*)
      (set *uids-errno* (malloc (sizeof int)))
      (write-word ptr_t *uids-errno* 0))
-  (uids-ocaml-debug 0xeee)
-  (uids-ocaml-debug *uids-errno*)
+  ;;(uids-ocaml-debug 0xeee)
+  ;;(uids-ocaml-debug *uids-errno*)
   *uids-errno*)
 
 (defun uids-mprotect (addr len prot)

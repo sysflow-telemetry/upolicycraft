@@ -33,7 +33,7 @@
 ;; file descriptors, as they both are represented as integers. We are currently
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
-  (declare (external "fopen" "open" "open64" "creat"))
+  (declare (external "fopen" "open" "open64" "creat" "fopen64"))
   (uids-channel-open path mode))
 
 (defun uids-fdopen (fd mode)
@@ -109,14 +109,14 @@
   (let ((i 0)
         (stream1 (uids-ocaml-check-dup2 stream))
         (pos (uids-channel-offset stream1)))
-    (uids-ocaml-debug 0xfeabc0de)
-    (uids-ocaml-debug pos)
+    ;; (uids-ocaml-debug 0xfeabc0de)
+    ;; (uids-ocaml-debug pos)
     (while (and
             (< i n)
             (= 1 (input-item ptr 1 i stream1)))
       (incr i))
     (uids-channel-seek stream1 pos)
-    (uids-ocaml-debug (uids-channel-offset stream1))
+    ;; (uids-ocaml-debug (uids-channel-offset stream1))
     i))
 
 (defun fread (ptr size n stream)
@@ -330,7 +330,7 @@
 (defun uids-tmpfile ()
   (declare (external "tmpfile"))
   (let ((r (uids-channel-open-tmpfile)))
-    (uids-ocaml-debug r)
+    ;; (uids-ocaml-debug r)
     r))
 
 (defun uids-pipe (buf)

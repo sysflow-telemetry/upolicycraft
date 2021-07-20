@@ -1371,6 +1371,16 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let op = (Open path) in
           let state'' = {state' with file_opened=Some path} in
           (add_operation tid op state'' io_state))
+    | "fopen64" ->
+      (** let () = info "model fopen:" in *)
+      let rdi = (Var.create "RDI" reg64_t) in
+      (Env.get rdi) >>= fun v ->
+      (v |> Value.to_word |> string_of_addr) >>= fun path ->
+      (** let () = info " RDI: %s" path in *)
+      Machine.Local.update state ~f:(fun state' ->
+          let op = (Open path) in
+          let state'' = {state' with file_opened=Some path} in
+          (add_operation tid op state'' io_state))
     | "open" ->
       let rdi = (Var.create "RDI" reg64_t) in
       (Env.get rdi) >>= fun v ->

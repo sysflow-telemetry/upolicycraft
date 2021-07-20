@@ -121,6 +121,8 @@ int           apr_random_insecure_ready(void *r);
 char         *apr_pstrdup(void *p, const char* s);
 
 void         **__ctype_b_loc();
+void         **__ctype_tolower_loc();
+void         **__ctype_toupper_loc();
 
 void         *apr_hash_make(void *p);
 void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
@@ -265,6 +267,7 @@ char *fgets(char * restrict s, int size, FILE * restrict stream)
 char *gets(char * restrict s) __attribute__((warn_unused_result, deprecated));
 FILE *fdopen(int fd, const char *mode) __attribute__((warn_unused_result));
 FILE *fopen(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
+FILE *fopen64(const char * restrict path, const char * restrict mode) __attribute__((warn_unused_result));
 FILE *freopen(const char * restrict path, const char * restrict mode, FILE * restrict stream) __attribute__((warn_unused_result));
 FILE *tmpfile() __attribute__((warn_unused_result));
 long  ftell(FILE *stream);
