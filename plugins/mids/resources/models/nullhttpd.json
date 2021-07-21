@@ -4,7 +4,7 @@
     "%00001f17", "%00002801", "%00002859", "%000062ee", "%00006353",
     "%00006442", "%00006466", "%000095e1", "%0000d475", "%0000d4ee",
     "%0000d562", "%0000d5ab", "%0000d73f", "%0000d9fc", "%0000eb6c",
-    "%0000eb6d", "%0000eb6f"
+    "%0000eb6d", "%0000eb6f", "privopen", "privmmap", "privclose"
   ],
   "contexts": {
     "%00006353": [ "/bin/nullhttpd", "_httpd_catFile" ],
@@ -25,7 +25,10 @@
     "%000018a9": [ "/bin/nullhttpd", "httpdCreate" ],
     "%00006442": [ "/bin/nullhttpd", "_httpd_catFile" ],
     "%0000d475": [ "/bin/nullhttpd", "main" ],
-    "%00006466": [ "/bin/nullhttpd", "_httpd_catFile" ]
+    "%00006466": [ "/bin/nullhttpd", "_httpd_catFile" ],
+    "privopen":  [ "/bin/nullhttpd", "main" ],
+    "privmmap":  [ "/bin/nullhttpd", "main" ],
+    "privclose": [ "/bin/nullhttpd", "main" ]
   },
   "constraints": [
     {
@@ -80,6 +83,51 @@
           "sf.proc.gid": [ "33" ],
           "sf.proc.uid": [ "33" ],
           "sf.file.path": [ "/var/www/html/index.html" ]
+        }
+      ]
+    },
+    {
+      "node": "privopen",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/group" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/passwd" ]
+        }
+      ]
+    },
+    {
+      "node": "privmmap",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/group" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/passwd" ]
+        }
+      ]
+    },
+    {
+      "node": "privclose",
+      "constraints": [
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/group" ]
+        },
+        {
+          "sf.proc.gid": [ "0" ],
+          "sf.proc.uid": [ "0" ],
+          "sf.file.path": [ "/etc/passwd" ]
         }
       ]
     },
@@ -274,6 +322,9 @@
     { "src": "%0000d9fc", "dst": "%0000d73f", "label": "CLONE" },
     { "src": "%0000eb6c", "dst": "%0000eb6d", "label": "CLONE" },
     { "src": "%0000eb6d", "dst": "%0000eb6f", "label": "EXEC" },
-    { "src": "%0000eb6f", "dst": "%0000d9fc", "label": "SETUID" }
+    { "src": "%0000eb6f", "dst": "privopen", "label": "OPEN" },
+    { "src": "privopen",  "dst": "privmmap", "label": "MMAP" },
+    { "src": "privmmap",  "dst": "privclose", "label": "CLOSE" },
+    { "src": "privclose", "dst": "%0000d9fc", "label": "SETUID" }
   ]
 }
