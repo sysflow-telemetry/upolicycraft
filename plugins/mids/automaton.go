@@ -73,6 +73,7 @@ type SecurityAutomaton struct {
 	FSM           *fsm.FSM
 	Model         *BehaviorModel
 	History       []Observation
+	Capabilities  map[string][]Observation
 }
 
 // RegexpArrayMem checks whether the string x matches any of the regexes in options.
@@ -101,8 +102,8 @@ func ParseSlice(slice interface{}) map[string]bool {
 
 //FilterOperations removes operations not found in the behavior model
 func FilterOperations(ops map[string]bool) {
-	ops["TRUNCATE"] = false
-	ops["SHUTDOWN"] = false
+	delete(ops, "TRUNCATE")
+	delete(ops, "SHUTDOWN")
 }
 
 //TranslateOperation adapts a SysFlow OperationName to a MRM Operation
@@ -238,6 +239,7 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 	var sa = new(SecurityAutomaton)
 	m := make(map[string]string)
 
+	sa.Capabilities = make(map[string][]Observation)
 	sa.Model = &model
 
 	for i, c := range model.Constraints {
@@ -400,10 +402,11 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 
 	logger.Trace.Printf("\n\tConstraints:")
 	for i := range node.Constraints {
+		neededMatches := len(node.Constraints[i])
+		matches := 0
 		for field, optionsJSON := range node.Constraints[i] {
 			v := engine.Mapper.MapStr(field)(r)
 			options := ParseSlice(optionsJSON)
-			found := false
 
 			for opt := range options {
 				logger.Trace.Println("\n\t\topt:", opt, "\n\t\tv:", v)
@@ -420,27 +423,25 @@ func (s *SecurityAutomaton) CanEvent(e string, r *engine.Record) bool {
 						pv := engine.Mapper.MapStr(pfield)(pred)
 						logger.Trace.Println("\n\t\tpv:", pv)
 						if pv == v {
-							found = true
+							matches += 1
 							break
 						}
 					}
 				} else {
 					if opt == v {
-						found = true
+						matches += 1
 						break
 					}
 				}
 			}
-
-			// All constraints need to be satisfied
-			if found == false {
-				logger.Trace.Println("\n\tCould not satisfy constraint.")
-				return false
-			}
+		}
+		if matches == neededMatches {
+			return true
 		}
 	}
 
-	return true
+	logger.Trace.Println("\n\tCould not satisfy constraint.")
+	return false
 }
 
 func (s *SecurityAutomaton) enterState(e *fsm.Event) {
@@ -463,102 +464,202 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 	out(r)
 }
 
+// ContainsRecord checks whether the flow has already been seen
+func (s *SecurityAutomaton) ContainsRecord(op string, r *engine.Record) bool {
+	ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
+	if records, ok := s.Capabilities[op]; ok {
+		for _, obs := range records {
+			existing := obs.Record
+			existingty := engine.Mapper.MapStr(engine.SF_TYPE)(existing)
+
+			if existingty != ty {
+				continue
+			}
+
+			switch ty {
+			case engine.TyPE:
+				prevexe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(existing)
+				exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
+				if prevexe == exe {
+					return true
+				}
+				break
+			case engine.TyNF:
+				prevport := engine.Mapper.MapStr(engine.SF_NET_DPORT)(existing)
+				port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
+				if prevport == port {
+					return true
+				}
+				break
+			case engine.TyFF:
+				prevpath := engine.Mapper.MapStr(engine.SF_FILE_PATH)(existing)
+				path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+				if prevpath == path {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // AddObservation records an observation to the SecurityAutomaton's History
 func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 	logger.Trace.Println("Adding observation!")
 	s.History = append(s.History, Observation{false, r})
+	op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
+
+	ops := SetOfOps(op)
+	for op := range ops {
+		modelOp := TranslateOperation(op)
+		// Add op record to the Capabilities map.
+		if !s.ContainsRecord(modelOp, r) {
+			logger.Trace.Printf("Adding to %s!", modelOp)
+			s.Capabilities[modelOp] = append(s.Capabilities[modelOp], Observation{false, r})
+		} else {
+			logger.Trace.Printf("Not adding to %s!", modelOp)
+		}
+	}
 }
 
 // TypeCheckTrace checks whether the run of flows given in the history inhabits the model.
 // A run of flows inhabits the model if every item in the flow can be used to traverse the FSM corresponding
 // to the program's execution.
 func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
-	logger.Trace.Printf("\nTypeChecking Trace!")
+	logger.Trace.Printf("\nTypeChecking Trace! TID = %d\n", s.TID)
 
 	// Ignore activity on files used by the linker or the entrypoint.
-	whiteListedFiles := []string{
-		".*lib.so$",
-		".*libc.so.6$",
-		"/etc/ld.so.cache",
-		"/proc/self/fd/[0-9]+"}
+	//whiteListedFiles := []string{
+	//	".*lib.so$",
+	//	".*libc.so.6$",
+	//	"/etc/ld.so.cache",
+	//	"/proc/self/fd/[0-9]+"}
 
-	abilities := make(map[string][]Observation)
+	//abilities := make(map[string][]Observation)
 
-	// Build a map that summarizes these flow's capabilities
-	for _, obs := range s.History {
-		r := obs.Record
-		ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
-		op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
-		path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+	/*
+		// Build a map that summarizes these flow's capabilities
+		for _, obs := range s.History {
+			r := obs.Record
+			ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
+			op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
+			path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+			port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
 
-		logger.Trace.Printf("\n\nType: %s\n    Ops: %s\n   Path: %s", ty, op, path)
+			logger.Trace.Printf("\n\nType: %s\n\tOps: %s\n\tPath: %s\n\tPort: %s", ty, op, path, port)
 
-		switch ty {
-		case engine.TyPE:
-			abilities[op] = append(abilities[op], Observation{false, r})
-			break
-		case engine.TyFF:
-			if RegexpArrayMem(whiteListedFiles, path) || path == "" {
-				logger.Trace.Printf("\nSkipping whitelisted file %s", path)
-				continue
-			}
-			fallthrough
-		case engine.TyNF:
-			ops := SetOfOps(op)
-			for o := range ops {
-				if ops[o] {
-					abilities[o] = append(abilities[o], Observation{false, r})
+			switch ty {
+			case engine.TyPE:
+				abilities[op] = append(abilities[op], Observation{false, r})
+				break
+			case engine.TyFF:
+				if RegexpArrayMem(whiteListedFiles, path) || path == "" {
+					logger.Trace.Printf("\nSkipping whitelisted file %s", path)
+					continue
+				}
+				fallthrough
+			case engine.TyNF:
+				ops := SetOfOps(op)
+				for o := range ops {
+					if ops[o] {
+						abilities[o] = append(abilities[o], Observation{false, r})
+					}
 				}
 			}
 		}
-	}
+	*/
 
 	// Debugging
-	logger.Trace.Printf("\nObserved the following operations:\n")
-	for op, obs := range abilities {
-		logger.Trace.Printf("\n%s:\n", op)
+	logger.Trace.Printf("\nObserved the following capabilities:\nTID: %d", s.TID)
+
+	for op, obs := range s.Capabilities {
+		logger.Trace.Printf("\n\t%s: Count %d\n", op, len(obs))
 
 		for _, ob := range obs {
 			r := ob.Record
 			ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
-			op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
 
 			switch ty {
 			case engine.TyPE:
 				exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
-				logger.Trace.Printf("\n%4s", exe)
+				logger.Trace.Printf("\nPE:\n\t%4s", exe)
 				break
 			case engine.TyNF:
 				port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
-				logger.Trace.Printf("\n%4s", port)
-				ops := SetOfOps(op)
-				for o := range ops {
-					if ops[o] {
-						logger.Trace.Printf("\n%s ", o)
-					}
-					logger.Trace.Printf("\n")
-				}
+				logger.Trace.Printf("\nNF:\n\t%4s", port)
 				break
 			case engine.TyFF:
-				ops := SetOfOps(op)
 				path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
-				logger.Trace.Printf("\n%s: ", path)
-				for o := range ops {
-					if ops[o] {
-						logger.Trace.Printf("\n%s ", o)
-					}
-					logger.Trace.Printf("\n")
-				}
+				logger.Trace.Printf("\nFF:\n\t%s: ", path)
 			}
 		}
 	}
 
+	logger.Trace.Printf("\nFSM File:\n%s\n", fsm.Visualize(s.FSM))
+
+	/*
+		for op, obs := range abilities {
+			logger.Trace.Printf("\n%s: Count %d\n", op, len(obs))
+
+			for _, ob := range obs {
+				r := ob.Record
+				ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
+				op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
+
+				switch ty {
+				case engine.TyPE:
+					exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
+					logger.Trace.Printf("\nPE:\n\t%4s", exe)
+					break
+				case engine.TyNF:
+					port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
+					logger.Trace.Printf("\nNF:\n\t%4s", port)
+					ops := SetOfOps(op)
+					for o := range ops {
+						if ops[o] {
+							logger.Trace.Printf("\n%s: %s ", o, ops[o])
+						}
+						logger.Trace.Printf("\n")
+					}
+					break
+				case engine.TyFF:
+					ops := SetOfOps(op)
+					path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+					logger.Trace.Printf("\nFF:\n\t%s: ", path)
+					for o := range ops {
+						if ops[o] {
+							logger.Trace.Printf("\n%s ", o)
+						}
+						logger.Trace.Printf("\n")
+					}
+				}
+			}
+		}
+	*/
 	// Enumerate the FSM with these abilities
 	visitedStates := make(map[string]bool)
 
+	stateQueue := []string{s.FSM.Current()}
+
 	for {
+		if len(stateQueue) == 0 {
+			break
+		}
+
+		nextState := stateQueue[0]
+		stateQueue = stateQueue[1:]
+
+		if visitedStates[nextState] {
+			continue
+		}
+
+		s.FSM.SetState(nextState)
+
+		visitedStates[nextState] = true
+
 		// Have we visited all states reachable from non-process events?
 		transitions := s.FSM.AvailableTransitions()
+		logger.Trace.Printf("\nVisiting State: %s", nextState)
 		logger.Trace.Printf("\nPossible Transitions: %v", transitions)
 
 		// MMAP events don't appear in the SysFlow traces, so assume we always have that ability.
@@ -567,28 +668,48 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			visitedStates[SA_MMAP_EVENT] = true
 		}
 
-		fallback := s.FSM.Current()
+		for _, op := range transitions {
+			if op == SA_MMAP_EVENT {
+				s.FSM.Event(SA_MMAP_EVENT)
+			}
+			for i := range s.Capabilities[op] {
+				if s.CanEvent(op, s.Capabilities[op][i].Record) {
+					logger.Trace.Printf("\nMarking %s as used!", op)
+					s.Capabilities[op][i].Used = true
+					edge, _ := s.FindEdge(op)
+					dst := edge.Dst
 
-		// Attempt to use our abilities to traverse the FSM.
-		for op, obs := range abilities {
-			for _, ob := range obs {
-				logger.Trace.Printf("\nAttempting to use op %s\n", op)
-				modelOp := TranslateOperation(op)
-				logger.Trace.Printf("\n\tOperation: %s\n", modelOp)
-				if s.CanEvent(modelOp, ob.Record) {
-					s.HandleEvent(modelOp, ob.Record, out)
-					if visitedStates[s.FSM.Current()] {
-						s.FSM.SetState(fallback)
-					} else {
-						ob.Used = true
-						visitedStates[s.FSM.Current()] = true
+					if !Contains(stateQueue, dst) {
+						stateQueue = append(stateQueue, dst)
 					}
 				}
 			}
 		}
+	}
 
-		if fallback == s.FSM.Current() {
-			break
+	for op, obs := range s.Capabilities {
+		for _, ob := range obs {
+			if !ob.Used {
+				logger.Trace.Printf("\nSecurity Violation! Did not see:\n\t%s", op)
+				r := ob.Record
+				ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
+
+				switch ty {
+				case engine.TyPE:
+					exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
+					logger.Trace.Printf("\nPE:\n\t%4s", exe)
+					break
+				case engine.TyNF:
+					port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
+					logger.Trace.Printf("\nNF:\n\t%4s", port)
+					break
+				case engine.TyFF:
+					path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+					logger.Trace.Printf("\nFF:\n\t%s: ", path)
+				}
+			} else {
+				logger.Trace.Printf("\nSaw:%s", op)
+			}
 		}
 	}
 }
@@ -597,6 +718,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 func (s *SecurityAutomaton) ClearHistory() {
 	logger.Trace.Println("Clearing History!")
 	s.History = nil
+	s.Capabilities = make(map[string][]Observation)
 }
 
 // HandleEvent submits an event to the SecurityAutomaton, if the SA can handle the event.
