@@ -228,7 +228,7 @@
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
-          "sf.proc.args": [ "./nullhttpd.sh" ]
+          "sf.proc.args": [ "/nullhttpd.sh" ]
         }
       ]
     },

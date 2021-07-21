@@ -290,6 +290,15 @@ func ParseSecurityAutomaton(model BehaviorModel) *SecurityAutomaton {
 				files := strings.Split(k, " ")
 				sa.FileWhiteList = append(sa.FileWhiteList, files...)
 			}
+			// Ignore activity on files used by the linker or the entrypoint.
+			whiteListedFiles := []string{
+				".*lib.so$",
+				".*libc.so.6$",
+				"/etc/nsswitch.conf",
+				"/etc/ld.so.cache",
+				"/lib/x86_64-linux-gnu/*",
+				"/proc/self/fd/[0-9]+"}
+			sa.FileWhiteList = append(sa.FileWhiteList, whiteListedFiles...)
 			break
 		}
 	}
@@ -506,12 +515,35 @@ func (s *SecurityAutomaton) ContainsRecord(op string, r *engine.Record) bool {
 // AddObservation records an observation to the SecurityAutomaton's History
 func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 	logger.Trace.Println("Adding observation!")
-	s.History = append(s.History, Observation{false, r})
+	//s.History = append(s.History, Observation{false, r})
+
+	sensitiveFiles := []string{
+		"/etc/passwd",
+		"/etc/group"}
+
+	ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 	op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
+	path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+
+	// After an exec, the process close sensitive files, which we can ignore.
+	if Contains(sensitiveFiles, path) {
+		return
+	}
+
+	if ty == engine.TyPE {
+		logger.Trace.Printf("Erroneously adding Process Event to History!")
+	}
+
+	if ty == engine.TyFF && (RegexpArrayMem(s.FileWhiteList, path) || path == "") {
+		logger.Trace.Printf("\nSkipping whitelisted file: %s", path)
+		return
+	}
 
 	ops := SetOfOps(op)
 	for op := range ops {
 		modelOp := TranslateOperation(op)
+		// TODO store a table to enforce heuristics like these
+
 		// Add op record to the Capabilities map.
 		if !s.ContainsRecord(modelOp, r) {
 			logger.Trace.Printf("Adding to %s!", modelOp)
@@ -528,46 +560,7 @@ func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 	logger.Trace.Printf("\nTypeChecking Trace! TID = %d\n", s.TID)
 
-	// Ignore activity on files used by the linker or the entrypoint.
-	//whiteListedFiles := []string{
-	//	".*lib.so$",
-	//	".*libc.so.6$",
-	//	"/etc/ld.so.cache",
-	//	"/proc/self/fd/[0-9]+"}
-
 	//abilities := make(map[string][]Observation)
-
-	/*
-		// Build a map that summarizes these flow's capabilities
-		for _, obs := range s.History {
-			r := obs.Record
-			ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
-			op := engine.Mapper.MapStr(engine.SF_OPFLAGS)(r)
-			path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
-			port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
-
-			logger.Trace.Printf("\n\nType: %s\n\tOps: %s\n\tPath: %s\n\tPort: %s", ty, op, path, port)
-
-			switch ty {
-			case engine.TyPE:
-				abilities[op] = append(abilities[op], Observation{false, r})
-				break
-			case engine.TyFF:
-				if RegexpArrayMem(whiteListedFiles, path) || path == "" {
-					logger.Trace.Printf("\nSkipping whitelisted file %s", path)
-					continue
-				}
-				fallthrough
-			case engine.TyNF:
-				ops := SetOfOps(op)
-				for o := range ops {
-					if ops[o] {
-						abilities[o] = append(abilities[o], Observation{false, r})
-					}
-				}
-			}
-		}
-	*/
 
 	// Debugging
 	logger.Trace.Printf("\nObserved the following capabilities:\nTID: %d", s.TID)
@@ -736,9 +729,9 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 	} else if s.IsActive() {
 		if ty == engine.TyPE {
 			s.ReportIncident(event, r, out)
+		} else {
+			s.AddObservation(r)
 		}
-	} else {
-		s.AddObservation(r)
 	}
 }
 
