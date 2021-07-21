@@ -9,6 +9,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -81,6 +83,8 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 
 	out := func(r *engine.Record) { ids.outCh <- r }
 
+	start := time.Now()
+
 	for {
 		fc, ok := <-in
 
@@ -89,14 +93,15 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 			break
 		}
 
-		start := time.Now()
-
 		record := engine.NewRecord(*fc, cache.GetInstance())
 		ids.Event(record, out)
-
-		elapsed := time.Since(start)
-		logger.Trace.Printf("MIDS:%d", elapsed.Nanoseconds())
 	}
+
+	elapsed := time.Since(start)
+
+	f, _ := os.Create("/tmp/mids-perf")
+	fmt.Fprintf(f, "MIDS:%d\n", elapsed.Nanoseconds())
+	f.Close()
 	logger.Trace.Println("\nExiting Intrusion Detection System")
 	ids.Cleanup()
 }
