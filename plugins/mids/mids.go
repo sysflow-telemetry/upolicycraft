@@ -99,8 +99,8 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 
 	elapsed := time.Since(start)
 
-	f, _ := os.Create("/tmp/mids-perf")
-	fmt.Fprintf(f, "MIDS:%d\n", elapsed.Nanoseconds())
+	f, _ := os.OpenFile("/tmp/mids-perf.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	fmt.Fprintf(f, "%d\n", elapsed.Nanoseconds())
 	f.Close()
 	logger.Trace.Println("\nExiting Intrusion Detection System")
 	ids.Cleanup()
