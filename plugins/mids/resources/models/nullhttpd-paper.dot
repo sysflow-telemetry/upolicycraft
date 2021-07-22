@@ -37,5 +37,5 @@ digraph G {
   14 -> 15 [label="CLOSE",  fontsize=8, ];
   15 -> 16 [label="CLOSE",  fontsize=8, ];
   16 -> 10 [label="ACCEPT", fontsize=8, ];
-  12 -> 16 [label="CLOSE",  fontsize=8, ;
+  12 -> 16 [label="CLOSE",  fontsize=8, ];
 }
