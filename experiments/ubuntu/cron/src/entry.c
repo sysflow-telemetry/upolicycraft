@@ -99,7 +99,6 @@ load_entry(file, error_func, pw, envp)
 
 	ch = get_char(file);
 	if (ch == EOF) {
-                uids_log("load_entry returning null!");
 		return NULL;
         }
 	/* ch is now the first useful character of a useful line.
@@ -107,8 +106,6 @@ load_entry(file, error_func, pw, envp)
 	 * of a list of minutes.
 	 */
 
-        uids_log("First character");
-        uids_debug(ch);
 
 	e = (entry *) calloc(sizeof(entry), sizeof(char));
 
@@ -134,7 +131,7 @@ load_entry(file, error_func, pw, envp)
 			bit_set(e->dom, 0);
 			bit_set(e->month, 0);
 			bit_nset(e->dow, 0, (LAST_DOW-FIRST_DOW+1));
-                        e->flags |= DOW_STAR; 
+                        e->flags |= DOW_STAR;
 		} else if (!strcmp("monthly", cmd)) {
 			bit_set(e->minute, 0);
 			bit_set(e->hour, 0);
@@ -232,7 +229,7 @@ load_entry(file, error_func, pw, envp)
 	}
 
 	/* If we used one of the @commands, we may be pointing at
-       blanks, and if we don't skip over them, we'll miss the user/command */	
+       blanks, and if we don't skip over them, we'll miss the user/command */
     Skip_Blanks(ch, file);
 	/* ch is the first character of a command, or a username */
 	unget_char(ch, file);
@@ -244,8 +241,6 @@ load_entry(file, error_func, pw, envp)
 		ch = get_string(username, MAX_COMMAND, file, " \t");
 
 
-                uids_log("username:");
-                uids_log(username);
 
 		Debug(DPARS, ("load_entry()...got %s\n",username))
 		if (ch == EOF) {
@@ -324,7 +319,7 @@ load_entry(file, error_func, pw, envp)
 	 * too bad we don't know in advance how long it will be, since we
 	 * need to malloc a string for it... so, we limit it to MAX_COMMAND.
 	 * XXX - should use realloc().
-	 */ 
+	 */
 	ch = get_string(cmd, MAX_COMMAND, file, "\n");
 
 	/* a file without a \n before the EOF is rude, so we'll complain...
@@ -357,8 +352,7 @@ load_entry(file, error_func, pw, envp)
 	if (e->cmd)
 		free(e->cmd);
 	free(e);
-        uids_log("Error Code:");
-        uids_debug(ecode);
+
 	if (ecode != e_none && error_func)
 		(*error_func)(ecodes[(int)ecode]);
 	while (ch != EOF && ch != '\n')
@@ -387,7 +381,7 @@ get_list(bits, low, high, names, ch, file)
 
 	/* list = range {"," range}
 	 */
-	
+
 	/* clear the bit string, since the default is 'off'.
 	 */
 	bit_nclear(bits, 0, (high-low+1));
@@ -526,11 +520,7 @@ get_number(numptr, low, names, ch, file)
 	pc = temp;
 	len = 0;
 	all_digits = TRUE;
-        uids_log("Fetching number");
-        uids_debug(ch);
 	while (isalnum(ch)) {
-                uids_log("The following char is alnum");
-                uids_debug(ch);
 		if (++len >= MAX_TEMPSTR)
 			return EOF;
 
@@ -540,11 +530,9 @@ get_number(numptr, low, names, ch, file)
 			all_digits = FALSE;
 
 		ch = get_char(file);
-                uids_debug(ch);
 	}
 	*pc = '\0';
 
-        uids_log("  done!");
 
         if (len == 0) {
             return EOF;

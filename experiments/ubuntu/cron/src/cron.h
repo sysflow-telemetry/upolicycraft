@@ -130,7 +130,7 @@
 			if ( (DebugFlags & (mask) )  ) \
 				printf message;
 #else /* !DEBUGGING */
-# define Debug(mask, message) uids_log(message) \
+# define Debug(mask, message) (1 == 1) \
 			;
 #endif /* DEBUGGING */
 
@@ -228,9 +228,6 @@ typedef struct _orphan {
 	char            *fname;
 	char            *tabname;
 } orphan;
-
-void uids_log(char *s);
-void uids_debug(void *x);
 
 void		set_cron_uid __P((void)),
 		set_cron_cwd __P((void)),

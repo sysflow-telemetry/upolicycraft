@@ -65,8 +65,6 @@ job_runqueue()
 	register int	run = 0;
 
 	for (j=jhead; j; j=jn) {
-                uids_log("Running command:");
-                uids_log(j->e->cmd);
 		do_command(j->e, j->u);
 		jn = j->next;
 		free(j);

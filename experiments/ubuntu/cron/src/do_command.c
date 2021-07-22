@@ -194,8 +194,6 @@ child_process(e, u)
 	pipe(stdin_pipe);	/* child's stdin */
 	/* child's stdout */
         tmpout = tmpfile();
-        uids_log("tmpout:");
-        uids_debug(tmpout);
 	if (tmpout == NULL) {
 		log_it("CRON", getpid(), "error", "create tmpfile");
 		exit(ERROR_EXIT);
@@ -302,18 +300,13 @@ child_process(e, u)
 		  /* close(STDERR)*/; dup2(STDOUT, STDERR);
 
 
-	         uids_log("Before close READ PIPE");
 	         /* close the pipe we just dup'ed.  The resources will remain.
 		 */
-                 uids_log("Read PIPE");
-                 uids_debug(stdin_pipe[READ_PIPE]);
-                 uids_debug(stdin_pipe[WRITE_PIPE]);
 
 		 close(stdin_pipe[READ_PIPE]);
 
 		 fclose(tmpout);
 
-	         uids_log("After close READ PIPE");
 
 		/* set our login universe.  Do this in the grandchild
 		 * so that the child can invoke /usr/lib/sendmail

@@ -344,9 +344,6 @@ get_char(file)
 
 	ch = getc(file);
 
-        uids_log("Fetched character:");
-        uids_debug(file);
-        uids_debug(ch);
 
 	if (ch == '\n')
 		Set_LineNum(LineNumber + 1);
@@ -382,8 +379,6 @@ get_string(string, size, file, terms)
 {
 	int	ch;
 
-        uids_log("Getting string from:");
-        uids_debug(file);
 
 	while (EOF != (ch = get_char(file)) && !strchr(terms, ch)) {
 
@@ -408,18 +403,12 @@ skip_comments(file)
 {
 	int	ch;
 
-        uids_log("Skipping Comments?");
-        uids_debug(file);
 
 	while (EOF != (ch = get_char(file))) {
 		/* ch is now the first character of a line.
 		 */
-                uids_log("Character:");
-                uids_debug(ch);
 
 		while (ch == ' ' || ch == '\t') {
-                        uids_log("Waiting for non-blank space:");
-                        uids_debug(ch);
 			ch = get_char(file);
                 }
 
@@ -437,8 +426,6 @@ skip_comments(file)
 		 */
 
 		while (ch != '\n' && ch != EOF) {
-                        uids_log("Waiting for newline or EOF");
-                        uids_debug(ch);
 			ch = get_char(file);
                 }
 		/* ch is now the newline of a line which we're going to
@@ -534,9 +521,6 @@ log_it(username, xpid, event, detail)
 	char	*event;
 	char	*detail;
 {
-        uids_log("log_it:");
-        uids_log(event);
-        uids_log(detail);
 #if defined(LOG_FILE)
 	PID_T			pid = xpid;
 	char			*msg;
@@ -785,15 +769,11 @@ long get_gmtoff(time_t *clock, struct tm *local)
 	struct tm gmt;
 	long offset;
 
-        uids_log("Before gmtime:");
-        uids_debug(local);
-        uids_debug(clock);
 
 	gmt = *gmtime(clock);
 	if (local == NULL)
 		local = localtime(clock);
 
-        uids_log("Get_gmtoff:");
 
 	offset = (local->tm_sec - gmt.tm_sec) +
 	    ((local->tm_min - gmt.tm_min) * 60) +

@@ -1,8 +1,7 @@
 FROM ubuntu:20.04 AS build
 
 RUN apt update
-RUN DEBIAN_FRONTEND="noninteractive" apt install -y software-properties-common wget git build-essential python-pip
-RUN pip install psrecord
+RUN DEBIAN_FRONTEND="noninteractive" apt install -y software-properties-common wget git build-essential
 
 RUN wget -c https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz -O - | tar -xz -C /usr/local
 

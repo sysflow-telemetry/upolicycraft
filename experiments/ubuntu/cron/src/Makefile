@@ -89,7 +89,7 @@ INSTALL = install -s
 SHELL		=	/bin/sh
 CFLAGS		+=	$(INCLUDE) $(COMPAT) $(DEFS)
 
-LDFLAGS         +=      -L /root/uids -l:uids.so
+#LDFLAGS         += 
 
 INFOS		=	README CHANGES FEATURES INSTALL CONVERSION THANKS MAIL
 MANPAGES	=	bitstring.3 crontab.5 crontab.1 cron.8 putman.sh

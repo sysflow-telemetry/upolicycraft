@@ -194,9 +194,6 @@ load_user(crontab_fd, pw, uname, fname, tabname)
 		perror("fdopen on crontab_fd in load_user");
 		return NULL;
 	}
-        uids_log("File descriptors:");
-        uids_debug(crontab_fd);        
-        uids_debug(file);
 
 	Debug(DPARS, ("load_user()\n"))
 
@@ -270,8 +267,6 @@ load_user(crontab_fd, pw, uname, fname, tabname)
 			e = load_entry(file, NULL, pw, envp);
 #endif
 			if (e) {
-                                uids_log("Command:");
-                                uids_log(e->cmd);
 				e->next = u->crontab;
 				u->crontab = e;
 			} else {
