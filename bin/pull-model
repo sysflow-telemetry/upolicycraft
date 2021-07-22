@@ -5,7 +5,7 @@ if [ "$#" -ne 2 ]; then
   exit 1
 fi
 
-docker cp $1:/tmp/output.json plugins/mrm/resources/models/$2.json
-docker cp $1:/tmp/output.dot plugins/mrm/resources/models/$2.dot
+docker cp $1:/tmp/output.json plugins/mids/resources/models/$2.json
+docker cp $1:/tmp/output.dot plugins/mids/resources/models/$2.dot
 
-./bin/tweak-dot plugins/mrm/resources/models/$2.dot
+./bin/tweak-dot plugins/mids/resources/models/$2.dot
