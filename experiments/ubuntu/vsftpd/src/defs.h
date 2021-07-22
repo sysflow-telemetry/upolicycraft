@@ -21,8 +21,5 @@
 #define VSFTP_PRIVSOCK_MAXSTR   VSFTP_DATA_BUFSIZE * 2
 #define VSFTP_AS_LIMIT          200UL * 1024 * 1024
 
-extern void uids_log(char *msg);
-extern void uids_debug(void *p);
-
 #endif /* VSF_DEFS_H */
 

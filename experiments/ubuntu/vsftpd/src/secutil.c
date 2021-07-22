@@ -66,8 +66,6 @@ vsf_secutil_change_credentials(const struct mystr* p_user_str,
         vsf_sysutil_seteuid(p_user);
       }
 
-      uids_log("Changing directory:");
-      uids_log(dir_str);
 
       retval = str_chdir(&dir_str);
       if (retval != 0)

@@ -62,14 +62,10 @@ vsf_privop_get_ftp_port_sock(struct vsf_session* p_sess,
   {
     double sleep_for;
 
-    uids_log("Binding to port:");
-    uids_debug(port);
 
     vsf_sysutil_sockaddr_clone(&p_sockaddr, p_sess->p_local_addr);
     vsf_sysutil_sockaddr_set_port(p_sockaddr, port);
     retval = vsf_sysutil_bind(s, p_sockaddr);
-    uids_log("Called bind in get_ftp_port_sock");
-    uids_debug(retval);
     if (retval == 0)
     {
       break;
@@ -158,8 +154,6 @@ vsf_privop_pasv_listen(struct vsf_session* p_sess)
                    ((double) max_port - min_port + 1);
     the_port = (unsigned short) scaled_port;
 
-    uids_log("Binding to port:");
-    uids_debug(the_port);
 
     if (is_ipv6)
     {
@@ -174,8 +168,6 @@ vsf_privop_pasv_listen(struct vsf_session* p_sess)
     vsf_sysutil_sockaddr_set_port(s_p_sockaddr, the_port);
     retval = vsf_sysutil_bind(p_sess->pasv_listen_fd, s_p_sockaddr);
 
-    uids_log("Called bind in listen");
-    uids_debug(retval);
 
     if (!vsf_sysutil_retval_is_error(retval))
     {
@@ -273,7 +265,6 @@ vsf_privop_do_login(struct vsf_session* p_sess,
   vsf_log_start_entry(p_sess, kVSFLogEntryLogin);
   if (result == kVSFLoginFail)
   {
-    uids_log("handle login failed!");
     vsf_log_do_log(p_sess, 0);
     if (tunable_delay_failed_login)
     {
@@ -282,7 +273,6 @@ vsf_privop_do_login(struct vsf_session* p_sess,
   }
   else
   {
-    uids_log("handle login success!");
     vsf_log_do_log(p_sess, 1);
     if (tunable_delay_successful_login)
     {
@@ -296,9 +286,6 @@ static enum EVSFPrivopLoginResult
 handle_login(struct vsf_session* p_sess, struct mystr* p_user_str,
              const struct mystr* p_pass_str)
 {
-   uids_log("USERNAME and PASS:");
-   uids_log(str_getbuf(p_user_str));
-   uids_log(str_getbuf(p_pass_str));
 
   /* Do not assume PAM can cope with dodgy input, even though it
    * almost certainly can.
@@ -308,8 +295,6 @@ handle_login(struct vsf_session* p_sess, struct mystr* p_user_str,
   unsigned int len = str_getlen(p_user_str);
   if (len == 0 || len > VSFTP_USERNAME_MAX)
   {
-    uids_log("len exceeds max!");
-    uids_debug(len);
     return kVSFLoginFail;
   }
   /* Throw out dodgy start characters */
@@ -318,15 +303,12 @@ handle_login(struct vsf_session* p_sess, struct mystr* p_user_str,
       first_char != '_' &&
       first_char != '.')
   {
-    uids_log("first char is not alphanumeric!!");
-    uids_debug(first_char);
     return kVSFLoginFail;
   }
   /* Throw out non-printable characters and space in username */
   if (str_contains_space(p_user_str) ||
       str_contains_unprintable(p_user_str))
   {
-    uids_log("Contains space or unprintable character!");
     return kVSFLoginFail;
   }
   /* Throw out excessive length passwords */

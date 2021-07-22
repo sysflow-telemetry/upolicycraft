@@ -12,7 +12,7 @@ CFLAGS	= -emit-llvm -fno-stack-protector -Wall
 # -fPIE -pie -Wl,-s
 LIBS	=	`./vsf_findlibs.sh`
 LINK	=
-LDFLAGS	=	-L /root/uids -l:uids.so
+LDFLAGS	=
 
 # -Wl,-z,relro -Wl,-z,now -L /root/uids -l:uids.so
 

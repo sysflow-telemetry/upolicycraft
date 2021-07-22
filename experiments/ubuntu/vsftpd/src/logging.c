@@ -66,11 +66,8 @@ vsf_log_init(struct vsf_session* p_sess)
       int retval = -1;
       if (tunable_vsftpd_log_file)
       {
-        uids_log("Opening log file");
-        uids_log(tunable_vsftpd_log_file);
         retval = vsf_sysutil_create_or_open_file_append(tunable_vsftpd_log_file,
                                                         0600);
-        uids_debug(retval);
       }
       if (vsf_sysutil_retval_is_error(retval))
       {

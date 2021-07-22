@@ -378,15 +378,8 @@ vsf_sysutil_read(const int fd, void* p_buf, const unsigned int size)
   while (1)
   {
     int retval = read(fd, p_buf, size);
-    uids_log("Read return:");
-    uids_debug(retval);
-    uids_log("Checking errno:");
     int saved_errno = errno;
-    uids_log("Log:");
-    uids_debug(saved_errno);
-    uids_log("Before pending actions");
     vsf_sysutil_check_pending_actions(kVSFSysUtilIO, retval, fd);
-    uids_log("After pending actions");
     if (retval < 0 && saved_errno == EINTR)
     {
       continue;
@@ -425,7 +418,6 @@ vsf_sysutil_read_loop(const int fd, void* p_buf, unsigned int size)
     retval = vsf_sysutil_read(fd, (char*)p_buf + num_read, size);
     if (retval < 0)
     {
-      uids_log("read less than 0!");
       return retval;
     }
     else if (retval == 0)
@@ -435,7 +427,6 @@ vsf_sysutil_read_loop(const int fd, void* p_buf, unsigned int size)
     }
     if ((unsigned int) retval > size)
     {
-      uids_log("retval too big!");
       die("retval too big in vsf_sysutil_read_loop");
     }
     num_read += retval;
@@ -1214,8 +1205,6 @@ int
 vsf_sysutil_open_file(const char* p_filename,
                       const enum EVSFSysUtilOpenMode mode)
 {
-  uids_log("Opening file:");
-  uids_log(p_filename);
 
   return open(p_filename, vsf_sysutil_translate_openmode(mode) | O_NONBLOCK);
 }
@@ -1261,7 +1250,6 @@ vsf_sysutil_close(int fd)
 {
   while (1)
   {
-    uids_log("Calling close!");
     int retval = close(fd);
     if (retval != 0)
     {
@@ -1789,10 +1777,8 @@ vsf_sysutil_accept_timeout(int fd, struct vsf_sysutil_sockaddr* p_sockaddr,
   if (remote_addr.u.u_sockaddr.sa_family != AF_INET &&
       remote_addr.u.u_sockaddr.sa_family != AF_INET6)
   {
-    uids_log("sa_family incorrect!");
     die("can only support ipv4 and ipv6 currently");
   }
-  uids_log("sa_family ok!");
   if (p_sockaddr)
   {
     if (remote_addr.u.u_sockaddr.sa_family == AF_INET)
@@ -1891,13 +1877,11 @@ vsf_sysutil_getsockname(int fd, struct vsf_sysutil_sockaddr** p_sockptr)
   retval = getsockname(fd, &the_addr.u.u_sockaddr, &socklen);
   if (retval != 0)
   {
-    uids_log("getsockname didn't return 0");
     die("getsockname");
   }
   if (the_addr.u.u_sockaddr.sa_family != AF_INET &&
       the_addr.u.u_sockaddr.sa_family != AF_INET6)
   {
-    uids_log("sa_family not set properly.");
     die("can only support ipv4 and ipv6 currently");
   }
   vsf_sysutil_sockaddr_alloc(p_sockptr);
@@ -2052,12 +2036,7 @@ vsf_sysutil_sockaddr_addr_equal(const struct vsf_sysutil_sockaddr* p1,
     {
       return 1;
     } else {
-      uids_log("Invalid PORT 3");
-      uids_log("Addresses do not match!");
 
-      uids_debug(p1->u.u_sockaddr_in.sin_addr);
-      uids_debug(p2->u.u_sockaddr_in.sin_addr);
-      uids_debug(sizeof(p1->u.u_sockaddr_in.sin_addr));
     }
   }
   else if (family1 == AF_INET6)
@@ -2262,9 +2241,6 @@ vsf_sysutil_is_port_reserved(unsigned short the_port)
 {
   if (the_port < IPPORT_RESERVED)
   {
-    uids_log("Tried to use reserved port!");
-    uids_debug(the_port);
-    uids_debug(IPPORT_RESERVED);
     return 1;
   }
   return 0;
@@ -2389,10 +2365,6 @@ const char*
 vsf_sysutil_user_get_homedir(const struct vsf_sysutil_user* p_user)
 {
   const struct passwd* p_passwd = (const struct passwd*) p_user;
-  uids_log("Fetching pw_dir:");
-  uids_debug(p_passwd);
-  uids_debug(p_passwd->pw_dir);
-  uids_log("Fetched pw_dir.");
   return p_passwd->pw_dir;
 }
 
@@ -2761,7 +2733,6 @@ vsf_sysutil_sleep(double seconds)
     saved_errno = errno;
     vsf_sysutil_check_pending_actions(kVSFSysUtilUnknown, 0, 0);
   } while (retval == -1 && saved_errno == EINTR);
-  uids_log("After sleep!");
 }
 
 char*
