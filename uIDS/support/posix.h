@@ -42,6 +42,11 @@ int           initgroups(const char *user, int group);
 
 // uids
 
+double        sqrt(double x);
+double        log(double x);
+double        round(double x);
+double        floor(double x);
+
 int           pipe(void *pipefd);
 
 int           regcomp(void  *preg, const char *regex, int cflags);
