@@ -988,6 +988,60 @@ module GetUid(Machine : Primus.Machine.S) = struct
         Value.of_word (Bitvector.of_int 64 uid)
 end
 
+module UidsRand(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let run [] =
+        Value.of_word (Bitvector.of_int 64 (Random.int 32767))
+end
+
+
+module UidsSqrt(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let word_of_float x = Word.of_int64 (Int64.bits_of_float x)
+
+    let run [x] =
+        let x' = x |> Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits in
+        Value.of_word (word_of_float (sqrt x'))
+end
+
+module UidsLog(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let word_of_float x = Word.of_int64 (Int64.bits_of_float x)
+
+    let run [x] =
+        let x' = x |> Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits in
+        Value.of_word (word_of_float (log x'))
+end
+
+module UidsRound(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let word_of_float x = Word.of_int64 (Int64.bits_of_float x)
+
+    let run [x] =
+        let x' = x |> Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits in
+        Value.of_word (word_of_float (round x'))
+end
+
+module UidsFloor(Machine : Primus.Machine.S) = struct
+    [@@@warning "-P"]
+    include Pre(Machine)
+
+    let word_of_float x = Word.of_int64 (Int64.bits_of_float x)
+
+    let run [x] =
+        let x' = x |> Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits in
+        Value.of_word (word_of_float (Float.round_down x'))
+end
+
+
 module Dup2(Machine : Primus.Machine.S) = struct
     [@@@warning "-P"]
     include Pre(Machine)
@@ -2127,12 +2181,23 @@ module Monitor(Machine : Primus.Machine.S) = struct
       {|(uids-ocaml-add-socket) adds a file descriptor representing a socket to the micro-execution state.|};
       def "uids-ocaml-getuid" (tuple [] @-> a) (module GetUid)
       {|(uids-ocaml-getuid) fetches the current user id.|};
+      def "uids-ocaml-rand" (tuple [] @-> a) (module UidsRand)
+      {|(uids-ocaml-rand) computes a random value.|};
+      def "uids-ocaml-sqrt" (tuple [a] @-> b) (module UidsSqrt)
+      {|(uids-ocaml-sqrt) computes the sqrt.|};
+      def "uids-ocaml-log" (tuple [a] @-> b) (module UidsLog)
+      {|(uids-ocaml-log) computes the log.|};
+      def "uids-ocaml-round" (tuple [a] @-> b) (module UidsRound)
+      {|(uids-ocaml-round) computes round.|};
+      def "uids-ocaml-floor" (tuple [a] @-> b) (module UidsFloor)
+      {|(uids-ocaml-floor) computes floor.|};
       def "uids-ocaml-dup2" (tuple [a;b] @-> c) (module Dup2)
       {|(uids-ocaml-dup2) makes a copy of oldfd into newfd.|};
       def "uids-ocaml-check-dup2" (tuple [a] @-> b) (module CheckDup2)
       {|(uids-ocaml-check-dup2) checks if a file descriptor has been copied.|};
       def "uids-ocaml-inet-aton" (tuple [a; b] @-> c) (module InetAton)
       {|(uids-ocaml-inet-aton) converts an IP address into a number in network byte order..|};
+
     ]
 
   let json_string data =
