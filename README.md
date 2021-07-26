@@ -7,15 +7,13 @@ Evaluation:
 
 All Docker Images for the Evaluation are contained in:
 
-    experiments/redhat/fork
-    experiments/redhat/echo
-    experiments/redhat/nginx
+    experiments/ubuntu/
 
 uIDS Workflow
 =============
 
 The uids-util docker image handles disassembling and inspecting docker images, the following
-commands allow you to inspect a container so that micro-execution can run the binary in a separate
+commands allow you to inspect a container so that micro execution can run the binary in a separate
 container.
 
 Save an image:
@@ -54,15 +52,16 @@ Eval Workflow
     
     Generating input for a challenge:
 
-    If present, the xml file checked in to the challenge's folder can be passed to the cb-replay-model script.
+    If present, the xml file checked in to the challenge's folder can be passed to the cb-replay-dump script which stores the
+    entire "write" transcript to the /tmp/data file.
 
     If an "input.log" is present, you can create the model by running `cat input.log | nc localhost port-of-challenge`
-
 
 Tracking Line Coverage 
 ======================
 
     https://clang.llvm.org/docs/SourceBasedCodeCoverage.html
+
 
 BAP Subtleties
 ==============
