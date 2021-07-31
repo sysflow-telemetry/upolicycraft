@@ -13,6 +13,6 @@ go 1.14
 require (
 	github.com/jinzhu/copier v0.3.2
 	github.com/looplab/fsm v0.1.0
-	github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201207153955-828257760aa4
-	github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201206060647-9992298f1357
+        github.com/sysflow-telemetry/sf-apis/go v0.0.0-20210611191016-bbdbd17a2eaf
+        github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201209134442-13e2a6e66430
 )
