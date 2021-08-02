@@ -24,8 +24,8 @@ WORKDIR /root/sf-processor/plugins/mids
 
 RUN make OUTPUT=/root/sf-processor/resources/plugins
 
-WORKDIR /root/sf-processor/plugins/midsexporter
+# WORKDIR /root/sf-processor/plugins/midsexporter
 
-RUN make OUTPUT=/root/sf-processor/resources/plugins
+# RUN make OUTPUT=/root/sf-processor/resources/plugins
 
 WORKDIR /root/sf-processor

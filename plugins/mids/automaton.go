@@ -19,6 +19,7 @@ import (
 
 	"github.com/looplab/fsm"
 	"github.com/sysflow-telemetry/sf-apis/go/logger"
+	"github.com/sysflow-telemetry/sf-apis/go/sfgo"
 	"github.com/sysflow-telemetry/sf-processor/core/policyengine/engine"
 )
 
@@ -486,21 +487,21 @@ func (s *SecurityAutomaton) ContainsRecord(op string, r *engine.Record) bool {
 			}
 
 			switch ty {
-			case engine.TyPE:
+			case sfgo.TyPEStr:
 				prevexe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(existing)
 				exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
 				if prevexe == exe {
 					return true
 				}
 				break
-			case engine.TyNF:
+			case sfgo.TyNFStr:
 				prevport := engine.Mapper.MapStr(engine.SF_NET_DPORT)(existing)
 				port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
 				if prevport == port {
 					return true
 				}
 				break
-			case engine.TyFF:
+			case sfgo.TyFFStr:
 				prevpath := engine.Mapper.MapStr(engine.SF_FILE_PATH)(existing)
 				path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 				if prevpath == path {
@@ -530,11 +531,11 @@ func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 	//	return
 	//}
 
-	if ty == engine.TyPE {
+	if ty == sfgo.TyPEStr {
 		logger.Trace.Printf("Erroneously adding Process Event to History!")
 	}
 
-	if ty == engine.TyFF && (RegexpArrayMem(s.FileWhiteList, path) || path == "") {
+	if ty == sfgo.TyFFStr && (RegexpArrayMem(s.FileWhiteList, path) || path == "") {
 		logger.Trace.Printf("\nSkipping whitelisted file: %s", path)
 		return
 	}
@@ -573,15 +574,15 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 			ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 
 			switch ty {
-			case engine.TyPE:
+			case sfgo.TyPEStr:
 				exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
 				logger.Trace.Printf("\nPE:\n\t%4s", exe)
 				break
-			case engine.TyNF:
+			case sfgo.TyNFStr:
 				port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
 				logger.Trace.Printf("\nNF:\n\t%4s", port)
 				break
-			case engine.TyFF:
+			case sfgo.TyFFStr:
 				path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 				logger.Trace.Printf("\nFF:\n\t%s: ", path)
 			}
@@ -640,15 +641,15 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 				ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 
 				switch ty {
-				case engine.TyPE:
+				case sfgo.TyPEStr:
 					exe := engine.Mapper.MapStr(engine.SF_PROC_EXE)(r)
 					logger.Trace.Printf("\nPE:\n\t%4s", exe)
 					break
-				case engine.TyNF:
+				case sfgo.TyNFStr:
 					port := engine.Mapper.MapStr(engine.SF_NET_DPORT)(r)
 					logger.Trace.Printf("\nNF:\n\t%4s", port)
 					break
-				case engine.TyFF:
+				case sfgo.TyFFStr:
 					path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 					logger.Trace.Printf("\nFF:\n\t%s: ", path)
 				}
@@ -679,7 +680,7 @@ func (s *SecurityAutomaton) HandleEvent(event string, r *engine.Record, out func
 		logger.Trace.Printf("\nAdvancing FSM!")
 		s.FSM.Event(event)
 	} else if s.IsActive() {
-		if ty == engine.TyPE {
+		if ty == sfgo.TyPEStr {
 			s.ReportIncident(event, r, out)
 		} else {
 			s.AddObservation(r)
@@ -699,7 +700,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 	logger.Trace.Printf("\nOP: %s %s %s %s", tid, port, ty, op)
 
 	if !s.IsActive() {
-		if ty != engine.TyPE {
+		if ty != sfgo.TyPEStr {
 			return
 		}
 		logger.Trace.Printf("\nChecking whether PE %s can initialize FSM", op)
@@ -709,7 +710,7 @@ func (s *SecurityAutomaton) Event(r *engine.Record, out func(r *engine.Record)) 
 			s.ClearHistory()
 		}
 	} else {
-		if ty == engine.TyPE {
+		if ty == sfgo.TyPEStr {
 			// Check the validity of all the events we've seen so far.
 			s.TypeCheckTrace(out)
 			s.ClearHistory()

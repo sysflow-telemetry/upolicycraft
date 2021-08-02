@@ -8,6 +8,8 @@
 //
 package main
 
+import "fmt"
+
 const (
 	ModelConfigKey string = "model"
 )
@@ -17,11 +19,11 @@ type Config struct {
 }
 
 // CreateConfig creates a new config object from config dictionary.
-func CreateConfig(conf map[string]string) Config {
+func CreateConfig(conf map[string]interface{}) Config {
 	var config = Config{}
 
 	if v, ok := conf[ModelConfigKey]; ok {
-		config.Model = v
+		config.Model = fmt.Sprintf("%v", v)
 	}
 
 	return config

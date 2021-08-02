@@ -57,7 +57,7 @@ func (ids *IntrusionDetectionSystem) GetName() string {
 }
 
 // Init initializes the plugin with a configuration map.
-func (ids *IntrusionDetectionSystem) Init(conf map[string]string) error {
+func (ids *IntrusionDetectionSystem) Init(conf map[string]interface{}) error {
 	c := CreateConfig(conf)
 	logger.Trace.Printf("Monitoring Model: %s", c.Model)
 
@@ -107,8 +107,9 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 }
 
 // SetOutChan sets the output channel of the plugin.
-func (ids *IntrusionDetectionSystem) SetOutChan(ch interface{}) {
-	ids.outCh = (ch.(*engine.RecordChannel)).In
+func (ids *IntrusionDetectionSystem) SetOutChan(chs []interface{}) {
+	// TODO: support multiple channels
+	ids.outCh = (chs[0].(*engine.RecordChannel)).In
 }
 
 // Cleanup tears down plugin resources.

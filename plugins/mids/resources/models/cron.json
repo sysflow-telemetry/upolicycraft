@@ -293,7 +293,7 @@
     {
       "node": "%00015ab1",
       "constraints": [
-        { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "./cron.sh" ] }
+        { "sf.proc.exe": [ "/bin/bash" ], "sf.proc.args": [ "/cron.sh" ] }
       ]
     },
     {
@@ -301,7 +301,7 @@
       "constraints": [
         {
           "sf.proc.exe": [ "/bin/bash" ],
-          "sf.proc.args": [ "./cron.sh" ],
+          "sf.proc.args": [ "/cron.sh" ],
           "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
         }
       ]

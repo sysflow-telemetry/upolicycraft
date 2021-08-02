@@ -20,6 +20,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -59,50 +60,68 @@ type Config struct {
 	BuildNumber       string
 }
 
+// StringOfInterface transforms an interface{} into a String
+func StringOfInterface(v interface{}) string {
+	return fmt.Sprintf("%v", v)
+}
+
 // CreateConfig creates a new config object from config dictionary.
-func CreateConfig(conf map[string]string) Config {
+func CreateConfig(conf map[string]interface{}) Config {
 	var c Config = Config{Host: "localhost", Port: 514, Path: "./export.out", Tag: "sysflow"} // default values
 	if v, ok := conf[ExportConfigKey]; ok {
-		c.Export = parseExportConfig(v)
+		s := StringOfInterface(v)
+		c.Export = parseExportConfig(s)
 	}
 	if v, ok := conf[ExpTypeConfigKey]; ok {
-		c.ExpType = parseExportTypeConfig(v)
+		s := StringOfInterface(v)
+		c.ExpType = parseExportTypeConfig(s)
 	}
 	if v, ok := conf[FormatConfigKey]; ok {
-		c.Format = parseFormatConfig(v)
+		s := StringOfInterface(v)
+		c.Format = parseFormatConfig(s)
 	}
 	if v, ok := conf[FlatConfigKey]; ok && v == "true" {
 		c.Flat = true
 	}
 	if v, ok := conf[ProtoConfigKey]; ok {
-		c.Proto = parseProtoConfig(v)
+		s := StringOfInterface(v)
+		c.Proto = parseProtoConfig(s)
 	}
 	if v, ok := conf[TagConfigKey]; ok {
-		c.Tag = v
+		s := StringOfInterface(v)
+		c.Tag = s
 	}
 	if v, ok := conf[LogSourceConfigKey]; ok {
-		c.LogSource = v
+		s := StringOfInterface(v)
+		c.LogSource = s
 	}
 	if v, ok := conf[HostConfigKey]; ok {
-		c.Host = v
+		s := StringOfInterface(v)
+		c.Host = s
 	}
 	if v, ok := conf[PortConfigKey]; ok {
-		c.Port, _ = strconv.Atoi(v)
+		s := StringOfInterface(v)
+		c.Port, _ = strconv.Atoi(s)
 	}
 	if v, ok := conf[PathConfigKey]; ok {
-		c.Path = v
+		s := StringOfInterface(v)
+		c.Path = s
 	}
 	if v, ok := conf[EventBufferConfigKey]; ok {
-		c.EventBuffer, _ = strconv.Atoi(v)
+		s := StringOfInterface(v)
+		c.EventBuffer, _ = strconv.Atoi(s)
 	}
 	if v, ok := conf[VersionKey]; ok {
-		c.Version = v
+		s := StringOfInterface(v)
+		c.Version = s
 	}
 	if v, ok := conf[JSONSchemaVersionKey]; ok {
-		c.JSONSchemaVersion = v
+		s := StringOfInterface(v)
+		c.JSONSchemaVersion = s
 	}
 	if v, ok := conf[BuildNumberKey]; ok {
-		c.BuildNumber = v
+		s := StringOfInterface(v)
+		c.BuildNumber = s
 	}
 	return c
 }
