@@ -180,6 +180,7 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
+github.com/sysflow-telemetry/sf-apis v0.0.0-20210720205833-7d3c76ce0587 h1:acbXZnNH47ULmQKIISQ4iW4/YRgWoEbw60hh4f37IXA=
 github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201202234011-cb9c5a4dc2b1 h1:Ys2cyQKfee10BHQpGBPIsc5h/X8aHLfCFW+XdOhWb3Q=
 github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201202234011-cb9c5a4dc2b1/go.mod h1:rpTKky267xtopNUCoInTEZiaFkOrawhzE0HaZMEvIAI=
 github.com/sysflow-telemetry/sf-apis/go v0.0.0-20201207153955-828257760aa4 h1:Ljz/6zAtrouEmwZl0/3ZViOJf0DEMQZcQMVDeIQTwD4=
@@ -196,6 +197,8 @@ github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201207150522-7bba90fbb32
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201207150522-7bba90fbb326/go.mod h1:ww+M+rh6WGjQctJhtZtkQwPZqVnNYRJxu9a07+BI5oI=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201209134442-13e2a6e66430 h1:8knCkiF2m+8jJ5E+K3mIYYNqvAbWuYMLm/23P4cMA+I=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20201209134442-13e2a6e66430/go.mod h1:AQjPYiTNDSoLfzcnMEKVB9azBCn6m7kVMpOBGMenJa4=
+github.com/sysflow-telemetry/sf-processor/core v0.0.0-20210709164444-484da05c2a85 h1:5GUKR6XP6lz4GeFk7cF2Ev3wbUxo4Jf8mZacNZFdB+4=
+github.com/sysflow-telemetry/sf-processor/core v0.0.0-20210709164444-484da05c2a85/go.mod h1:BC8IFo8qvEDO/iwajj+SbFoACH8vaoWX+LSsCQuKLxU=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20210723173640-2a427a55a202 h1:yjCHS/9MOsR6usNp9A+l38TolcHwVvkZErd50KRvoz4=
 github.com/sysflow-telemetry/sf-processor/core v0.0.0-20210723173640-2a427a55a202/go.mod h1:zrRo1SzjORkQ1DQ0a1lcKld+WpFTLjxoYVpaUIjFYCI=
 github.com/tchap/go-patricia v2.3.0+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=

@@ -1,4 +1,4 @@
-# MRM Usage
+# MIDS Usage
 
 Set up a symlink to this folder from the `sf-processor/plugins` folder.
 
