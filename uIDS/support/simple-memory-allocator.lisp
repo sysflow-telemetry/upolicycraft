@@ -47,7 +47,7 @@
 
 (defun malloc (n)
   "allocates a memory region of size N"
-  (declare (external "malloc"))
+  (declare (external "malloc" "ap_malloc"))
   (if (= n 0) *malloc-zero-sentinel*
     (if (malloc-will-reach-limit n) 0
       (let ((header-size (/ (word-width) 8))
@@ -104,7 +104,7 @@
 
 (defun calloc (n s)
   "allocates memory and initializes it with zero"
-  (declare (external "calloc"))
+  (declare (external "calloc" "ap_calloc"))
   ;; (uids-ocaml-debug n)
   (let ((m (* n s))
         (p (malloc m)))

@@ -188,6 +188,11 @@ long          lrand48(void);
 void         *malloc(size_t size)
     __attribute__((malloc, warn_unused_result, alloc_size(1)));
 
+void         *ap_malloc(size_t size)
+    __attribute__((malloc, warn_unused_result, alloc_size(1)));
+
+void         *ap_calloc(size_t nmemb, size_t size)   __attribute__((malloc, warn_unused_result, alloc_size(1,2)));
+
 int           posix_memalign(void **memptr, size_t alignment, size_t size);
 
 int           mblen(const char *, size_t);
@@ -492,6 +497,8 @@ int     socketpair(int domain, int type, int protocol, int fds[2])
     __attribute__((warn_unused_result));
 
 int inet_aton(const char *cp, unsigned long *inp);
+
+char *inet_ntoa(void *in);
 
 // unistd.h
 typedef int uid_t;
