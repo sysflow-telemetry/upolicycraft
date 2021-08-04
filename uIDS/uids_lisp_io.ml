@@ -85,6 +85,10 @@ let init redirs = {
   cwd = "/";
 }
 
+(** Some binaries erroneously build paths with extra slashes. *)
+let sanitize_path path =
+    String.substr_replace_all path ~pattern:"//" ~with_:"/"
+
 let try_open path = Or_error.try_with (fun () -> {
       input = Some (In_channel.create path);
       output = Some (Out_channel.create ~append:true path)
@@ -153,14 +157,15 @@ module Lib(Machine : Primus.Machine.S) = struct
 
     let find_path state path =
       let {redirections;cwd} = state in
-      let () = info "Finding path %s in %s" path cwd in
-      let opt = Map.find redirections path in
+      let path' = sanitize_path path in
+      let () = info "Finding path %s in %s" path' cwd in
+      let opt = Map.find redirections path' in
       match opt with
         None ->
-        let path' = cwd ^ path in
-        let opt = Map.find redirections path' in
-        (path', opt)
-      | _ -> (path, opt)
+        let path'' = cwd ^ path' in
+        let opt = Map.find redirections path'' in
+        (path'', opt)
+      | _ -> (path', opt)
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
@@ -226,6 +231,7 @@ let init redirections =
         None ->
           open_file path
           (**
+          Left over from trying to implement write:
           let mode' = match value_to_int mode with
                         None -> 0
                       | Some m -> m in
