@@ -39,7 +39,7 @@ var Plugin IntrusionDetectionSystem
 // IntrusionDetectionSystem defines a Microservice-Aware Intrusion Detection System (MIDS)
 type IntrusionDetectionSystem struct {
 	stopped bool
-	outCh   chan *engine.Record
+	outChs  []chan *engine.Record
 	new     func(int64) *SecurityAutomaton
 	sas     map[int64]*SecurityAutomaton
 	history []*engine.Record
@@ -81,7 +81,11 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 	logger.Trace.Println("\nStarting Intrusion Detection System")
 	logger.Trace.Println("\nExample channel capacity:", cap(in))
 
-	out := func(r *engine.Record) { ids.outCh <- r }
+	out := func(r *engine.Record) {
+		for _, ch := range ids.outChs {
+			ch <- r
+		}
+	}
 
 	start := time.Now()
 
@@ -108,22 +112,52 @@ func (ids *IntrusionDetectionSystem) Process(ch interface{}, wg *sync.WaitGroup)
 
 // SetOutChan sets the output channel of the plugin.
 func (ids *IntrusionDetectionSystem) SetOutChan(chs []interface{}) {
-	// TODO: support multiple channels
-	ids.outCh = (chs[0].(*engine.RecordChannel)).In
+	for _, ch := range chs {
+		ids.outChs = append(ids.outChs, ch.(*engine.RecordChannel).In)
+	}
+	//ids.outCh = (chs[0].(*engine.Recordhannel)).In
+}
+
+// ChannelsEmpty Are the IDS channels empty?
+func (ids *IntrusionDetectionSystem) ChannelsEmpty() bool {
+	for _, ch := range ids.outChs {
+		if ch != nil {
+			return false
+		}
+	}
+	return true
+}
+
+// BroadcastRecord submits a record to the output channels.
+func (ids *IntrusionDetectionSystem) BroadcastRecord(r *engine.Record) {
+	for _, ch := range ids.outChs {
+		if ch != nil {
+			ch <- r
+		}
+	}
+}
+
+// CloseChannels closes all output channels.
+func (ids *IntrusionDetectionSystem) CloseChannels() {
+	for _, ch := range ids.outChs {
+		if ch != nil {
+			close(ch)
+		}
+	}
 }
 
 // Cleanup tears down plugin resources.
 func (ids *IntrusionDetectionSystem) Cleanup() {
-	out := func(r *engine.Record) { ids.outCh <- r }
+	out := func(r *engine.Record) { ids.BroadcastRecord(r) }
 
-	if ids.outCh != nil && !ids.stopped {
+	if !ids.stopped {
 		logger.Trace.Println("\nCleaning up MIDS")
 		for tid := range ids.sas {
 			logger.Trace.Printf("Cleaning up %d\n", tid)
 			sa := ids.sas[tid]
 			sa.TypeCheckTrace(out)
 		}
-		close(ids.outCh)
+		ids.CloseChannels()
 		ids.stopped = true
 	}
 }
