@@ -14,7 +14,7 @@
       "out": "evt eventchan"
      },
      {
-      "processor": "midsexporter",
+      "processor": "exporter",
       "in": "evt eventchan",
       "export": "terminal",
       "type": "alert",

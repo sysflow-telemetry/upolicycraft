@@ -17,6 +17,7 @@ RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make
 RUN opam config exec -- make install
 RUN opam config exec -- ./bin/build-plugin.sh
+RUN opam config exec -- opam install core core_kernel shexp
 
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
