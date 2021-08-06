@@ -5,4 +5,4 @@ if [ "$#" -ne 2 ]; then
   exit 1
 fi
 
-docker run -w /root/sf-processor/driver --rm -it sysflowtelemetry/mids:latest ./sfprocessor -log trace -config=$1 $2
+docker run -w /root/sf-processor/driver -v /Users/wdblair/work/sf-model/exit-demo21:/demo --rm -it sysflowtelemetry/mids:latest ./sfprocessor -log trace -config=$1 $2
