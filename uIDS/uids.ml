@@ -1,3 +1,9 @@
+(**
+  Copyright (C) 2021 IBM Corporation.
+
+  Authors:
+  William Blair <wdblair@ibm.com>
+*)
 open Core_kernel
 open Bap.Std
 open Bap_primus.Std

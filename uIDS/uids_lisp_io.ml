@@ -1,3 +1,11 @@
+(**
+  Copyright (C) 2021 Carnegie Mellon University
+                     IBM Corporation.
+
+  Authors:
+  William Blair <wdblair@ibm.com>
+  Ivan Gotovchits <ivg@ieee.org>
+*)
 open Core_kernel
 open Bap.Std
 open Bap_primus.Std

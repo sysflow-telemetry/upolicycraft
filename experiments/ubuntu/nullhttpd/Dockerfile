@@ -13,6 +13,8 @@ FROM ubuntu:16.04
 
 COPY --from=build /nullhttpd/nullhttpd /bin/nullhttpd
 COPY html /var/www/html
+RUN touch /var/www/nullhttpd.pid
+RUN chmod 777 /var/www/nullhttpd.pid
 COPY nullhttpd.sh /nullhttpd.sh
 
 CMD ["/nullhttpd.sh"]

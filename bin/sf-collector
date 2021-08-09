@@ -21,7 +21,7 @@ docker run -it --privileged --name sf-collector \
          -v /home/wdblair/:/host/  \
          -e INTERVAL=10                              \
          -e EXPORTER_ID=${HOSTNAME}                  \
-         -e SOCK_FILE=/host/sock  \
+         -e OUTPUT=/mnt/data/                        \
          -e FILTER="container.name = $1" \
          --rm sysflowtelemetry/sf-collector:0.2.2
 
