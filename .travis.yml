@@ -26,6 +26,7 @@ script:
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/numbers _start "/numbers" /bin/bash /tests/numbers.sh greedy "%000000" 1000000
  -  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/ctype _start "/ctype" /bin/bash /tests/ctype.sh greedy "%000000" 1000000
  - ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/benign/
+ - ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/malicious/
  - ./bin/mids ../plugins/mids/resources/pipelines/cron.json ../plugins/mids/resources/traces/cron/benign/
  - ./bin/mids ../plugins/mids/resources/pipelines/vsftpd.json ../plugins/mids/resources/traces/vsftpd/benign/
  #- ./bin/mrm ../plugins/mrm/resources/pipelines/cadet.json ../plugins/mrm/resources/traces/cgc/challenges/CADET_00001/benign/
