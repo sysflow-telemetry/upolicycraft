@@ -560,9 +560,6 @@ func (s *SecurityAutomaton) AddObservation(r *engine.Record) {
 // to the program's execution.
 func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 	logger.Trace.Printf("\nTypeChecking Trace! TID = %d\n", s.TID)
-
-	//abilities := make(map[string][]Observation)
-
 	// Debugging
 	logger.Trace.Printf("\nObserved the following capabilities:\nTID: %d", s.TID)
 
