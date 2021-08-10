@@ -28,9 +28,6 @@ FROM build AS dev
 RUN sudo apt-get -y update
 RUN sudo apt-get -y install vim xinetd graphviz
 RUN pip install defusedxml
-RUN ln -s /uIDS /home/opam/MRM
 RUN touch /tmp/srv.log
-
-COPY ./experiments/ubuntu/cgc/xinetd.d/cgc-model /etc/xinetd.d/cgc
 
 ENTRYPOINT ["/usr/bin/env", "bash"]

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+docker run -it -v $PWD/output:/tmp/ --entrypoint /uIDS/tests/nullhttpd/model.sh -w /uIDS/uIDS sysflowtelemetry/uids:demo21
+docker run -v $PWD/output:/host --rm -it --entrypoint /uIDS/bin/tweak-dot sysflowtelemetry/uids:demo21 /host/output.dot
+docker run -v $PWD/output:/host --rm -it --entrypoint dot sysflowtelemetry/uids:demo21 -Tpdf /host/output.dot -o /host/output.pdf

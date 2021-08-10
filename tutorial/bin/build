@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker build -f ../docker/Dockerfile -t sysflowtelemetry/uids:demo21 ../
+docker build -f ../docker/Dockerfile.plugins -t sysflowtelemetry/mids:demo21 ../

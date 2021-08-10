@@ -1,0 +1,3 @@
+#!/usr/bin/env bash 
+
+./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/malicious/ | grep --color -4 Security
