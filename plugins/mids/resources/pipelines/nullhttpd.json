@@ -17,15 +17,7 @@
       "processor": "exporter",
       "in": "evt eventchan",
       "export": "terminal",
-      "type": "alert",
-      "format": "json",
-      "flat": "false",
-      "path": "./export.out",
-      "proto": "tcp",
-      "tag": "sysflow",
-      "host": "localhost",
-      "port": "514",
-      "buffer": "0"
+      "format": "json"
      }
   ]
 }

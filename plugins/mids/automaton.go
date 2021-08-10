@@ -653,6 +653,7 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 					path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 					logger.Trace.Printf("\nFF:\n\t%s: ", path)
 				}
+				s.ReportIncident(op, r, out)
 			} else {
 				logger.Trace.Printf("\nSaw:%s", op)
 			}
