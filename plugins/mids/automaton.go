@@ -492,8 +492,6 @@ func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out f
 		Enabled:  true,
 	}
 	r.Ctx.AddRule(rule)
-	//ctx := MRMContext(r.Ctx)
-	//ctx.AddIncident(Incident{s.FSM.Current(), msg})
 	out(r)
 }
 
