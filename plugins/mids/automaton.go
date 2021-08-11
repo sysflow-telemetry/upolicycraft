@@ -651,12 +651,17 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 		}
 	}
 
+	// Assumption: I can uniquely identify a SysFlow Record by its timestamp.
+	var offendingRecords []*engine.Record
+	offenses := make(map[string][]string)
+
 	for op, obs := range s.Capabilities {
 		for _, ob := range obs {
 			if !ob.Used {
 				logger.Trace.Printf("\nSecurity Violation! Did not see:\n\t%s", op)
 				r := ob.Record
 				ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
+				ts := engine.Mapper.MapStr(engine.SF_TS)(r)
 
 				switch ty {
 				case sfgo.TyPEStr:
@@ -671,11 +676,23 @@ func (s *SecurityAutomaton) TypeCheckTrace(out func(r *engine.Record)) {
 					path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
 					logger.Trace.Printf("\nFF:\n\t%s: ", path)
 				}
-				s.ReportIncident(op, r, out)
+
+				if offenses[ts] == nil {
+					offendingRecords = append(offendingRecords, r)
+				}
+
+				offenses[ts] = append(offenses[ts], op)
 			} else {
 				logger.Trace.Printf("\nSaw:%s", op)
 			}
 		}
+	}
+
+	for _, r := range offendingRecords {
+		ts := engine.Mapper.MapStr(engine.SF_TS)(r)
+		ops := offenses[ts]
+		op := strings.Join(ops, " ")
+		s.ReportIncident(op, r, out)
 	}
 }
 
