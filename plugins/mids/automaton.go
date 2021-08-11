@@ -465,10 +465,33 @@ func (s *SecurityAutomaton) IsActive() bool {
 
 // ReportIncident submits an incident to the output Channel.
 func (s *SecurityAutomaton) ReportIncident(event string, r *engine.Record, out func(r *engine.Record)) {
+
+	ty := engine.Mapper.MapStr(engine.SF_TYPE)(r)
 	// Submit an error to the out-channel.
 	logger.Trace.Println("\n\tSecurity Violation submitting to out channel!")
-	msg := fmt.Sprintf("Static model forbids %s from this state.", event)
-	r.Ctx.SetTags([]string{msg})
+
+	var msg string
+
+	switch ty {
+	case sfgo.TyNFStr:
+		fallthrough
+	case sfgo.TyPEStr:
+		msg = fmt.Sprintf("Static model forbids %s from this state", event)
+	case sfgo.TyFEStr:
+		fallthrough
+	case sfgo.TyFFStr:
+		path := engine.Mapper.MapStr(engine.SF_FILE_PATH)(r)
+		msg = fmt.Sprintf("Static model forbids %s on %s", event, path)
+	}
+
+	rule := engine.Rule{
+		Name:     "uIDS Safety Policy",
+		Desc:     "A policy deviation has been detected",
+		Tags:     []engine.EnrichmentTag{msg},
+		Priority: engine.High,
+		Enabled:  true,
+	}
+	r.Ctx.AddRule(rule)
 	//ctx := MRMContext(r.Ctx)
 	//ctx.AddIncident(Incident{s.FSM.Current(), msg})
 	out(r)
