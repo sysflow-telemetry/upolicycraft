@@ -17,4 +17,3 @@ suitable binary for modeling, a micro execution framework for producing effect
 graphs for a container's binary, and the microservice-aware intrusion detection
 system (MIDS) for enforcing these effect graphs over lightweight container
 telemetry provided by SysFlow.
-
