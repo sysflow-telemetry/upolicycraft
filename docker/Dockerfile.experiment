@@ -1,0 +1,32 @@
+FROM binaryanalysisplatform/bap@sha256:6363cbd5ec11d7b66741e7b73c40e55bf2d4c8b4a9f367ea9555b31f532ebdb2
+
+USER root
+
+RUN apt update
+RUN apt -y install build-essential vim python python-pip llvm llvm-dev
+
+ENV LLVM_PROFILE_FILE="/tmp/output.profraw"
+ENV LLVM_DATA_FILE="/tmp/output.profdata"
+
+COPY build /build
+
+ENV PATH=/build/bin:$PATH
+
+USER opam
+
+RUN pip install wllvm
+
+RUN opam config exec -- opam install core core_kernel shexp yojson camlp4
+
+COPY --chown=opam . /uIDS
+
+WORKDIR /uIDS/uIDS
+
+RUN opam config exec -- oasis setup -setup-update dynamic
+RUN opam config exec -- make
+RUN opam config exec -- make install
+RUN opam config exec -- ./bin/build-plugin.sh
+
+ENV PATH="/uIDS/uIDS/bin/:${PATH}"
+
+ENTRYPOINT ["/bin/bash"]
