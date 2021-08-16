@@ -16,7 +16,7 @@ RUN cp /uIDS/uIDS/support/stdio.lisp /home/opam/.opam/4.09/share/primus/site-lis
 RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make
 RUN opam config exec -- make install
-RUN opam config exec -- ./bin/build-plugin.sh
+RUN opam config exec -- ./bin/build-plugin
 RUN opam config exec -- opam install core core_kernel shexp
 
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
@@ -25,8 +25,8 @@ ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/run"]
 
 FROM build AS dev
 
-RUN sudo apt-get -y update
-RUN sudo apt-get -y install vim xinetd graphviz
+RUN sudo apt -y update
+RUN sudo apt -y install vim xinetd graphviz
 RUN pip install defusedxml
 RUN touch /tmp/srv.log
 

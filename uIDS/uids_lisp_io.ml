@@ -1,6 +1,7 @@
 (**
-  Copyright (C) 2021 Carnegie Mellon University
-                     IBM Corporation.
+  Copyright (C) 2021 IBM Corporation
+                     Carnegie Mellon University
+
 
   Authors:
   William Blair <wdblair@ibm.com>
@@ -20,7 +21,7 @@ type channel = {
 type state = {
   redirections : string String.Map.t;
   channels : channel Int.Map.t;
-  directories: Unix.dir_handle Int.Map.t;
+  directories: Caml_unix.dir_handle Int.Map.t;
   files : string Int.Map.t;
   cwd : string;
 }
@@ -177,7 +178,7 @@ module Lib(Machine : Primus.Machine.S) = struct
 
     let trap_memory_write access =
       Machine.catch access (function exn ->
-          (** let () = info "Error reading memory!" in
+          (* let () = info "Error reading memory!" in
           let msg = Primus.Exn.to_string exn in
           let () = info "    %s" msg in *)
           Machine.return())
@@ -238,12 +239,12 @@ let init redirections =
       match opt with
         None ->
           open_file path
-          (**
+          (*
           Left over from trying to implement write:
           let mode' = match value_to_int mode with
                         None -> 0
                       | Some m -> m in
-          (** Check if we need to create the file. *)
+          (* Check if we need to create the file. *)
           if phys_equal (mode' land create_mode) 0 then
             Machine.Local.update state ~f:(fun state ->
               let {redirections;cwd} = state in
@@ -275,7 +276,7 @@ let init redirections =
     [@@@warning "-P"]
 
     let run [] =
-       (** TODO: May want to make a new pipe for each file. *)
+       (* TODO: May want to make a new pipe for each file. *)
        let () = info "Opening pipe!" in
          open_file "/tmp/pipe"
   end in
@@ -294,7 +295,7 @@ let init redirections =
         None -> zero
       | Some hostfile ->
         let () = info "Calling opendir %s" hostfile in
-        let dir = Unix.opendir hostfile in
+        let dir = Caml_unix.opendir hostfile in
         let fd = next_fd s.files in
         Machine.Local.put state {
            s with
@@ -327,7 +328,7 @@ let init redirections =
             None -> zero
           | Some dir ->
             try
-              let file = Unix.readdir dir in
+              let file = Caml_unix.readdir dir in
               let dirent' = (Value.to_word dirent) in
               let dname_offset = 0x13 in
               (Value.of_word (Bitvector.add dirent' (Bitvector.of_int 8 dname_offset))) >>= fun dname ->
@@ -562,7 +563,7 @@ let init redirections =
           {|(uids-ocaml-opendir) opens a directory for reading..|};
         def "uids-ocaml-readdir" (tuple [a; b] @-> c) (module ReadDir)
           {|(uids-ocaml-readdir) reads the next entry for a directory..|};
-        (** def "uids-ocaml-readdir" (tuple [a] @-> b) (module Readdir)
+        (* def "uids-ocaml-readdir" (tuple [a] @-> b) (module Readdir)
           {|(uids-ocaml-readdir) reads a dirent ..|}; *)
       ]
   end in
