@@ -2705,7 +2705,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
 end
 
 let desc =
-  "The uIDS modeler will attempt to approximate the behavior of a binary \
+  "uIDS models the behavior of a binary \
    based on\n\
   \   the system calls found within it."
 

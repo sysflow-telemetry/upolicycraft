@@ -29,4 +29,6 @@ RUN opam config exec -- ./bin/build-plugin.sh
 
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
-ENTRYPOINT ["/bin/bash"]
+RUN touch /tmp/srv.log
+
+ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/uIDS"]
