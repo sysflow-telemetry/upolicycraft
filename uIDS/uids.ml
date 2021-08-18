@@ -1244,7 +1244,7 @@ end
 let out = std_formatter
 
 module Monitor (Machine : Primus.Machine.S) = struct
-  include Pre (Machine)
+  include Pre(Machine)
   module Eval = Primus.Interpreter.Make (Machine)
 
   (**
@@ -1390,6 +1390,9 @@ module Monitor (Machine : Primus.Machine.S) = struct
         add_operation tid op state' io_state )
 
   let record_function tid func =
+    (**
+    let () = info "Recording function %s" func in
+    *)
     Machine.Local.get lisp_io_state
     >>= fun io_state ->
     match func with
@@ -2706,16 +2709,14 @@ end
 
 let desc =
   "uIDS models the behavior of a binary \
-   based on\n\
-  \   the system calls found within it."
+   based on the system calls it issues."
 
 let main {Config.get= ( ! )} =
   let open Param in
   if !model then (Channels.init !redirects ;
-  (Primus.Machine.add_component (module Monitor) [@warning "-D"]) ;
-  Primus.Components.register_generic "uids"
+  Primus.Components.register_generic "modeler"
     (module Monitor)
-    ~package:"bap"
-    ~desc:("Runs the uIDS modeler. " ^ desc))
+    ~package:"uids"
+    ~desc:("Compute a binary program's effect graph for uIDS." ^ desc))
 
 let () = Config.when_ready (fun conf -> main conf)

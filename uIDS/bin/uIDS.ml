@@ -20,9 +20,8 @@ module List' = Core_kernel.List
 exception InvalidArgument of string
 
 module Modes = struct
-  let greedy = "--primus-greedy-scheduler"
-
-  let promiscuous = "--primus-promiscuous-mode"
+  let greedy = "--run-systems=uids:microexecutor-base"
+  let promiscuous = "--run-systems=uids:promiscuous-executor"
 
   let inetd = "--primus-uids-inetd-startup"
 end

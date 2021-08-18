@@ -563,11 +563,8 @@ let init redirections =
           {|(uids-ocaml-opendir) opens a directory for reading..|};
         def "uids-ocaml-readdir" (tuple [a; b] @-> c) (module ReadDir)
           {|(uids-ocaml-readdir) reads the next entry for a directory..|};
-        (* def "uids-ocaml-readdir" (tuple [a] @-> b) (module Readdir)
-          {|(uids-ocaml-readdir) reads a dirent ..|}; *)
       ]
   end in
-  Primus.Machine.add_component (module Primitives) [@warning "-D"];
-  Primus.Components.register_generic "uids-lisp-basic-io" (module Primitives)
-    ~package:"bap"
-    ~desc:"Provides basic IO primitives to Primus Lisp for uIDS."
+  Primus.Components.register_generic "lisp-basic-io" (module Primitives)
+    ~package:"uids"
+    ~desc:"Provides basic IO primitives to Primus Lisp tailored for uIDS."
