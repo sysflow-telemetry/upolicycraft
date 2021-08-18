@@ -12,6 +12,12 @@ COPY build /build
 
 ENV PATH=/build/bin:$PATH
 
+WORKDIR /build/uids/
+
+RUN make
+
+ENV LD_LIBRARY_PATH=/build/uids/uids.so
+
 USER opam
 
 RUN pip install wllvm
