@@ -5,6 +5,7 @@ COPY --chown=opam . /uIDS
 
 WORKDIR /uIDS/uIDS
 
+RUN cp /uIDS/uIDS/support/core.asd /home/opam/.opam/4.09/share/bap/primus/systems/core.asd
 RUN cp /uIDS/uIDS/support/posix.h /home/opam/.opam/4.09/share/bap-api/c/posix.h
 RUN cp /uIDS/uIDS/support/ascii.lisp /home/opam/.opam/4.09/share/primus/site-lisp/ascii.lisp
 RUN cp /uIDS/uIDS/support/atoi.lisp /home/opam/.opam/4.09/share/primus/site-lisp/atoi.lisp
