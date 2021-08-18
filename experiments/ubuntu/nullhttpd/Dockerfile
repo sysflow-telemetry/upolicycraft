@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as build
+FROM ubuntu:18.04 as build
 
 RUN apt-get update
 RUN apt-get -y install build-essential
@@ -9,7 +9,7 @@ WORKDIR /nullhttpd
 
 RUN make
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 COPY --from=build /nullhttpd/nullhttpd /bin/nullhttpd
 COPY html /var/www/html
