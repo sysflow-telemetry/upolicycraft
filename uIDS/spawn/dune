@@ -1,0 +1,5 @@
+(executable
+  (name uIDS)
+  (libraries core core_kernel shexp.process yojson)
+  (preprocess (pps ppx_jane)))
+

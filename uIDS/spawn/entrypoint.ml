@@ -1,20 +1,9 @@
-Sys.interactive := false;;
-#use "topfind"
+(**
+  Copyright (C) 2021 IBM Corporation.
 
-(*
-#thread
+  Authors:
+  William Blair <wdblair@ibm.com>
 *)
-
-(*
-#warnings "+a"
-*)
-
-#require "core"
-#require "core_kernel"
-#require "ppx_let"
-#require "shexp.process"
-#require "yojson"
-
 open Core
 open Shexp_process
 open Shexp_process.Infix
@@ -187,7 +176,6 @@ let handle_command binary entrypoint argv container_entrypoint container_argv
   else run "opam" bap_argv'
 
 let main =
-  let open Command.Let_syntax in
   let command =
     Command.basic ~summary:"uIDS Micro-Service Modeler"
       Command.Let_syntax.(
