@@ -5,6 +5,8 @@ USER root
 RUN apt update
 RUN apt -y install build-essential vim python python-pip llvm llvm-dev
 
+RUN cp /uIDS/uIDS/systems/core.asd /home/opam/.opam/4.09/share/bap/primus/systems/core.asd
+
 ENV LLVM_PROFILE_FILE="/tmp/output.profraw"
 ENV LLVM_DATA_FILE="/tmp/output.profdata"
 
