@@ -33,8 +33,16 @@ RUN opam config exec -- make
 RUN opam config exec -- make install
 RUN opam config exec -- ./bin/build-plugin.sh
 
+WORKDIR /uIDS/uIDS/entrypoint
+
+RUN opam config exec -- make
+
+WORKDIR /uIDS/uIDS/
+
+RUN cp /uIDS/uIDS/entrypoint/uIDS /uIDS/uIDS/bin/uIDS
+
 ENV PATH="/uIDS/uIDS/bin/:${PATH}"
 
 RUN touch /tmp/srv.log
 
-ENTRYPOINT ["opam", "config", "exec", "--", "/uIDS/uIDS/bin/uIDS"]
+ENTRYPOINT ["/uIDS/uIDS/bin/uIDS"]

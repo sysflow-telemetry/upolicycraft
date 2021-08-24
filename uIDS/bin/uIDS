@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-opam config exec -- ocaml /uIDS/uIDS/bin/uIDS.ml $@
