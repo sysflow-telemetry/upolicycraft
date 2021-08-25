@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-docker run --rm -it -v $PWD/images:/home/opam/images sysflowtelemetry/uids-util $@ 

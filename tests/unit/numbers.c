@@ -3,26 +3,18 @@
 
 #include <assert.h>
 
-void itoa1(char *buf, int n);
-
 int main(int argc, char *argv[]) {
-   int x = atoi("10");
-   assert(x == 10);
+  int x = atoi("10");
 
-   long s = strtol("80", NULL, 10);
-   assert(s == 80);
+  if (x != 10) {
+    puts("atoi broken!");
+  }
 
-   /**
+  long s = strtol("80", NULL, 10);
 
-   char buf[16] = "net00";
-
-   // itoa1(buf+3, 10);
-
-   printf("%s\n", buf);
-
-   if (buf[3] != '1' && buf[4] != '0') {
-      puts("ERROR!");
-   } */
+  if (s != 80) {
+    puts("strtol broken!");
+  }
 
    puts("All systems go!\n");
 }

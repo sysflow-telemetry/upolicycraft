@@ -7,16 +7,16 @@ with open("activity.log", "r") as f:
     for line in f.readlines():
         parts = line.split()
         time = float(parts[0])
-        cpu = float(parts[1]) 
+        cpu = float(parts[1])
         mem_real = float(parts[2])
         if time < 14.358 or time > 45.0:
             continue
-         
+
         log["times"].append(time)
         log["cpu"].append(cpu)
         log["mem_real"].append(mem_real)
 
-# Elapsed time   CPU (%)     Real (MB)   Virtual (MB) 
+# Elapsed time   CPU (%)     Real (MB)   Virtual (MB)
 # 14.358 - 45.706
 
 with plt.rc_context({'backend': 'Agg'}):

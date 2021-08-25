@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-if [ "$#" -ne 2 ]; then
-  echo "usage: $0 container-name chall"
-  exit 1
-fi
-
-docker cp $1:/cgc/challenges/$2/$2 tests/cgc/$2

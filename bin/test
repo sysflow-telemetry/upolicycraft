@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-docker run --entrypoint /bin/bash --rm -it sysflowtelemetry/uids:latest
