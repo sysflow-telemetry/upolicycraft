@@ -11,7 +11,7 @@ void check_ctype() {
     puts("Check ctype properties!");
 
     if (isalnum(0x61)) {
-       puts("Success!"); 
+       puts("Success!");
     } else {
        puts("Failure!");
     }
@@ -43,13 +43,13 @@ void check_ctype() {
     if (isprint(0x1e)) {
       puts("Failure!");
     } else {
-      puts("Success!"); 
+      puts("Success!");
     }
 
     if (isprint(0x61)) {
       puts("Success!");
     } else {
-      puts("Failure!"); 
+      puts("Failure!");
     }
 
     if (tolower(0x41) == 0x61) {
@@ -63,7 +63,7 @@ void check_ctype() {
 int main(int argc, char *argv[]) {
     /**
     if (isalpha(0x28)) {
-        puts("Success!"); 
+        puts("Success!");
     } else {
         puts("Failure!");
     } */
@@ -75,6 +75,7 @@ int main(int argc, char *argv[]) {
     uids_debug(&q[0x61]);
     uids_debug(q[0x61]);
 
+    /*
     printf("0x%x\n", q[0x61]);
 
     if (isalpha(0x47)) {
@@ -89,14 +90,15 @@ int main(int argc, char *argv[]) {
        exit(1);
     } else {
        puts("Success!");
-    }    
-
-    if (isalpha(0x61)) {
-       puts("Success!"); 
-    } else {
-       puts("Failure!");
     }
 
+    if (isalpha(0x61)) {
+       puts("Success!");
+    } else {
+       puts("Failure!");
+    } */
+
+    /*
     check_ctype();
 
     if (toupper('y') == 'Y') {
@@ -104,9 +106,12 @@ int main(int argc, char *argv[]) {
     } else {
        puts("Failure!");
     }
+    */
 
+    /**
     int32_t **tl = __ctype_tolower_loc();
     uids_log("Checking ctypetolower_loc:");
-    uids_debug(&tl[0x41]); 
+    uids_debug(&tl[0x41]);
     uids_debug(tl[0x41]);
+    */
 }

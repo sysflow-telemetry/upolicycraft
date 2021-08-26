@@ -72,7 +72,7 @@
                 (set mask (logor mask 0x800)))
               (when (ascii-is-alphanum j)
                 (set mask (logor mask 0x8)))
-              (when (ascii-whitespace j)
+              (when (ascii-is-whitespace j)
                 (set mask (logor mask 0x2000)))
               (when (ascii-is-print j)
                 (set mask (logor mask 0x4000)))

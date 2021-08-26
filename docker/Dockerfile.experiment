@@ -24,6 +24,7 @@ RUN pip install wllvm
 
 RUN opam config exec -- opam install core core_kernel shexp yojson camlp4
 
+COPY --chown=opam uIDS/abi/posix.h ~/.opam/4.09/share/bap/api/c/posix.h
 COPY --chown=opam uIDS/site-lisp ~/.opam/4.09/share/bap/primus/site-lisp
 COPY --chown=opam uIDS/systems/core.asd /home/opam/.opam/4.09/share/bap/primus/systems/core.asd
 COPY --chown=opam . /uIDS
