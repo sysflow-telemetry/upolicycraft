@@ -31,6 +31,15 @@ COPY --chown=opam . /uIDS
 
 WORKDIR /uIDS/uIDS
 
+# Set up the environment
+
+ENV CAML_LD_LIBRARY_PATH=/home/opam/.opam/4.09/lib/stublibs:/home/opam/.opam/4.09/lib/ocaml/stublibs:/home/opam/.opam/4.09/lib/ocaml
+ENV OCAML_TOPLEVEL_PATH=/home/opam/.opam/4.09/lib/toplevel
+ENV OPAMYES=1
+ENV OPAM_SWITCH_PREFIX=/home/opam/.opam/4.09
+ENV PATH=/home/opam/.opam/4.09/bin:/home/opam/.opam/4.09/bin:/uIDS/uIDS/bin/:/build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PKG_CONFIG_PATH=/home/opam/.opam/4.09/lib/pkgconfig
+
 RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make
 RUN opam config exec -- make install

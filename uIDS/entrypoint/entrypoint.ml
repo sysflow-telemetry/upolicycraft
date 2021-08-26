@@ -149,12 +149,8 @@ let handle_command binary entrypoint argv container_entrypoint container_argv
   let uids_redirects =
     Printf.sprintf "--primus-uids-redirect=%s" redirections'''
   in
-  let bap_argv =
-    [ "config"
-    ; "exec"
-    ; "--"
-    ; "bap"
-    ; binary
+  let bap_argv = [
+    binary
     ; "-prun"
     ; entrypoints'
     ; argv'
@@ -172,8 +168,8 @@ let handle_command binary entrypoint argv container_entrypoint container_argv
     |> add_report_progress reportprogress
   in
   if verbose then
-    printf "%s" (String.concat ~sep:" " bap_argv') >> run "opam" bap_argv'
-  else run "opam" bap_argv'
+    printf "%s" (String.concat ~sep:" " bap_argv') >> run "bap" bap_argv'
+  else run "bap" bap_argv'
 
 let main =
   let command =
