@@ -18,7 +18,7 @@ script:
  - docker run -v $PWD/tests/unit:/unit/ sysflowtelemetry/uids:latest /unit/env      _start "/env" /bin/bash /tests/env.sh  10000000 -redirects "srv:/tmp/srv.log" -m greedy
  - docker run -v $PWD/tests/unit:/unit/ sysflowtelemetry/uids:latest /unit/fds      _start "/fds" /bin/bash /tests/fds.sh  10000000 -redirects "srv:/tmp/srv.log,/root/test.log:/uIDS/tests/input/test.log" -m greedy
  - docker run -v $PWD/tests/unit:/unit/ sysflowtelemetry/uids:latest /unit/str      _start "/str" /bin/bash /str.sh        10000000 -redirects "srv:/tmp/srv.log" -m greedy
- - docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /unit/snprintf _start "/snprintf" /bin/bash /tests/snprintf.sh greedy "%000000" 1000000 --primus-uids-redirect="<uids-stdin>:/uIDS/tests/input/snprintf"
+ - docker run -v $PWD/tests/unit:/unit/ sysflowtelemetry/uids:latest /unit/snprintf _start "/snprintf" /bin/bash /tests/snprintf.sh  1000000 -redirects "srv:/tmp/srv.log,<uids-stdin>:/uIDS/tests/input/snprintf" -m greedy
  #-  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/apr _start "/apr" /bin/bash /apr.sh greedy "%00000000" 10000
  #-  docker run -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /tests/cgc/CADET_00001 _start "/cgc/CADET_00001" /bin/bash /cgc/cadet.sh greedy "%00000f29" 10000 --primus-uids-redirect="<uids-stdin>:/uIDS/tests/input/CADET_00001"
  #-  docker run -i -v $PWD/tests/:/tests/ sysflowtelemetry/uids:latest /uIDS/tests/cgc/CROMU_00046 _start "/cgc/CROMU_00046" /bin/bash /cgc/cromu.sh greedy "%000000" 1000000 --primus-uids-redirect="<uids-stdin>:/uIDS/tests/input/CROMU_00046"
