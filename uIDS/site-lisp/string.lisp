@@ -176,7 +176,7 @@
 
 (defun strstr (hay needle)
   (declare (external "strstr"))
-  (find-substring memcmp hay needle))
+  (find-substring strncmp hay needle))
 
 (defun strcasestr (hay needle)
   (declare (external "strcasestr"))
