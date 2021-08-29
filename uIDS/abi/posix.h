@@ -13,7 +13,9 @@ int main(int argc, const char **argv);
 
 // ctype.h
 
-unsigned short ** __ctype_b_loc(void);
+// void ** __ctype_b_loc(void);
+// void **__ctype_tolower_loc();
+// void **__ctype_toupper_loc();
 
 // stdlib.h
 

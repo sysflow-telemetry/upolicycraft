@@ -8,4 +8,6 @@
 (require unistd)
 (require setjmp)
 (require getopt)
+(require uids-ascii)
+(require uids-atoi)
 (require uids-stdlib)

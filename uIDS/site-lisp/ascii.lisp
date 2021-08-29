@@ -17,8 +17,3 @@
     ?- -1
     ?+  1
     0))
-
-(defun ascii-is-alphanum (c)
-  (declare (external "isalnum"))
-  (or (ascii-is-alpha c)
-      (ascii-is-digit c)))

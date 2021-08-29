@@ -32,3 +32,9 @@
 (defun ascii-to-upper (c)
   (declare (external "toupper"))
   (if (ascii-is-lower (cast char c)) (logand c 0x5f) c))
+
+(defun ascii-is-alphanum (c)
+  (declare (external "isalnum"))
+  (uids-ocaml-debug 0xfabc0de)
+  (or (ascii-is-alpha c)
+      (ascii-is-digit c)))

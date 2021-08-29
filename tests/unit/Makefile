@@ -1,7 +1,7 @@
 all: ctype env errno fds memory numbers snprintf sockets str time
 
 %: %.c
-	gcc -fno-stack-protector -o $@ $< -L /build/uids -l:uids.so
+	gcc -fno-stack-protector -fcf-protection=none -o $@ $< -L /build/uids -l:uids.so
 
 .phony: clean
 
