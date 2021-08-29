@@ -13,9 +13,9 @@ int main(int argc, const char **argv);
 
 // ctype.h
 
-// void ** __ctype_b_loc(void);
-// void **__ctype_tolower_loc();
-// void **__ctype_toupper_loc();
+void ** __ctype_b_loc(void);
+void **__ctype_tolower_loc();
+void **__ctype_toupper_loc();
 
 // stdlib.h
 
@@ -167,6 +167,15 @@ int _IO_getc(FILE *stream);
 int _IO_putc(int c, FILE *stream);
 int _IO_puts(const char *s);
 
+// stat.h
+//
+int           fstat64(int fd, void *buf);
+int           __fstat(int fd, void *buf);
+int           stat64(const char *path, void *buf);
+int           stat(const char *pathname, void *buf);
+int           __stat(const char *path, void *buf);
+int           __xstat(int vers, const char *name, void *buf);
+
 // string.h
 
 void    *memccpy(void *restrict dst, const void *restrict src, int stop, size_t max)
@@ -259,6 +268,14 @@ size_t strxfrm(char * restrict dst, const char * restrict src, size_t n)
     __attribute__((nonnull(1,2), warn_unused_result, storage(dst,n), storage(src,n)))
 ;
 
+
+// time.h
+
+int           gettimeofday(void *, void *);
+
+void          *gmtime(void *timep);
+void          *localtime_r(int, void *tm);
+void          *localtime(void *tm);
 
 // unix
 typedef int mode_t;

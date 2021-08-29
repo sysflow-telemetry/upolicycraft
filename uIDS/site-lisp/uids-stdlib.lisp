@@ -18,6 +18,28 @@
 (defparameter *cbloc-toupper* nil
   "the starting address of the cbloc-toupper arena")
 
+(defun getenv (name)
+  "finds a value of an environment variable with the given name"
+  (declare (external "getenv"))
+  (let ((p environ)
+        (n (strlen name))
+        (r (read-word ptr_t p))
+        (result 0))
+    (while (and (> (read-word ptr_t p) 0)
+                (= result 0))
+      (let ((s (read-word ptr_t p))
+            (m (cast ptr_t (min n (strlen s)))))
+        ;; (uids-ocaml-debug 0xfabc0de)
+        ;; (uids-ocaml-debug n)
+        ;; (uids-ocaml-debug (strlen s))
+        (if (not (memcmp s name m))
+             (let ((x 1))
+             ;; (uids-ocaml-debug 0xdeadc0de)
+             (set result (ptr+1 char (strchr s (cast int ?=)))))
+             nil)
+        (set p (ptr+1 ptr_t p))))
+    result))
+
 (defun bzero (p n)
   "zero out a buffer of memory"
   (declare (external "bzero"))

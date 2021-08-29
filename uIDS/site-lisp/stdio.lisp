@@ -6,11 +6,11 @@
 
 (defun fputc (char stream)
   (declare (external "fputc" "putc" "fputs_unlocked putc_unlocked"))
-  (if (= 0 (channel-output stream char)) char -1))
+  (if (= 0 (uids-channel-output stream char)) char -1))
 
 (defun putchar (char)
   (declare (external "putchar" "putchar_unlocked"))
-  (fputc char *standard-output*))
+  (fputc char *uids-standard-output*))
 
 (defun fputs (p stream)
   (declare (external "fputs" "fputs_unlocked"))
@@ -23,7 +23,7 @@
 
 (defun puts (p)
   (declare (external "puts" "puts_unlocked"))
-  (fputs p *standard-output*))
+  (fputs p *uids-standard-output*))
 
 (defun fflush (s)
   (declare (external "fflush" "fflush_unlocked"))
@@ -36,7 +36,7 @@
 ;; ignoring modes, we will add them later, of course.
 (defun fopen (path mode)
   (declare (external "fopen" "open" "fdopen"))
-  (let ((file (channel-open path)))
+  (let ((file (uids-channel-open path mode)))
     (if (< file 0) 0 file)))
 
 (defun fileno (stream)
@@ -48,7 +48,7 @@
   (fopen path mode))
 
 (defun output-item-nth-char (ptr size item fd i)
-  (= 0 (channel-output
+  (= 0 (uids-channel-output
         fd
         (memory-read (+ ptr (* size item) i)))))
 
@@ -62,16 +62,17 @@
 
 (defun fwrite (buf size n stream)
   (declare (external "fwrite" "fwrite_unlocked"))
-  (let ((i 0))
+  (let ((i 0)
+       (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and (< i n)
-                (= size (output-item buf size i stream)))
+                (= size (output-item buf size i stream1)))
       (incr i))
     i))
 
 (defun write (fd buf cnt)
   (declare (external "write"))
   (let ((written (fwrite buf 1 cnt fd))
-        (failure (channel-flush fd)))
+        (failure (uids-channel-flush fd)))
     (or failure written)))
 
 (defun input-item-nth-char (ptr size item desc i)
@@ -91,10 +92,11 @@
 
 (defun fread (ptr size n stream)
   (declare (external "fread" "fread_unlocked"))
-  (let ((i 0))
+  (let ((i 0)
+        (stream1 (uids-ocaml-check-dup2 stream)))
     (while (and
             (< i n)
-            (= size (input-item ptr size i stream)))
+            (= size (input-item ptr size i stream1)))
       (incr i))
     i))
 
@@ -133,8 +135,8 @@
 
 (defun getchar ()
   (declare (external "getchar" "getchar_unlocked"))
-  (fgetc *standard-input*))
+  (fgetc *uids-standard-input*))
 
 (defmethod primus:machine-kill ()
-  (channel-flush *standard-output*)
-  (channel-flush *standard-error*))
+  (channel-flush *uids-standard-output*)
+  (channel-flush *uids-standard-error*))

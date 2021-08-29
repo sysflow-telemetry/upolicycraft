@@ -61,7 +61,7 @@ let init_channels =
       match fd_of_name chan with
       | None -> chans
       | Some fd ->
-        info "redirecting fd %d to %s" fd name;
+        (* info "redirecting fd %d to %s" fd name; *)
         let chan = if fd > 0 then {
             input = None;
             output = Some (Out_channel.create name);
@@ -82,6 +82,7 @@ let init_directories =
 
 let init_redirections =
   List.fold ~init:String.Map.empty ~f:(fun redirs (oldname,newname) ->
+      let () = info "redirecting fd %s:%s" oldname newname in
       match fd_of_name oldname with
         Some _ -> redirs
       | None -> Map.set redirs ~key:oldname ~data:newname)
@@ -94,7 +95,7 @@ let init redirs = {
   cwd = "/";
 }
 
-(** Some binaries erroneously build paths with extra slashes. *)
+(** Some binaries erroneously construct paths with extra slashes. *)
 let sanitize_path path =
     String.substr_replace_all path ~pattern:"//" ~with_:"/"
 

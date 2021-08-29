@@ -6,20 +6,6 @@
 
 (in-package posix)
 
-(defun getenv (name)
-  "finds a value of an environment variable with the given name"
-  (declare (external "getenv"))
-  (let ((p environ)
-        (n (strlen name)))
-    (while (and (not (points-to-null p))
-                (/= (memcmp (read-word ptr_t p) name n) 0))
-      (set p (ptr+1 ptr_t p)))
-    (if (and (not (points-to-null p)) (/= p environ))
-        (let ((p (read-word ptr_t p)))
-          (if (= (memory-read (+ p n)) ?=) (+ p n 1) 0))
-      0)))
-
-
 (defun abort ()
   "terminates program with exit code 1"
   (declare (external "abort"))
