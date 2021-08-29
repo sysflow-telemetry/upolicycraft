@@ -27,7 +27,7 @@
 
 (defun fflush (s)
   (declare (external "fflush" "fflush_unlocked"))
-  (channel-flush s))
+  (uids-channel-flush s))
 
 
 
@@ -107,7 +107,7 @@
 
 (defun fgetc (stream)
   (declare (external "fgetc" "getc" "fgetc_unlocked" "getc_unlocked"))
-  (channel-input stream))
+  (uids-channel-input stream))
 
 (defun terminate-string-and-return-null (ptr)
   (declare (visibility :private))

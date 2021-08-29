@@ -946,7 +946,7 @@ module Snprintf (Machine : Primus.Machine.S) = struct
     in
     Machine.return fmt'
 
-  let run [s; sz; fmt; v] =
+  let run [s; sz; fmt] =
     let open Param in
     let regs = ["RCX"; "R8"; "R9"] in
     let vfmt = Value.to_word fmt in
@@ -2460,7 +2460,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
           (module Sprintf)
           {|(uids-ocaml-snprintf S FMT VAL)  tries to implement snprintf. |}
       ; def "uids-ocaml-snprintf"
-          (tuple [a; b; c; d] @-> bool)
+          (tuple [a; b; c] @-> bool)
           (module Snprintf)
           {|(uids-ocaml-snprintf S SZ FMT VAL)  tries to implement snprintf. |}
       ; def "uids-ocaml-fstat"

@@ -1,3 +1,6 @@
+(require memory)
+(require string)
+
 (in-package posix)
 
 ;; Assumes flags has MSG_PEEK set.
@@ -41,3 +44,14 @@
   (puts fmt)
   (uids-channel-flush *uids-standard-output*)
   0)
+
+(defun snprintf (s sz fmt)
+   (declare (external "snprintf"))
+   (let ((m (malloc sz)))
+     (uids-ocaml-snprintf s sz fmt)
+   0))
+
+(defun sprintf (s fmt)
+   (declare (external "sprintf"))
+   (uids-ocaml-sprintf s fmt)
+   (strlen s))

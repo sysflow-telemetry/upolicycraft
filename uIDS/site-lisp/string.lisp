@@ -62,7 +62,6 @@
       (incr dst))
     found))
 
-
 (defmacro find-character (dir p c n)
   (declare (visibility :private))
   (prog
@@ -124,7 +123,7 @@
   (declare (external "memcmp"))
   (let ((res 0) (i 0))
     (while (and (< i n) (not res))
-      (set res (compare (memory-read p1) (memory-read p2)))
+      (set res (compare (cast int (memory-read p1)) (cast int (memory-read p2))))
       (incr p1 p2 i))
     res))
 
@@ -165,18 +164,19 @@
   (strncasecmp p1 p2 (min (strlen/with-null p1)
                           (strlen/with-null p2))))
 
-
 (defmacro find-substring (compare hay needle)
   (declare (visibility :private))
   (let ((found 0)
         (n (strlen needle)))
     (while (and (memory-read hay) (not found))
-      (set found (not (compare hay needle n)))
-      (incr hay))))
+      (if (not (compare hay needle n))
+        (set found 1)
+        (incr hay)))
+    (if found hay 0)))
 
 (defun strstr (hay needle)
   (declare (external "strstr"))
-  (find-substring strncmp hay needle))
+  (find-substring memcmp hay needle))
 
 (defun strcasestr (hay needle)
   (declare (external "strcasestr"))

@@ -7,6 +7,9 @@ int main(int argc, char *argv[]) {
     fgets(input, 256, stdin);
     fgets(input1, 256, stdin);
 
+    uids_log(input);
+    uids_log(input1);
+
     snprintf(buf, 256, "%s%s", input, input1);
     puts(buf);
 }

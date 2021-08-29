@@ -156,7 +156,7 @@
 
 (defun strstr (hay needle)
   (declare (external "strstr"))
-  (find-substring strncmp hay needle))
+  (find-substring memcmp hay needle))
 
 (defun strsep (strp sep)
   (declare (external "strsep"))

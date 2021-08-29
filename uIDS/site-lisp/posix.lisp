@@ -14,3 +14,4 @@
 (require uids-atoi)
 (require uids-stdlib)
 (require uids-stdio)
+(require uids-string)
