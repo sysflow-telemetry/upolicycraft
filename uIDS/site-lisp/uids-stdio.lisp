@@ -1,7 +1,7 @@
+(in-package posix)
+
 (require memory)
 (require string)
-
-(in-package posix)
 
 ;; Assumes flags has MSG_PEEK set.
 (defun recv (stream ptr n flags)
@@ -55,3 +55,13 @@
    (declare (external "sprintf"))
    (uids-ocaml-sprintf s fmt)
    (strlen s))
+
+(defun uids-scanf (fmt a)
+  (declare (external "__isoc99_scanf"))
+   (let ((x (uids-ocaml-scanf fmt)))
+      (write-word ptr_t a x)
+   0))
+
+(defun ferror (fp)
+    (declare (external "ferror"))
+    0)

@@ -8,14 +8,130 @@ typedef int div_t;
 typedef int ldiv_t;
 typedef int lldiv_t;
 typedef int wchar_t;
+typedef size_t apr_size_t;
+typedef ssize_t apr_ssize_t;
+typedef int apr_status_t;
 
 int main(int argc, const char **argv);
 
-// ctype.h
+// apr.h
+//
+int           apr_app_initialize(int argc, char const *const **argv, char const *const **env);
+int           apr_pool_create_ex(void ** newpool, void* parent, void *abortfn, void *allocator);
+void         *apr_palloc(void *p, apr_size_t size);
+int           apr_generate_random_bytes(unsigned char *buf, apr_size_t length);
+int           apr_random_insecure_ready(void *r);
+char         *apr_pstrdup(void *p, const char* s);
 
-void ** __ctype_b_loc(void);
-void **__ctype_tolower_loc();
-void **__ctype_toupper_loc();
+void         *apr_hash_make(void *p);
+void         *apr_hash_get(void *ht, const void *key, apr_ssize_t klen);
+void          apr_hash_set(void *ht, const void *key, apr_ssize_t klen, const void *val);
+
+
+void         *apr_array_make(void *p, int nelts, int elt_size);
+void         *apr_array_push(void *arr);
+void         *apr_array_pop(void *arr);
+//
+apr_status_t apr_getopt_init(void *os, void *cont, int argc, const char *const argv);
+
+apr_status_t apr_getopt(void *os, const char *opts, char * option_ch, const char **option_arg);
+
+apr_status_t apr_sockaddr_info_get(void **sa,
+                                   const char *hostname,
+                                   int family,
+                                   int port,
+                                   int flags,
+                                   void *p);
+
+apr_status_t apr_file_open(void **newf, const char *fname,
+                           int flag, int perm,
+                           void *pool);
+
+apr_status_t apr_file_info_get(void *finfo,
+                               int wanted,
+                               void *thefile);
+
+apr_status_t apr_file_gets(char *str, int len, void *thefile);
+
+// assert.h
+
+void          __assert_fail(const char * assertion, const char * file, unsigned int line, const char * function);
+
+// cgc.h (For micro-executing CGC challenges)
+
+char          *itoa(unsigned int number);
+void          itoa1(char *buf, int number);
+
+void          terminate(unsigned int status);
+int           transmit(int fd, const void *buf, size_t count, size_t *tx_bytes);
+int           receive(int fd, void *buf, size_t count, size_t *rx_bytes);
+int           fdwait(int nfds, void *readfds, void *writefds,
+                     const struct timeval *timeout, int *readyfds);
+int           allocate(size_t length, int is_X, void **addr);
+int           deallocate(void *addr, size_t length);
+int           print(char *buf);
+int           put(char *buf);
+int           random_cgc(void *buf, size_t count, size_t *rnd_bytes);
+int           receive_until0(char *dest, size_t length, char end);
+int           transmit_all(int fd, const char *buf, const size_t size);
+int           receive_delim(int fd, char *buf, const size_t size, char delim);
+int           receive_until(char *dest, size_t length, char end, size_t *bytes_read);
+int           recvUntil(int fd, char *buf, int max, char delim);
+int           receive_bytes(char *buffer, size_t count);
+
+// dirent.h
+
+void          *opendir(char *name);
+void          *readdir(void *dirp);
+
+// epoll.h
+
+int           epoll_create(int);
+int           epoll_wait(int epfd, void *events, int nevents, int timeout);
+
+// grp.h
+
+void *        getgrnam(const char *name);
+int           initgroups(const char *user, int group);
+
+// inet.h
+
+int           htons(int);
+
+// langinfo.h
+
+char *        nl_langinfo(void *item);
+
+// math.h
+
+double        sqrt(double x);
+double        log(double x);
+double        round(double x);
+double        floor(double x);
+
+// mman.h
+
+int           mprotect(void *addr, size_t len, int prot);
+void          *mmap(void *addr, size_t length, int prot, int flags, int fd, int offset);
+int           munmap(void *addr, size_t length);
+
+// pwd.h
+
+void *        getpwnam(const char *login);
+
+// resource.h
+
+int setrlimit64(int resource, void *rlim);
+
+// stat.h
+
+typedef int   mode_t;
+int           open(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
+int           creat(const char *pathname, mode_t mode) __attribute__((nonnull(1)));
+int           mkdir(const char *pathname, mode_t mode);
+
+int           chmod(const char *pathname, mode_t mode);
+int           fchmod(int fd, mode_t mode);
 
 // stdlib.h
 
@@ -101,9 +217,13 @@ int           unsetenv(const char *name) __attribute__((nonnull(1)));
 size_t        wcstombs(char *, const wchar_t *, size_t);
 int           wctomb(char *, wchar_t);
 
+int           sigfillset(void *set);
+int           sigaction(int signum, void *act, void *oldact);
+
 // stdio.h
 typedef void * FILE;
 
+ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 int printf(const char * restrict format, ...) __attribute__((format(printf,1,2)));
 int fprintf(FILE * restrict stream, const char * restrict format, ...) __attribute__((format(printf,2,3)));
 int sprintf(char * restrict str, const char * restrict format, ...) __attribute__((format(printf,2,3)));
@@ -159,7 +279,8 @@ int fflush(FILE *stream);
 int fflush_unlocked(FILE *stream);
 
 int __isoc99_fscanf (FILE *__restrict __stream, const char *__restrict __format, ...)  __attribute__((warn_unused_result));
-int __isoc99_scanf (const char *__restrict __format, ...)  __attribute__((warn_unused_result));
+// int __isoc99_scanf (const char *__restrict __format, ...)  __attribute__((warn_unused_result));
+int __isoc99_scanf (const char *__restrict __format, void *p) ;
 int __isoc99_sscanf (const char *__restrict __s, const char *__restrict __format, ...)  __attribute__((warn_unused_result));
 
 int _IO_feof(FILE *stream);
@@ -168,7 +289,7 @@ int _IO_putc(int c, FILE *stream);
 int _IO_puts(const char *s);
 
 // stat.h
-//
+
 int           fstat64(int fd, void *buf);
 int           __fstat(int fd, void *buf);
 int           stat64(const char *path, void *buf);
@@ -177,6 +298,15 @@ int           __stat(const char *path, void *buf);
 int           __xstat(int vers, const char *name, void *buf);
 
 // string.h
+
+char *strerror(int errnum);
+
+void bzero(void *s, size_t n);
+
+char *strtok(char *str, const char *delim);
+
+size_t
+strcspn(const char *s, const char *charset);
 
 void    *memccpy(void *restrict dst, const void *restrict src, int stop, size_t max)
     __attribute__((nonnull(1,2), storage(1,4), storage(2,4)));
@@ -277,10 +407,10 @@ void          *gmtime(void *timep);
 void          *localtime_r(int, void *tm);
 void          *localtime(void *tm);
 
-// unix
-typedef int mode_t;
-int open(const char *pathname, int flags, ...) __attribute__((nonnull(1)));
-int creat(const char *pathname, mode_t mode) __attribute__((nonnull(1)));
+// regex
+
+int  regcomp(void  *preg, const char *regex, int cflags);
+int  regexec(void  *preg, const char *string, size_t nmatch, void * pmatch, int eflags);
 
 // socket
 struct sockaddr;
@@ -338,6 +468,11 @@ int     sockatmark(int fd) __attribute__((warn_unused_result));
 int     socket(int domain, int type, int protocol) __attribute__((warn_unused_result));
 int     socketpair(int domain, int type, int protocol, int fds[2])
     __attribute__((warn_unused_result));
+
+int inet_aton(const char *cp, unsigned long *inp);
+
+char *inet_ntoa(void *in);
+
 
 // unistd.h
 typedef int uid_t;
@@ -419,6 +554,8 @@ int          pause(void);
 int          pipe(int [2]) __attribute__((warn_unused_result));
 ssize_t      pread(int fd, void *buf, size_t nbytes, off_t off)
     __attribute__((warn_unused_result));
+ssize_t      pread64(int fd, void *buf, size_t count, size_t offset);
+ssize_t      pwrite64(int fd, void *buf, size_t count, size_t offset);
 ssize_t      pwrite(int fd, const void *buf, size_t nbytes, off_t off)
     __attribute__((warn_unused_result));
 ssize_t      read(int fd, void *buf, size_t nbytes) __attribute__((warn_unused_result));
@@ -478,6 +615,11 @@ void *sbrk(int increment);
 
 
 // ctypes.h
+
+void ** __ctype_b_loc(void);
+void **__ctype_tolower_loc();
+void **__ctype_toupper_loc();
+
 int isalnum(int c);
 int isalpha(int c);
 int iscntrl(int c);

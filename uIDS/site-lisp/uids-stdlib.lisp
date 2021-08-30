@@ -53,22 +53,6 @@
   (declare (external "rand"))
   (uids-ocaml-rand))
 
-(defun sqrt (x)
-  (declare (external "sqrt"))
-  (uids-ocaml-sqrt x))
-
-(defun log (x)
-  (declare (external "log"))
-  (uids-ocaml-log x))
-
-(defun floor (x)
-  (declare (external "floor"))
-  (uids-ocaml-floor x))
-
-(defun round (x)
-  (declare (external "round"))
-  (uids-ocaml-round x))
-
 (defun uids-ascii-is-alpha (c)
   (or (and (>= c 0x41) (<= c 0x5a)) (and (>= c 0x61) (<= c 0x7a))))
 

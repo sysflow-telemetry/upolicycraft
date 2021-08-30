@@ -26,3 +26,11 @@
       (let ()
         (uids-channel-close fd)
         0))))
+
+(defun uids-fchmod (fd mode)
+  (declare (external "fchmod"))
+  0)
+
+(defun uids-mkdir (path mode)
+  (declare (external "mkdir"))
+  0)

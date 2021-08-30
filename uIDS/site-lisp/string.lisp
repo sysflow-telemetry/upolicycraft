@@ -169,6 +169,7 @@
   (let ((found 0)
         (n (strlen needle)))
     (while (and (memory-read hay) (not found))
+      (uids-ocaml-debug hay)
       (if (not (compare hay needle n))
         (set found 1)
         (incr hay)))
