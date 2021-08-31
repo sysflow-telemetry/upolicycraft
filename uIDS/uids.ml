@@ -1118,7 +1118,8 @@ module UidsSqrt (Machine : Primus.Machine.S) = struct
 
   let run [x] =
     let x' =
-      x |> Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits
+      x |>
+      Value.to_word |> Bitvector.to_int64_exn |> Int64.float_of_bits
     in
     Value.of_word (word_of_float (sqrt x'))
 end
