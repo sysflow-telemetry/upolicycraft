@@ -1,5 +1,32 @@
-(require types)
 (in-package posix)
+
+(require types)
+
+(defun reverse-string (start end)
+  (let ((p start)
+        (q end))
+     (while (< p q)
+       (let ((r (memory-read p)))
+         (memory-write p (memory-read q))
+         (memory-write q r)
+         (incr p)
+         (decr q)))))
+
+(defun uids-itoa (buf n)
+  (let ((started false)
+        (begin buf))
+    (while (or (> n 0) (not started))
+      (set started true)
+      (let ((digit (mod n 10)))
+        ;; (uids-ocaml-debug digit)
+        (write-word char buf (+ (cast char digit) ?0))
+        (set n (/ n 10))
+        (incr buf)))
+  (write-word char buf 0x0)
+  (reverse-string begin (- buf 1))))
+
+(defparameter *network-test-case* 0
+  "The current test case")
 
 (defmacro open-socket-fd ()
     (let ((fname (malloc 16)))
@@ -12,7 +39,7 @@
       ;; (puts fname)
       (let ((fd (uids-channel-open-network fname)))
         (uids-ocaml-add-socket fd)
-        fd))
+        fd)))
 
 (defun socketpair (domain type protocol socket-vector)
   (declare (external "socketpair"))
@@ -23,6 +50,7 @@
 
 (defun uids-socket (domain tp protocol)
   (declare (external "socket"))
+  (uids-ocaml-debug 0xfeebc0de)
   (open-socket-fd))
 
 (defun uids-accept (sock addr addrlen)

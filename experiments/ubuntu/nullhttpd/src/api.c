@@ -32,12 +32,12 @@
 #if defined(_WIN32)
 #include <winsock2.h>
 #else
-#include <unistd.h> 
+#include <unistd.h>
 #include <sys/file.h>
-#include <netinet/in.h> 
-#include <arpa/inet.h> 
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
-#include <sys/socket.h> 
+#include <sys/socket.h>
 #include <netdb.h>
 #endif
 
@@ -73,8 +73,8 @@ char *httpdRequestMethodName(request *r)
     {
     case HTTP_GET: return("GET");
     case HTTP_POST: return("POST");
-    default: 
-      snprintf(tmpBuf,255,"Invalid method '%d'", 
+    default:
+      snprintf(tmpBuf,255,"Invalid method '%d'",
 	       r->request.method);
       return(tmpBuf);
     }
@@ -216,7 +216,7 @@ httpd *httpdCreate(host, port)
   ** Setup the socket
   */
 #ifdef _WIN32
-  { 
+  {
     WORD 	wVersionRequested;
     WSADATA wsaData;
     int 	err;
@@ -224,23 +224,23 @@ httpd *httpdCreate(host, port)
     wVersionRequested = MAKEWORD( 2, 2 );
 
     err = WSAStartup( wVersionRequested, &wsaData );
-	
+
     /* Found a usable winsock dll? */
-    if( err != 0 ) 
+    if( err != 0 )
       return NULL;
 
-    /* 
+    /*
     ** Confirm that the WinSock DLL supports 2.2.
-    ** Note that if the DLL supports versions greater 
+    ** Note that if the DLL supports versions greater
     ** than 2.2 in addition to 2.2, it will still return
     ** 2.2 in wVersion since that is the version we
     ** requested.
     */
 
-    if( LOBYTE( wsaData.wVersion ) != 2 || 
+    if( LOBYTE( wsaData.wVersion ) != 2 ||
 	HIBYTE( wsaData.wVersion ) != 2 ) {
 
-      /* 
+      /*
       ** Tell the user that we could not find a usable
       ** WinSock DLL.
       */
@@ -315,10 +315,12 @@ request *httpdGetConnection(server, timeout)
   while(result == 0)    {
     result = select(server->serverSock + 1, &fds, 0, 0, timeout);
     if (result < 0)	{
+      uids_log("Select invalid!");
       server->lastError = -1;
       return(NULL);
     }
     if (timeout != 0 && result == 0)	{
+      uids_log("Other error!");
       server->lastError = 0;
       return(NULL);
     }
@@ -384,7 +386,7 @@ int httpdReadRequest(httpd *server, request *r)
   ** Setup for a standard response
   */
   strcpy(r->response.headers,
-	 "Server: Hughes Technologies Embedded Server\n"); 
+	 "Server: Hughes Technologies Embedded Server\n");
   strcpy(r->response.contentType, "text/html");
   strcpy(r->response.response, "200 Output Follows\n");
   r->response.headersSent = 0;
@@ -423,9 +425,9 @@ int httpdReadRequest(httpd *server, request *r)
 	      _httpd_net_write( r->clientSock,
 				HTTP_METHOD_ERROR,
 				strlen(HTTP_METHOD_ERROR));
-	      _httpd_net_write( r->clientSock, cp, 
+	      _httpd_net_write( r->clientSock, cp,
 				strlen(cp));
-	      _httpd_writeErrorLog(server, r, LEVEL_ERROR, 
+	      _httpd_writeErrorLog(server, r, LEVEL_ERROR,
 				   "Invalid method received");
 	      return(-1);
 	  }
@@ -497,7 +499,7 @@ int httpdReadRequest(httpd *server, request *r)
 
 		  cp = index(cp,' ') + 1;
 		  _httpd_decode(cp, authBuf, 100);
-		  r->request.authLength = 
+		  r->request.authLength =
 		    strlen(authBuf);
 		  cp = index(authBuf,':');
 		  if (cp)
@@ -507,7 +509,7 @@ int httpdReadRequest(httpd *server, request *r)
 			      r->request.authPassword,
 			      cp+1, HTTP_MAX_AUTH);
 		    }
-		  strncpy(r->request.authUser, 
+		  strncpy(r->request.authUser,
 			  authBuf, HTTP_MAX_AUTH);
 		}
 	    }
@@ -564,7 +566,7 @@ int httpdReadRequest(httpd *server, request *r)
       bzero(buf, HTTP_MAX_LEN);
       _httpd_readBuf(r, buf, r->request.contentLength);
       _httpd_storeData(r, buf);
-		
+
     }
 
   /** printf("Request path:%s\n", r->request.path); */
@@ -874,7 +876,7 @@ void httpdOutput(request *r, char *msg) {
 	}
       *dest++ = *src++;
       count++;
-    }	
+    }
   *dest = 0;
   r->response.responseLength += strlen(buf);
   if (r->response.headersSent == 0)
@@ -995,7 +997,7 @@ void httpdAuthenticate(request *r, char *realm)
 	if (r->request.authLength == 0)
 	{
 		httpdSetResponse(r, "401 Please Authenticate");
-		snprintf(buffer,sizeof(buffer), 
+		snprintf(buffer,sizeof(buffer),
 			"WWW-Authenticate: Basic realm=\"%s\"\n", realm);
 		httpdAddHeader(r, buffer);
 		httpdOutput(r,"\n");
@@ -1008,7 +1010,7 @@ void httpdForceAuthenticate(request *r, char *realm)
 	char	buffer[255];
 
 	httpdSetResponse(r, "401 Please Authenticate");
-	snprintf(buffer,sizeof(buffer), 
+	snprintf(buffer,sizeof(buffer),
 		"WWW-Authenticate: Basic realm=\"%s\"\n", realm);
 	httpdAddHeader(r, buffer);
 	httpdOutput(r,"\n");

@@ -604,6 +604,9 @@ int posix_spawnp(pid_t *pid, const char *file,
                  const void *attrp,
                  char *const argv[], char *const envp[]);
 
+int select(int nfds, void *readfds, void *writefds,
+             void *exceptfds, void *timeout);
+
 // errno.h
 
 int *__errno_location(void);

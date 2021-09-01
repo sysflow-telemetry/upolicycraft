@@ -211,27 +211,6 @@
     str))
 
 
-(defun strtok_r (str sep ptr)
-  (declare (external "strtok_r"))
-  (when str (write-word ptr_t ptr str))
-  (if (not ptr) ptr
-    (let ((str (read-word ptr_t ptr))
-          (del (+ str (strspn str sep)))
-          (str (+ del (strcspn del sep))))
-      (if (points-to-null del) 0
-        (write-word ptr_t ptr str)
-        (memory-write del 0)))))
-
-
-(defparameter *strtok-static-storage* 0)
-
-(defun strtok (str sep)
-  (declare (external "strtok"))
-  (unless *strtok-static-storage*
-    (set *strtok-static-storage* (malloc (sizeof ptr_t))))
-  (strtok_r str sep *strtok-static-storage*))
-
-
 (defun strxfrm (dst src len)
   (declare (external "strxfrm"))
   (strncpy dst src len)

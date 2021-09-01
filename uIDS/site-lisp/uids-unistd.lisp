@@ -11,28 +11,6 @@
         (decr *access-used*)
         -1)))
 
-(defun uids-fstat (fd buf)
-  (declare (external "fstat64" "__fstat"))
-  (let ((offset 48))
-    ;; (write-word ptr_t (+ buf offset) size)
-    (uids-ocaml-fstat fd buf)))
-
-(defun uids-stat (filename buf)
-  (declare (external "stat64" "__stat"))
-  ;;(uids-ocaml-debug 0xf0bc0de)
-  (let ((offset 48))
-    ;; (write-word ptr_t (+ buf offset) size)
-    (uids-ocaml-stat filename buf)))
-
-(defun uids-xstat (vers path buf)
-  (declare (external "__xstat"))
-  (let ((fd (uids-channel-open path 0)))
-    (if (= fd -1)
-      -1
-      (let ()
-        (uids-channel-close fd)
-        0))))
-
 (defun uids-fork ()
   (declare (external "fork"))
   0)
@@ -71,3 +49,7 @@
 (defun uids-setgid (gid)
   (declare (external "setgid"))
   0)
+
+(defun uids-select (nfds readfds writefds exceptfds timeout)
+  (declare (external "select"))
+  1)

@@ -306,6 +306,7 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		else if (child < 0) {
+                        uids_log("Could not fork");
 			fprintf(stderr, "Could not fork: %s.\n", strerror(errno));
 			return 5;
 		}
@@ -319,11 +320,13 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (fprintf(pid, "%u\n", getpid()) < 0) {
+                        uids_log("Could not write to PID file.");
 			fprintf(stderr, "Could not write to PID file '%s': %s.\n", pid_file, strerror(errno));
 			return 5;
 		}
 
 		if (fclose(pid) != 0) {
+                        uids_log("Could not close pid file.");
 			fprintf(stderr, "Could not to close PID file '%s': %s.\n", pid_file, strerror(errno));
 			return 5;
 		}

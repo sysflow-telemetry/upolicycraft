@@ -37,6 +37,8 @@
 (defun fopen (path mode)
   (declare (external "fopen" "open" "fdopen"))
   (let ((file (uids-channel-open path mode)))
+    (uids-ocaml-debug 0xfee)
+    (uids-ocaml-debug file)
     (if (< file 0) 0 file)))
 
 (defun fileno (stream)

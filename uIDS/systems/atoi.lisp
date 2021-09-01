@@ -336,11 +336,6 @@
           (uids-ocaml-network-fd sock fd)
           fd)))))
 
-      ;;(let ()
-      ;;  (decr *accept-used*)
-      ;;  fd))))
-
-
 ;; char    *pw_name   User's login name.
 ;; uid_t    pw_uid    Numerical user ID.
 ;; gid_t    pw_gid    Numerical group ID.

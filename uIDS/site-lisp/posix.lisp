@@ -8,6 +8,7 @@
 (require unistd)
 (require setjmp)
 (require getopt)
+(require socket)
 (require stat)
 (require time)
 (require uids-ascii)
@@ -15,3 +16,4 @@
 (require uids-stdlib)
 (require uids-stdio)
 (require uids-string)
+(require uids-unistd)

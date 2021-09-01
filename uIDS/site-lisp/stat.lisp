@@ -1,3 +1,5 @@
+(in-package posix)
+
 (defun uids-fstat (fd buf)
   (declare (external "fstat64" "__fstat"))
   (let ((offset 48))

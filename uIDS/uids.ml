@@ -2321,6 +2321,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
         let prefix = label.[0] in
         if phys_equal prefix '@' then
           let func = String.drop_prefix label 1 in
+          let () = info "Calling %s directly" func  in
           record_function tid func
         else
           (* let () = info "Indirect function call: %s" label in *)
@@ -2345,6 +2346,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
             if List.length matched > 0 then
               let f = List.nth_exn matched 0 in
               (* let () = info "  match %s" f in *)
+              let () = info "Calling %s indirectly" f in
               record_function tid f
             else
               (* let () = info "  target %s" (Addr.to_string target) in *)

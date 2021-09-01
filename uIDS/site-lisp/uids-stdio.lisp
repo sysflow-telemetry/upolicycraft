@@ -1,7 +1,7 @@
-(in-package posix)
-
 (require memory)
 (require string)
+
+(in-package posix)
 
 ;; Assumes flags has MSG_PEEK set.
 (defun recv (stream ptr n flags)

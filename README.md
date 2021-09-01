@@ -25,8 +25,19 @@ Build Environment
 =================
 
 By default, this image comes with a build environment that allows an analyst to
-produce a binary for micro execution and measure the code coverage of the
+produce a binary for micro execution and measure the code coverage achieved by the
 program's test suite.
+
+It can be helpful to use the `uIDS` docker image to build a given source tree
+in order to produce a binary that can be modelled. Suppose your project is
+given in the `src` directory. You can mount the directory within the `uIDS`
+container and build your project with the following.
+
+    docker run -e CFLAGS="-fno-stack-protector -fcf-protection=none" -e LDFLAGS="-L /build/uids/ -l:uids.so" -u $(id -u) -it -v $PWD:/host -w /host --entrypoint make sysflowtelemetry/uids:latest
+
+This command assumes that your project uses CFLAGS and LDFLAGS to customize the
+build of your project in a Makefile. You can always extend or alter the default
+uIDS image to embed these flags however it may work for your project.
 
 Generating Effect Graphs
 ========================
