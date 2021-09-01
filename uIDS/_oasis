@@ -2,7 +2,7 @@ OASISFormat: 0.4
 Name:        bap
 Version:     0.1
 Synopsis:    uIDS modeler
-Authors:     Will Blair
+Authors:     William Blair
 License:     MIT
 Copyrights:  (C) 2021 IBM
 Plugins:     META (0.4), DevFiles (0.4)
