@@ -43,10 +43,23 @@ uIDS image to embed these flags however it may work for your project.
 
 ## Measuring Code Coverage
 
+To get a sense of the quality of your test inputs, you can compile your application
+with LLVM instrumentation so that every time you run your application, a coverage report
+will be generated for you on disk.
+
     docker run -e CC="clang" -e CFLAGS="-fprofile-instr-generate -fcoverage-mapping" -e LDFLAGS="-L /build/uids/ -l:uids.so -fprofile-instr-generate -fcoverage-mapping" -u $(id -u) -it -v $PWD:/host -w /host --entrypoint make sysflowtelemetry/uids:latest
 
+By default, the docker image stores profiling data in the `/tmp` directory which you
+can alter by changing the built in LLVM environment flags in the Dockerfile, or specifying
+your own environment variables at runtime. After your program exits, you can generate a
+report using the following commands in the image.
 
+     llvm-profdata merge /path/to/output.profraw -o /path/to/output.profdata
+     llvm-cov report ./binary -instr-profile=/path/to/output.profdata
 
+Once your test suite has achieved suitable coverage, you can take the inputs
+for your application which consist of both the container image filesystem and
+network inputs and generate an effect graph to inform the MIDS.
 
 Generating Effect Graphs
 ========================
