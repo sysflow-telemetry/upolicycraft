@@ -227,6 +227,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	server = httpdCreate(host, port);
+
 	if (server == NULL) {
 		fprintf(stderr, "Could not create HTTP server on %s:%u: %s.\n", (host == NULL ? "*" : host), port, strerror(errno));
 		return 2;
@@ -236,7 +237,7 @@ int main(int argc, char *argv[]) {
 		struct group *gr;
 		if (strspn(gid, "1234567890") != strlen(gid)) {
 			if ((gr = getgrnam(gid)) == NULL) {
-				fprintf(stderr, "Invalid group name '%s'.\n", gid);
+				// fprintf(stderr, "Invalid group name '%s'.\n", gid);
 				return 3;
 			}
 		}
@@ -306,7 +307,6 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		else if (child < 0) {
-                        uids_log("Could not fork");
 			fprintf(stderr, "Could not fork: %s.\n", strerror(errno));
 			return 5;
 		}
@@ -320,14 +320,12 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (fprintf(pid, "%u\n", getpid()) < 0) {
-                        uids_log("Could not write to PID file.");
 			fprintf(stderr, "Could not write to PID file '%s': %s.\n", pid_file, strerror(errno));
 			return 5;
 		}
 
 		if (fclose(pid) != 0) {
-                        uids_log("Could not close pid file.");
-			fprintf(stderr, "Could not to close PID file '%s': %s.\n", pid_file, strerror(errno));
+			fprintf(stderr, "Could not close PID file '%s': %s.\n", pid_file, strerror(errno));
 			return 5;
 		}
 	}

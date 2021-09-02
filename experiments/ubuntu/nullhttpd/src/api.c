@@ -271,6 +271,7 @@ httpd *httpdCreate(host, port)
     addr.sin_addr.s_addr = inet_addr(new->host);
   }
   addr.sin_port = htons((u_short)new->port);
+
   if (bind(sock,(struct sockaddr *)&addr,sizeof(addr)) <0)    {
     close(sock);
     free(new);
@@ -315,12 +316,10 @@ request *httpdGetConnection(server, timeout)
   while(result == 0)    {
     result = select(server->serverSock + 1, &fds, 0, 0, timeout);
     if (result < 0)	{
-      uids_log("Select invalid!");
       server->lastError = -1;
       return(NULL);
     }
     if (timeout != 0 && result == 0)	{
-      uids_log("Other error!");
       server->lastError = 0;
       return(NULL);
     }

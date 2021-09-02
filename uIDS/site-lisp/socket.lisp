@@ -2,6 +2,10 @@
 
 (require types)
 
+(defun uids-bind (fd addr addrlen)
+  (declare (external "bind"))
+  0)
+
 (defun reverse-string (start end)
   (let ((p start)
         (q end))
@@ -93,4 +97,6 @@
   (write-word ptr_t socklen 16)
   0)
 
-
+(defun uids-listen (fd backlog)
+  (declare (external "listen"))
+  0)

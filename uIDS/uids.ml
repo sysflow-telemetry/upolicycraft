@@ -93,6 +93,11 @@ module Param = struct
   let redirects =
     param (list Redirection.convert) "redirect"
       ~doc:"The mapping from the emulated filesystem to the host."
+
+  let output_dir =
+    param string "output-dir" ~default:"/tmp/"
+      ~doc:"The folder to output models."
+
 end
 
 (** For fetching arguments. *)
@@ -1586,13 +1591,13 @@ module Monitor (Machine : Primus.Machine.S) = struct
         (* let () = info "  atoi: %s" str in *)
         Machine.return ()
     | "fopen" ->
-        (* let () = info "model fopen:" in *)
+        let () = info "model fopen:" in
         let rdi = Var.create "RDI" reg64_t in
         Env.get rdi
         >>= fun v ->
         v |> Value.to_word |> string_of_addr
         >>= fun path ->
-        (* let () = info " RDI: %s" path in *)
+        let () = info " RDI: %s" path in
         Machine.Local.update state ~f:(fun state' ->
             let op = Open path in
             let state'' = {state' with file_opened= Some path} in
@@ -1999,6 +2004,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
               | Error _ -> s )
 
   let export_model root nodes functions graph =
+    let open Param in
     let redundant_ops =
       ["BIND"; "SETGID"]
       |> List.fold
@@ -2105,7 +2111,8 @@ module Monitor (Machine : Primus.Machine.S) = struct
         ; ("edges", `List edges'') ]
     in
     let model' = Yojson.Basic.pretty_to_string model in
-    let oc = Out_channel.create "/tmp/output.json" in
+    let base = get output_dir in
+    let oc = Out_channel.create (Printf.sprintf "%s/output.json" base) in
     let () = Printf.fprintf oc "%s" model' in
     Out_channel.close oc
 
@@ -2227,7 +2234,9 @@ module Monitor (Machine : Primus.Machine.S) = struct
   (** Compute the union of the Local and Global
       graphs after a Machine ends and store it in Global. *)
   let record_model () =
-    let dotfile = Out_channel.create "/tmp/output.dot" in
+    let open Param in
+    let base = (get output_dir) in
+    let dotfile = Out_channel.create (Printf.sprintf "%s/output.dot" base) in
     Machine.current ()
     >>= fun pid ->
     let () = info "Machine %a ending!" Id.pp pid in
@@ -2428,8 +2437,8 @@ module Monitor (Machine : Primus.Machine.S) = struct
     Machine.List.sequence
       [ Primus.Interpreter.written >>> record_written
       ; (*
-      Primus.Interpreter.enter_pos >>> record_pos;
-      *)
+        Primus.Interpreter.enter_pos >>> record_pos;
+        *)
         Primus.Interpreter.enter_jmp >>> record_jmp
       ; Primus.Interpreter.enter_sub >>> push_sub
       ; Primus.Interpreter.leave_sub >>> pop_sub

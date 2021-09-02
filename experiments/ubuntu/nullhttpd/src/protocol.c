@@ -181,8 +181,6 @@ void _httpd_writeAccessLog(httpd *server, request *r)
 
 void _httpd_writeErrorLog(httpd *server, request *r, char *level, char *message)
 {
-        uids_log("Error Log:");
-        uids_log(message);
 	/*  In preference of using nodogsplash's log utility. --P. Kube
 
 	char	dateBuf[30];

@@ -21,6 +21,10 @@
     (fflush stream)
     r))
 
+(defun fprintf (stream pattern)
+   (declare (external "fprintf"))
+   (fputs pattern stream))
+
 (defun puts (p)
   (declare (external "puts" "puts_unlocked"))
   (fputs p *uids-standard-output*))
@@ -40,6 +44,10 @@
     (uids-ocaml-debug 0xfee)
     (uids-ocaml-debug file)
     (if (< file 0) 0 file)))
+
+(defun fclose (stream)
+   (declare (external "fclose"))
+   0)
 
 (defun fileno (stream)
   (declare (external "fileno"))

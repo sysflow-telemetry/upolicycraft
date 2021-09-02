@@ -1,7 +1,7 @@
 (in-package posix)
 
 (defun uids-getuser-struct (name)
-  (let ((len (* (sizeof ptr_t) 5))
+  (let ((len (* (sizeof ptr_t) 7))
         (user-offset (sizeof ptr_t))
         (group-offset (* (sizeof ptr_t) 2))
         (dir-offset 32)

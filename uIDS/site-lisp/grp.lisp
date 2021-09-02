@@ -9,5 +9,3 @@
 (defun uids-initgroups (name gid)
   (declare (external "initgroups"))
   0)
-
-
