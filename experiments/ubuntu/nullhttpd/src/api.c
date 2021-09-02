@@ -254,6 +254,8 @@ httpd *httpdCreate(host, port)
 
   sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock  < 0)    {
+    uids_log("Invalid socket!");
+    uids_debug(sock);
     free(new);
     return(NULL);
   }
@@ -273,11 +275,13 @@ httpd *httpdCreate(host, port)
   addr.sin_port = htons((u_short)new->port);
 
   if (bind(sock,(struct sockaddr *)&addr,sizeof(addr)) <0)    {
+    uids_log("Invalid bind!");
     close(sock);
     free(new);
     return(NULL);
   }
   if(listen(sock, 128) < 0) {
+    uids_log("Invalid listen!");
     close(sock);
     free(new);
     return(NULL);

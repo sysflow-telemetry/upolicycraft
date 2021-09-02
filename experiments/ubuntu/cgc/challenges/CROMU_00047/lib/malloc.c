@@ -92,7 +92,7 @@ void add_freelist_block( size_t length )
 
 	if ( allocate( length, 0, (void**)&block) != 0 ) {
 		printf("[ERROR] Allocating a free list block failed: $d\n", length);
-		_terminate(-1);
+		terminate(-1);
 	}
 
 	bzero( block, length );
@@ -128,7 +128,7 @@ void init_freelist( void )
 
 	if ( allocate(4096, 0, (void**)&lookaside) != 0 ) {
 		printf("[ERROR] Malloc fail terminate\n");
-		_terminate(-1);
+		terminate(-1);
 	}
 
 	bzero( lookaside[0], 4096);

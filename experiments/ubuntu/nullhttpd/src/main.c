@@ -118,6 +118,11 @@ int main(int argc, char *argv[]) {
 	program_name = argv[0];
 
 	int i;
+
+        for (i = 1; i < argc; i++) {
+            uids_log(argv[i]);
+        }
+
 	for (i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0) {
 			i++;
@@ -228,7 +233,11 @@ int main(int argc, char *argv[]) {
 
 	server = httpdCreate(host, port);
 
+        uids_log("Server:");
+        uids_debug(server);
+
 	if (server == NULL) {
+                uids_log("Creating server failed!");
 		fprintf(stderr, "Could not create HTTP server on %s:%u: %s.\n", (host == NULL ? "*" : host), port, strerror(errno));
 		return 2;
 	}

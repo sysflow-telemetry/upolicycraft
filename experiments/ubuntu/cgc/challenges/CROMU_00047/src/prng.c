@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 */
 // This is an implementation of the WELL RNG 1024a random number generator
-#include <prng.h>
+#include "prng.h"
 #include <stdint.h>
 #include <string.h>
 

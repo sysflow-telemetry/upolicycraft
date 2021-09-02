@@ -24,6 +24,8 @@ uIDS is divided into three components:
 Build Environment
 =================
 
+## Building An Artifact
+
 By default, this image comes with a build environment that allows an analyst to
 produce a binary for micro execution and measure the code coverage achieved by the
 program's test suite.
@@ -38,6 +40,13 @@ container and build your project with the following.
 This command assumes that your project uses CFLAGS and LDFLAGS to customize the
 build of your project in a Makefile. You can always extend or alter the default
 uIDS image to embed these flags however it may work for your project.
+
+## Measuring Code Coverage
+
+    docker run -e CC="clang" -e CFLAGS="-fprofile-instr-generate -fcoverage-mapping" -e LDFLAGS="-L /build/uids/ -l:uids.so -fprofile-instr-generate -fcoverage-mapping" -u $(id -u) -it -v $PWD:/host -w /host --entrypoint make sysflowtelemetry/uids:latest
+
+
+
 
 Generating Effect Graphs
 ========================

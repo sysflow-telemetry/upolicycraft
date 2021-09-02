@@ -56,5 +56,5 @@ void operator delete[]( void *ptr )
 extern "C" void __cxa_pure_virtual( void )
 {
 	printf( "Program abort@cxa_pure_virtual\n" );
-	_terminate(-1);
+	terminate(-1);
 }

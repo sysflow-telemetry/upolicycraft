@@ -59,14 +59,14 @@ int main(void)
 		{
 			case READ_ERROR:
 				print("ERROR: on receive\n");
-				_terminate(1);
+				terminate(1);
 				break;
 			case NEWLINE_RECEIVED:
 			// Process the input line by merging the temporary record with the global record
 				if (blank_line == 1)
 				{
 					print("Exiting\n");
-					_terminate(0);
+					terminate(0);
 				}
 				if (query > 0)
 				{
@@ -104,7 +104,7 @@ int main(void)
 			case OTHER_INPUT_RECEIVED:
 			default:
 				print("ERROR: invalid input\n");
-				_terminate(1);
+				terminate(1);
 				break;
 		}
 	}

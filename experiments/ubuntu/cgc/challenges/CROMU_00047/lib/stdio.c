@@ -166,6 +166,7 @@ int vprintf_buffered( const char *format, va_list args )
 	return iReturn;
 }
 
+/**
 int printf( const char *format, ... )
 {
 	va_list args;
@@ -176,7 +177,7 @@ int printf( const char *format, ... )
 	va_end(args);
 
 	return (return_val);	
-}
+} */
 
 #if 0
 int vprintf( const char *format, va_list args )

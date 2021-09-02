@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE pov SYSTEM "/usr/share/cgc-docs/replay.dtd">
+<pov>
+<cbid>service</cbid>
+<replay>
+    <!-- Successful login attempt -->
+    <write><data>\x00</data></write>
+    <write><data>\x04</data></write>
+    <write><data>\x0a</data></write>
+    <write><data>rootrootpasswd</data></write>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+    <!-- Successful dir attempt -->
+    <write><data>\x01</data></write>
+    <read><length>1</length><match><data>\x01</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\xa0\x00</data></match></read>
+    <read><length>80</length><match><data>Filename                         Owner                            Size     Mode\x0a</data></match></read>
+    <read><length>80</length><match><data>passwd                           root                             31       rw\x2d\x2d\x0a</data></match></read>
+    <write><data>\x03</data></write>
+    <write><data>\x09</data></write>
+    <write><data>\x06</data></write>
+    <write><data>\xbf\xf1\xae\xfa\xe2P</data></write>
+    <write><data>\xf8\xd0w\xf6\x5b\x97o\x2b\x0c</data></write>
+    <read><length>1</length><match><data>\x03</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+    <write><data>\x03</data></write>
+    <write><data>\x18</data></write>
+    <write><data>\x08</data></write>
+    <write><data>o\x8a\x8erKdso</data></write>
+    <write><data>\xb6\x60\x2a\x9c9\xc5\xa5\xcf\xde\x02\x07\x2aGP\x04\x5f\x1a.D\x09a\x07\x0b\xa3</data></write>
+    <read><length>1</length><match><data>\x03</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+    <write><data>\x06</data></write>
+    <write><data>\x08</data></write>
+    <write><data>\x06</data></write>
+    <write><data>o\x8a\x8erKdso</data></write>
+    <write><data>passwd</data></write>
+    <read><length>1</length><match><data>\x06</data></match></read>
+    <read><length>1</length><match><data>\x05</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+    <!-- Successful read attempt -->
+    <write><data>\x02</data></write>
+    <write><data>\x14\x00\x00\x00</data></write>
+    <write><data>\x03</data></write>
+    <write><data>\x08</data></write>
+    <write><data>o\x8a\x8erKdso</data></write>
+    <read><length>1</length><match><data>\x02</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x03\x00</data></match></read>
+    <read><length>3</length><match><data>a\x07\x0b</data></match></read>
+    <!-- Successful write attempt -->
+    <write><data>\x03</data></write>
+    <write><data>\x86</data></write>
+    <write><data>\x0a</data></write>
+    <write><data>\x40\x97A\xc4\x2d\xc9\x84\x2d\x01\xed</data></write>
+    <write><data>\xe1\x7f\xac\x29Q\x09\xfb\xca\xd4\x2do\xa3\x13\xdf\x8elpG\x07\xc38\xecsWa\xcf\x94\x88I\x958lN\x15\xb8\x18\x9dX\xb8w\xd7\x1c\x0br\x87\x04\xd8Q\xde\xa4\x99\xc6\x5e\x14\xd6\xdc\xed\x3d\x9b\x13\xa7\xb0\xdcZ4\xdb\x13\x94\xa1\x7c\x9dt\x2d\x1a\x13\x8c\x83\x8f\x84\xcd\x2d\xab\xc4\x0cHH\xb1\xcc7\x7d\xe4\xbaf\x5bs\x2c\x90\x89\xaa\x18\x5c\x2d\xf0x\x8e\xa5\x7f\xa0\x89\xe2\xa3\x1a\xb8\x0d\xab\xe3K\xa3\xf3\xa4q\xb9\x12e\x24\xa6\xc0\xa9\x3c\xdf\xac\xa5m\xab</data></write>
+    <read><length>1</length><match><data>\x03</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+    <!-- Successful rename attempt -->
+    <write><data>\x06</data></write>
+    <write><data>\x08</data></write>
+    <write><data>\x04</data></write>
+    <write><data>o\x8a\x8erKdso</data></write>
+    <write><data>6\x8a\xdak</data></write>
+    <read><length>1</length><match><data>\x06</data></match></read>
+    <read><length>1</length><match><data>\x00</data></match></read>
+    <read><length>2</length><match><data>\x00\x00</data></match></read>
+</replay>
+</pov>

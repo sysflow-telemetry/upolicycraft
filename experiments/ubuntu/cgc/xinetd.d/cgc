@@ -51,8 +51,7 @@ service cromu_00047
         disable = no
         type = UNLISTED
         wait = no
-        server = /cgc/challenges/CROMU_00047/CROMU_00047
-        env = "LD_LIBRARY_PATH=/cgc/challenges/CROMU_00047/:/cgc/"
+        server = /cgc/challenges/CROMU_00047/CROMU_00047.sh
         socket_type = stream
         protocol = tcp
         user = root 
@@ -116,8 +115,7 @@ service cromu_00055
         disable = no
         type = UNLISTED
         wait = no
-        server = /cgc/challenges/CROMU_00055/CROMU_00055
-        env = "LD_LIBRARY_PATH=/cgc/challenges/CROMU_00055/:/cgc/"
+        server = "/cgc/challenges/CROMU_00055/CROMU_00055.sh"
         socket_type = stream
         protocol = tcp
         user = root 
@@ -132,7 +130,7 @@ service cromu_00057
         disable = no
         type = UNLISTED
         wait = no
-        server = /cgc/challenges/CROMU_00057/CROMU_00057
+        server = /cgc/challenges/CROMU_00057/CROMU_00057.sh
         socket_type = stream
         protocol = tcp
         user = root 
@@ -147,7 +145,7 @@ service cromu_00058
         disable = no
         type = UNLISTED
         wait = no
-        server = /cgc/challenges/CROMU_00058/CROMU_00058
+        server = "/cgc/challenges/CROMU_00058/CROMU_00058.sh"
         socket_type = stream
         protocol = tcp
         user = root 

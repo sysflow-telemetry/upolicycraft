@@ -170,11 +170,11 @@ size_t receive_bytes (unsigned char *buffer, size_t count)
 	while (TotalBytes < count) {
 		if (receive(STDIN, buffer+TotalBytes, count-TotalBytes, &rx_bytes) != 0) 
 		{
-			_terminate(0);
+			terminate(0);
 		}
 		if (rx_bytes == 0) 
 		{
-			_terminate(0);
+			terminate(0);
 		}
 		TotalBytes += rx_bytes;
 	}
@@ -182,7 +182,7 @@ size_t receive_bytes (unsigned char *buffer, size_t count)
 	return(TotalBytes);
 }
 
-int write( void *buffer, size_t count )
+int write0( void *buffer, size_t count )
 {
 	size_t written;
     int total_written;

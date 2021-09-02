@@ -1,27 +1,32 @@
-uIDS Tutorial 
+uIDS Tutorial
 =============
 
 In this tutorial, we'll walk developers through protecting a web server with uIDS by doing the following:
 
-    - Generating an effect graph for a simple web server 
-    - Using the MIDS to enforce the effect graph over the web server's container telemetry 
+    - Generating an effect graph for a simple web server
+    - Using the MIDS to enforce the effect graph over the web server's container telemetry
 
-First, set up your shell to invoke the tutorial's commands:
+
+First, be sure you checked out `uIDS` from the `v0.1.7` release:
+
+    https://github.ibm.com/sysflow/sf-model/releases/tag/v0.1.7
+
+Next, set up your shell to invoke the tutorial's commands:
 
     source bin/env.sh
 
 Next, build the uIDS container images:
 
-    build 
+    build
 
 Construct an effect graph for the nullhttpd library:
 
-    model 
+    model
 
 View the corresponding effect graph:
 
     open output/output.pdf
-    cat output/output.json 
+    cat output/output.json
 
 Enforce the effect graph over a benign trace:
 

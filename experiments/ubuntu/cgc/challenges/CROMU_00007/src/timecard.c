@@ -603,6 +603,7 @@ void output_paycheck(pemployee empl, int week)
 	itoa((char *)outbuf, week);
 	print(outbuf);
 	print("`standardtime-");
+	/**
 	htoa((char *)&outbuf, &empl->paychecks[week].standardtime);
 	print(outbuf);
 	print("`overtime-");
@@ -615,6 +616,7 @@ void output_paycheck(pemployee empl, int week)
 	mtoa((char *)&outbuf, &empl->paychecks[week].overtimepay);
 	print(outbuf);
 	print("`netpay-");
+	*/
 	calculate_totalpay(&empl->paychecks[week]);
 	print(empl->paychecks[week].paycheck);
 	print("`\n");

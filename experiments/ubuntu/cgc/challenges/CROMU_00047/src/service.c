@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <prng.h>
+#include "prng.h"
 
 #include "common.h"
 #include "rx.h"
@@ -35,6 +35,8 @@ THE SOFTWARE.
 #include "packet.h"
 
 #define BYTE_RECEIVE_MAX	(SAMPLE_FS*4)	// 4 seconds
+
+// struct ValueProfData **ValueDataArray = __llvm_profile_gather_value_data(&ValueDataSize);
 
 void init_prng( void )
 {
@@ -44,13 +46,18 @@ void init_prng( void )
 	if ( random_cgc( (void*)randomData, sizeof(uint32_t)*8, &random_bytes_populated ) != 0 )
 	{
 		printf( "[[ERROR RANDOM FAILED]]\n" );
-		_terminate(1);
+		terminate(1);
 	}
 
 	seed_prng_array( randomData, 8 );
 }
 
-int __attribute__((fastcall)) main(int secret_page_i, char *unused[]) 
+extern void *__llvm_profile_begin_data;
+extern void *__llvm_profile_end_data;
+
+extern void *(*__llvm_profile_gather_value_data)(uint64_t *);
+
+int __attribute__((fastcall)) main(int secret_page_i, char *unused[])
 {
 	// void *secret_page = (void *)secret_page_i;
 
@@ -58,10 +65,11 @@ int __attribute__((fastcall)) main(int secret_page_i, char *unused[])
 
 	// uint32_t ts = ((uint32_t*)secret_page)[0] + ((uint32_t*)secret_page)[1] + ((uint32_t*)secret_page)[2] + ((uint32_t*)secret_page)[3];
 	// ts &= 0x7FFFF;
-     
+
 	uint32_t ts = 1452975630;
 
 	printf( "[[RECEIVER STARTED -- TIMESTAMP: $d]]\n", ts );
+
 
 	// Initialize random number generator
 	init_prng();
@@ -72,28 +80,35 @@ int __attribute__((fastcall)) main(int secret_page_i, char *unused[])
 	// Initialize packet handler
 	init_packet_handler( );
 
+
 	// Begin receiing packets
 	for ( uint32_t byteCount = 0; byteCount < BYTE_RECEIVE_MAX; )
 	{
+                uids_log("Receiving:");
+                uids_debug(byteCount);
+
 		uint8_t rx_sample[256];
 		size_t rx_count;
 
-        	if ( receive( STDIN, rx_sample, 256, &rx_count) != 0) 
+		if ( receive( STDIN, rx_sample, 256, &rx_count) != 0)
 		{
 			// Failed ??
 			printf( "[[CONNECTION CLOSED EARLY]]\n" );
-            		_terminate(1);
+			terminate(1);
         	}
 
 		if ( rx_count < 1 )
 		{
 			// Failed ??
 			printf( "[[RECEIVE ERROR]]\n" );
-            		_terminate(1);
+			terminate(1);
 		}
 
 		for ( uint32_t i = 0; i < rx_count; i++ )
 		{
+                        uids_log("receving sample");
+                        uids_debug(i);
+
 			if ( byteCount >= BYTE_RECEIVE_MAX )
 				break;
 

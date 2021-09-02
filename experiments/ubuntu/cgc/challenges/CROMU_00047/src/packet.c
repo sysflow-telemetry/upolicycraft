@@ -118,6 +118,10 @@ void receive_packet( uint8_t *pData, uint8_t dataLen, uint16_t packetCRC )
 
 	// Handle packet type
 	uint8_t packetType = pData[0];
+
+        uids_log("Found packet of type:");
+        uids_debug(packetType);
+
 	uint8_t found = 0;
 	for ( uint32_t i = 0; i < g_packetHandlers.handlerCount; i++ )
 	{
@@ -168,6 +172,9 @@ void add_new_packet( uint8_t packetType, fpPacketTypeHandler fpHandler, uint8_t 
 void display_packets( void )
 {
 	tSinglePacketData *pCur = NULL;
+
+        uids_log("Rendering:");
+        uids_debug(g_packetData.byteCount);
 
 	printf( "Total $d bytes received and $d invalid packets.\n", g_packetData.byteCount, g_packetData.invalidPacketCount );
 	printf( "Displaying $d received packets:\n", g_packetData.packetCount );

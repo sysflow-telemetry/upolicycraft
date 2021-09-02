@@ -53,7 +53,7 @@ Once the map is generated the player is prompted with ': '. Here they are able t
 ..#..#
 ......
 X.....
-: 
+:
 
 After each move there is a random chance that the user will encounter a monster. If this occurs the following will be displayed:
 
@@ -171,7 +171,7 @@ In addition, there is an easter egg allowing a player to up the hitpoints and po
 : g
 YOU FOUND THE EGG!!!! Have a prize.
 [ERROR] Invalid direction: 67
-: 
+:
 
 ## Vulnerability
 

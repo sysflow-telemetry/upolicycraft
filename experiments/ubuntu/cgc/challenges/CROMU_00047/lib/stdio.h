@@ -31,7 +31,7 @@ THE SOFTWARE.
 
 int putchar( int c );
 
-int printf( const char *format, ... );
+//int printf( const char *format, ... );
 int vprintf( const char *format, va_list args );
 int sprintf( char *buf, const char *format, ... );
 int vsprintf( char *buf, const char *format, va_list args );

@@ -240,6 +240,43 @@ bool CCPU::RunSingleInstruction( void )
 		JumpOffsetNotZero( GET_BITS( instr, 9, 12 ), GET_BIT( instr, 8 ), GET_BITS( instr, 0, 7 ) );
 	}
 
+	/**
+	{
+	case 0:
+
+		break;
+
+	case 1:
+
+
+	case 2:
+
+		break;
+
+	case 3:
+
+
+	case 5:
+		if ( GET_BIT( instr, 12 ) == 0 )
+		{
+			JumpLTReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
+		}
+		else
+		{
+			JumpGTReg( GET_BITS( instr, 8, 11 ), GET_BITS( instr, 4, 7 ), GET_BITS( instr, 0, 3 ) );
+		}
+		break;
+
+	case 6:
+		JumpOffsetZero( GET_BITS( instr, 9, 12 ), GET_BIT( instr, 8 ), GET_BITS( instr, 0, 7 ) );
+		break;
+
+	case 7:
+		JumpOffsetNotZero( GET_BITS( instr, 9, 12 ), GET_BIT( instr, 8 ), GET_BITS( instr, 0, 7 ) );
+		break;
+	}
+	*/
+
 	if ( m_bException )
 		return (false);
 

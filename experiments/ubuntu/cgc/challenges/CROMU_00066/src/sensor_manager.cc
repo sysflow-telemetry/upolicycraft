@@ -65,6 +65,8 @@ uint8_t *SensorManager::ListSensors( uint16_t &buffer_len)
 		count_users++;
 
 		int count_per_user = 0;
+		uids_log("Scanning sensors");
+
 		for ( FitnessSensor *pSensor = m_sensorList.GetFirst(); pSensor; pSensor = m_sensorList.GetNext( pSensor ) )
 		{
 

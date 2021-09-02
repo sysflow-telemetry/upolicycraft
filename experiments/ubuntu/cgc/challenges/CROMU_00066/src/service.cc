@@ -39,7 +39,7 @@ THE SOFTWARE.
 // 2b: len of data (max is MAX_DATA_LEN in service.h)
 // *b: data
 
-typedef struct 
+typedef struct
 {
 	uint16_t type;
 	uint16_t data_len;
@@ -59,7 +59,7 @@ void SendResponse ( uint16_t category, uint8_t error )
 	*/
 #define RESP_LEN 9
 	uint8_t buff[ RESP_LEN ];
-	
+
 	// sync
 	buff[0] = 0xc3;
 	buff[1] = 0x3c;
@@ -77,8 +77,11 @@ void SendResponse ( uint16_t category, uint8_t error )
 
 	buff[8] = error;
 
+	uids_log("Before write0");
 
-	write( buff, RESP_LEN );
+	write0( buff, RESP_LEN );
+
+	uids_log("After write0");
 }
 
 InPacket* ReadInput()
@@ -129,7 +132,7 @@ InPacket* ReadInput()
 
 return_error:
 	SendResponse( GENERAL, error );
-	
+
 leave_fast:
 	if ( pkt )
 	{
@@ -170,7 +173,7 @@ fail:
 int main( void )
 {
 	uint8_t *magic_page = ( uint8_t* )MAGIC_PAGE;
-	
+
 	// INIT VALUES HERE
 	InPacket *pkt;
 	SensorManager sensorManager;
@@ -183,48 +186,18 @@ int main( void )
 
 	sensorManager.SetCurrentUser( INVALID_USER );
 
-	while ( 1 ) 
+	while ( 1 )
 	{
 		pkt = ReadInput();
 		if ( pkt == NULL )
 			continue;
-		
-		//
-		// PARSE PACKET
-		//
-		switch ( pkt->type )
-		{/*
-			case TEST_VERIFY:
-			{
-				bool match = false;
 
-				match = VerifyMagicMatch( pkt->data, FitnessSensor::m_sensorArray );
-				#ifdef HUMAN_PRINT
-				printf("py magic: ");
-					for ( int i = 0; i < pkt->data_len; i++ )
-					{
-						printf( "$02x.", pkt->data[ i ] );
-					}
-					printf( "\n" );
-					
-					
-					printf("my magic: ");
-					for ( int i = 0; i < 5; i++ )
-					{
-						printf( "$02x.", FitnessSensor::m_sensorArray[ i ] );
-					}
-					printf( "\n" );
-				#endif
-				if ( match == false )
-					SendResponse( TEST_VERIFY, ERROR_TEST_MAGIC_MISMATCH );
-				else
-					SendResponse( TEST_VERIFY, ERROR_TEST_MAGIC_MATCH );
-				break;
-			}*/
-			case REGISTER_SENSOR:
-			{
+		uids_log("Accepted packet type:");
+		uids_debug(pkt->type);
+
+		if ( pkt->type == REGISTER_SENSOR) {
 				// Register this fitness sensor for the current user
-				
+
 				// current user and list owned by sensor_manager
 				if ( sensorManager.GetCurrentUser() == INVALID_USER )
 				{
@@ -232,7 +205,7 @@ int main( void )
 					continue;
 				}
 
-				// Data: 
+				// Data:
 				// 2b: sensor type
 				// 4b: sensor MAC
 				const int MIN_SENSOR_LEN = sizeof( uint16_t ) + sizeof( uint32_t ); // 2b for ID, 4b for MAC
@@ -248,7 +221,7 @@ int main( void )
 				uint16_t id = *( uint16_t* )&pkt->data[ 0 ];
 				uint32_t mac = *( uint32_t* )&pkt->data[ sizeof( uint16_t ) ];
 
-				
+
 				// matching 'delete' is in RemoveSensor in sensor_manager.cc
 				// MAC is verified in the sensor's constructor
 				FitnessSensor *sensor = new FitnessSensor( id, mac, &pkt->data[6], pkt->data_len - 6 );
@@ -281,10 +254,7 @@ int main( void )
 				}
 
 				SendResponse( REGISTER_SENSOR, NO_ERROR );
-				break;
-			}
-			case REGISTER_USER:
-			{
+		} else if (pkt->type == REGISTER_USER) {
 				uint8_t field_count = pkt->data[ 0 ];
 
 				uint16_t expected_size = ( field_count * 3 ) + 3;
@@ -335,10 +305,7 @@ int main( void )
 				else
 					SendResponse( REGISTER_USER, NO_ERROR );
 
-				break;
-			}
-			case CHANGE_CURRENT_USER:
-			{
+		} else if (pkt->type == CHANGE_CURRENT_USER) {
 				// given a user ID,
 				// look for the id and change to it
 
@@ -360,10 +327,7 @@ int main( void )
 				}
 
 				SendResponse( CHANGE_CURRENT_USER, NO_ERROR );
-				break;
-			}
-			case INPUT_SENSOR_DATA:
-			{	
+		} else if (pkt->type == INPUT_SENSOR_DATA) {
 				uint16_t sensor_id = *( uint16_t* )&pkt->data[ 0 ];
 
 				if ( sensorManager.VerifySensor( sensor_id ) == false )
@@ -397,14 +361,14 @@ int main( void )
 					uint16_t bike_dist = *( uint16_t* )&pkt->data[ sizeof( uint16_t ) ];
 
 					// use sensor_id to check if this ID is registred with this user
-					
+
 
 					uint16_t new_dist = FitnessSensor::HandleBikeSensor( bike_dist );
 
 					// add this distance to this user's total distance traveled
 					if ( !sensorManager.AddDistance( new_dist, sensorManager.GetCurrentUser() ) )
 						SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
-					else						
+					else
 						SendResponse( INPUT_SENSOR_DATA, NO_ERROR );
 					break;
 				}
@@ -433,7 +397,7 @@ int main( void )
 					// add this distance to this user's total distance traveled
 					if ( !sensorManager.AddDistance( new_value, sensorManager.GetCurrentUser() ) )
 						SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
-					else						
+					else
 						SendResponse( INPUT_SENSOR_DATA, NO_ERROR );
 					break;
 				}
@@ -462,7 +426,7 @@ int main( void )
 					// add this distance to this user's total distance traveled
 					if ( !sensorManager.AddDistance( new_weight, sensorManager.GetCurrentUser() ) )
 						SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
-					else						
+					else
 						SendResponse( INPUT_SENSOR_DATA, NO_ERROR );
 					break;
 				}
@@ -493,7 +457,7 @@ int main( void )
 					{
 						SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
 					}
-					else						
+					else
 						SendResponse( INPUT_SENSOR_DATA, NO_ERROR );
 					break;
 				}
@@ -502,7 +466,7 @@ int main( void )
 					if ( pkt->data_len != ( sizeof( uint16_t ) + sizeof( uint16_t ) ) )
 					{
 						// sensor ID missing
-						
+
 						SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
 						break;
 					}
@@ -526,9 +490,7 @@ int main( void )
 					SendResponse( INPUT_SENSOR_DATA, ERROR_BAD_VALUE );
 				}
 				break;
-			}
-			case REMOVE_SENSOR:
-			{
+		} else if (pkt->type == REMOVE_SENSOR) {
 				if ( pkt->data_len != sizeof( uint16_t ) )
 				{
 					// sensor ID missing
@@ -556,10 +518,7 @@ int main( void )
 				}
 
 				SendResponse( REMOVE_SENSOR, NO_ERROR );
-				break;
-			}
-			case REQUEST_SENSORS:
-			{
+		} else if (pkt->type == REQUEST_SENSORS) {
 				// respond with the ID and MAC of all sensors (not just for this user)
 				uint16_t data_len = 0;
 
@@ -568,7 +527,7 @@ int main( void )
 				data = sensorManager.ListSensors( data_len );
 
 				uint8_t *buff = new uint8_t[ data_len + 6 ];
-	
+
 				// sync
 				buff[0] = 0xc3;
 				buff[1] = 0x3c;
@@ -585,14 +544,10 @@ int main( void )
 
 				delete[] data;
 
-				write( buff, data_len + 6 );
+				write0( buff, data_len + 6 );
 
 				delete[] buff;
-
-				break;
-			}
-			case REQUEST_HW_IDS:
-			{
+		} else if (pkt->type == REQUEST_HW_IDS) {
 				// return buffer of hardware ids
 				// len, 5 IDs
 				uint16_t data_len = 0;
@@ -604,7 +559,7 @@ int main( void )
 				sensorManager.ListHwIds( data_len, data );
 
 				uint8_t *buff = new uint8_t[ data_len + 6 ];
-	
+
 				// sync
 				buff[0] = 0xc3;
 				buff[1] = 0x3c;
@@ -619,20 +574,13 @@ int main( void )
 				// data
 				memcpy ( ( uint8_t* )&buff[6], data, data_len );
 
-				write( buff, data_len + 6 );
-
-				break;
-			}
-			case END:
-			{
-				return 0;
-			}
-			default:
-			{
-				// error: bad command
-				SendResponse( GENERAL, ERROR_BAD_VALUE );
-			}
-			
+				write0( buff, data_len + 6 );
+		} else if (pkt->type == END) {
+			uids_log("Finished!");
+			terminate(0);
+		} else {
+			// error: bad command
+			SendResponse( GENERAL, ERROR_BAD_VALUE );
 		}
 	}
 

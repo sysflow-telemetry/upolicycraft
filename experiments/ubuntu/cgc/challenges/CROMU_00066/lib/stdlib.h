@@ -42,6 +42,6 @@ void *memcpy( void *pDest, const void *pSrc, size_t nbytes );
 
 size_t receive_bytes (unsigned char *buffer, size_t count) ;
 
-int write(  void *, size_t );
+int write0(  void *, size_t );
 
 #endif // STDLIB_H__

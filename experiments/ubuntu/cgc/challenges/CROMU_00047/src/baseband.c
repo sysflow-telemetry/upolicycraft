@@ -80,20 +80,26 @@ void run_cdr( tBasebandState *pState, uint8_t in_sample )
 {
 	// Keep counting
 	pState->cdrState.sampleCounter++;
-	
+
+        uids_log("Running CDR!");
+	uids_debug(pState->cdrState.cdrState);
+
 	if ( pState->cdrState.lastBitValue != in_sample )
 	{
+
 		// Transition
 
 		// Check mode
 		if ( pState->cdrState.cdrState == CDR_STATE_NODATA )
 		{
+                        uids_log("No data!");
 			pState->cdrState.cdrState = CDR_STATE_PREAMBLE;
 			pState->cdrState.samplesPerClock = SAMPLES_PER_DATA;
 			pState->cdrState.sampleCounter = 0;
 		}
 		else if ( pState->cdrState.cdrState == CDR_STATE_PREAMBLE )
 		{
+                        uids_log("Preamble!");
 #if DEBUG_BASEBAND
 			printf( "PA[$d,$d,$d,$f]\n", pState->cdrState.preambleCounter, pState->cdrState.sampleCounter, SAMPLES_PER_DATA, pState->cdrState.samplesPerClock );
 #endif	
@@ -144,7 +150,7 @@ void run_cdr( tBasebandState *pState, uint8_t in_sample )
 		else
 		{
 			// Critical error -- unknown state
-			_terminate(-3);
+			terminate(-3);
 		}
 
 		// Remember last bit value
@@ -155,8 +161,14 @@ void run_cdr( tBasebandState *pState, uint8_t in_sample )
 	}
 	else if ( pState->cdrState.cdrState == CDR_STATE_LOCK )
 	{
+                uids_log("CDR state lock!");
+                uids_debug(pState->cdrState.sampleCounter);
+                uids_debug((uint32_t)round( pState->cdrState.clocksForNextSymbol ));
+                uids_debug((uint32_t)pState->cdrState.clocksForNextSymbol);
+                printf("Sample counter %d\n", pState->cdrState.sampleCounter);
 		// Check for a sampling event...
-		if ( pState->cdrState.sampleCounter == (uint32_t)round( pState->cdrState.clocksForNextSymbol ) )
+		// if (pState->cdrState.sampleCounter  == (uint32_t)round( pState->cdrState.clocksForNextSymbol ) )
+                if ( pState->cdrState.sampleCounter  == (uint32_t)round( pState->cdrState.clocksForNextSymbol ))
 		{
 			pState->cdrState.clocksForNextSymbol += pState->cdrState.samplesPerClock;
 

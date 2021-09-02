@@ -47,8 +47,8 @@ void tx(char* bytes, size_t count) {
                           count - total_sent,
                           &sent_this_time);
 
-    if (status != 0) _terminate(-1);
-    if (sent_this_time == 0) _terminate(-1);
+    if (status != 0) terminate(-1);
+    if (sent_this_time == 0) terminate(-1);
 
     total_sent += sent_this_time;
   }
@@ -65,8 +65,8 @@ void rx(char* byte_buf, size_t count) {
                          count - total_rcvd,
                          &rcvd_this_time);
 
-    if (status != 0) _terminate(-1);
-    if (rcvd_this_time == 0) _terminate(-1);
+    if (status != 0) terminate(-1);
+    if (rcvd_this_time == 0) terminate(-1);
 
     total_rcvd += rcvd_this_time;
   }

@@ -2436,9 +2436,8 @@ module Monitor (Machine : Primus.Machine.S) = struct
   let setup_tracing () =
     Machine.List.sequence
       [ Primus.Interpreter.written >>> record_written
-      ; (*
+      ;
         Primus.Interpreter.enter_pos >>> record_pos;
-        *)
         Primus.Interpreter.enter_jmp >>> record_jmp
       ; Primus.Interpreter.enter_sub >>> push_sub
       ; Primus.Interpreter.leave_sub >>> pop_sub

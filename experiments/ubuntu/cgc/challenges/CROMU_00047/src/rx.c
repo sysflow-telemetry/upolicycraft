@@ -45,6 +45,7 @@ int8_t add_awgn_to_sample( int8_t sample_in )
 	double V1;
 	double V2;
 
+	do
 	{
 		double U1 = get_rand_uniform();
 		double U2 = get_rand_uniform();
@@ -53,7 +54,7 @@ int8_t add_awgn_to_sample( int8_t sample_in )
 		V2 = (2*U2) - 1.0;
 
 		S = (V1 * V1) + (V2 * V2);
-	}
+	} while ( S >= 1.0 );;
 
 	double X = sqrt( -2 * log(S) / S) * V1;
 	double Y = sqrt( -2 * log(S) / S) * V2;

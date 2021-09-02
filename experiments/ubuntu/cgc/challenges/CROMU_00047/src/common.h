@@ -26,8 +26,9 @@ THE SOFTWARE.
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#define 	SAMPLE_FS		(9600)	// 9600 samples per second
-#define 	DATA_RATE		(300)	// 300 bits/per second
+// #define 	SAMPLE_FS		(9600)	// 9600 samples per second
+#define         SAMPLE_FS               (2048)
+#define 	DATA_RATE		(64)	// 300 bits/per second
 
 #define		SAMPLES_PER_DATA	(SAMPLE_FS / DATA_RATE)
 

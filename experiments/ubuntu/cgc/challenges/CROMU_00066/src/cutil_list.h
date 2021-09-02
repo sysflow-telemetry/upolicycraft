@@ -242,6 +242,9 @@ namespace CUtil
 	template<class T>
 	T *DoubleList<T>::GetFirst( void )
 	{
+		uids_log("Getting first item!");
+		uids_debug(&m_first);
+
 		if ( m_first.m_pNext == &m_last )
 			return (NULL);
 		else

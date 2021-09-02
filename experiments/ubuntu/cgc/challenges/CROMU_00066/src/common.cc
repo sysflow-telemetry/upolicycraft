@@ -51,7 +51,7 @@ bool HexCharToInt( char c, uint8_t &outValue )
 char* ConvertToHexChars( uint8_t *pData, uint32_t dataLen )
 {
 	int len = dataLen * 2;
-	char* str = new char[len];
+	char* str = new char[len+100];
 
 	for ( uint32_t i = 0; i < dataLen; i++ )
 	{

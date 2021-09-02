@@ -56,7 +56,9 @@ struct timeval {
 #define	ENOSYS		5
 #define	EPIPE		6
 
-void _terminate(unsigned int status) __attribute__((__noreturn__));
+void uids_log(char *s);
+void uids_debug(void *p);
+void terminate(unsigned int status) __attribute__((__noreturn__));
 int transmit(int fd, const void *buf, size_t count, size_t *tx_bytes);
 int receive(int fd, void *buf, size_t count, size_t *rx_bytes);
 int fdwait(int nfds, fd_set_cgc *readfds, fd_set_cgc *writefds,

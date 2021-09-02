@@ -9,7 +9,16 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
-void _terminate(unsigned int status) {
+
+void uids_log(char *msg) {
+    return;
+}
+
+void uids_debug(void *p) {
+    return;
+}
+
+void terminate(unsigned int status) {
     exit(status);
 }
 
@@ -92,7 +101,7 @@ int random_cgc(void *buf, size_t count, size_t *rnd_bytes) {
     return 0;
   }
 
-  char *buf1 = (char*)buf; 
+  char *buf1 = (char*)buf;
 
   if (!seeded) {
     srand(0);
@@ -102,7 +111,7 @@ int random_cgc(void *buf, size_t count, size_t *rnd_bytes) {
     buf1[i] = rand() % 256;
   }
 
-  *rnd_bytes = count; 
+  *rnd_bytes = count;
 
   return 0;
 }
