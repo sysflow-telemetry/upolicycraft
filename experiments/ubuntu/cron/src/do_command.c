@@ -194,6 +194,8 @@ child_process(e, u)
 	pipe(stdin_pipe);	/* child's stdin */
 	/* child's stdout */
         tmpout = tmpfile();
+        uids_log("tmpout:");
+        uids_debug(tmpout);
 	if (tmpout == NULL) {
 		log_it("CRON", getpid(), "error", "create tmpfile");
 		exit(ERROR_EXIT);
@@ -300,13 +302,18 @@ child_process(e, u)
 		  /* close(STDERR)*/; dup2(STDOUT, STDERR);
 
 
+	         uids_log("Before close READ PIPE");
 	         /* close the pipe we just dup'ed.  The resources will remain.
 		 */
+                 uids_log("Read PIPE");
+                 uids_debug(stdin_pipe[READ_PIPE]);
+                 uids_debug(stdin_pipe[WRITE_PIPE]);
 
 		 close(stdin_pipe[READ_PIPE]);
 
 		 fclose(tmpout);
 
+	         uids_log("After close READ PIPE");
 
 		/* set our login universe.  Do this in the grandchild
 		 * so that the child can invoke /usr/lib/sendmail
@@ -336,16 +343,16 @@ child_process(e, u)
 		if (setuid(e->uid) !=0) { /* we aren't root after this... */
 		  char msg[256];
 		  snprintf(msg, 256, "do_command:setuid(%lu) failed: %s",
-			   (unsigned long) e->uid, strerror(errno)); 
+			   (unsigned long) e->uid, strerror(errno));
 		  log_it("CRON",getpid(),"error",msg);
 		  exit(ERROR_EXIT);
-		}	
+		}
 		chdir(env_get("HOME", e->envp));
 
 		/* exec the command.
 		 */
 		{
-                        char    **jobenv = build_env(e->envp); 
+                        char    **jobenv = build_env(e->envp);
                         char	*shell = env_get("SHELL", jobenv);
 # if DEBUGGING
 			if (DebugFlags & DTEST) {
@@ -380,6 +387,8 @@ child_process(e, u)
 			    }
 			}
 #endif
+                        exit(ERROR_EXIT);
+                        // __llvm_profile_write_file();
                         execle(shell, shell, "-c", e->cmd, (char *)0, jobenv);
 			fprintf(stderr, "%s: execle: %s\n", shell, strerror(errno));
 			_exit(ERROR_EXIT);
@@ -512,7 +521,7 @@ child_process(e, u)
 					" %d%s", pid, WTERMSIG(waiter),
 					WCOREDUMP(waiter) ? ", dumped core" : "");
 				log_it("CRON", getpid(), "error", msg);
-			} 
+			}
 		}
 	}
 
@@ -520,10 +529,10 @@ child_process(e, u)
 // the user if their job failed.  Avoid popening the mailcmd until now
 // since sendmail may time out, and to write info about the exit
 // status.
-	
+
 	long pos;
 	struct stat	mcsb;
-	int		statret;	
+	int		statret;
 
 	fseek(tmpout, 0, SEEK_END);
 	pos = ftell(tmpout);
@@ -555,7 +564,7 @@ child_process(e, u)
 	register int	bytes = 1;
 
 	register char	**env;
-	char    	**jobenv = build_env(e->envp); 
+	char    	**jobenv = build_env(e->envp);
 	auto char	mailcmd[MAX_COMMAND];
 	auto char	hostname[MAXHOSTNAMELEN];
 	char    	*content_type = env_get("CONTENT_TYPE",jobenv),
@@ -569,10 +578,10 @@ child_process(e, u)
 		perror(MAILCMD);
 		(void) _exit(ERROR_EXIT);
 	}
-        #endif 
+        #endif
 	fprintf(mail, "From: root (Cron Daemon)\n");
 	fprintf(mail, "To: %s\n", mailto);
-	
+
 	// Generate subject
 	if (mailsubject == NULL) {
 		fprintf(mail, "Subject: Cron <%s@%s> %s%s\n",
@@ -611,7 +620,7 @@ child_process(e, u)
 		fprintf(mail, "Content-Type: text/plain; charset=%s\n",
 				cron_default_mail_charset
 		       );
-	} else {   
+	} else {
 		/* user specified Content-Type header.
 		 * disallow new-lines for security reasons
 		 * (else users could specify arbitrary mail headers!)
@@ -642,7 +651,7 @@ child_process(e, u)
 	fputc('\n', mail);
 
 // Append the actual output of the child to the mail
-	
+
 	char buf[4096];
 	int ret, remain;
 

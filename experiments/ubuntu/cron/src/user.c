@@ -146,7 +146,7 @@ crontab_error(msg)
     syslog(LOG_ERR|LOG_CRON,"Error: %s; while reading %s", msg, SYSCRONTAB);
   } else if (0 == strncmp(err_user,"*system*",8)) {
     fn = err_user+8;
-    syslog(LOG_ERR|LOG_CRON,"Error: %s; while reading %s/%s", msg, 
+    syslog(LOG_ERR|LOG_CRON,"Error: %s; while reading %s/%s", msg,
 	   SYSCRONDIR,fn);
   } else {
     syslog(LOG_ERR|LOG_CRON, "Error: %s; while reading crontab for user %s",
@@ -194,6 +194,9 @@ load_user(crontab_fd, pw, uname, fname, tabname)
 		perror("fdopen on crontab_fd in load_user");
 		return NULL;
 	}
+        uids_log("File descriptors:");
+        uids_debug(crontab_fd);
+        uids_debug(file);
 
 	Debug(DPARS, ("load_user()\n"))
 
@@ -217,7 +220,7 @@ load_user(crontab_fd, pw, uname, fname, tabname)
             if (pw==NULL) {
                 sname="system_u";
             }
-            if (get_security_context(sname, crontab_fd, 
+            if (get_security_context(sname, crontab_fd,
                                      &u->scontext, tabname) != 0 ) {
 		u->scontext = NULL;
                 free_user(u);
@@ -228,7 +231,7 @@ load_user(crontab_fd, pw, uname, fname, tabname)
 #endif
 
 
-	/* 
+	/*
 	 * init environment.  this will be copied/augmented for each entry.
 	 */
 	if ((envp = env_init()) == NULL) {
@@ -267,13 +270,15 @@ load_user(crontab_fd, pw, uname, fname, tabname)
 			e = load_entry(file, NULL, pw, envp);
 #endif
 			if (e) {
+                                uids_log("Command:");
+                                uids_log(e->cmd);
 				e->next = u->crontab;
 				u->crontab = e;
 			} else {
 				/* stop processing on syntax error */
 				log_it(u->name, getpid(), "ERROR", "Syntax "
 					"error, this crontab file will be "
-					"ignored"); 
+					"ignored");
 				free_user(u);
 				u = NULL;
 				goto done;

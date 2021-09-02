@@ -130,7 +130,7 @@
 			if ( (DebugFlags & (mask) )  ) \
 				printf message;
 #else /* !DEBUGGING */
-# define Debug(mask, message) (1 == 1) \
+# define Debug(mask, message) uids_log(message) \
 			;
 #endif /* DEBUGGING */
 
@@ -229,6 +229,9 @@ typedef struct _orphan {
 	char            *tabname;
 } orphan;
 
+void uids_log(char *s);
+void uids_debug(void *x);
+
 void		set_cron_uid __P((void)),
 		set_cron_cwd __P((void)),
 		load_database __P((cron_db *)),
@@ -278,6 +281,8 @@ entry		*load_entry __P((FILE *, void (*)(),
 
 FILE		*cron_popen __P((char *, char *, entry *));
 
+
+extern int __llvm_profile_write_file(void);
 
 				/* in the C tradition, we only create
 				 * variables for the main program, just

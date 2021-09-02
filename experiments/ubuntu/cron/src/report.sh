@@ -8,4 +8,4 @@ llvm-profdata-3.8 merge ${PROGRAM}.profraw -o ${PROGRAM}.profdata
 # report
 # show
 
-llvm-cov-3.8 ${VERB} ./vsftpd -instr-profile=${PROGRAM}.profdata
+llvm-cov-3.8 ${VERB} ${PROGRAM} -instr-profile=${PROGRAM}.profdata
