@@ -12,9 +12,9 @@ CFLAGS	= -emit-llvm -fno-stack-protector -Wall
 # -fPIE -pie -Wl,-s
 LIBS	=	`./vsf_findlibs.sh`
 LINK	=
-LDFLAGS	=
+LDFLAGS	=	-L /root/uids -l:uids.so
 
-# -Wl,-z,relro -Wl,-z,now -L /root/uids -l:uids.so
+# -Wl,-z,relro -Wl,-z,now -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so -L /root/uids -l:uids.so
 
 OBJS	=	main.o utility.o prelogin.o ftpcmdio.o postlogin.o privsock.o \
 		tunables.o ftpdataio.o secbuf.o ls.o \

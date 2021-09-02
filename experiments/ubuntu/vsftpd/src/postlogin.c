@@ -980,11 +980,14 @@ handle_port(struct vsf_session* p_sess)
   pasv_cleanup(p_sess);
   port_cleanup(p_sess);
 
+  uids_log("Port string:");
+  uids_log(str_getbuf(&p_sess->ftp_arg_str));
 
   p_raw = vsf_sysutil_parse_uchar_string_sep(&p_sess->ftp_arg_str, ',', vals,
                                              sizeof(vals));
   if (p_raw == 0)
   {
+    uids_log("p_raw is NULL!");
     vsf_cmdio_write(p_sess, FTP_BADCMD, "Illegal PORT command.");
     return;
   }
@@ -1002,6 +1005,7 @@ handle_port(struct vsf_session* p_sess)
                                          p_sess->p_port_sockaddr) ||
         vsf_sysutil_is_port_reserved(the_port))
     {
+      uids_log("Problem checking whether sockaddrs are equal!");
       vsf_cmdio_write(p_sess, FTP_BADCMD, "Illegal PORT command.");
       port_cleanup(p_sess);
       return;
@@ -1943,6 +1947,8 @@ resolve_tilde(struct mystr* p_str, struct vsf_session* p_sess)
       {
         const char *homedir = vsf_sysutil_user_get_homedir(p_user);
 
+        uids_log("Fetched homedir");
+        uids_debug(homedir);
 
         str_alloc_text(p_str, homedir);
         if (!str_isempty(&s_rhs_str))

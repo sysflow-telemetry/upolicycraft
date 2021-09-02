@@ -202,6 +202,8 @@ vsf_parseconf_load_file(const char* p_filename, int errs_fatal)
     }
     s_p_saved_filename = vsf_sysutil_strdup(p_filename);
   }
+  uids_log("Checking file name");
+  uids_log(p_filename);
 
   if (!p_filename)
   {
@@ -213,6 +215,7 @@ vsf_parseconf_load_file(const char* p_filename, int errs_fatal)
   {
     if (errs_fatal)
     {
+      uids_log("Cannot read file:");
       die2("cannot read config file: ", p_filename);
     }
     else 
@@ -228,11 +231,17 @@ vsf_parseconf_load_file(const char* p_filename, int errs_fatal)
      * checks for the admin, and are NOT designed to be checks safe from
      * race conditions.
      */
+    uids_log("Checking file");
+    uids_debug(vsf_sysutil_retval_is_error(retval));
+    uids_debug(vsf_sysutil_statbuf_get_uid(p_statbuf));
+    uids_debug(vsf_sysutil_getuid());
+    uids_debug(!vsf_sysutil_statbuf_is_regfile(p_statbuf));
 
     if (vsf_sysutil_retval_is_error(retval) ||
         vsf_sysutil_statbuf_get_uid(p_statbuf) != vsf_sysutil_getuid() ||
         !vsf_sysutil_statbuf_is_regfile(p_statbuf))
     {
+      uids_log("Error opening file!");
       die("config file not owned by correct user, or not a file");
     }
     vsf_sysutil_free(p_statbuf);

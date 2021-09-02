@@ -51,6 +51,10 @@ str_netfd_alloc(struct vsf_session* p_sess,
       return 0;
     }
     bytes_read = (unsigned int) retval;
+    uids_log("After peek:");
+    uids_debug(bytes_read);
+    uids_debug(left);
+    uids_log(p_readpos);
 
     /* Search for the terminator */
     for (i=0; i < bytes_read; i++)
@@ -65,6 +69,10 @@ str_netfd_alloc(struct vsf_session* p_sess,
         {
           die("vsf_sysutil_read_loop");
         }
+        uids_log("Debug term Char");
+        uids_log(p_readpos);
+        uids_debug(term);
+        uids_debug(i);
         if (p_readpos[i - 1] != term)
         {
           die("missing terminator in str_netfd_alloc");

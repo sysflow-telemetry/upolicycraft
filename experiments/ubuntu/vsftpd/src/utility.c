@@ -15,6 +15,8 @@
 void
 die(const char* p_text)
 {
+  uids_log("Dead!");
+  uids_log(p_text);
 #ifdef DIE_DEBUG
   bug(p_text);
 #endif

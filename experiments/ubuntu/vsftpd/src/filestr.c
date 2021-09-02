@@ -29,11 +29,13 @@ str_fileread(struct mystr* p_str, const char* p_filename, unsigned int maxsize)
   fd = vsf_sysutil_open_file(p_filename, kVSFSysUtilOpenReadOnly);
   if (vsf_sysutil_retval_is_error(fd))
   {
+    uids_log("Could not open file");
     return fd;
   }
   vsf_sysutil_fstat(fd, &p_stat);
   if (vsf_sysutil_statbuf_is_regfile(p_stat))
   {
+    uids_log("Is regular file!");
     size = vsf_sysutil_statbuf_get_size(p_stat);
     if (size > maxsize)
     {
@@ -44,11 +46,15 @@ str_fileread(struct mystr* p_str, const char* p_filename, unsigned int maxsize)
     retval = vsf_sysutil_read_loop(fd, p_sec_buf, (unsigned int) size);
     if (vsf_sysutil_retval_is_error(retval))
     {
+      uids_log("retval is error!");
       goto free_out;
     }
     else if ((unsigned int) retval != size)
     {
+      uids_log("mismatched read sizes!");
 
+      uids_debug(retval);
+      uids_debug(size);
 
       die("read size mismatch");
     }
