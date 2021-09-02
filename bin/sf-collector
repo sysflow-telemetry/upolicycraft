@@ -7,10 +7,10 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-# normal: sysflowtelemetry/sf-collector:edge
+# dev: sysflowtelemetry/sf-collector:edge
 # -e OUTPUT=/mnt/data/                       \
 
-# Real Service:
+# Real Deployment:
 # -e SOCK_FILE=/host/sock  \
 
 docker run -it --privileged --name sf-collector \

@@ -43,6 +43,7 @@
       ;; (puts fname)
       (let ((fd (uids-channel-open-network fname)))
         (uids-ocaml-add-socket fd)
+	(uids-ocaml-debug fd)
         fd)))
 
 (defun socketpair (domain type protocol socket-vector)
