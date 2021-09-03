@@ -23,6 +23,39 @@ module Channels = Uids_lisp_io
 
 let lisp_io_state = Uids_lisp_io.state
 
+(** Procedure Linkage Table (PLT) remover.
+    Remove all calls to the plt.
+*)
+module PLTRemover = struct
+
+  let sub = Term.map blk_t ~f:(fun b ->
+    Term.filter jmp_t b ~f:(fun j ->
+      match Jmp.kind j with
+        Call c ->
+          let label = c |> Call.target |> Label.to_string in
+          let prefix = label.[0] in
+          if phys_equal prefix '@' then
+            let func = String.drop_prefix label 1 in
+            if phys_equal func ".plt" then
+              false
+            else
+              true
+          else
+             true
+      | _ -> true
+    )
+  )
+
+  let prog = Term.map sub_t ~f:sub
+
+  let proj = Project.map_program ~f:prog
+end
+
+let remove_plt proj =
+  info "removing calls to the PLT!";
+  PLTRemover.proj proj
+
+
 module Redirection = struct
   type t = string * string
 
@@ -2090,7 +2123,7 @@ module Monitor (Machine : Primus.Machine.S) = struct
                       |> Yojson.Basic.from_string )
                     constraints)
              in
-             `Assoc [("node", `String name); ("constraints", constraints')] )
+             `Assoc [("node", `String name); ("constraints", constraints')])
       |> Seq.to_list
     in
     let edges'' =
