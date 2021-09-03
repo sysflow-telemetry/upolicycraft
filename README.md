@@ -65,10 +65,19 @@ Generating Effect Graphs
 ========================
 
 In order to produce an effect graph for a given binary, an analyst may place a
-binary produced by the built in build environment at a location that the micro
+binary produced by the provided build environment at a location that the micro
 execution framework may access. This will typically be a folder that contains a
 container entrypoint, a filesystem that represents the container image, and a
 corpus of test cases that uIDS can use to produce to micro-execute the binary.
+
+In order to build the micro execution framework, you can do the following:
+
+    docker build -f docker/Dockerfile.experiment -t sysflowtelemetry/uids:latest .
+
+If you would like a more stable but less recent build, you can check out the `v0.1.7`
+tag and run the following:
+
+    docker build -f docker/Dockerfile -t sysflowtelemetry/uids:latest .
 
 Micro-executing a given entrypoint will naturally require the program to
 utilize external library dependencies.  Instead of micro-executing these
@@ -88,6 +97,7 @@ the Primus Machine.  For example, the following LISP function computes the nth
 fibonacci number and stores the result into a pointer given as an argument.
 
     (defun fibonacci (n result)
+      (declare (visibility :public) (external "fibonacci"))
       (let ((i 0)
             (j 1))
            (while (> n 0)
@@ -96,6 +106,30 @@ fibonacci number and stores the result into a pointer given as an argument.
                 (set j (+ t j)))
               (decr n))
             (write-word int result i)))
+
+To make the micro execution framework aware of the fibonacci function so that
+any call to fibonacci in a binary resolves to the LISP implementation, we need
+to include  prototype of the function with the framework's application binary
+interface (ABI). To do so, we can add the following prototype to
+`uIDS/abi/posix.h`.
+
+    void fibonacci (int n, int *result);
+
+Once the prototype is added, we can add the LISP function to
+`uIDS/site-lisp/fib.lisp` so that the micro execution framework can take
+advantage of the added functionality.  To prevent having to build an image
+every time you adjust the ABI, you can mount your local `site-lisp` and `abi`
+to the correct locations when running the micro execution framework, as in the
+following:
+
+    docker run -v $PWD/uIDS/site-lisp:/home/opam/.opam/4.09/share/bap/primus/site-lisp -v $PWD/uIDS/abi/posix.h:/home/opam/.opam/4.09/share/bap/api/c/posix.h -v $PWD/uIDS/abi/core.asd:/home/opam/.opam/4.09/share/bap/primus/systems/core.asd --entrypoint /bin/bash -it sysflowtelemetry/uids:latest
+
+The `core.asd` file defines the different Primus systems micro execution can
+run.  Depending on the needs of your analysis, you can take advantage of the
+more interesting plugins found in Primus, such as those that assign random
+values to unmapped memory regions, individual registers, or external functions.
+For the purpose of generating effect graphs, we just require a stubbed micro
+execution framework with a bounded execution time.
 
 Implementing complex data-structures and algorithms in this environment may be
 too cumbersome, at which point it can be convenient to utilize the
@@ -143,11 +177,31 @@ invokes the `uids-ocaml-regex-match` function.
 
 Note that Primus' ability to introspect into the binary's machine architecture
 allows one to implement one ABI that may be reused across different instruction
-set architectures.
+set architectures. More info on how to use BAP can be found on the project's [website][1].
+
+Code that expands the functionality of the LISP interpreter may be embedded in
+the uids.ml file. Likewise with the LISP ABI, you may find it helpful to map
+the uids.ml file into the appropriate location in the micro execution image
+during development. When working inside a running container, you can run the
+micro execution framework by invoking the `entrypoint/uIDS` program, which aims
+to provide a convenient wrapper around the `bap` utility.
 
 Microservice-Aware Intrusion Detection System (MIDS)
 ====================================================
 
 Once an analyst obtains an effect graph for a given binary, an operator can
 provide the graph to a MIDS for detecting possible intrusions in running
-containers.
+containers. One can build the MIDS with the following:
+
+     docker build -f docker/Dockerfile.plugins -t sysflowtelemetry/mids:latest .
+
+and then demonstrate the MIDS working on a benign and compromised trace produced by a web server.
+
+     ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/benign/
+     ./bin/mids ../plugins/mids/resources/pipelines/nullhttpd.json ../plugins/mids/resources/traces/nullhttpd/malicious/
+
+The JSON models produced by the micro execution framework may be referred to by the "pipeline" file given to the MIDS, with some modfication needed depending on your container's operating environment and the filters used in your SysFlow
+deployment. More documentation on how to construct telemetry pipelines can be found in the [SysFlow project][2].
+
+[1]: http://binaryanalysisplatform.github.io
+[2]: https://sysflow.io
