@@ -1,21 +1,23 @@
-FROM ubuntu:16.04 as build
+FROM ubuntu:20.04 as build
 
 RUN apt update
-RUN apt -y install build-essential vim gdb python gcc-multilib python-pip
-RUN pip install defusedxml pyyaml
+RUN apt -y install build-essential
 RUN mkdir /cgc
 WORKDIR /cgc
 
 ADD . /cgc/
 
-WORKDIR /cgc/challenges/CADET_00001
+WORKDIR /cgc/
+RUN make -f /cgc/cgc.mk /cgc/libcgc.so
+
+WORKDIR /cgc/challenges/CADET_00055
 RUN make
-WORKDIR /cgc/challenges/CROMU_00007
+WORKDIR /cgc/challenges/CROMU_00058
 RUN make
-WORKDIR /cgc/challenges/CROMU_00046
+WORKDIR /cgc/challenges/CROMU_00047
 RUN make
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 RUN apt update
 RUN apt -y install xinetd
