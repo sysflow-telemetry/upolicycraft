@@ -242,7 +242,7 @@ str_equal(const struct mystr* p_str1, const struct mystr* p_str2)
 int
 str_equal_text(const struct mystr* p_str, const char* p_text)
 {
-  uids_log(p_text);
+  //uids_log(p_text);
   unsigned int cmplen = vsf_sysutil_strlen(p_text);
   return (str_equal_internal(p_str->p_buf, p_str->len, p_text, cmplen) == 0);
 }
@@ -591,9 +591,9 @@ str_contains_space(const struct mystr* p_str)
   {
     if (vsf_sysutil_isspace(p_str->p_buf[i]))
     {
-      uids_log("Found space!");
-      uids_log(p_str->p_buf);
-      uids_debug(i);
+      //uids_log("Found space!");
+      //uids_log(p_str->p_buf);
+      //uids_debug(i);
       return 1;
     }
   }
@@ -622,8 +622,8 @@ str_contains_unprintable(const struct mystr* p_str)
   {
     if (!vsf_sysutil_isprint(p_str->p_buf[i]))
     {
-      uids_log("Not printable!");
-      uids_debug(p_str->p_buf[i]);
+      //uids_log("Not printable!");
+      //uids_debug(p_str->p_buf[i]);
       return 1;
     }
   }

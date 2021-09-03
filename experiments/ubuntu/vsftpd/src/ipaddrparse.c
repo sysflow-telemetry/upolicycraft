@@ -83,13 +83,13 @@ vsf_sysutil_parse_uchar_string_sep(
     if ( (i < (items-1) && str_isempty(&s_rhs_sep_str)) ||
          (i == (items-1) && !str_isempty(&s_rhs_sep_str)))
     {
-      uids_log("Either rhs_sep_str is empty or last item is non-empty!");
+      //uids_log("Either rhs_sep_str is empty or last item is non-empty!");
       return 0;
     }
     this_number = str_atoi(&s_tmp_str);
     if (this_number < 0 || this_number > 255)
     {
-      uids_log("Invalid number in atoi!");
+      //uids_log("Invalid number in atoi!");
       return 0;
     }
     /* If this truncates from int to uchar, we don't care */
@@ -99,8 +99,8 @@ vsf_sysutil_parse_uchar_string_sep(
      */
     str_copy(&s_tmp_str, &s_rhs_sep_str);
   }
-  uids_log("Number of items:");
-  uids_debug(p_items);
+  //uids_log("Number of items:");
+  //uids_debug(p_items);
   return p_items;
 }
 

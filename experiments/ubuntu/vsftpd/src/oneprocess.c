@@ -120,11 +120,11 @@ vsf_one_process_login(struct vsf_session* p_sess,
   switch (login_result)
   {
     case kVSFLoginFail:
-      uids_log("Login failed!");
+      //uids_log("Login failed!");
       return;
       break;
     case kVSFLoginAnon:
-      uids_log("Login anonymous!");
+      //uids_log("Login anonymous!");
       p_sess->is_anonymous = 1;
       process_post_login(p_sess);
       break;
@@ -133,7 +133,7 @@ vsf_one_process_login(struct vsf_session* p_sess,
     case kVSFLoginReal:
       /* Fall through. */
     default:
-      uids_log("Bad State!");
+      //uids_log("Bad State!");
       bug("bad state in vsf_one_process_login");
       break;
   }

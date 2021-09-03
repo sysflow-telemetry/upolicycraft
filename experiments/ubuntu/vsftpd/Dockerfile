@@ -1,4 +1,4 @@
-FROM ubuntu:16.04 as build
+FROM ubuntu:20.04 as build
 
 RUN apt-get update
 RUN apt-get -y install build-essential
@@ -9,7 +9,7 @@ WORKDIR /vsftpd
 
 RUN make
 
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 RUN adduser ftp
 
