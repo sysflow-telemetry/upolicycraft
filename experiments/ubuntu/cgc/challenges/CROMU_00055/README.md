@@ -13,7 +13,7 @@ ShortDescription: A basic network file system
 
 ### Feature List
 
-The file system supports these functions: Login, Read, Write, WriteAppend, List, Delete, and Rename.  Reads can be requested with an offset allowing specific sections of a file to be retrieved.  
+The file system supports these functions: Login, Read, Write, WriteAppend, List, Delete, and Rename.  Reads can be requested with an offset allowing specific sections of a file to be retrieved.
 
 ## Vulnerability
 
