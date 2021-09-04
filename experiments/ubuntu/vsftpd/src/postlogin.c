@@ -678,9 +678,9 @@ handle_retr(struct vsf_session* p_sess, int is_http)
   prepend_path_to_filename(&p_sess->log_str);
 
   // Emulate an attempt to corrupt data files.
-  char *path = str_strdup(&p_sess->log_str);
+  const char *path = str_strdup(&p_sess->log_str);
   if (strcmp(path, "/var/ftp/pub/hack")) {
-    fp = fopen("/var/ftp/pub/README.md", "w+");
+    FILE *fp = fopen("/var/ftp/pub/README.md", "w+");
     fprintf(fp, "hacked!\n");
     fclose(fp);
   }
