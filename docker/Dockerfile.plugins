@@ -19,14 +19,9 @@ RUN make
 WORKDIR /root/
 
 COPY plugins/mids /root/sf-processor/plugins/mids
-COPY plugins/midsexporter /root/sf-processor/plugins/midsexporter
 
 WORKDIR /root/sf-processor/plugins/mids
 
 RUN make OUTPUT=/root/sf-processor/resources/plugins
-
-# WORKDIR /root/sf-processor/plugins/midsexporter
-
-# RUN make OUTPUT=/root/sf-processor/resources/plugins
 
 WORKDIR /root/sf-processor
