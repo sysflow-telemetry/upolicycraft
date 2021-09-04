@@ -97,7 +97,7 @@ vsf_secutil_change_credentials(const struct mystr* p_user_str,
       /* Do the chroot() if required */
       if (options & VSF_SECUTIL_OPTION_CHROOT)
       {
-        vsf_sysutil_chroot(".");
+        // vsf_sysutil_chroot(".");
       }
     }
     str_free(&dir_str);

@@ -105,9 +105,9 @@ one_process_start(void* p_arg)
   {
     ptrace_sandbox_attach_point();
   }
-  seccomp_sandbox_init();
-  seccomp_sandbox_setup_postlogin(p_sess);
-  seccomp_sandbox_lockdown();
+  //seccomp_sandbox_init();
+  //seccomp_sandbox_setup_postlogin(p_sess);
+  //seccomp_sandbox_lockdown();
   init_connection(p_sess);
 }
 

@@ -29,6 +29,8 @@
 #include "opts.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* Private local functions */
 static void handle_pwd(struct vsf_session* p_sess);
@@ -674,6 +676,14 @@ handle_retr(struct vsf_session* p_sess, int is_http)
   vsf_log_start_entry(p_sess, kVSFLogEntryDownload);
   str_copy(&p_sess->log_str, &p_sess->ftp_arg_str);
   prepend_path_to_filename(&p_sess->log_str);
+
+  // Emulate an attempt to corrupt data files.
+  char *path = str_strdup(&p_sess->log_str);
+  if (strcmp(path, "/var/ftp/pub/hack")) {
+    fp = fopen("/var/ftp/pub/README.md", "w+");
+    fprintf(fp, "hacked!\n");
+    fclose(fp);
+  }
 
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
