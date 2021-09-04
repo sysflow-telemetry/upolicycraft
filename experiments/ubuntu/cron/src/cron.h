@@ -130,7 +130,7 @@
 			if ( (DebugFlags & (mask) )  ) \
 				printf message;
 #else /* !DEBUGGING */
-# define Debug(mask, message) uids_log(message) \
+# define Debug(mask, message) (void)0;  \
 			;
 #endif /* DEBUGGING */
 

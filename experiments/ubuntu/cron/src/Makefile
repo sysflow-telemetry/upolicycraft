@@ -35,7 +35,7 @@
 #	SHELL is for the 'augumented make' systems where 'make' imports
 #	SHELL from the environment and then uses it to run its commands.
 #	if your environment SHELL variable is /bin/csh, make goes real
-#	slow and sometimes does the wrong thing.  
+#	slow and sometimes does the wrong thing.
 #
 #	this package needs the 'bitstring macros' library, which is
 #	available from me or from the comp.sources.unix archive.  if you
@@ -72,7 +72,7 @@ LINTFLAGS	=	-hbxa $(INCLUDE) $(COMPAT) $(DEBUGGING)
 #CC		=	vcc
 #<<manifest defines>>
 # Allow override from command line
-DEBUG_DEFS  ?= -DDEBUGGING=0   
+DEBUG_DEFS  ?= -DDEBUGGING=0
 # The -DUSE_SIGCHLD is needed for the Alpha port
 DEFS = -DDEBIAN -DUSE_SIGCHLD $(DEBUG_DEFS) $(PAM_DEFS) $(SELINUX_DEFS) $(AUDIT_DEFS)
 #(SGI IRIX systems need this)
@@ -89,7 +89,10 @@ INSTALL = install -s
 SHELL		=	/bin/sh
 CFLAGS		+=	$(INCLUDE) $(COMPAT) $(DEFS)
 
-LDFLAGS         +=      -L /root/uids -l:uids.so
+LDFLAGS         +=
+
+# Add to LDFLAGS
+# -L /root/uids -l:uids.so
 
 INFOS		=	README CHANGES FEATURES INSTALL CONVERSION THANKS MAIL
 MANPAGES	=	bitstring.3 crontab.5 crontab.1 cron.8 putman.sh

@@ -109,7 +109,7 @@ main(argc, argv)
        /* Except that "US-ASCII" is preferred to "ANSI_x3.4-1968" in MIME,
         * even though "ANSI_x3.4-1968" is the official charset name. */
 
-       uids_log("Before copy nl_langinfo");
+       //uids_log("Before copy nl_langinfo");
 
        if ( ( cs = nl_langinfo( CODESET ) ) != 0L &&
                strcmp(cs, "ANSI_x3.4-1968") != 0 )
@@ -117,7 +117,7 @@ main(argc, argv)
        else
            strcpy( cron_default_mail_charset, "US-ASCII" );
 
-       uids_log("After copy nl_langinfo");
+       //uids_log("After copy nl_langinfo");
 
 	/* if there are no debug flags turned on, fork as a daemon should.
 	 */
@@ -173,7 +173,7 @@ main(argc, argv)
 	 */
 
 	while (TRUE) {
-                uids_log("At the top of the loop.");
+                //uids_log("At the top of the loop.");
 		time_min timeDiff;
 		int wakeupKind;
 
@@ -197,8 +197,8 @@ main(argc, argv)
 		Debug(DSCH, ("[%d] pulse: %d = %d - %d\n",
             	    getpid(), timeDiff, timeRunning, virtualTime));
 
-                uids_log("timeDiff:");
-                uids_debug(timeDiff);
+                //uids_log("timeDiff:");
+                //uids_debug(timeDiff);
 
 		/* shortcut for the most common case */
 		if (timeDiff == 1) {
@@ -215,8 +215,8 @@ main(argc, argv)
 			if (timeDiff > (3*MINUTE_COUNT))
 				wakeupKind = 3;
 
-                        uids_log("WakeupKind");
-                        uids_debug(wakeupKind);
+                        //uids_log("WakeupKind");
+                        //uids_debug(wakeupKind);
 
 			switch (wakeupKind) {
 			case 1:
@@ -359,12 +359,12 @@ find_jobs(vtime, db, doWild, doNonWild)
 	month = tm->tm_mon +1 /* 0..11 -> 1..12 */ -FIRST_MONTH;
 	dow = tm->tm_wday -FIRST_DOW;
 
-        uids_log("Current time:");
-        uids_debug(tm->tm_min);
-        uids_debug(tm->tm_hour);
-        uids_debug(tm->tm_mday);
-        uids_debug(tm->tm_mon);
-        uids_debug(tm->tm_wday);
+        //uids_log("Current time:");
+        //uids_debug(tm->tm_min);
+        //uids_debug(tm->tm_hour);
+        //uids_debug(tm->tm_mday);
+        //uids_debug(tm->tm_mon);
+        //uids_debug(tm->tm_wday);
 
 	Debug(DSCH, ("[%d] tick(%d,%d,%d,%d,%d) %s %s\n",
 		getpid(), minute, hour, dom, month, dow,
@@ -381,27 +381,27 @@ find_jobs(vtime, db, doWild, doNonWild)
 			Debug(DSCH|DEXT, ("user [%s:%d:%d:...] cmd=\"%s\"\n",
 			    env_get("LOGNAME", e->envp),
 			    e->uid, e->gid, e->cmd))
-                        uids_log("Thinking of adding job:");
-                        uids_log(e->cmd);
-                        uids_debug(e);
-                        uids_debug(u);
+                        //uids_log("Thinking of adding job:");
+                        //uids_log(e->cmd);
+                        //uids_debug(e);
+                        //uids_debug(u);
 
-                        uids_log("minute");
-                        uids_debug(minute);
-                        uids_log("hour");
-                        uids_debug(hour);
-                        uids_log("month");
-                        uids_debug(month);
+                        //uids_log("minute");
+                        //uids_debug(minute);
+                        //uids_log("hour");
+                        //uids_debug(hour);
+                        //uids_log("month");
+                        //uids_debug(month);
 
                         int h = bit_test(e->minute, minute) && bit_test(e->hour, hour) && bit_test(e->month, month);
 
                         int f = ( ((e->flags & DOM_STAR) || (e->flags & DOW_STAR))
 			      ? (bit_test(e->dow,dow) && bit_test(e->dom,dom))
 			      : (bit_test(e->dow,dow) || bit_test(e->dom,dom)));
-                        uids_log("dow");
+                        //uids_log("dow");
                         int g = ((doNonWild && !(e->flags & (MIN_STAR|HR_STAR)))
 				    || (doWild && (e->flags & (MIN_STAR|HR_STAR))));
-                        uids_log("flags");
+                        //uids_log("flags");
                         if (h && f) {
                             if (g) {
                                 job_add(e, u);
@@ -415,12 +415,12 @@ find_jobs(vtime, db, doWild, doNonWild)
 			    ( ((e->flags & DOM_STAR) || (e->flags & DOW_STAR))
 			      ? (bit_test(e->dow,dow) && bit_test(e->dom,dom))
 			      : (bit_test(e->dow,dow) || bit_test(e->dom,dom)))) {
-                                uids_log("Inside if:");
+                                //uids_log("Inside if:");
 				if((doNonWild && !(e->flags & (MIN_STAR|HR_STAR)))
 				    || (doWild && (e->flags & (MIN_STAR|HR_STAR))))
 					job_add(e, u);
 			} */
-                        uids_log("After test!");
+                        //uids_log("After test!");
 		}
 	}
 }
@@ -526,14 +526,14 @@ parse_args(argc, argv)
 	stay_foreground = 0;
         lsbsysinit_mode = 0;
 
-        uids_log("In parse args");
-        uids_debug(argc);
-        uids_log(argv[0]);
-        uids_log(argv[1]);
+        //uids_log("In parse args");
+        //uids_debug(argc);
+        //uids_log(argv[0]);
+        //uids_log(argv[1]);
 
 	while (EOF != (argch = getopt(argc, argv, "lfx:L:"))) {
-                uids_log("In getopt:");
-                uids_debug(argch);
+                //uids_log("In getopt:");
+                //uids_debug(argch);
 
 		switch (argch) {
 		default:

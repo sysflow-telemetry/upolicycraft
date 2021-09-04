@@ -1,6 +1,6 @@
 FROM ubuntu:16.04 as build
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get -y install build-essential
 
 COPY src /cron

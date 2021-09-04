@@ -183,16 +183,16 @@ load_database(old_db)
 
 #ifdef DEBIAN
 
-        uids_log("Opening syscrondir");
-        uids_log(SYSCRONDIR);
+        //uids_log("Opening syscrondir");
+        //uids_log(SYSCRONDIR);
 
 	/* Read all the package crontabs. */
 	if (!(dir = opendir(SYSCRONDIR))) {
 		log_it("CRON", getpid(), "OPENDIR FAILED", SYSCRONDIR);
 	}
 
-        uids_log("After opendir!");
-        uids_debug(dir);
+        //uids_log("After opendir!");
+        //uids_debug(dir);
 
 	while (dir != NULL && NULL != (dp = readdir(dir))) {
 		char	fname[MAXNAMLEN+1],
@@ -207,8 +207,8 @@ load_database(old_db)
 		if (dp->d_name[0] == '.')
 			continue;
 
-                uids_log("Read file:");
-                uids_log(dp->d_name);
+                //uids_log("Read file:");
+                //uids_log(dp->d_name);
 
 		/* skipfile names with letters outside the set
 		 * [A-Za-z0-9_-], like run-parts.
@@ -216,7 +216,7 @@ load_database(old_db)
 		if (!valid_name(dp->d_name))
 		  continue;
 
-                uids_log("Valid Name:");
+                //uids_log("Valid Name:");
 
 		/* Generate the "fname" */
 		(void) strcpy(fname,"*system*");
@@ -352,7 +352,7 @@ process_crontab(uname, fname, tabname, statbuf, new_db, old_db)
 #else
 	if (strcmp(fname, "*system*") && !(pw = getpwnam(uname))) {
 #endif
-                uids_log("Inside no passwd entry");
+                //uids_log("Inside no passwd entry");
 		/* file doesn't have a user in passwd file.
 		 */
 		if (strncmp(fname, "tmp.", 4)) {
@@ -376,7 +376,7 @@ process_crontab(uname, fname, tabname, statbuf, new_db, old_db)
 		log_it(fname, getpid(), "FSTAT FAILED", tabname);
 		goto next_crontab;
             }
-            uids_log("After fstat");
+            //uids_log("After fstat");
             /* Check to make sure that the crontab is owned by the correct user
                (or root) */
             if (statbuf->st_uid != pw->pw_uid && statbuf->st_uid != ROOT_UID) {

@@ -99,7 +99,7 @@ load_entry(file, error_func, pw, envp)
 
 	ch = get_char(file);
 	if (ch == EOF) {
-                uids_log("load_entry returning null!");
+                //uids_log("load_entry returning null!");
 		return NULL;
         }
 	/* ch is now the first useful character of a useful line.
@@ -107,8 +107,8 @@ load_entry(file, error_func, pw, envp)
 	 * of a list of minutes.
 	 */
 
-        uids_log("First character");
-        uids_debug(ch);
+        //uids_log("First character");
+        //uids_debug(ch);
 
 	e = (entry *) calloc(sizeof(entry), sizeof(char));
 
@@ -244,8 +244,8 @@ load_entry(file, error_func, pw, envp)
 		ch = get_string(username, MAX_COMMAND, file, " \t");
 
 
-                uids_log("username:");
-                uids_log(username);
+                //uids_log("username:");
+                //uids_log(username);
 
 		Debug(DPARS, ("load_entry()...got %s\n",username))
 		if (ch == EOF) {
@@ -357,8 +357,8 @@ load_entry(file, error_func, pw, envp)
 	if (e->cmd)
 		free(e->cmd);
 	free(e);
-        uids_log("Error Code:");
-        uids_debug(ecode);
+        //uids_log("Error Code:");
+        //uids_debug(ecode);
 	if (ecode != e_none && error_func)
 		(*error_func)(ecodes[(int)ecode]);
 	while (ch != EOF && ch != '\n')
@@ -526,11 +526,11 @@ get_number(numptr, low, names, ch, file)
 	pc = temp;
 	len = 0;
 	all_digits = TRUE;
-        uids_log("Fetching number");
-        uids_debug(ch);
+        //uids_log("Fetching number");
+        //uids_debug(ch);
 	while (isalnum(ch)) {
-                uids_log("The following char is alnum");
-                uids_debug(ch);
+                //uids_log("The following char is alnum");
+                //uids_debug(ch);
 		if (++len >= MAX_TEMPSTR)
 			return EOF;
 
@@ -540,11 +540,11 @@ get_number(numptr, low, names, ch, file)
 			all_digits = FALSE;
 
 		ch = get_char(file);
-                uids_debug(ch);
+                //uids_debug(ch);
 	}
 	*pc = '\0';
 
-        uids_log("  done!");
+        //uids_log("  done!");
 
         if (len == 0) {
             return EOF;

