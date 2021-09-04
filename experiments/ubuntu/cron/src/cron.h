@@ -282,7 +282,7 @@ entry		*load_entry __P((FILE *, void (*)(),
 FILE		*cron_popen __P((char *, char *, entry *));
 
 
-extern int __llvm_profile_write_file(void);
+// extern int __llvm_profile_write_file(void);
 
 				/* in the C tradition, we only create
 				 * variables for the main program, just
