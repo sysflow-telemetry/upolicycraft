@@ -1,6 +1,6 @@
-FROM ubuntu:20.04 as build
+FROM ubuntu:16.04 as build
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get -y install build-essential
 
 COPY src /vsftpd
@@ -9,7 +9,7 @@ WORKDIR /vsftpd
 
 RUN make
 
-FROM ubuntu:20.04
+FROM ubuntu:16.04
 
 RUN adduser ftp
 

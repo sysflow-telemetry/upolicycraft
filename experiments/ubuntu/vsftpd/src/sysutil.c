@@ -248,11 +248,12 @@ void dump_measurements(int signal) {
 
 }
 
+/*
 void
 vsf_sysutil_install_coverage_sighandler()
 {
   vsf_sysutil_set_sighandler(SIGUSR1, dump_measurements);
-}
+} */
 
 void
 vsf_sysutil_install_null_sighandler(const enum EVSFSysUtilSignal sig)

@@ -146,7 +146,9 @@ vsf_standalone_main(void)
         listen_sock, p_accept_addr, 0);
     if (vsf_sysutil_retval_is_error(new_client_sock))
     {
-      break;
+      // uIDS
+      // break; use break for modeling so that micro execution will end.
+      continue; // use continue when running so the process runs forever.
     }
     ++s_children;
     child_info.num_children = s_children;

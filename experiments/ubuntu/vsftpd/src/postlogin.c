@@ -674,7 +674,7 @@ handle_retr(struct vsf_session* p_sess, int is_http)
   vsf_log_start_entry(p_sess, kVSFLogEntryDownload);
   str_copy(&p_sess->log_str, &p_sess->ftp_arg_str);
   prepend_path_to_filename(&p_sess->log_str);
-  fprintf(stderr, "Path %s:\n", str_strdup(&p_sess->log_str));
+
   if (!vsf_access_check_file(&p_sess->ftp_arg_str))
   {
     vsf_cmdio_write(p_sess, FTP_NOPERM, "Permission denied4.");

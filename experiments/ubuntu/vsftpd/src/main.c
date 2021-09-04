@@ -157,8 +157,6 @@ main(int argc, const char* argv[])
     ssl_init(&the_session);
   }
 
-  vsf_sysutil_install_coverage_sighandler();
-
   if (tunable_listen || tunable_listen_ipv6)
   {
     //uids_log("Entering standalone mode!\n");
@@ -270,7 +268,6 @@ main(int argc, const char* argv[])
   /* NOTREACHED */
   //bug("should not get here: main");
   //return 1;
-  puts("Ending!\n");
   return 0;
 }
 
