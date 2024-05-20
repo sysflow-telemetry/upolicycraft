@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker run -it -v $PWD/output:/tmp/ --entrypoint /upc/tests/echo/model.sh -w /upc/bap-plugin sysflowtelemetry/uPolicyCraft

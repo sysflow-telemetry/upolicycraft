@@ -1,0 +1,12 @@
+images/*
+layer/*
+cache/*
+notes/*
+plugin/Makefile
+plugin/_build
+plugin/configure
+plugin/plugins
+plugin/setup.*
+layers/*
+*.o
+*.so

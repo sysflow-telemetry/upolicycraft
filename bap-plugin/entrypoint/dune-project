@@ -1,0 +1,26 @@
+(lang dune 3.2)
+
+(name entrypoint)
+
+(generate_opam_files true)
+
+(source
+ (github username/reponame))
+
+(authors "William Blair")
+
+(maintainers "William Blair")
+
+(license Apache-2.0)
+
+(documentation https://github.com/sysflow-telemetry/upolicycraft)
+
+(package
+ (name entrypoint)
+ (synopsis "An entrypoint for running uPolicyCraft.")
+ (description "A wrapper for executing uPolicyCraft on top of BAP.")
+ (depends ocaml dune)
+ (tags
+  ("stateful system call specialization")))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

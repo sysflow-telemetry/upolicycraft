@@ -1,0 +1,69 @@
+{
+  "image": "sysflowtelemetry/echo:latest",
+  "imageId": "sha256:c23c2a4f2b63d56c5eb24402b6932e1cbf1e45bb6f78ca58d56bf82fa396f4e7",
+  "modelVersion": "v0.0.2",
+  "initial": "%00001333",
+  "nodes": [
+    "%000006d7", "%0000072e", "%0000077e", "%0000088c", "%00000b18",
+    "%00000b82", "%00000c3a", "%00000c71", "%00001333", "%00001334",
+    "%00001335"
+  ],
+  "constraints": [
+    {
+      "node": "%000006d7",
+      "constraints": { "sf.file.path": [ "/echo/echo.conf" ] }
+    },
+    {
+      "node": "%0000072e",
+      "constraints": { "sf.file.path": [ "/echo/echo.conf" ] }
+    },
+    {
+      "node": "%0000077e",
+      "constraints": { "sf.file.path": [ "/echo/echo.conf" ] }
+    },
+    {
+      "node": "%0000088c",
+      "constraints": { "sf.file.path": [ "/dev/pts/0" ] }
+    },
+    { "node": "%00000b18", "constraints": { "sf.net.dport": [ "8080" ] } },
+    { "node": "%00000b82", "constraints": { "sf.net.dport": [ "8080" ] } },
+    { "node": "%00000c3a", "constraints": { "sf.net.dport": [ "8080" ] } },
+    { "node": "%00000c71", "constraints": { "sf.net.dport": [ "8080" ] } },
+    {
+      "node": "%00001333",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/bin/bash" ],
+        "sf.proc.args": [ "/echo/echo.sh" ]
+      }
+    },
+    {
+      "node": "%00001334",
+      "constraints": {
+        "sf.proc.exe": [ "/usr/bin/bash" ],
+        "sf.proc.args": [ "/echo/echo.sh" ],
+        "sf.pproc.pid": [ "%pred.sf.proc.pid" ]
+      }
+    },
+    {
+      "node": "%00001335",
+      "constraints": {
+        "sf.proc.exe": [ "/echo/echo" ],
+        "sf.proc.args": [ "./echo.conf" ]
+      }
+    }
+  ],
+  "edges": [
+    { "src": "%000006d7", "dst": "%0000072e", "label": "READ" },
+    { "src": "%0000072e", "dst": "%0000072e", "label": "READ" },
+    { "src": "%0000072e", "dst": "%0000077e", "label": "CLOSE" },
+    { "src": "%0000077e", "dst": "%0000088c", "label": "WRITE" },
+    { "src": "%0000088c", "dst": "%00000b18", "label": "ACCEPT" },
+    { "src": "%00000b18", "dst": "%00000b82", "label": "RECV" },
+    { "src": "%00000b82", "dst": "%00000c3a", "label": "RECV" },
+    { "src": "%00000c3a", "dst": "%00000c71", "label": "SEND" },
+    { "src": "%00000c71", "dst": "%00000b82", "label": "RECV" },
+    { "src": "%00001333", "dst": "%00001334", "label": "CLONE" },
+    { "src": "%00001334", "dst": "%00001335", "label": "EXEC" },
+    { "src": "%00001335", "dst": "%000006d7", "label": "OPEN" }
+  ]
+}

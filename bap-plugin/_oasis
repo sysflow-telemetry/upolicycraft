@@ -1,0 +1,21 @@
+OASISFormat: 0.4
+Name:        bap
+Version:     0.1
+Synopsis:    uPolicyCraft
+Authors:     William Blair
+License:     Apache
+Copyrights:  (C) 2024
+Plugins:     META (0.4), DevFiles (0.4)
+BuildTools: ocamlbuild
+
+BuildDepends: ppx_jane, core_kernel
+
+Library primus_upolicycraft_plugin
+  Path: .
+  FindlibName: bap-plugin-primus_upolicycraft
+  CompiledObject: best
+  BuildDepends: bap-primus, bare, yojson
+  XMETADescription: Stateful system call specialization for microservices.
+  Modules: Upolicycraft, Upolicycraft_lisp_io
+  XMETAExtraLines: tags="primus, upolicycraft"
+

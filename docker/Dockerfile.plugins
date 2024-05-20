@@ -1,0 +1,27 @@
+FROM ubuntu:20.04 AS build
+
+RUN apt update
+RUN DEBIAN_FRONTEND="noninteractive" apt install -y software-properties-common wget git build-essential
+
+RUN wget -c https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz -O - | tar -xz -C /usr/local
+
+ENV PATH="${PATH}:/usr/local/go/bin/"
+
+WORKDIR /root
+
+RUN git clone --depth 1 --branch 0.3.0-rc2 https://github.com/sysflow-telemetry/sf-processor.git /root/sf-processor
+RUN sed -i 's/v0.0.0-20210709164444-484da05c2a85/v0.0.0-20210723173640-2a427a55a202/' sf-processor/driver/go.mod
+RUN sed -i 's/replace github.com\/sysflow-telemetry/\/\/replace github.com\/sysflow-telemetry/' sf-processor/driver/go.mod
+
+WORKDIR /root/sf-processor
+RUN make
+
+WORKDIR /root/
+
+COPY sysflow-plugin/mpm /root/sf-processor/plugins/mpm
+
+WORKDIR /root/sf-processor/plugins/mpm
+
+RUN make OUTPUT=/root/sf-processor/resources/plugins
+
+WORKDIR /root/sf-processor

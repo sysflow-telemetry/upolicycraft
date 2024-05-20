@@ -1,0 +1,31 @@
+{
+   "_comment": "Pipeline for monitoring policy deviations on a simple echo server.",
+   "pipeline": [
+     {
+      "processor": "sysflowreader",
+      "handler": "flattener",
+      "in": "sysflow sysflowchan",
+      "out": "flat flattenerchan"
+     },
+     {
+      "processor": "mpm",
+      "model": "../plugins/mpm/resources/models/echo.json",
+      "in": "flat flattenerchan",
+      "out": "evt eventchan"
+     },
+     {
+      "processor": "midsexporter",
+      "in": "evt eventchan",
+      "export": "terminal",
+      "type": "alert",
+      "format": "json",
+      "flat": "false",
+      "path": "./export.out",
+      "proto": "tcp",
+      "tag": "sysflow",
+      "host": "localhost",
+      "port": "514",
+      "buffer": "0"
+     }
+  ]
+}
