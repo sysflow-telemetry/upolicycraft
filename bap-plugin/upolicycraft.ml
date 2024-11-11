@@ -54,10 +54,11 @@ end
 
 module Param = struct
   open Config;;
+  (**
   manpage [
     `S "DESCRIPTION";
     `P "Derive a process model for a binary."
-  ]
+  ] *)
 
   let model = flag "model"
       ~doc:
@@ -2367,7 +2368,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           let opt = (v |> Value.to_word |> Bitvector.to_int) in
           match opt with
             Ok fd ->
-              let _ = Hashtbl.set s.files ~key:fd ~data:file in
+              let () = Hashtbl.set s.files ~key:fd ~data:file in
               {s with file_opened = None}
           | Error _ -> s)
 
@@ -2450,7 +2451,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
     let model' = Yojson.Basic.pretty_to_string model in
     let jsonfile_path = Printf.sprintf "%s/%s.json" (get model_dir) (get model_name) in
     let oc = Out_channel.create jsonfile_path in
-    let _ = Printf.fprintf oc "%s" model' in
+    let () = Printf.fprintf oc "%s" model' in
     Out_channel.close oc
 
   (** Doesn't Core already provide this? *)
@@ -2577,7 +2578,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       Machine.args >>= fun args ->
       Machine.Global.get state >>= fun state' ->
       let {root_tid;nodes;graph;functions;written_vars;visited_blks} = state' in
-      let _ = Graphlib.to_dot (module EffectGraph)
+      let () = Graphlib.to_dot (module EffectGraph)
         ~node_attrs:(fun tid ->
           let context = try Hashtbl.find_exn functions tid
             with Not_found_s s ->
@@ -2594,7 +2595,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
           [`Fontsize 8; `Label label;])
         ~channel:dotfile graph in
       let concrete_vars = (Var.Set.length written_vars) in
-      let _ = export_model root_tid nodes functions graph concrete_vars symbolic_vars (Blk.Set.length visited_blks) basic_blocks in
+      let () = export_model root_tid nodes functions graph concrete_vars symbolic_vars (Blk.Set.length visited_blks) basic_blocks in
       Machine.return()
     else
       Machine.Local.get state >>= fun state' ->
@@ -2694,8 +2695,7 @@ module Monitor(Machine : Primus.Machine.S) = struct
       let {callstack;symbols} = s in
       let name' = match addr_of_sub_name name with
                     None -> name
-                  | Some x ->
-                    x in
+                  | Some x -> Printf.sprintf "0x%x" x in
       {s with callstack=name'::callstack}
     )
 
