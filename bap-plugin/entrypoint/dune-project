@@ -19,7 +19,7 @@
  (name entrypoint)
  (synopsis "An entrypoint for running uPolicyCraft.")
  (description "A wrapper for executing uPolicyCraft on top of BAP.")
- (depends ocaml dune)
+ (depends ocaml core core_unix dune)
  (tags
   ("stateful system call specialization")))
 

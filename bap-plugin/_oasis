@@ -4,11 +4,11 @@ Version:     0.1
 Synopsis:    uPolicyCraft
 Authors:     William Blair
 License:     Apache
-Copyrights:  (C) 2024
+Copyrights:  (C) 2024 William Blair
 Plugins:     META (0.4), DevFiles (0.4)
 BuildTools: ocamlbuild
 
-BuildDepends: ppx_jane, core_kernel
+BuildDepends: ppx_jane, core, core_kernel
 
 Library primus_upolicycraft_plugin
   Path: .

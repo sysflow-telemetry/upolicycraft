@@ -1,4 +1,4 @@
 (executable
-  (name entrypoint)
+  (name upc)
   (libraries core core_unix core_unix.sys_unix core_unix.command_unix shexp.process yojson)
   (preprocess (pps ppx_jane)))

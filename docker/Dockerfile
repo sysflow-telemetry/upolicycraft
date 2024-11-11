@@ -1,4 +1,4 @@
-FROM binaryanalysisplatform/bap@sha256:59eb9b54d386439d969fcb257b3fc5d3132e9b1bf230001bddcb8fe78fda565c
+FROM binaryanalysisplatform/bap@sha256:f614e5295ef45a78670d1298343520a614bebe8792d7e195920b19c3277d0069
 
 USER root
 
@@ -11,9 +11,7 @@ RUN echo "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe" >> /etc/apt/
 RUN apt update
 RUN apt -y --no-install-recommends install build-essential vim python python3-pip tzdata pkg-config libgmp-dev zlib1g-dev
 
-COPY build /build
-
-ENV PATH=/build/bin:$PATH
+COPY debug /debug
 
 WORKDIR /debug
 
@@ -26,7 +24,7 @@ USER opam
 RUN opam config exec -- opam install core core_kernel shexp yojson camlp4
 
 COPY --chown=opam bap-plugin/abi/posix.h /home/opam/.opam/4.09/share/bap/api/c/posix.h
-COPY --chown=opam bap-plugin/systems/core.asd /home/opam/.opam/4.09/share/bap/primus/systems/core.asd
+COPY --chown=opam bap-plugin/abi/core.asd /home/opam/.opam/4.09/share/bap/primus/systems/core.asd
 COPY --chown=opam bap-plugin/site-lisp /home/opam/.opam/4.09/share/bap/primus/site-lisp
 
 COPY --chown=opam . /upc
@@ -42,18 +40,30 @@ ENV OPAM_SWITCH_PREFIX=/home/opam/.opam/4.09
 ENV PATH=/home/opam/.opam/4.09/bin:/home/opam/.opam/4.09/bin:/uIDS/uIDS/bin/:/build/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ENV PKG_CONFIG_PATH=/home/opam/.opam/4.09/lib/pkgconfig
 
+# Build the BAP Plugin
+
 RUN opam config exec -- oasis setup -setup-update dynamic
 RUN opam config exec -- make
 RUN opam config exec -- make install
 RUN opam config exec -- ./bin/build-plugin.sh
 
+# Build the entrypoint for invoking BAP + the plugin
+
 WORKDIR /upc/bap-plugin/entrypoint
+
+# Look up how to install dependencies via dune.
+RUN opam install core_unix
 
 RUN opam config exec -- make
 
 WORKDIR /upc/bap-plugin/
 
-RUN cp /upc/bap-plugin/entrypoint/upc /upc/bap-plugin/bin/upc
+USER root
+
+RUN cp /upc/bap-plugin/entrypoint/_build/default/upc.exe  /upc/bap-plugin/bin/upc
+RUN chown opam:opam /upc/bap-plugin/bin/upc
+
+USER opam
 
 ENV PATH="/upc/bap-plugin/bin/:${PATH}"
 

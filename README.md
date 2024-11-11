@@ -83,7 +83,7 @@ can use to micro-execute the entrypoint.
 
 In order to build the micro execution modeling framework, you can do the following:
 
-    docker build -f docker/Dockerfile -t sysflowtelemetry/uPolicyCraft:latest .
+    docker build -f docker/Dockerfile -t sysflowtelemetry/upolicycraft:latest .
 
 Micro-executing a given entrypoint will naturally require the program to
 utilize external library dependencies.  Instead of micro-executing these
